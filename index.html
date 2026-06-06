@@ -140,18 +140,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -168,6 +168,158 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/06/%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-TypeScript%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%B8%B8%E8%A7%81%E9%99%B7%E9%98%B12026%E7%89%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/06/%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-TypeScript%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%B8%B8%E8%A7%81%E9%99%B7%E9%98%B12026%E7%89%88/" class="post-title-link" itemprop="url">前端面试题：TypeScript高级类型与常见陷阱（2026版）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-06 23:00:00 / 修改时间：22:58:56" itemprop="dateCreated datePublished" datetime="2026-06-06T23:00:00+08:00">2026-06-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <blockquote>
+<p>本文整理了 2026 年 TypeScript 面试中高频出现的高级类型、常见陷阱以及一个经典线上 bug 的排查过程。每题附参考来源，适合中高级前端准备面试。</p>
+</blockquote>
+<h2 id="0x00-面试题"><a href="#0x00-面试题" class="headerlink" title="0x00 面试题"></a>0x00 面试题</h2><h3 id="1-any、unknown、never-的区别是什么？什么时候用哪个？"><a href="#1-any、unknown、never-的区别是什么？什么时候用哪个？" class="headerlink" title="1. any、unknown、never 的区别是什么？什么时候用哪个？"></a>1. <code>any</code>、<code>unknown</code>、<code>never</code> 的区别是什么？什么时候用哪个？</h3><ul>
+<li><code>any</code>：关闭类型检查，兼容所有类型，也会污染后续推导。适合快速原型或渐进迁移时过渡使用。</li>
+<li><code>unknown</code>：安全的 “任意类型”。不能直接操作，必须先做类型收窄（typeof &#x2F; instanceof &#x2F; 自定义 type guard）才能使用。</li>
+<li><code>never</code>：表示永远不会发生的类型。常用于抛出异常的函数返回值、switch-case 中穷尽性检查。</li>
+</ul>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// unknown 需要类型收窄</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">process</span>(<span class="params"><span class="attr">val</span>: <span class="built_in">unknown</span></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> val === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(val.<span class="title function_">toUpperCase</span>()); <span class="comment">// OK</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// never 做穷尽性检查</span></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Shape</span> = <span class="string">&#x27;circle&#x27;</span> | <span class="string">&#x27;square&#x27;</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">area</span>(<span class="params"><span class="attr">s</span>: <span class="title class_">Shape</span></span>) &#123;</span><br><span class="line">  <span class="keyword">switch</span> (s) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&#x27;circle&#x27;</span>: <span class="keyword">return</span> <span class="title class_">Math</span>.<span class="property">PI</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&#x27;square&#x27;</span>: <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="attr">default</span>:</span><br><span class="line">      <span class="keyword">const</span> <span class="attr">_exhaustive</span>: <span class="built_in">never</span> = s; <span class="comment">// 如果漏了分支会编译报错</span></span><br><span class="line">      <span class="keyword">return</span> _exhaustive;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考：TypeScript 官方文档 — Basic Types &#x2F; Narrowing</p>
+<h3 id="2-type-和-interface-的核心差异？"><a href="#2-type-和-interface-的核心差异？" class="headerlink" title="2. type 和 interface 的核心差异？"></a>2. <code>type</code> 和 <code>interface</code> 的核心差异？</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>interface</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>声明合并</td>
+<td>同名 interface 自动合并</td>
+<td>不允许</td>
+</tr>
+<tr>
+<td>扩展方式</td>
+<td>extends</td>
+<td>&amp; 交叉类型</td>
+</tr>
+<tr>
+<td>联合类型</td>
+<td>不支持</td>
+<td>支持 <code>type A = B | C</code></td>
+</tr>
+<tr>
+<td>元组&#x2F;映射类型</td>
+<td>不直接支持</td>
+<td>支持</td>
+</tr>
+</tbody></table>
+<p><strong>选择策略</strong>：描述对象形状用 <code>interface</code>（可扩展性更好），需要联合类型、元组、映射类型用 <code>type</code>。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// interface 声明合并（适合扩展第三方库）</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Window</span> &#123;</span><br><span class="line">  <span class="attr">myLib</span>: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Window</span> &#123;</span><br><span class="line">  <span class="attr">myLib2</span>: <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Window 现在同时有 myLib 和 myLib2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// type 联合类型（interface 做不到）</span></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Status</span> = <span class="string">&#x27;idle&#x27;</span> | <span class="string">&#x27;loading&#x27;</span> | <span class="string">&#x27;success&#x27;</span> | <span class="string">&#x27;error&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>参考：TypeScript Handbook — Interfaces vs Types</p>
+<h3 id="3-TypeScript-的协变与逆变，以及-strictFunctionTypes-的影响"><a href="#3-TypeScript-的协变与逆变，以及-strictFunctionTypes-的影响" class="headerlink" title="3. TypeScript 的协变与逆变，以及 --strictFunctionTypes 的影响"></a>3. TypeScript 的协变与逆变，以及 <code>--strictFunctionTypes</code> 的影响</h3><p>这是一个常被问到但很多人答不上的高阶题。</p>
+<ul>
+<li><strong>协变</strong>：子类型可以赋值给父类型。返回值是协变的。</li>
+<li><strong>逆变</strong>：父类型可以赋值给子类型。参数是逆变的（启用 strictFunctionTypes 后）。</li>
+</ul>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Animal</span> &#123; name = <span class="string">&#x27;&#x27;</span> &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Dog</span> <span class="keyword">extends</span> <span class="title class_ inherited__">Animal</span> &#123; <span class="title function_">bark</span>(<span class="params"></span>) &#123;&#125; &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 协变：Dog[] 可以赋值给 Animal[]</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">dogs</span>: <span class="title class_">Dog</span>[] = [<span class="keyword">new</span> <span class="title class_">Dog</span>()];</span><br><span class="line"><span class="keyword">const</span> <span class="attr">animals</span>: <span class="title class_">Animal</span>[] = dogs; <span class="comment">// OK — 协变</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 逆变（strictFunctionTypes: true）</span></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Handler</span>&lt;T&gt; = <span class="function">(<span class="params"><span class="attr">item</span>: T</span>) =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line"><span class="keyword">let</span> <span class="attr">animalHandler</span>: <span class="title class_">Handler</span>&lt;<span class="title class_">Animal</span>&gt; = <span class="function">(<span class="params"><span class="attr">a</span>: <span class="title class_">Animal</span></span>) =&gt;</span> &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> <span class="attr">dogHandler</span>: <span class="title class_">Handler</span>&lt;<span class="title class_">Dog</span>&gt; = <span class="function">(<span class="params"><span class="attr">d</span>: <span class="title class_">Dog</span></span>) =&gt;</span> &#123; d.<span class="title function_">bark</span>() &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// dogHandler = animalHandler; // Error! — 逆变</span></span><br><span class="line">animalHandler = dogHandler;    <span class="comment">// OK</span></span><br></pre></td></tr></table></figure>
+
+<p>考察点：理解类型安全边界，知道什么时候类型推导会出问题。</p>
+<p>参考：TypeScript 2.6 Release Notes — strictFunctionTypes</p>
+<h2 id="0x01-经典-Bug：useEffect-依赖数组不全导致闭包陷阱"><a href="#0x01-经典-Bug：useEffect-依赖数组不全导致闭包陷阱" class="headerlink" title="0x01 经典 Bug：useEffect 依赖数组不全导致闭包陷阱"></a>0x01 经典 Bug：useEffect 依赖数组不全导致闭包陷阱</h2><p>React 高频线上问题。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Counter</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [count, setCount] = <span class="title function_">useState</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> timer = <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(count); <span class="comment">// 永远打印 0！</span></span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="function">() =&gt;</span> <span class="built_in">clearInterval</span>(timer);</span><br><span class="line">  &#125;, []); <span class="comment">// Bug：依赖数组缺了 count</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因</strong>：useEffect 的闭包捕获了初始渲染时的 <code>count</code>（值为 0）。即使 <code>setCount</code> 更新了状态，回调里读到的始终是闭包里的旧值。</p>
+<p><strong>修复方案</strong>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方案1：加依赖（简单但有副作用）</span></span><br><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> timer = <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(count), <span class="number">1000</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="function">() =&gt;</span> <span class="built_in">clearInterval</span>(timer);</span><br><span class="line">&#125;, [count]); <span class="comment">// 每次 count 变都会重建定时器</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 方案2：函数式更新（推荐）</span></span><br><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> timer = <span class="built_in">setInterval</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">setCount</span>(<span class="function"><span class="params">c</span> =&gt;</span> c + <span class="number">1</span>); <span class="comment">// 不依赖外部 count</span></span><br><span class="line">  &#125;, <span class="number">1000</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="function">() =&gt;</span> <span class="built_in">clearInterval</span>(timer);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<p>考察点：React hooks 闭包原理、依赖数组的正确使用。</p>
+<p>参考：React 官方文档 — Synchronizing with Effects &#x2F; 闭包陷阱章节</p>
+<h2 id="0x02-场景问题：前端大文件上传怎么做？"><a href="#0x02-场景问题：前端大文件上传怎么做？" class="headerlink" title="0x02 场景问题：前端大文件上传怎么做？"></a>0x02 场景问题：前端大文件上传怎么做？</h2><p><strong>问题</strong>：用户需要上传 2GB 的视频文件，如何保证稳定性？</p>
+<p><strong>方案</strong>：分片上传 + 断点续传 + 秒传检测。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心流程</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">uploadFile</span>(<span class="params"><span class="attr">file</span>: <span class="title class_">File</span></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="variable constant_">CHUNK_SIZE</span> = <span class="number">5</span> * <span class="number">1024</span> * <span class="number">1024</span>; <span class="comment">// 5MB</span></span><br><span class="line">  <span class="keyword">const</span> chunks = <span class="title class_">Math</span>.<span class="title function_">ceil</span>(file.<span class="property">size</span> / <span class="variable constant_">CHUNK_SIZE</span>);</span><br><span class="line">  <span class="keyword">const</span> fileHash = <span class="keyword">await</span> <span class="title function_">computeHash</span>(file); <span class="comment">// SparkMD5 / WASM</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 1. 秒传检测：问后端这个 hash 是否已存在</span></span><br><span class="line">  <span class="keyword">const</span> &#123; uploaded &#125; = <span class="keyword">await</span> api.<span class="title function_">checkFile</span>(fileHash);</span><br><span class="line">  <span class="keyword">if</span> (uploaded) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 获取已上传的分片列表（断点续传）</span></span><br><span class="line">  <span class="keyword">const</span> uploadedChunks = <span class="keyword">await</span> api.<span class="title function_">getUploadedChunks</span>(fileHash);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 并发上传未完成的分片（控制并发数）</span></span><br><span class="line">  <span class="keyword">const</span> pool = <span class="keyword">new</span> <span class="title class_">ConcurrencyPool</span>(<span class="number">3</span>); <span class="comment">// 最多 3 个并发</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; chunks; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (uploadedChunks.<span class="title function_">includes</span>(i)) <span class="keyword">continue</span>;</span><br><span class="line">    pool.<span class="title function_">add</span>(<span class="function">() =&gt;</span> <span class="title function_">uploadChunk</span>(file, i, <span class="variable constant_">CHUNK_SIZE</span>, fileHash));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">await</span> pool.<span class="title function_">drain</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 4. 通知后端合并分片</span></span><br><span class="line">  <span class="keyword">await</span> api.<span class="title function_">mergeChunks</span>(fileHash, file.<span class="property">name</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>用 Web Worker 或 WASM 计算文件 hash，避免阻塞主线程</li>
+<li>并发数控制在 3-6 个，避免占满带宽</li>
+<li>加上进度条和暂停&#x2F;恢复功能提升体验</li>
+</ul>
+<p>参考：字节跳动技术博客 — 大文件上传方案</p>
+<h2 id="0x03-小结"><a href="#0x03-小结" class="headerlink" title="0x03 小结"></a>0x03 小结</h2><p>这篇文章覆盖了 TypeScript 面试中的三个高频方向——类型系统的深度理解（any&#x2F;unknown&#x2F;never、协变逆变、type vs interface），再加上一个真实的 React 闭包 bug 和生产级大文件上传方案。前端面试越来越看重「原理理解 + 实战经验」的组合，不要只背题。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
