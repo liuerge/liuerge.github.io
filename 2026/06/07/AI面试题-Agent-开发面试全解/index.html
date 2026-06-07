@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="AI Agent 开发面试全解，覆盖 LLM 调用链、RAG 架构、MCP 协议、多 Agent 协作和 Function Calling。  0x00 LLM 调用与优化1. Function Calling &#x2F; Tool Use 的原理是什么？LLM 通过 Function Calling 实现工具使用，核心流程： 12345用户提问 → LLM 判断需要调用工具  → 返回 fu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI 面试题：Agent 开发面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/AI%E9%9D%A2%E8%AF%95%E9%A2%98-Agent-%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="AI Agent 开发面试全解，覆盖 LLM 调用链、RAG 架构、MCP 协议、多 Agent 协作和 Function Calling。  0x00 LLM 调用与优化1. Function Calling &#x2F; Tool Use 的原理是什么？LLM 通过 Function Calling 实现工具使用，核心流程： 12345用户提问 → LLM 判断需要调用工具  → 返回 fu">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T12:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T07:00:29.101Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="AI Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/AI%E9%9D%A2%E8%AF%95%E9%A2%98-Agent-%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/AI%E9%9D%A2%E8%AF%95%E9%A2%98-Agent-%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/AI面试题-Agent-开发面试全解/","title":"AI 面试题：Agent 开发面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AI 面试题：Agent 开发面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-LLM-%E8%B0%83%E7%94%A8%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="nav-text">0x00 LLM 调用与优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Function-Calling-Tool-Use-%E7%9A%84%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. Function Calling &#x2F; Tool Use 的原理是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Prompt-Engineering-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%8A%80%E5%B7%A7"><span class="nav-text">2. Prompt Engineering 的核心技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-RAG-%E6%9E%B6%E6%9E%84"><span class="nav-text">0x01 RAG 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-RAG-%E7%9A%84%E6%A0%87%E5%87%86%E6%9E%B6%E6%9E%84%E5%92%8C%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5%EF%BC%9F"><span class="nav-text">3. RAG 的标准架构和优化策略？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-MCP-%E5%8D%8F%E8%AE%AE"><span class="nav-text">0x02 MCP 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-MCP-Model-Context-Protocol-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">4. MCP (Model Context Protocol) 是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%A4%9A-Agent-%E5%8D%8F%E4%BD%9C"><span class="nav-text">0x03 多 Agent 协作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%A4%9A-Agent-%E5%8D%8F%E4%BD%9C%E7%9A%84%E5%B8%B8%E8%A7%81%E6%A8%A1%E5%BC%8F%EF%BC%9F"><span class="nav-text">5. 多 Agent 协作的常见模式？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x04 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E5%AE%A2%E6%9C%8D-Agent-%E7%B3%BB%E7%BB%9F"><span class="nav-text">设计一个客服 Agent 系统</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/AI%E9%9D%A2%E8%AF%95%E9%A2%98-Agent-%E5%BC%80%E5%8F%91%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AI 面试题：Agent 开发面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AI 面试题：Agent 开发面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 20:30:00 / 修改时间：15:00:29" itemprop="dateCreated datePublished" datetime="2026-06-07T20:30:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>AI Agent 开发面试全解，覆盖 LLM 调用链、RAG 架构、MCP 协议、多 Agent 协作和 Function Calling。</p>
+</blockquote>
+<h2 id="0x00-LLM-调用与优化"><a href="#0x00-LLM-调用与优化" class="headerlink" title="0x00 LLM 调用与优化"></a>0x00 LLM 调用与优化</h2><h3 id="1-Function-Calling-Tool-Use-的原理是什么？"><a href="#1-Function-Calling-Tool-Use-的原理是什么？" class="headerlink" title="1. Function Calling &#x2F; Tool Use 的原理是什么？"></a>1. Function Calling &#x2F; Tool Use 的原理是什么？</h3><p>LLM 通过 <strong>Function Calling</strong> 实现工具使用，核心流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">用户提问 → LLM 判断需要调用工具</span><br><span class="line">  → 返回 function_call &#123; name, arguments &#125;    （不生成最终答案）</span><br><span class="line">  → 系统执行工具调用，拿到结果</span><br><span class="line">  → 将结果作为 tool role 消息发回 LLM</span><br><span class="line">  → LLM 基于工具结果生成最终答案</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># OpenAI Function Calling</span></span><br><span class="line">tools = [&#123;</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;function&quot;</span>,</span><br><span class="line">    <span class="string">&quot;function&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;get_weather&quot;</span>,</span><br><span class="line">        <span class="string">&quot;description&quot;</span>: <span class="string">&quot;获取指定城市的天气&quot;</span>,</span><br><span class="line">        <span class="string">&quot;parameters&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;type&quot;</span>: <span class="string">&quot;object&quot;</span>,</span><br><span class="line">            <span class="string">&quot;properties&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;city&quot;</span>: &#123;<span class="string">&quot;type&quot;</span>: <span class="string">&quot;string&quot;</span>, <span class="string">&quot;description&quot;</span>: <span class="string">&quot;城市名&quot;</span>&#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;required&quot;</span>: [<span class="string">&quot;city&quot;</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;]</span><br><span class="line"></span><br><span class="line">response = client.chat.completions.create(</span><br><span class="line">    model=<span class="string">&quot;gpt-4&quot;</span>,</span><br><span class="line">    messages=[&#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;北京明天天气怎么样？&quot;</span>&#125;],</span><br><span class="line">    tools=tools</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># LLM 返回 tool_calls 而非文本</span></span><br><span class="line"><span class="keyword">if</span> response.choices[<span class="number">0</span>].message.tool_calls:</span><br><span class="line">    tool_call = response.choices[<span class="number">0</span>].message.tool_calls[<span class="number">0</span>]</span><br><span class="line">    <span class="comment"># tool_call.function.name = &quot;get_weather&quot;</span></span><br><span class="line">    <span class="comment"># tool_call.function.arguments = &#x27;&#123;&quot;city&quot;: &quot;北京&quot;&#125;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    weather = get_weather(city=<span class="string">&quot;北京&quot;</span>)  <span class="comment"># 实际调用函数</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 工具结果发回 LLM 生成最终答案</span></span><br><span class="line">    messages.append(&#123;</span><br><span class="line">        <span class="string">&quot;role&quot;</span>: <span class="string">&quot;tool&quot;</span>,</span><br><span class="line">        <span class="string">&quot;tool_call_id&quot;</span>: tool_call.<span class="built_in">id</span>,</span><br><span class="line">        <span class="string">&quot;content&quot;</span>: weather</span><br><span class="line">    &#125;)</span><br><span class="line">    final = client.chat.completions.create(model=<span class="string">&quot;gpt-4&quot;</span>, messages=messages)</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>ReAct 模式</strong>（Reasoning + Acting）：<code>思考 → 行动 → 观察 → 思考 → ...</code> 循环，让 Agent 自主决定调用哪些工具、何时停止。这是大多数 Agent 框架的核心循环</li>
+</ul>
+<h3 id="2-Prompt-Engineering-的核心技巧"><a href="#2-Prompt-Engineering-的核心技巧" class="headerlink" title="2. Prompt Engineering 的核心技巧"></a>2. Prompt Engineering 的核心技巧</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">## 结构化 Prompt 模板</span></span><br><span class="line"></span><br><span class="line"><span class="section"># Role（角色）</span></span><br><span class="line">你是一个资深的 Python 代码审查专家。</span><br><span class="line"></span><br><span class="line"><span class="section"># Context（上下文）</span></span><br><span class="line">项目使用 Django 4.2，Python 3.11，PostgreSQL。</span><br><span class="line"></span><br><span class="line"><span class="section"># Task（任务）</span></span><br><span class="line">审查以下代码的安全性和性能问题。</span><br><span class="line"></span><br><span class="line"><span class="section"># Constraints（约束）</span></span><br><span class="line"><span class="bullet">-</span> 不要建议改变函数签名</span><br><span class="line"><span class="bullet">-</span> 每个问题标注严重等级（Critical/High/Medium/Low）</span><br><span class="line"><span class="bullet">-</span> 用中文回复</span><br><span class="line"></span><br><span class="line"><span class="section"># Output Format（输出格式）</span></span><br><span class="line"><span class="section">## 问题 1：[严重等级] 简短描述</span></span><br><span class="line"><span class="strong">**位置**</span>：文件名:行号</span><br><span class="line"><span class="strong">**原因**</span>：...</span><br><span class="line"><span class="strong">**建议**</span>：...</span><br><span class="line"></span><br><span class="line"><span class="section"># Examples（示例）</span></span><br><span class="line">[提供 1-2 个期望输出的示例]</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键方法论</strong>：</p>
+<ul>
+<li><strong>Few-Shot</strong>：给 2-3 个示例，比零样本效果好得多</li>
+<li><strong>Chain-of-Thought</strong>：让 LLM 先推理再回答</li>
+<li><strong>结构化输出</strong>：明确要求 JSON&#x2F;Markdown 格式</li>
+</ul>
+<hr>
+<h2 id="0x01-RAG-架构"><a href="#0x01-RAG-架构" class="headerlink" title="0x01 RAG 架构"></a>0x01 RAG 架构</h2><h3 id="3-RAG-的标准架构和优化策略？"><a href="#3-RAG-的标准架构和优化策略？" class="headerlink" title="3. RAG 的标准架构和优化策略？"></a>3. RAG 的标准架构和优化策略？</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">文档 → Chunking → Embedding → Vector DB</span><br><span class="line">  ↓</span><br><span class="line">用户提问 → Embedding → 相似检索 → Top-K 文档块 → Prompt 组装 → LLM → 答案</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># RAG 核心流程</span></span><br><span class="line"><span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> RecursiveCharacterTextSplitter</span><br><span class="line"><span class="keyword">from</span> langchain.embeddings <span class="keyword">import</span> OpenAIEmbeddings</span><br><span class="line"><span class="keyword">from</span> langchain.vectorstores <span class="keyword">import</span> Chroma</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 文档切分</span></span><br><span class="line">splitter = RecursiveCharacterTextSplitter(</span><br><span class="line">    chunk_size=<span class="number">500</span>,          <span class="comment"># 500 字符一块</span></span><br><span class="line">    chunk_overlap=<span class="number">50</span>         <span class="comment"># 重叠 50 字符，避免切断上下文</span></span><br><span class="line">)</span><br><span class="line">chunks = splitter.split_documents(docs)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 向量化 + 存储</span></span><br><span class="line">vectordb = Chroma.from_documents(chunks, OpenAIEmbeddings())</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 检索</span></span><br><span class="line">results = vectordb.similarity_search(query, k=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 组装 Prompt</span></span><br><span class="line">context = <span class="string">&quot;\n&quot;</span>.join([r.page_content <span class="keyword">for</span> r <span class="keyword">in</span> results])</span><br><span class="line">prompt = <span class="string">f&quot;&quot;&quot;基于以下上下文回答问题，如果上下文中没有相关信息，说&quot;不知道&quot;。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">上下文：</span></span><br><span class="line"><span class="string"><span class="subst">&#123;context&#125;</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">问题：<span class="subst">&#123;query&#125;</span></span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>RAG 优化策略</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>优化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Chunking</strong></td>
+<td>语义切分（按段落&#x2F;标题）而非固定长度</td>
+</tr>
+<tr>
+<td><strong>检索</strong></td>
+<td>混合检索（BM25 + Dense）+ ReRank（Cross-encoder 重排序）</td>
+</tr>
+<tr>
+<td><strong>Prompt</strong></td>
+<td>明确指令 + Few-Shot + 引用来源</td>
+</tr>
+<tr>
+<td><strong>评估</strong></td>
+<td>RAGAS（忠实度&#x2F;相关性&#x2F;准确性）</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 混合检索 + ReRank</span></span><br><span class="line"><span class="keyword">from</span> langchain.retrievers <span class="keyword">import</span> BM25Retriever, EnsembleRetriever</span><br><span class="line"></span><br><span class="line">bm25_retriever = BM25Retriever.from_documents(docs)</span><br><span class="line">dense_retriever = vectordb.as_retriever(search_kwargs=&#123;<span class="string">&quot;k&quot;</span>: <span class="number">10</span>&#125;)</span><br><span class="line"></span><br><span class="line">ensemble = EnsembleRetriever(</span><br><span class="line">    retrievers=[bm25_retriever, dense_retriever],</span><br><span class="line">    weights=[<span class="number">0.3</span>, <span class="number">0.7</span>]         <span class="comment"># BM25 权重 30%，Dense 权重 70%</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Cohere ReRank 重排序</span></span><br><span class="line">reranked = cohere.rerank(query=query, documents=results, top_n=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x02-MCP-协议"><a href="#0x02-MCP-协议" class="headerlink" title="0x02 MCP 协议"></a>0x02 MCP 协议</h2><h3 id="4-MCP-Model-Context-Protocol-是什么？"><a href="#4-MCP-Model-Context-Protocol-是什么？" class="headerlink" title="4. MCP (Model Context Protocol) 是什么？"></a>4. MCP (Model Context Protocol) 是什么？</h3><p><strong>MCP</strong> 是 Anthropic 提出的 Agent-工具标准化协议，类似 LLM 世界的 “USB 协议”：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌──────┐                    ┌─────────────┐</span><br><span class="line">│ Host │ ←── MCP ──→       │ MCP Server  │</span><br><span class="line">│(Claude│  stdio/HTTP       │ (工具提供方) │</span><br><span class="line">│ Hermes)                   │             │</span><br><span class="line">│       │ ←── MCP ──→       │  tavily,    │</span><br><span class="line">│       │                   │  filesystem,│</span><br><span class="line">│       │                   │  github...  │</span><br><span class="line">└──────┘                    └─────────────┘</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心概念</strong>：</p>
+<ul>
+<li><strong>Resources</strong>：数据源（如文件内容、数据库记录），用 <code>resource://</code> URI 标识</li>
+<li><strong>Tools</strong>：可执行的函数（如搜索、计算、API 调用）</li>
+<li><strong>Prompts</strong>：预定义的 Prompt 模板</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MCP Tool 定义</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tavily_search&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;description&quot;</span><span class="punctuation">:</span> <span class="string">&quot;搜索互联网获取实时信息&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;inputSchema&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;object&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;query&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;string&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;description&quot;</span><span class="punctuation">:</span> <span class="string">&quot;搜索查询&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;required&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;query&quot;</span><span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>为什么重要：MCP 让所有 AI Agent 使用统一的工具接口，不再需要为每个 Agent 平台各自实现一遍工具连接。</p>
+<hr>
+<h2 id="0x03-多-Agent-协作"><a href="#0x03-多-Agent-协作" class="headerlink" title="0x03 多 Agent 协作"></a>0x03 多 Agent 协作</h2><h3 id="5-多-Agent-协作的常见模式？"><a href="#5-多-Agent-协作的常见模式？" class="headerlink" title="5. 多 Agent 协作的常见模式？"></a>5. 多 Agent 协作的常见模式？</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Sequential</strong></td>
+<td>Agent A 输出 → Agent B 输入</td>
+<td>流水线任务</td>
+</tr>
+<tr>
+<td><strong>Hierarchical</strong></td>
+<td>一个 Orchestrator 调度多个 Worker</td>
+<td>复杂任务分解</td>
+</tr>
+<tr>
+<td><strong>Debate</strong></td>
+<td>多个 Agent 讨论达成共识</td>
+<td>需要审慎决策</td>
+</tr>
+<tr>
+<td><strong>Parallel</strong></td>
+<td>多个 Agent 同时工作，结果聚合</td>
+<td>独立子任务</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Hierarchical 模式（伪代码）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Orchestrator</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">execute</span>(<span class="params">self, task</span>):</span><br><span class="line">        subtasks = <span class="variable language_">self</span>.decompose(task)        <span class="comment"># 分解任务</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 并行委派</span></span><br><span class="line">        results = []</span><br><span class="line">        <span class="keyword">for</span> sub <span class="keyword">in</span> subtasks:</span><br><span class="line">            agent = <span class="variable language_">self</span>.select_agent(sub)     <span class="comment"># 选最合适的 Agent</span></span><br><span class="line">            result = agent.run(sub)</span><br><span class="line">            results.append(result)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.synthesize(results)        <span class="comment"># 合并结果</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Worker 示例</span></span><br><span class="line">orchestrator.delegate(</span><br><span class="line">    goal=<span class="string">&quot;审查 Pull Request #42 的安全性&quot;</span>,</span><br><span class="line">    agent=<span class="string">&quot;security-reviewer&quot;</span>,                 <span class="comment"># 专用 Agent</span></span><br><span class="line">    context=<span class="string">&quot;重点检查 SQL 注入和 XSS&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x04-场景设计"><a href="#0x04-场景设计" class="headerlink" title="0x04 场景设计"></a>0x04 场景设计</h2><h3 id="设计一个客服-Agent-系统"><a href="#设计一个客服-Agent-系统" class="headerlink" title="设计一个客服 Agent 系统"></a>设计一个客服 Agent 系统</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CustomerServiceAgent</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.tools = &#123;</span><br><span class="line">            <span class="string">&quot;search_kb&quot;</span>: <span class="variable language_">self</span>.search_knowledge_base,  <span class="comment"># RAG 检索 FAQ</span></span><br><span class="line">            <span class="string">&quot;lookup_order&quot;</span>: <span class="variable language_">self</span>.lookup_order,         <span class="comment"># 查询订单</span></span><br><span class="line">            <span class="string">&quot;create_ticket&quot;</span>: <span class="variable language_">self</span>.create_ticket,       <span class="comment"># 创建工单</span></span><br><span class="line">            <span class="string">&quot;escalate&quot;</span>: <span class="variable language_">self</span>.escalate_to_human         <span class="comment"># 转人工</span></span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">handle</span>(<span class="params">self, user_message: <span class="built_in">str</span>, user_id: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        messages = [</span><br><span class="line">            SystemMessage(<span class="string">&quot;&quot;&quot;你是客服助手。遵循规则：</span></span><br><span class="line"><span class="string">            1. 先查知识库（search_kb）回答常见问题</span></span><br><span class="line"><span class="string">            2. 涉及订单用 lookup_order</span></span><br><span class="line"><span class="string">            3. 解决不了创建工单（create_ticket）</span></span><br><span class="line"><span class="string">            4. 用户要求转人工直接 escalate&quot;&quot;&quot;</span>),</span><br><span class="line">            HumanMessage(user_message)</span><br><span class="line">        ]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># ReAct 循环</span></span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):  <span class="comment"># 最多 10 轮</span></span><br><span class="line">            response = llm.invoke(messages, tools=<span class="variable language_">self</span>.tools)</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> response.tool_calls:</span><br><span class="line">                <span class="keyword">for</span> tc <span class="keyword">in</span> response.tool_calls:</span><br><span class="line">                    result = <span class="variable language_">self</span>.execute_tool(tc)</span><br><span class="line">                    messages.append(ToolMessage(result, tool_call_id=tc.<span class="built_in">id</span>))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> response.content  <span class="comment"># 最终答案</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;抱歉，我暂时无法处理您的问题，已为您转接人工客服&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<p>本文将持续更新。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AI-Agent/" rel="tag"># AI Agent</a>
+              <a href="/tags/LLM/" rel="tag"># LLM</a>
+              <a href="/tags/RAG/" rel="tag"># RAG</a>
+              <a href="/tags/MCP/" rel="tag"># MCP</a>
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Shell-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="工具面试题：Shell 脚本面试全解">
+                  <i class="fa fa-angle-left"></i> 工具面试题：Shell 脚本面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-TypeScript-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="前端面试题：TypeScript 面试全解">
+                  前端面试题：TypeScript 面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

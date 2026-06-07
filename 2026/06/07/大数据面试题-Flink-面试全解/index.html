@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Flink 高级面试全解，覆盖 Checkpoint 与状态后端、Window 窗口机制、反压原理、Exactly-Once 语义和水位线。面向高级研发。  0x00 Checkpoint 与状态1. Flink Checkpoint 的 Chandy-Lamport 算法原理？Flink 的 Checkpoint 基于 Chandy-Lamport 分布式快照 的变种（异步屏障快照）： 123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据面试题：Flink 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Flink-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="Flink 高级面试全解，覆盖 Checkpoint 与状态后端、Window 窗口机制、反压原理、Exactly-Once 语义和水位线。面向高级研发。  0x00 Checkpoint 与状态1. Flink Checkpoint 的 Chandy-Lamport 算法原理？Flink 的 Checkpoint 基于 Chandy-Lamport 分布式快照 的变种（异步屏障快照）： 123">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T08:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T06:55:40.361Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Checkpoint">
+<meta property="article:tag" content="Flink">
+<meta property="article:tag" content="流计算">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Flink-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Flink-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/大数据面试题-Flink-面试全解/","title":"大数据面试题：Flink 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>大数据面试题：Flink 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-Checkpoint-%E4%B8%8E%E7%8A%B6%E6%80%81"><span class="nav-text">0x00 Checkpoint 与状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Flink-Checkpoint-%E7%9A%84-Chandy-Lamport-%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%EF%BC%9F"><span class="nav-text">1. Flink Checkpoint 的 Chandy-Lamport 算法原理？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Flink-%E4%B8%89%E7%A7%8D%E7%8A%B6%E6%80%81%E5%90%8E%E7%AB%AF%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">2. Flink 三种状态后端有什么区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E7%AA%97%E5%8F%A3-Window"><span class="nav-text">0x02 窗口 (Window)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Flink-%E7%AA%97%E5%8F%A3%E7%9A%84%E5%88%86%E7%B1%BB%E5%92%8C%E8%A7%A6%E5%8F%91%E6%9C%BA%E5%88%B6%EF%BC%9F"><span class="nav-text">3. Flink 窗口的分类和触发机制？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Watermark-%E6%98%AF%E6%80%8E%E4%B9%88%E7%94%9F%E6%88%90%E7%9A%84%EF%BC%9F%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E8%BF%9F%E5%88%B0%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="nav-text">4. Watermark 是怎么生成的？如何处理迟到数据？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%8F%8D%E5%8E%8B-Backpressure"><span class="nav-text">0x03 反压 (Backpressure)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Flink-%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E5%92%8C%E5%A4%84%E7%90%86%E5%8F%8D%E5%8E%8B%EF%BC%9F"><span class="nav-text">5. Flink 如何检测和处理反压？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Exactly-Once-%E8%AF%AD%E4%B9%89"><span class="nav-text">0x04 Exactly-Once 语义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Flink-%E7%AB%AF%E5%88%B0%E7%AB%AF-Exactly-Once-%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%EF%BC%9F"><span class="nav-text">6. Flink 端到端 Exactly-Once 怎么实现？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x05 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%97%B6%E5%A4%A7%E5%B1%8F%EF%BC%9A%E6%AF%8F%E7%A7%92%E6%88%90%E4%BA%A4%E9%A2%9D-Top-100-%E5%95%86%E5%93%81"><span class="nav-text">实时大屏：每秒成交额 Top 100 商品</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Flink-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="大数据面试题：Flink 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          大数据面试题：Flink 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 16:30:00 / 修改时间：14:55:40" itemprop="dateCreated datePublished" datetime="2026-06-07T16:30:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>Flink 高级面试全解，覆盖 Checkpoint 与状态后端、Window 窗口机制、反压原理、Exactly-Once 语义和水位线。面向高级研发。</p>
+</blockquote>
+<h2 id="0x00-Checkpoint-与状态"><a href="#0x00-Checkpoint-与状态" class="headerlink" title="0x00 Checkpoint 与状态"></a>0x00 Checkpoint 与状态</h2><h3 id="1-Flink-Checkpoint-的-Chandy-Lamport-算法原理？"><a href="#1-Flink-Checkpoint-的-Chandy-Lamport-算法原理？" class="headerlink" title="1. Flink Checkpoint 的 Chandy-Lamport 算法原理？"></a>1. Flink Checkpoint 的 Chandy-Lamport 算法原理？</h3><p>Flink 的 Checkpoint 基于 <strong>Chandy-Lamport 分布式快照</strong> 的变种（异步屏障快照）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Source → map() → keyBy() → window() → Sink</span><br><span class="line">  |        |         |         |</span><br><span class="line">  B ────── B ─────── B ─────── B    ← Barrier 流经每个算子</span><br></pre></td></tr></table></figure>
+
+<p><strong>流程</strong>：</p>
+<ol>
+<li>JobManager 向所有 Source 注入 Checkpoint Barrier</li>
+<li>Barrier 随数据流向下游传播，将流分为”Barrier 之前的记录”和”之后的记录”</li>
+<li>算子收到所有上游分区的 Barrier 后，触发状态快照（异步写入状态后端）</li>
+<li>所有算子完成快照后，JobManager 确认 Checkpoint 完成</li>
+</ol>
+<p><strong>对齐（Alignment）</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">上游分区A: [1, 2, 3, B, 4, 5, 6]</span><br><span class="line">上游分区B: [a, b, c, d, B, e, f]</span><br><span class="line">                ↑ 先到 Barrier，等待分区A</span><br><span class="line"></span><br><span class="line">B 先到 → 缓存 B 分区 Barrier 之后的数据</span><br><span class="line">A Barrier 到达 → 做快照 → 释放缓存 → 继续处理</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 启用非对齐 Checkpoint（Flink 1.11+）</span></span><br><span class="line">env.getCheckpointConfig().enableUnalignedCheckpoints();</span><br><span class="line"><span class="comment">// 非对齐：Barrier 到达不做等待，直接穿透</span></span><br><span class="line"><span class="comment">// 好处：消除反压时的对齐等待</span></span><br><span class="line"><span class="comment">// 代价：快照包含更多 in-flight 数据</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码层面</strong>：<code>CheckpointBarrierHandler</code> 负责 Barrier 对齐逻辑。<code>CheckpointedInputGate</code> 在非对齐模式下直接转发数据而不缓存</li>
+<li><strong>生产经验</strong>：Flink 1.15+ 默认启用非对齐 Checkpoint，大状态场景 Checkpoint 时间平均缩短 50%+</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/checkpoints/">Flink Checkpoints</a></p>
+<h3 id="2-Flink-三种状态后端有什么区别？"><a href="#2-Flink-三种状态后端有什么区别？" class="headerlink" title="2. Flink 三种状态后端有什么区别？"></a>2. Flink 三种状态后端有什么区别？</h3><table>
+<thead>
+<tr>
+<th>状态后端</th>
+<th>存储位置</th>
+<th>适用场景</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>HashMapStateBackend</strong></td>
+<td>JVM Heap</td>
+<td>小状态、低延迟</td>
+<td>受 JVM 堆大小限制</td>
+</tr>
+<tr>
+<td><strong>EmbeddedRocksDBStateBackend</strong></td>
+<td>本地磁盘（RocksDB）</td>
+<td>大状态（TB 级）</td>
+<td>每次读写涉及序列化</td>
+</tr>
+<tr>
+<td><del>FsStateBackend</del></td>
+<td>已废弃</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RocksDB 状态后端配置</span></span><br><span class="line">env.setStateBackend(<span class="keyword">new</span> <span class="title class_">EmbeddedRocksDBStateBackend</span>());</span><br><span class="line">env.getCheckpointConfig().setCheckpointStorage(<span class="string">&quot;hdfs://namenode:8020/flink/checkpoints&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// RocksDB 调优</span></span><br><span class="line">RocksDBStateBackend.setRocksDBOptions(<span class="keyword">new</span> <span class="title class_">RocksDBOptionsFactory</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> DBOptions <span class="title function_">createDBOptions</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">DBOptions</span>()</span><br><span class="line">            .setMaxBackgroundJobs(<span class="number">4</span>)</span><br><span class="line">            .setMaxOpenFiles(-<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>选型决策</strong>：</p>
+<ul>
+<li>每个算子状态 &lt; 几百 MB → HashMapStateBackend（纯内存，零序列化）</li>
+<li>状态 &gt; GB 级别 → RocksDB（增量 Checkpoint 是杀手锏）</li>
+</ul>
+<hr>
+<h2 id="0x02-窗口-Window"><a href="#0x02-窗口-Window" class="headerlink" title="0x02 窗口 (Window)"></a>0x02 窗口 (Window)</h2><h3 id="3-Flink-窗口的分类和触发机制？"><a href="#3-Flink-窗口的分类和触发机制？" class="headerlink" title="3. Flink 窗口的分类和触发机制？"></a>3. Flink 窗口的分类和触发机制？</h3><p><strong>窗口类型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Tumbling Window</strong></td>
+<td>固定大小，不重叠：<code>TumblingEventTimeWindows.of(Time.minutes(5))</code></td>
+</tr>
+<tr>
+<td><strong>Sliding Window</strong></td>
+<td>固定大小，有重叠：<code>SlidingEventTimeWindows.of(Time.minutes(10), Time.minutes(5))</code></td>
+</tr>
+<tr>
+<td><strong>Session Window</strong></td>
+<td>按活动间隙切分：<code>EventTimeSessionWindows.withGap(Time.minutes(30))</code></td>
+</tr>
+<tr>
+<td><strong>Global Window</strong></td>
+<td>全量，需自定义 Trigger</td>
+</tr>
+</tbody></table>
+<p><strong>触发机制</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">stream.keyBy(...)</span><br><span class="line">    .window(TumblingEventTimeWindows.of(Time.minutes(<span class="number">1</span>)))</span><br><span class="line">    .trigger(Trigger.compose(</span><br><span class="line">        <span class="comment">// Watermark 到达 window_end 时触发</span></span><br><span class="line">        EventTimeTrigger.create(),</span><br><span class="line">        <span class="comment">// 或：每处理 100 条触发一次</span></span><br><span class="line">        CountTrigger.of(<span class="number">100</span>)</span><br><span class="line">    ))</span><br><span class="line">    .evictor(CountEvictor.of(<span class="number">50</span>))  <span class="comment">// 触发后只保留最近 50 条</span></span><br><span class="line">    .process(<span class="keyword">new</span> <span class="title class_">MyWindowFunction</span>());</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：Event Time 窗口依赖 Watermark 触发。如果 Watermark 不推进（上游没数据），窗口永远不会触发。生产上要设置 <code>allowedLateness</code> + <code>sideOutputLateData</code> 兜底</li>
+</ul>
+<h3 id="4-Watermark-是怎么生成的？如何处理迟到数据？"><a href="#4-Watermark-是怎么生成的？如何处理迟到数据？" class="headerlink" title="4. Watermark 是怎么生成的？如何处理迟到数据？"></a>4. Watermark 是怎么生成的？如何处理迟到数据？</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 周期性 Watermark（默认 200ms 生成一次）</span></span><br><span class="line">env.getConfig().setAutoWatermarkInterval(<span class="number">200</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义 Watermark 生成器</span></span><br><span class="line">WatermarkStrategy.&lt;Event&gt;forBoundedOutOfOrderness(Duration.ofSeconds(<span class="number">5</span>))</span><br><span class="line">    .withTimestampAssigner((event, ts) -&gt; event.getTimestamp())</span><br><span class="line">    .withIdleness(Duration.ofMinutes(<span class="number">1</span>));  <span class="comment">// 空闲分区检测</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 处理迟到数据</span></span><br><span class="line">stream.keyBy(...)</span><br><span class="line">    .window(...)</span><br><span class="line">    .allowedLateness(Time.minutes(<span class="number">10</span>))    <span class="comment">// 允许迟到 10 分钟</span></span><br><span class="line">    .sideOutputLateData(lateOutputTag)     <span class="comment">// 超时的进侧输出流</span></span><br><span class="line">    .process(...);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取侧输出流中的迟到数据</span></span><br><span class="line">stream.getSideOutput(lateOutputTag).print(<span class="string">&quot;late&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>三层迟到处理</strong>：</p>
+<ol>
+<li>Watermark 容错（<code>forBoundedOutOfOrderness</code>）— 乱序容忍</li>
+<li><code>allowedLateness</code> — 窗口触发后仍可追加</li>
+<li><code>sideOutputLateData</code> — 最终兜底，不会丢</li>
+</ol>
+<hr>
+<h2 id="0x03-反压-Backpressure"><a href="#0x03-反压-Backpressure" class="headerlink" title="0x03 反压 (Backpressure)"></a>0x03 反压 (Backpressure)</h2><h3 id="5-Flink-如何检测和处理反压？"><a href="#5-Flink-如何检测和处理反压？" class="headerlink" title="5. Flink 如何检测和处理反压？"></a>5. Flink 如何检测和处理反压？</h3><p><strong>检测原理</strong>（Flink 1.13+）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Task A ──BufferPool── Task B ──BufferPool── Task C</span><br><span class="line">           满                         满</span><br></pre></td></tr></table></figure>
+
+<p>反压传播：下游 BufferPool 满 → 上游无法写入 → 上游 BufferPool 满 → 继续向上传播</p>
+<p><strong>定位</strong>：</p>
+<ul>
+<li>Flink Web UI → 反压指标标签：<code>OK</code>(绿) &#x2F; <code>LOW</code>(黄) &#x2F; <code>HIGH</code>(红)</li>
+<li><code>HIGH</code> 表示该算子的输出 Buffer 使用率 &gt; 50%</li>
+</ul>
+<p><strong>常见原因和修复</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>修复</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sink 写入慢（如 MySQL）</td>
+<td>增加 Sink 并行度、批量写入</td>
+</tr>
+<tr>
+<td>数据倾斜</td>
+<td>keyBy 前加随机前缀打散</td>
+</tr>
+<tr>
+<td>Checkpoint 对齐</td>
+<td>启用非对齐 Checkpoint</td>
+</tr>
+<tr>
+<td>外部服务慢</td>
+<td>异步 IO (<code>AsyncDataStream</code>)</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 异步 IO 解决外部调用慢的反压</span></span><br><span class="line">AsyncDataStream.unorderedWait(</span><br><span class="line">    stream,</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">AsyncRedisFunction</span>(),</span><br><span class="line">    <span class="number">5000</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">    <span class="number">100</span>  <span class="comment">// 最大并发请求数</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x04-Exactly-Once-语义"><a href="#0x04-Exactly-Once-语义" class="headerlink" title="0x04 Exactly-Once 语义"></a>0x04 Exactly-Once 语义</h2><h3 id="6-Flink-端到端-Exactly-Once-怎么实现？"><a href="#6-Flink-端到端-Exactly-Once-怎么实现？" class="headerlink" title="6. Flink 端到端 Exactly-Once 怎么实现？"></a>6. Flink 端到端 Exactly-Once 怎么实现？</h3><p><strong>前提</strong>：Checkpoint 开启 + Source 支持重放（Kafka）+ Sink 支持幂等或事务。</p>
+<p><strong>TwoPhaseCommitSinkFunction</strong>（两阶段提交）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. Source 读取 Kafka offset=100-200</span><br><span class="line">2. 算子处理数据，状态写入 RocksDB</span><br><span class="line">3. Sink 开启 Kafka 事务，写入 Broker（未提交，消费者不可见）</span><br><span class="line">4. Checkpoint 完成 → Sink commit 事务 → offset=200 持久化</span><br><span class="line">5. 故障恢复 → 从 offset=100 重放 → Sink 事务幂等重做</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Kafka Sink Exactly-Once（Flink 1.14+）</span></span><br><span class="line">KafkaSink.&lt;String&gt;builder()</span><br><span class="line">    .setBootstrapServers(<span class="string">&quot;broker:9092&quot;</span>)</span><br><span class="line">    .setRecordSerializer(...)</span><br><span class="line">    .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)</span><br><span class="line">    .setTransactionalIdPrefix(<span class="string">&quot;flink-txn-&quot;</span>)</span><br><span class="line">    .build();</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：Exactly-Once 需要 Sink 支持事务。MySQL Sink 无法做到真正的 Exactly-Once（最多 At-Least-Once + 幂等去重）。方案是输出到 Kafka → 下游用 Flink CDC 或幂等写入</li>
+</ul>
+<hr>
+<h2 id="0x05-场景设计"><a href="#0x05-场景设计" class="headerlink" title="0x05 场景设计"></a>0x05 场景设计</h2><h3 id="实时大屏：每秒成交额-Top-100-商品"><a href="#实时大屏：每秒成交额-Top-100-商品" class="headerlink" title="实时大屏：每秒成交额 Top 100 商品"></a>实时大屏：每秒成交额 Top 100 商品</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">DataStream&lt;Order&gt; orders = env.addSource(<span class="keyword">new</span> <span class="title class_">FlinkKafkaConsumer</span>&lt;&gt;(...));</span><br><span class="line"></span><br><span class="line">orders</span><br><span class="line">    .assignTimestampsAndWatermarks(</span><br><span class="line">        WatermarkStrategy.&lt;Order&gt;forBoundedOutOfOrderness(Duration.ofSeconds(<span class="number">5</span>))</span><br><span class="line">            .withTimestampAssigner((o, ts) -&gt; o.getTimestamp()))</span><br><span class="line">    .keyBy(Order::getProductId)</span><br><span class="line">    .window(TumblingEventTimeWindows.of(Time.seconds(<span class="number">1</span>)))</span><br><span class="line">    .aggregate(<span class="keyword">new</span> <span class="title class_">AggregateFunction</span>&lt;Order, Long, Long&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> Long <span class="title function_">createAccumulator</span><span class="params">()</span> &#123; <span class="keyword">return</span> <span class="number">0L</span>; &#125;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> Long <span class="title function_">add</span><span class="params">(Order o, Long acc)</span> &#123; <span class="keyword">return</span> acc + o.getAmount(); &#125;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> Long <span class="title function_">getResult</span><span class="params">(Long acc)</span> &#123; <span class="keyword">return</span> acc; &#125;</span><br><span class="line">        <span class="meta">@Override</span> <span class="keyword">public</span> Long <span class="title function_">merge</span><span class="params">(Long a, Long b)</span> &#123; <span class="keyword">return</span> a + b; &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(<span class="number">1</span>)))</span><br><span class="line">    .aggregate(<span class="keyword">new</span> <span class="title class_">Top100Aggregator</span>())  <span class="comment">// 全窗口做 TopN</span></span><br><span class="line">    .map(result -&gt; formatToJSON(result))</span><br><span class="line">    .sinkTo(webSocketSink);  <span class="comment">// 推送到前端大屏</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<p>本文将持续更新。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Flink/" rel="tag"># Flink</a>
+              <a href="/tags/%E6%B5%81%E8%AE%A1%E7%AE%97/" rel="tag"># 流计算</a>
+              <a href="/tags/Checkpoint/" rel="tag"># Checkpoint</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Python-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：Python 面试全解">
+                  <i class="fa fa-angle-left"></i> 后端面试题：Python 面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Spark-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="大数据面试题：Spark 面试全解">
+                  大数据面试题：Spark 面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

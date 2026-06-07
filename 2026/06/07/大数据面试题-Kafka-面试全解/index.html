@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Kafka 高级面试全解，覆盖 ISR 机制、高性能设计、Exactly-Once 和常见生产问题。  0x00 核心机制1. Kafka 为什么这么快？四大设计：  顺序写磁盘：每个 Partition 是顺序 Append 的日志文件，顺序 IO 接近内存速度 零拷贝（Zero-Copy）：sendfile() 系统调用，数据从 PageCache 直接到网卡，不经过用户态 PageCach">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据面试题：Kafka 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Kafka-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="Kafka 高级面试全解，覆盖 ISR 机制、高性能设计、Exactly-Once 和常见生产问题。  0x00 核心机制1. Kafka 为什么这么快？四大设计：  顺序写磁盘：每个 Partition 是顺序 Append 的日志文件，顺序 IO 接近内存速度 零拷贝（Zero-Copy）：sendfile() 系统调用，数据从 PageCache 直接到网卡，不经过用户态 PageCach">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T10:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T06:58:10.409Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Kafka">
+<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Kafka-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Kafka-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/大数据面试题-Kafka-面试全解/","title":"大数据面试题：Kafka 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>大数据面试题：Kafka 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x00 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Kafka-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">1. Kafka 为什么这么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Kafka-%E7%9A%84-ISR-%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-acks-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-text">2. Kafka 的 ISR 机制是什么？与 acks 的关系？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E6%B6%88%E8%B4%B9%E4%B8%8E-Exactly-Once"><span class="nav-text">0x02 消费与 Exactly-Once</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Kafka-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0-Exactly-Once-%E8%AF%AD%E4%B9%89%EF%BC%9F"><span class="nav-text">3. Kafka 如何实现 Exactly-Once 语义？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%EF%BC%9F"><span class="nav-text">4. 如何避免消息重复消费？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98"><span class="nav-text">0x03 生产问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9F"><span class="nav-text">5. 消息积压怎么处理？</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Kafka-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="大数据面试题：Kafka 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          大数据面试题：Kafka 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 18:30:00 / 修改时间：14:58:10" itemprop="dateCreated datePublished" datetime="2026-06-07T18:30:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>Kafka 高级面试全解，覆盖 ISR 机制、高性能设计、Exactly-Once 和常见生产问题。</p>
+</blockquote>
+<h2 id="0x00-核心机制"><a href="#0x00-核心机制" class="headerlink" title="0x00 核心机制"></a>0x00 核心机制</h2><h3 id="1-Kafka-为什么这么快？"><a href="#1-Kafka-为什么这么快？" class="headerlink" title="1. Kafka 为什么这么快？"></a>1. Kafka 为什么这么快？</h3><p>四大设计：</p>
+<ol>
+<li><strong>顺序写磁盘</strong>：每个 Partition 是顺序 Append 的日志文件，顺序 IO 接近内存速度</li>
+<li><strong>零拷贝（Zero-Copy）</strong>：<code>sendfile()</code> 系统调用，数据从 PageCache 直接到网卡，不经过用户态</li>
+<li><strong>PageCache</strong>：消息先写到 OS 的 PageCache，异步刷盘。读命中 PageCache 时完全不走磁盘</li>
+<li><strong>批量 + 压缩</strong>：Producer 批量发送（<code>batch.size</code>&#x2F;<code>linger.ms</code>），Broker 端支持 gzip&#x2F;snappy&#x2F;lz4 压缩</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Producer 批量配置</span></span><br><span class="line">props.put(<span class="string">&quot;batch.size&quot;</span>, <span class="number">16384</span>);      <span class="comment">// 16KB 一批</span></span><br><span class="line">props.put(<span class="string">&quot;linger.ms&quot;</span>, <span class="number">5</span>);           <span class="comment">// 最多等 5ms</span></span><br><span class="line">props.put(<span class="string">&quot;compression.type&quot;</span>, <span class="string">&quot;lz4&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：<code>linger.ms=0</code> 时每条消息立即发送，吞吐量骤降。<code>acks=0</code> 最快但不保证送达，<code>acks=all</code> 最安全但延迟最高</li>
+</ul>
+<h3 id="2-Kafka-的-ISR-机制是什么？与-acks-的关系？"><a href="#2-Kafka-的-ISR-机制是什么？与-acks-的关系？" class="headerlink" title="2. Kafka 的 ISR 机制是什么？与 acks 的关系？"></a>2. Kafka 的 ISR 机制是什么？与 <code>acks</code> 的关系？</h3><p><strong>ISR（In-Sync Replicas）</strong>：与 Leader 保持同步的 Follower 集合。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看 ISR</span></span><br><span class="line">kafka-topics.sh --describe --topic orders</span><br><span class="line"><span class="comment"># Topic: orders  Partition: 0  Leader: 1  Replicas: 1,2,3  Isr: 1,2</span></span><br><span class="line"><span class="comment">#                                                              ↑ 3 掉队了</span></span><br></pre></td></tr></table></figure>
+
+<p><strong><code>replica.lag.time.max.ms</code></strong>（默认 30s）：Follower 超过这个时间没跟上 Leader，被踢出 ISR。</p>
+<table>
+<thead>
+<tr>
+<th><code>acks</code></th>
+<th>行为</th>
+<th>可靠性</th>
+<th>延迟</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>0</code></td>
+<td>不等待任何确认</td>
+<td>可能丢</td>
+<td>最低</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Leader 写入即确认</td>
+<td>Leader 宕机可能丢</td>
+<td>中</td>
+</tr>
+<tr>
+<td><code>all</code>&#x2F;<code>-1</code></td>
+<td>所有 ISR 写入才确认</td>
+<td>最高</td>
+<td>最高</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生产推荐：acks=all + min.insync.replicas=2</span></span><br><span class="line"><span class="comment"># Leader +至少 1 个 ISR Follower 确认才返回</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产经验</strong>：如果 <code>min.insync.replicas=2</code> 但 ISR 只剩 Leader 一个，<code>acks=all</code> 的写入会一直等待。设 <code>min.insync.replicas=2</code> 时必须 <code>replication.factor &gt;= 2</code></li>
+</ul>
+<hr>
+<h2 id="0x02-消费与-Exactly-Once"><a href="#0x02-消费与-Exactly-Once" class="headerlink" title="0x02 消费与 Exactly-Once"></a>0x02 消费与 Exactly-Once</h2><h3 id="3-Kafka-如何实现-Exactly-Once-语义？"><a href="#3-Kafka-如何实现-Exactly-Once-语义？" class="headerlink" title="3. Kafka 如何实现 Exactly-Once 语义？"></a>3. Kafka 如何实现 Exactly-Once 语义？</h3><p><strong>幂等 Producer</strong>（<code>enable.idempotence=true</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Producer 给每条消息分配 PID + Sequence Number</span><br><span class="line">Broker 记录每个 Partition 最近的 5 个 Sequence Number</span><br><span class="line">重复消息（SN &lt;= 已记录）→ 丢弃</span><br></pre></td></tr></table></figure>
+
+<p><strong>事务 Producer</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">producer.initTransactions();</span><br><span class="line">producer.beginTransaction();</span><br><span class="line">producer.send(record1);</span><br><span class="line">producer.send(record2);</span><br><span class="line">producer.sendOffsetsToTransaction(offsetMap, <span class="string">&quot;consumer-group&quot;</span>);</span><br><span class="line">producer.commitTransaction();  <span class="comment">// 原子提交：消息 + offset 一起提交</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>消费端</strong>：<code>isolation.level=read_committed</code>，只读已提交事务的消息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 消费端配置</span></span><br><span class="line">props.put(<span class="string">&quot;isolation.level&quot;</span>, <span class="string">&quot;read_committed&quot;</span>);</span><br><span class="line">props.put(<span class="string">&quot;enable.auto.commit&quot;</span>, <span class="string">&quot;false&quot;</span>);  <span class="comment">// 手动提交 offset</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-如何避免消息重复消费？"><a href="#4-如何避免消息重复消费？" class="headerlink" title="4. 如何避免消息重复消费？"></a>4. 如何避免消息重复消费？</h3><p><strong>三层防御</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 业务幂等：数据库 unique key 去重</span></span><br><span class="line">INSERT INTO <span class="title function_">order_consumed</span> <span class="params">(order_id, offset)</span> VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. Redis 去重</span></span><br><span class="line"><span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> <span class="string">&quot;consumed:&quot;</span> + orderId;</span><br><span class="line"><span class="type">Boolean</span> <span class="variable">success</span> <span class="operator">=</span> redis.setnx(key, <span class="string">&quot;1&quot;</span>, <span class="number">3600</span>);  <span class="comment">// 1小时过期</span></span><br><span class="line"><span class="keyword">if</span> (!success) <span class="keyword">return</span>;  <span class="comment">// 已消费，跳过</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. HBase/MySQL 记录消费 offset（精确到 Partition + Offset）</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x03-生产问题"><a href="#0x03-生产问题" class="headerlink" title="0x03 生产问题"></a>0x03 生产问题</h2><h3 id="5-消息积压怎么处理？"><a href="#5-消息积压怎么处理？" class="headerlink" title="5. 消息积压怎么处理？"></a>5. 消息积压怎么处理？</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 定位：找到 lag 最大的 Consumer Group</span></span><br><span class="line">kafka-consumer-groups.sh --bootstrap-server broker:9092 --describe --group my-group</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 临时扩容</span></span><br><span class="line"><span class="comment"># - 增加 Partition（需要先停服务）</span></span><br><span class="line">kafka-topics.sh --alter --topic orders --partitions 20</span><br><span class="line"><span class="comment"># - 增加 Consumer 实例（最多 = Partition 数）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 临时跳过积压</span></span><br><span class="line">consumer.seekToEnd(partitions);  // 跳到最后，丢弃历史</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 长期优化</span></span><br><span class="line"><span class="comment"># - Producer 压缩（lz4 兼顾速度和压缩比）</span></span><br><span class="line"><span class="comment"># - Consumer 批量处理（max.poll.records=500）</span></span><br><span class="line"><span class="comment"># - 增加 Consumer 线程（多线程处理）</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>排查方向</strong>：Consumer 处理慢 → 检查下游 DB&#x2F;Redis 的 RT；Producer 太快 → 加限流或扩容 Partition。</p>
+<hr>
+<blockquote>
+<p>本文将持续更新。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Kafka/" rel="tag"># Kafka</a>
+              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag"># 消息队列</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%95%B0%E6%8D%AE%E6%B9%96-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="大数据面试题：数据湖面试全解">
+                  <i class="fa fa-angle-left"></i> 大数据面试题：数据湖面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Docker-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="工具面试题：Docker 面试全解">
+                  工具面试题：Docker 面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

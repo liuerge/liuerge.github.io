@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Hive 与 SQL 高级面试全解，覆盖分区&#x2F;分桶、HiveSQL 高级写法、数据倾斜治理、存储格式和性能调优。  0x00 核心概念1. Hive 分区和分桶的区别？   维度 分区 (Partition) 分桶 (Bucket)    物理存储 独立目录 dt&#x3D;2026-06-07&#x2F; 独立文件 000000_0, 000001_0...   字段类型 通常是日期、地区等低基数字段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据面试题：Hive &amp; SQL 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="Hive 与 SQL 高级面试全解，覆盖分区&#x2F;分桶、HiveSQL 高级写法、数据倾斜治理、存储格式和性能调优。  0x00 核心概念1. Hive 分区和分桶的区别？   维度 分区 (Partition) 分桶 (Bucket)    物理存储 独立目录 dt&#x3D;2026-06-07&#x2F; 独立文件 000000_0, 000001_0...   字段类型 通常是日期、地区等低基数字段">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T09:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T06:57:02.766Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Hive">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="数据倾斜">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/大数据面试题-Hive-面试全解/","title":"大数据面试题：Hive & SQL 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>大数据面试题：Hive & SQL 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-text">0x00 核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Hive-%E5%88%86%E5%8C%BA%E5%92%8C%E5%88%86%E6%A1%B6%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">1. Hive 分区和分桶的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Hive-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9F"><span class="nav-text">2. Hive 数据倾斜的产生原因和解决方案？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-HiveSQL-%E9%AB%98%E7%BA%A7%E5%86%99%E6%B3%95"><span class="nav-text">0x01 HiveSQL 高级写法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%AE%9E%E6%88%98"><span class="nav-text">3. 窗口函数实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-SQL-%E6%8A%80%E5%B7%A7"><span class="nav-text">4. 性能优化 SQL 技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="nav-text">0x02 存储格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-ORC%E3%80%81Parquet%E3%80%81TextFile-%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">5. ORC、Parquet、TextFile 怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x03 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E4%BB%93%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1%EF%BC%88ODS-%E2%86%92-DWD-%E2%86%92-DWS-%E2%86%92-ADS%EF%BC%89"><span class="nav-text">数仓分层设计（ODS → DWD → DWS → ADS）</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="大数据面试题：Hive &amp; SQL 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          大数据面试题：Hive & SQL 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 17:30:00 / 修改时间：14:57:02" itemprop="dateCreated datePublished" datetime="2026-06-07T17:30:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>Hive 与 SQL 高级面试全解，覆盖分区&#x2F;分桶、HiveSQL 高级写法、数据倾斜治理、存储格式和性能调优。</p>
+</blockquote>
+<h2 id="0x00-核心概念"><a href="#0x00-核心概念" class="headerlink" title="0x00 核心概念"></a>0x00 核心概念</h2><h3 id="1-Hive-分区和分桶的区别？"><a href="#1-Hive-分区和分桶的区别？" class="headerlink" title="1. Hive 分区和分桶的区别？"></a>1. Hive 分区和分桶的区别？</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>分区 (Partition)</th>
+<th>分桶 (Bucket)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理存储</td>
+<td>独立目录 <code>dt=2026-06-07/</code></td>
+<td>独立文件 <code>000000_0, 000001_0...</code></td>
+</tr>
+<tr>
+<td>字段类型</td>
+<td>通常是日期、地区等低基数字段</td>
+<td>通常是用户 ID 等高基数字段</td>
+</tr>
+<tr>
+<td>数量上限</td>
+<td>数万（太多会 NameNode 压力大）</td>
+<td>与数据量和分桶数成正比</td>
+</tr>
+<tr>
+<td>适用查询</td>
+<td><code>WHERE dt = &#39;2026-06-07&#39;</code></td>
+<td><code>JOIN on user_id</code> &#x2F; 抽样</td>
+</tr>
+</tbody></table>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建分区表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> orders (</span><br><span class="line">    order_id STRING,</span><br><span class="line">    amount <span class="type">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>)</span><br><span class="line">) PARTITIONED <span class="keyword">BY</span> (dt STRING, <span class="keyword">hour</span> STRING);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 静态分区插入</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>, <span class="keyword">hour</span><span class="operator">=</span><span class="string">&#x27;14&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span> order_id, amount <span class="keyword">FROM</span> temp_orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 动态分区插入</span></span><br><span class="line"><span class="keyword">SET</span> hive.exec.dynamic.partition<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.exec.dynamic.partition.mode<span class="operator">=</span>nonstrict;</span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt, <span class="keyword">hour</span>)</span><br><span class="line"><span class="keyword">SELECT</span> order_id, amount, dt, <span class="keyword">hour</span> <span class="keyword">FROM</span> temp_orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 分桶表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> users (</span><br><span class="line">    user_id STRING,</span><br><span class="line">    name STRING</span><br><span class="line">) CLUSTERED <span class="keyword">BY</span> (user_id) <span class="keyword">INTO</span> <span class="number">32</span> BUCKETS;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产经验</strong>：分区不是越多越好。单表分区超过 10 万个会导致 Metastore 查询变慢和 NameNode 内存压力。按天分区 + 生命周期管理是常规做法</li>
+</ul>
+<h3 id="2-Hive-数据倾斜的产生原因和解决方案？"><a href="#2-Hive-数据倾斜的产生原因和解决方案？" class="headerlink" title="2. Hive 数据倾斜的产生原因和解决方案？"></a>2. Hive 数据倾斜的产生原因和解决方案？</h3><p><strong>产生原因</strong>：某个 key 的数据量远大于其他 key（如 null 值、热点用户）</p>
+<p><strong>解决方案</strong>：</p>
+<p><strong>方案1：两阶段聚合（适合 Group By 倾斜）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 加随机前缀聚合 → 去掉前缀再次聚合</span></span><br><span class="line"><span class="keyword">SELECT</span> key, <span class="built_in">SUM</span>(cnt) <span class="keyword">AS</span> total</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> CONCAT(key, <span class="string">&#x27;_&#x27;</span>, <span class="built_in">CAST</span>(RAND()<span class="operator">*</span><span class="number">10</span> <span class="keyword">AS</span> <span class="type">INT</span>)) <span class="keyword">AS</span> salted_key,</span><br><span class="line">           <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="keyword">AS</span> cnt</span><br><span class="line">    <span class="keyword">FROM</span> big_table</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> CONCAT(key, <span class="string">&#x27;_&#x27;</span>, <span class="built_in">CAST</span>(RAND()<span class="operator">*</span><span class="number">10</span> <span class="keyword">AS</span> <span class="type">INT</span>))</span><br><span class="line">) t</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> SUBSTRING_INDEX(salted_key, <span class="string">&#x27;_&#x27;</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案2：Map Join（适合小表 Join 大表）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> hive.auto.convert.join<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.mapjoin.smalltable.filesize<span class="operator">=</span><span class="number">25000000</span>;  <span class="comment">-- 25MB</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ MAPJOIN(b) */</span> a.<span class="operator">*</span>, b.name</span><br><span class="line"><span class="keyword">FROM</span> big_table a <span class="keyword">JOIN</span> small_table b <span class="keyword">ON</span> a.id <span class="operator">=</span> b.id;</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案3：倾斜 key 分离</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 正常 key 直接 join</span></span><br><span class="line"><span class="keyword">SELECT</span> a.<span class="operator">*</span>, b.name</span><br><span class="line"><span class="keyword">FROM</span> big_table a <span class="keyword">JOIN</span> dim_table b <span class="keyword">ON</span> a.id <span class="operator">=</span> b.id</span><br><span class="line"><span class="keyword">WHERE</span> a.id <span class="operator">!=</span> <span class="string">&#x27;hot_key&#x27;</span></span><br><span class="line"><span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line"><span class="comment">-- 倾斜 key 用 Map Join</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ MAPJOIN(b) */</span> a.<span class="operator">*</span>, b.name</span><br><span class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> big_table <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="string">&#x27;hot_key&#x27;</span>) a</span><br><span class="line"><span class="keyword">JOIN</span> dim_table b <span class="keyword">ON</span> a.id <span class="operator">=</span> b.id;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Hive 3.0+ 自动倾斜优化</span></span><br><span class="line"><span class="keyword">SET</span> hive.optimize.skewjoin<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.skewjoin.key<span class="operator">=</span><span class="number">100000</span>;  <span class="comment">-- key 超过 100k 行视为倾斜</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x01-HiveSQL-高级写法"><a href="#0x01-HiveSQL-高级写法" class="headerlink" title="0x01 HiveSQL 高级写法"></a>0x01 HiveSQL 高级写法</h2><h3 id="3-窗口函数实战"><a href="#3-窗口函数实战" class="headerlink" title="3. 窗口函数实战"></a>3. 窗口函数实战</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 每种商品销售额排名</span></span><br><span class="line"><span class="keyword">SELECT</span> product_id, amount,</span><br><span class="line">    <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> product_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> amount <span class="keyword">DESC</span>) <span class="keyword">AS</span> rn</span><br><span class="line"><span class="keyword">FROM</span> orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 连续登录天数（经典面试题）</span></span><br><span class="line"><span class="keyword">WITH</span> login_gap <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> user_id, login_date,</span><br><span class="line">        DATE_SUB(login_date, <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (</span><br><span class="line">            <span class="keyword">PARTITION</span> <span class="keyword">BY</span> user_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> login_date</span><br><span class="line">        )) <span class="keyword">AS</span> gap_date</span><br><span class="line">    <span class="keyword">FROM</span> user_login</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id, login_date</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> user_id, gap_date, <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="keyword">AS</span> consecutive_days</span><br><span class="line"><span class="keyword">FROM</span> login_gap</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id, gap_date</span><br><span class="line"><span class="keyword">HAVING</span> <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="operator">&gt;=</span> <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 累计销售额</span></span><br><span class="line"><span class="keyword">SELECT</span> dt, product_id, daily_amount,</span><br><span class="line">    <span class="built_in">SUM</span>(daily_amount) <span class="keyword">OVER</span> (</span><br><span class="line">        <span class="keyword">PARTITION</span> <span class="keyword">BY</span> product_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> dt</span><br><span class="line">        <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> UNBOUNDED PRECEDING <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="type">ROW</span></span><br><span class="line">    ) <span class="keyword">AS</span> cumulative_amount</span><br><span class="line"><span class="keyword">FROM</span> daily_sales;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 环比增长</span></span><br><span class="line"><span class="keyword">SELECT</span> dt, amount,</span><br><span class="line">    <span class="built_in">LAG</span>(amount, <span class="number">1</span>) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> dt) <span class="keyword">AS</span> prev_amount,</span><br><span class="line">    ROUND((amount <span class="operator">-</span> <span class="built_in">LAG</span>(amount, <span class="number">1</span>) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> dt)) <span class="operator">/</span> </span><br><span class="line">          <span class="built_in">LAG</span>(amount, <span class="number">1</span>) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> dt) <span class="operator">*</span> <span class="number">100</span>, <span class="number">2</span>) <span class="keyword">AS</span> growth_pct</span><br><span class="line"><span class="keyword">FROM</span> daily_sales;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-性能优化-SQL-技巧"><a href="#4-性能优化-SQL-技巧" class="headerlink" title="4. 性能优化 SQL 技巧"></a>4. 性能优化 SQL 技巧</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 列裁剪：只 SELECT 需要的列</span></span><br><span class="line"><span class="keyword">SELECT</span> order_id, amount <span class="keyword">FROM</span> orders;  <span class="comment">-- 不要 SELECT *</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 谓词下推：过滤条件放子查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line">) t <span class="keyword">WHERE</span> amount <span class="operator">&gt;</span> <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 用 GROUP BY 代替 DISTINCT（大数据量时 GROUP BY 更快）</span></span><br><span class="line"><span class="keyword">SELECT</span> user_id <span class="keyword">FROM</span> orders <span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id;  <span class="comment">-- 优于 SELECT DISTINCT user_id</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. UNION ALL 代替 UNION（不自动去重）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t1 <span class="keyword">UNION</span> <span class="keyword">ALL</span> <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t2;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 5. 避免笛卡尔积</span></span><br><span class="line"><span class="comment">-- 坏：SELECT * FROM t1, t2 WHERE t1.id = t2.id  -- 隐式 cross join</span></span><br><span class="line"><span class="comment">-- 好：SELECT * FROM t1 JOIN t2 ON t1.id = t2.id</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 6. 合理使用分桶</span></span><br><span class="line"><span class="comment">-- 分桶表 JOIN 时自动启用 Sort Merge Bucket Join，避免 Shuffle</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x02-存储格式"><a href="#0x02-存储格式" class="headerlink" title="0x02 存储格式"></a>0x02 存储格式</h2><h3 id="5-ORC、Parquet、TextFile-怎么选？"><a href="#5-ORC、Parquet、TextFile-怎么选？" class="headerlink" title="5. ORC、Parquet、TextFile 怎么选？"></a>5. ORC、Parquet、TextFile 怎么选？</h3><table>
+<thead>
+<tr>
+<th>格式</th>
+<th>压缩率</th>
+<th>查询速度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ORC</strong></td>
+<td>最高（列式+索引）</td>
+<td>最快（内置索引）</td>
+<td>Hive 主力，适合分析查询</td>
+</tr>
+<tr>
+<td><strong>Parquet</strong></td>
+<td>高</td>
+<td>快</td>
+<td>跨平台（Spark&#x2F;Flink&#x2F;Presto 通用）</td>
+</tr>
+<tr>
+<td><strong>TextFile</strong></td>
+<td>无</td>
+<td>慢</td>
+<td>原始数据落盘、临时表</td>
+</tr>
+<tr>
+<td><strong>Avro</strong></td>
+<td>中</td>
+<td>中</td>
+<td>Schema 演化频繁的场景</td>
+</tr>
+</tbody></table>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建 ORC 表 + Snappy 压缩</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> orders_orc (</span><br><span class="line">    order_id STRING,</span><br><span class="line">    amount <span class="type">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>)</span><br><span class="line">) STORED <span class="keyword">AS</span> ORC</span><br><span class="line">TBLPROPERTIES (</span><br><span class="line">    <span class="string">&#x27;orc.compress&#x27;</span><span class="operator">=</span><span class="string">&#x27;SNAPPY&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;orc.create.index&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><strong>ORC 加速手段</strong>：</p>
+<ul>
+<li><strong>Predicate Pushdown</strong>：<code>orc.bloom.filter.columns</code> &#x3D; <code>order_id</code>，在读取时跳过不匹配的 Stripe</li>
+<li><strong>Vectorization</strong>：<code>SET hive.vectorized.execution.enabled=true</code>，批量处理 1024 行</li>
+</ul>
+<hr>
+<h2 id="0x03-场景设计"><a href="#0x03-场景设计" class="headerlink" title="0x03 场景设计"></a>0x03 场景设计</h2><h3 id="数仓分层设计（ODS-→-DWD-→-DWS-→-ADS）"><a href="#数仓分层设计（ODS-→-DWD-→-DWS-→-ADS）" class="headerlink" title="数仓分层设计（ODS → DWD → DWS → ADS）"></a>数仓分层设计（ODS → DWD → DWS → ADS）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ODS (原始层):  binlog 原样入 Hive，不做任何清洗</span><br><span class="line">  ↓</span><br><span class="line">DWD (明细层):  清洗、去重、脱敏、维度退化</span><br><span class="line">  ↓</span><br><span class="line">DWS (汇总层):  按主题轻度汇总（用户日活、商品日销）</span><br><span class="line">  ↓</span><br><span class="line">ADS (应用层):  报表、大屏、推荐特征</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- DWD 层：订单清洗</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> dwd.fact_orders <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    order_id,</span><br><span class="line">    <span class="built_in">COALESCE</span>(user_id, <span class="string">&#x27;unknown&#x27;</span>) <span class="keyword">AS</span> user_id,  <span class="comment">-- null 处理</span></span><br><span class="line">    <span class="keyword">CASE</span> status </span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">1</span> <span class="keyword">THEN</span> <span class="string">&#x27;paid&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">2</span> <span class="keyword">THEN</span> <span class="string">&#x27;shipped&#x27;</span></span><br><span class="line">        <span class="keyword">ELSE</span> <span class="string">&#x27;unknown&#x27;</span></span><br><span class="line">    <span class="keyword">END</span> <span class="keyword">AS</span> status,</span><br><span class="line">    amount</span><br><span class="line"><span class="keyword">FROM</span> ods.orders_binlog</span><br><span class="line"><span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> order_id <span class="keyword">IS</span> <span class="keyword">NOT NULL</span>;  <span class="comment">-- 脏数据过滤</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- DWS 层：用户日汇总</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> dws.user_daily_stats <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    user_id,</span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="keyword">DISTINCT</span> order_id) <span class="keyword">AS</span> order_cnt,</span><br><span class="line">    <span class="built_in">SUM</span>(amount) <span class="keyword">AS</span> total_amount,</span><br><span class="line">    <span class="built_in">MAX</span>(order_time) <span class="keyword">AS</span> last_order_time</span><br><span class="line"><span class="keyword">FROM</span> dwd.fact_orders</span><br><span class="line"><span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<p>本文将持续更新。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Hive/" rel="tag"># Hive</a>
+              <a href="/tags/SQL/" rel="tag"># SQL</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C/" rel="tag"># 数据倾斜</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Spark-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="大数据面试题：Spark 面试全解">
+                  <i class="fa fa-angle-left"></i> 大数据面试题：Spark 面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%95%B0%E6%8D%AE%E6%B9%96-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="大数据面试题：数据湖面试全解">
+                  大数据面试题：数据湖面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Docker 面试全解，覆盖 Dockerfile 最佳实践、网络与存储、Docker Compose 和生产化经验。  0x00 Dockerfile 最佳实践1. 如何写一个高质量的 Dockerfile？123456789101112131415161718192021222324252627282930# 1. 固定基础镜像版本，不用 latestFROM openjdk:17-slim">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工具面试题：Docker 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Docker-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="Docker 面试全解，覆盖 Dockerfile 最佳实践、网络与存储、Docker Compose 和生产化经验。  0x00 Dockerfile 最佳实践1. 如何写一个高质量的 Dockerfile？123456789101112131415161718192021222324252627282930# 1. 固定基础镜像版本，不用 latestFROM openjdk:17-slim">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T11:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T06:58:40.169Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Docker-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Docker-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/工具面试题-Docker-面试全解/","title":"工具面试题：Docker 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>工具面试题：Docker 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-Dockerfile-%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x00 Dockerfile 最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E5%86%99%E4%B8%80%E4%B8%AA%E9%AB%98%E8%B4%A8%E9%87%8F%E7%9A%84-Dockerfile%EF%BC%9F"><span class="nav-text">1. 如何写一个高质量的 Dockerfile？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Docker-%E9%95%9C%E5%83%8F%E5%88%86%E5%B1%82%E5%8E%9F%E7%90%86%E5%92%8C%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6%EF%BC%9F"><span class="nav-text">2. Docker 镜像分层原理和写时复制？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E7%BD%91%E7%BB%9C%E4%B8%8E%E5%AD%98%E5%82%A8"><span class="nav-text">0x02 网络与存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Docker-%E7%9A%84%E4%BA%94%E7%A7%8D%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F%EF%BC%9F"><span class="nav-text">3. Docker 的五种网络模式？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Docker-Volume-%E5%92%8C-Bind-Mount-%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">4. Docker Volume 和 Bind Mount 的区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E4%B8%8E%E6%8E%92%E9%9A%9C"><span class="nav-text">0x03 常用命令与排障</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%B8%B8%E7%94%A8-Docker-%E5%91%BD%E4%BB%A4"><span class="nav-text">5. 常用 Docker 命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%AE%B9%E5%99%A8%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E6%80%8E%E4%B9%88%E6%8E%92%E6%9F%A5%EF%BC%9F"><span class="nav-text">6. 容器启动失败怎么排查？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Docker-Compose"><span class="nav-text">0x04 Docker Compose</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Docker-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="工具面试题：Docker 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          工具面试题：Docker 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 19:00:00 / 修改时间：14:58:40" itemprop="dateCreated datePublished" datetime="2026-06-07T19:00:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/DevOps/" itemprop="url" rel="index"><span itemprop="name">DevOps</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>Docker 面试全解，覆盖 Dockerfile 最佳实践、网络与存储、Docker Compose 和生产化经验。</p>
+</blockquote>
+<h2 id="0x00-Dockerfile-最佳实践"><a href="#0x00-Dockerfile-最佳实践" class="headerlink" title="0x00 Dockerfile 最佳实践"></a>0x00 Dockerfile 最佳实践</h2><h3 id="1-如何写一个高质量的-Dockerfile？"><a href="#1-如何写一个高质量的-Dockerfile？" class="headerlink" title="1. 如何写一个高质量的 Dockerfile？"></a>1. 如何写一个高质量的 Dockerfile？</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 固定基础镜像版本，不用 latest</span></span><br><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">17</span>-slim</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 合并 RUN 减少层数</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">rm</span> -rf /var/lib/apt/lists/*</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 先 COPY 依赖文件（利用缓存），再 COPY 源码</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> pom.xml .</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> mvn dependency:resolve</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> src/ src/</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> mvn package -DskipTests</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 多阶段构建：编译和运行分离</span></span><br><span class="line"><span class="keyword">FROM</span> maven:<span class="number">3.9</span> AS builder</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> . .</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> mvn package -DskipTests</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">17</span>-slim</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> --from=builder /app/target/app.jar /app.jar</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 不要用 root 运行</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> addgroup --system app &amp;&amp; adduser --system --group app</span></span><br><span class="line"><span class="keyword">USER</span> app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. HEALTHCHECK</span></span><br><span class="line"><span class="keyword">HEALTHCHECK</span><span class="language-bash"> --interval=30s --<span class="built_in">timeout</span>=3s \</span></span><br><span class="line"><span class="language-bash">  CMD curl -f http://localhost:8080/actuator/health || <span class="built_in">exit</span> 1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="language-bash"> [<span class="string">&quot;java&quot;</span>, <span class="string">&quot;-jar&quot;</span>, <span class="string">&quot;/app.jar&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产经验</strong>：多阶段构建可让最终镜像缩小 80%+（去掉 Maven&#x2F;Gradle 编译依赖）。Alpine 镜像更小但使用 musl libc，某些 JNI 库不兼容</li>
+</ul>
+<h3 id="2-Docker-镜像分层原理和写时复制？"><a href="#2-Docker-镜像分层原理和写时复制？" class="headerlink" title="2. Docker 镜像分层原理和写时复制？"></a>2. Docker 镜像分层原理和写时复制？</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">镜像层（只读）：</span><br><span class="line">  Layer 5: ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;/app.jar&quot;]    — 5KB</span><br><span class="line">  Layer 4: COPY app.jar                               — 50MB</span><br><span class="line">  Layer 3: RUN apt-get install curl                   — 20MB</span><br><span class="line">  Layer 2: RUN apt-get update                         — 10MB</span><br><span class="line">  Layer 1: FROM openjdk:17                            — 200MB</span><br><span class="line"></span><br><span class="line">容器层（读写）：</span><br><span class="line">  Container Layer (R/W)                               — 临时</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>每一层是一个文件系统的增量变更</li>
+<li>拉取镜像时，已存在的层不重复下载（不同镜像可共享层）</li>
+<li>写操作使用 COW：修改只读层的文件时，先复制到容器层再修改</li>
+</ul>
+<p><strong>优化策略</strong>：把变化频率高的指令放下面（如 COPY 源码），变化频率低的放上面（如 apt-get install）</p>
+<hr>
+<h2 id="0x02-网络与存储"><a href="#0x02-网络与存储" class="headerlink" title="0x02 网络与存储"></a>0x02 网络与存储</h2><h3 id="3-Docker-的五种网络模式？"><a href="#3-Docker-的五种网络模式？" class="headerlink" title="3. Docker 的五种网络模式？"></a>3. Docker 的五种网络模式？</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>命令</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>bridge</strong>（默认）</td>
+<td><code>--network bridge</code></td>
+<td>独立网络栈，通过 docker0 网桥通信</td>
+</tr>
+<tr>
+<td><strong>host</strong></td>
+<td><code>--network host</code></td>
+<td>直接使用宿主机网络，性能最高</td>
+</tr>
+<tr>
+<td><strong>none</strong></td>
+<td><code>--network none</code></td>
+<td>无网络，完全隔离</td>
+</tr>
+<tr>
+<td><strong>overlay</strong></td>
+<td><code>--network overlay</code></td>
+<td>跨主机通信（Swarm&#x2F;K8s）</td>
+</tr>
+<tr>
+<td><strong>container</strong></td>
+<td><code>--network container:xxx</code></td>
+<td>共享另一个容器的网络栈</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义 bridge 网络（推荐：支持 DNS 解析容器名）</span></span><br><span class="line">docker network create --driver bridge mynet</span><br><span class="line">docker run --network mynet --name app1 app:v1</span><br><span class="line">docker run --network mynet --name app2 app:v2</span><br><span class="line"><span class="comment"># app1 可以直接 ping app2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># host 网络（性能敏感场景）</span></span><br><span class="line">docker run --network host nginx  <span class="comment"># 直接监听宿主机 80 端口</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-Docker-Volume-和-Bind-Mount-的区别？"><a href="#4-Docker-Volume-和-Bind-Mount-的区别？" class="headerlink" title="4. Docker Volume 和 Bind Mount 的区别？"></a>4. Docker Volume 和 Bind Mount 的区别？</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Volume</th>
+<th>Bind Mount</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>管理</td>
+<td>Docker 管理（<code>/var/lib/docker/volumes/</code>）</td>
+<td>宿主机路径</td>
+</tr>
+<tr>
+<td>权限</td>
+<td>Docker 控制</td>
+<td>宿主机文件权限</td>
+</tr>
+<tr>
+<td>跨平台</td>
+<td>✅ 可移植</td>
+<td>❌ 依赖宿主机路径</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>持久化数据、DB</td>
+<td>开发时挂载代码</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Volume（推荐生产用）</span></span><br><span class="line">docker run -v myvolume:/data mysql</span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind Mount（开发用）</span></span><br><span class="line">docker run -v $(<span class="built_in">pwd</span>)/app:/app node npm run dev</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x03-常用命令与排障"><a href="#0x03-常用命令与排障" class="headerlink" title="0x03 常用命令与排障"></a>0x03 常用命令与排障</h2><h3 id="5-常用-Docker-命令"><a href="#5-常用-Docker-命令" class="headerlink" title="5. 常用 Docker 命令"></a>5. 常用 Docker 命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line">docker logs -f --<span class="built_in">tail</span> 100 container_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器</span></span><br><span class="line">docker <span class="built_in">exec</span> -it container_name /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 资源限制</span></span><br><span class="line">docker run -m 512m --cpus 2 --memory-swap 1g app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理</span></span><br><span class="line">docker system prune -a  <span class="comment"># 清理所有未使用的镜像/容器/网络/缓存</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看容器内进程</span></span><br><span class="line">docker top container_name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看资源使用</span></span><br><span class="line">docker stats</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出/导入镜像</span></span><br><span class="line">docker save -o app.tar app:v1</span><br><span class="line">docker load -i app.tar</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看镜像层历史</span></span><br><span class="line">docker <span class="built_in">history</span> app:v1</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-容器启动失败怎么排查？"><a href="#6-容器启动失败怎么排查？" class="headerlink" title="6. 容器启动失败怎么排查？"></a>6. 容器启动失败怎么排查？</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 看日志</span></span><br><span class="line">docker logs container_id</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 看退出码</span></span><br><span class="line">docker inspect container_id | grep ExitCode</span><br><span class="line"><span class="comment"># Exit 1 = 应用错误，Exit 137 = OOM 被 kill，Exit 0 = 正常退出</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 覆盖 ENTRYPOINT 调试</span></span><br><span class="line">docker run -it --entrypoint /bin/bash app:v1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 检查资源</span></span><br><span class="line">docker inspect container_id | jq <span class="string">&#x27;.[0].State&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x04-Docker-Compose"><a href="#0x04-Docker-Compose" class="headerlink" title="0x04 Docker Compose"></a>0x04 Docker Compose</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">app:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">.</span></span><br><span class="line">    <span class="attr">ports:</span> [<span class="string">&quot;8080:8080&quot;</span>]</span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">SPRING_PROFILES_ACTIVE=prod</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">DB_URL=jdbc:mysql://db:3306/mydb</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="attr">db:</span></span><br><span class="line">        <span class="attr">condition:</span> <span class="string">service_healthy</span></span><br><span class="line">    <span class="attr">healthcheck:</span></span><br><span class="line">      <span class="attr">test:</span> [<span class="string">&quot;CMD&quot;</span>, <span class="string">&quot;curl&quot;</span>, <span class="string">&quot;-f&quot;</span>, <span class="string">&quot;http://localhost:8080/actuator/health&quot;</span>]</span><br><span class="line">      <span class="attr">interval:</span> <span class="string">10s</span></span><br><span class="line">      <span class="attr">retries:</span> <span class="number">3</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">db:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">mysql:8.0</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">db_data:/var/lib/mysql</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">MYSQL_ROOT_PASSWORD:</span> <span class="string">$&#123;DB_PASSWORD&#125;</span>  <span class="comment"># 从 .env 读取</span></span><br><span class="line">    <span class="attr">healthcheck:</span></span><br><span class="line">      <span class="attr">test:</span> [<span class="string">&quot;CMD&quot;</span>, <span class="string">&quot;mysqladmin&quot;</span>, <span class="string">&quot;ping&quot;</span>, <span class="string">&quot;-h&quot;</span>, <span class="string">&quot;localhost&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="attr">volumes:</span></span><br><span class="line">  <span class="attr">db_data:</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<p>本文将持续更新。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag"># 容器</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Kafka-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="大数据面试题：Kafka 面试全解">
+                  <i class="fa fa-angle-left"></i> 大数据面试题：Kafka 面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Kubernetes-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="工具面试题：Kubernetes 面试全解">
+                  工具面试题：Kubernetes 面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
