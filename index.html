@@ -207,7 +207,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-06-07 12:00:00 / 修改时间：13:58:22" itemprop="dateCreated datePublished" datetime="2026-06-07T12:00:00+08:00">2026-06-07</time>
+      <time title="创建时间：2026-06-07 12:00:00 / 修改时间：14:11:02" itemprop="dateCreated datePublished" datetime="2026-06-07T12:00:00+08:00">2026-06-07</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -251,6 +251,15 @@
 
 <p>Nacos 2.x 后通信协议从 HTTP 升级为长连接 gRPC，单机可支撑 10w+ 实例。</p>
 <p>参考：<a target="_blank" rel="noopener" href="https://nacos.io/docs/latest/architecture/">Nacos 官方架构文档</a></p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：网络分区时，AP 模式下不同分区的节点各自独立接收注册，分区恢复后通过 Distro 协议做最终一致合并。如果同一服务在两个分区分别注册了不同实例列表，合并策略是「全量保留」而非「冲突裁决」——这可能导致消费者看到已下线的旧实例。生产上需要在客户端加健康检查兜底。</p>
+</li>
+<li><p><strong>源码层面</strong>：Nacos 的一致性协议切换核心在 <code>ConsistencyService</code> 接口，AP 实现为 <code>DistroConsistencyServiceImpl</code>，CP 实现为 <code>RaftConsistencyServiceImpl</code>。临时实例的 <code>ephemeral=true</code> 通过 <code>Instance.isEphemeral()</code> 判断，路由到不同的 <code>ClientManager</code> 处理。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Consul 的 CP 模式基于完整 Raft（非简化版），支持多 DC 的 WAN Gossip。但 Consul 不支持 AP 模式切换——它要么 CP 要么什么都不给。Nacos 的灵活性在此占优，但也意味着使用者必须理解 CAP 才能正确配置。</p>
+</li>
+</ul>
 <h3 id="2-Nacos-配置中心的热更新是如何实现的？"><a href="#2-Nacos-配置中心的热更新是如何实现的？" class="headerlink" title="2. Nacos 配置中心的热更新是如何实现的？"></a>2. Nacos 配置中心的热更新是如何实现的？</h3><p>核心机制：</p>
 <ol>
 <li><strong>长轮询（1.x）</strong>：客户端发起 HTTP 请求到服务端，服务端持有连接 29.5s，期间配置有变更则立即返回，否则超时后返回 304 让客户端再次发起</li>
@@ -324,6 +333,15 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">FlowRule</span> <span class="variable">rule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FlowRule</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">rule.setGrade(RuleConstant.FLOW_GRADE_QPS);  <span class="comment">// QPS 模式</span></span><br><span class="line">rule.setCount(<span class="number">10</span>);                            <span class="comment">// 阈值 10 QPS</span></span><br><span class="line">rule.setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_WARM_UP);</span><br><span class="line">rule.setWarmUpPeriodSec(<span class="number">10</span>);                  <span class="comment">// 预热 10 秒</span></span><br></pre></td></tr></table></figure>
 
 <p>参考：<a target="_blank" rel="noopener" href="https://sentinelguard.io/docs/flow-control/">Sentinel Flow Control</a></p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：默认 2 格（每格 500ms）的粒度对突发流量不敏感——如果前 500ms 已经用完所有配额，后 500ms 的请求全被拒绝，即使这 1 秒的整体 QPS 远低于阈值。实际应用中应根据流量特征调整 <code>sampleCount</code>。API 网关类建议 10-20 格，让限流更平滑。</p>
+</li>
+<li><p><strong>源码层面</strong>：<code>LeapArray</code> 的核心是 <code>currentWindow()</code> 方法——根据当前时间戳计算窗口下标，如果窗口过期则调用 <code>resetWindow()</code> 清零计数器。这里使用 <code>LongAdder</code> 而非 <code>AtomicLong</code> 是为了减少高并发下的 CAS 竞争。Warm Up 效果背后是 Guava 的 <code>SmoothWarmingUp</code> 算法——令牌桶的变种，冷启动时令牌生成速率从低到高逐渐增加。</p>
+</li>
+<li><p><strong>生产经验</strong>：很多人把 Sentinel 限流阈值设在 QPS&#x3D;1000 就以为万事大吉。但如果下游单接口 RT&#x3D;200ms，1000 QPS 意味着 200 个并发线程在等待——线程池瞬间打满。正确做法是 QPS 阈值 ≤ 线程池大小 ÷ 平均 RT，即 <code>count ≤ threads / (rt/1000)</code>。</p>
+</li>
+</ul>
 <h3 id="5-Sentinel-的熔断降级有哪三种策略？各自适用什么场景？"><a href="#5-Sentinel-的熔断降级有哪三种策略？各自适用什么场景？" class="headerlink" title="5. Sentinel 的熔断降级有哪三种策略？各自适用什么场景？"></a>5. Sentinel 的熔断降级有哪三种策略？各自适用什么场景？</h3><table>
 <thead>
 <tr>
@@ -450,6 +468,15 @@
 <p><strong>全局锁的必要性</strong>：<br>在一阶段提交后、二阶段完成前，其他事务可能修改同一行数据。全局锁保证在全局事务未结束时，其他事务不能写入已被 AT 模式锁定的数据行，防止脏写。</p>
 <p><strong>脏写防护</strong>：如果全局锁获取失败 → 重试 → 超时则回滚本地事务并上报 TC。</p>
 <p>参考：<a target="_blank" rel="noopener" href="https://seata.io/zh-cn/docs/dev/mode/at-mode.html">Seata AT Mode</a></p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：AT 模式的前提是数据库支持 ACID 事务且 SQL 能被正确解析。以下场景 AT 会失效：(1) 使用了存储过程&#x2F;函数——Seata 无法解析内部 SQL；(2) <code>SELECT ... FOR UPDATE</code> 行锁——可能与全局锁冲突；(3) 分库分表后的跨库事务——每个库的 undo_log 独立，回滚时无法保证原子性。遇到这些场景必须切换到 TCC 或 SAGA。</p>
+</li>
+<li><p><strong>源码层面</strong>：SQL 解析的核心是 <code>SQLRecognizerFactory</code>，通过 Druid 的 SQL Parser 解析出表名、WHERE 条件、更新字段。前后镜像的生成在 <code>BaseTransactionalExecutor</code> 中——先 <code>SELECT * FROM table WHERE ... FOR UPDATE</code>（加行锁+拿前镜像），执行业务 SQL，再 <code>SELECT * FROM table WHERE ...</code>（拿后镜像）。正是这个 <code>FOR UPDATE</code> 和全局锁的双重保障防止了脏写。</p>
+</li>
+<li><p><strong>对比延伸</strong>：AT 和 XA 都是两阶段，但本质不同。XA 的一阶段是 prepare（不提交），二阶段是 commit&#x2F;rollback——数据库连接一直持有，资源锁定时间长。AT 的一阶段直接提交本地事务，只靠后镜像做回滚——连接的持有时间极短。这就是为什么 AT 的性能远好于 XA，代价是需要 undo_log 表和 SQL 解析能力。</p>
+</li>
+</ul>
 <hr>
 <h2 id="0x03-RocketMQ-—-消息驱动"><a href="#0x03-RocketMQ-—-消息驱动" class="headerlink" title="0x03 RocketMQ — 消息驱动"></a>0x03 RocketMQ — 消息驱动</h2><h3 id="9-RocketMQ-如何保证消息不丢失？"><a href="#9-RocketMQ-如何保证消息不丢失？" class="headerlink" title="9. RocketMQ 如何保证消息不丢失？"></a>9. RocketMQ 如何保证消息不丢失？</h3><p>需要从三个环节保障：</p>
 <p><strong>生产者（发送端）</strong>：</p>
