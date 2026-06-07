@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文是 Spring Cloud Alibaba 生态的面试全解手册，覆盖 Nacos、Sentinel、Seata、RocketMQ、Dubbo、Gateway 六大组件的核心原理、高频面试题、经典线上 Bug 和场景设计题。每题答案均经过验证，附参考来源。面试前通读这一篇即可。  0x00 Nacos — 服务发现与配置中心1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="后端面试题：Spring Cloud Alibaba 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Cloud-Alibaba-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="本文是 Spring Cloud Alibaba 生态的面试全解手册，覆盖 Nacos、Sentinel、Seata、RocketMQ、Dubbo、Gateway 六大组件的核心原理、高频面试题、经典线上 Bug 和场景设计题。每题答案均经过验证，附参考来源。面试前通读这一篇即可。  0x00 Nacos — 服务发现与配置中心1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T05:58:22.574Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Dubbo">
+<meta property="article:tag" content="Gateway">
+<meta property="article:tag" content="Nacos">
+<meta property="article:tag" content="RocketMQ">
+<meta property="article:tag" content="Seata">
+<meta property="article:tag" content="Sentinel">
+<meta property="article:tag" content="Spring Cloud Alibaba">
+<meta property="article:tag" content="微服务">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Cloud-Alibaba-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Cloud-Alibaba-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/后端面试题-Spring-Cloud-Alibaba-面试全解/","title":"后端面试题：Spring Cloud Alibaba 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>后端面试题：Spring Cloud Alibaba 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-Nacos-%E2%80%94-%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E4%B8%8E%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-number">1.</span> <span class="nav-text">0x00 Nacos — 服务发现与配置中心</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Nacos-%E7%9A%84-AP-%E5%92%8C-CP-%E6%A8%A1%E5%BC%8F%E5%88%86%E5%88%AB%E7%94%A8%E4%BA%8E%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%EF%BC%9F%E5%88%87%E6%8D%A2%E6%96%B9%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Nacos-%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E7%83%AD%E6%9B%B4%E6%96%B0%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">2. Nacos 配置中心的热更新是如何实现的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Nacos-%E5%92%8C-Eureka-%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">3. Nacos 和 Eureka 的核心区别是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Sentinel-%E2%80%94-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7"><span class="nav-number">2.</span> <span class="nav-text">0x01 Sentinel — 流量控制与熔断降级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Sentinel-%E7%9A%84%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E9%99%90%E6%B5%81%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">4. Sentinel 的滑动窗口限流原理是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Sentinel-%E7%9A%84%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7%E6%9C%89%E5%93%AA%E4%B8%89%E7%A7%8D%E7%AD%96%E7%95%A5%EF%BC%9F%E5%90%84%E8%87%AA%E9%80%82%E7%94%A8%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%EF%BC%9F"><span class="nav-number">2.2.</span> <span class="nav-text">5. Sentinel 的熔断降级有哪三种策略？各自适用什么场景？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Sentinel-%E5%92%8C-Hystrix-%E7%9A%84%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">2.3.</span> <span class="nav-text">6. Sentinel 和 Hystrix 的本质区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Seata-%E2%80%94-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="nav-number">3.</span> <span class="nav-text">0x02 Seata — 分布式事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Seata-%E7%9A%84%E5%9B%9B%E7%A7%8D%E4%BA%8B%E5%8A%A1%E6%A8%A1%E5%BC%8F%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%A6%82%E4%BD%95%E9%80%89%E5%9E%8B%EF%BC%9F"><span class="nav-number">3.1.</span> <span class="nav-text">7. Seata 的四种事务模式分别是什么？如何选型？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Seata-AT-%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%85%A8%E5%B1%80%E9%94%81%EF%BC%9F"><span class="nav-number">3.2.</span> <span class="nav-text">8. Seata AT 模式的实现原理是什么？为什么需要全局锁？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-RocketMQ-%E2%80%94-%E6%B6%88%E6%81%AF%E9%A9%B1%E5%8A%A8"><span class="nav-number">4.</span> <span class="nav-text">0x03 RocketMQ — 消息驱动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-RocketMQ-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">9. RocketMQ 如何保证消息不丢失？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-RocketMQ-%E7%9A%84%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="nav-number">4.2.</span> <span class="nav-text">10. RocketMQ 的事务消息是怎么实现的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Dubbo-%E2%80%94-RPC-%E9%80%9A%E4%BF%A1"><span class="nav-number">5.</span> <span class="nav-text">0x04 Dubbo — RPC 通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Dubbo-%E7%9A%84%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-number">5.1.</span> <span class="nav-text">11. Dubbo 的服务调用流程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Dubbo-%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-number">5.2.</span> <span class="nav-text">12. Dubbo 的负载均衡策略有哪些？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-Spring-Cloud-Gateway-%E2%80%94-API-%E7%BD%91%E5%85%B3"><span class="nav-number">6.</span> <span class="nav-text">0x05 Spring Cloud Gateway — API 网关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Gateway-%E7%9A%84%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-number">6.1.</span> <span class="nav-text">13. Gateway 的三大核心组件是什么？请求处理流程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Gateway-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%EF%BC%9F"><span class="nav-number">6.2.</span> <span class="nav-text">14. Gateway 如何实现动态路由？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E7%BB%8F%E5%85%B8-Bug"><span class="nav-number">7.</span> <span class="nav-text">0x06 经典 Bug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-1%EF%BC%9ANacos-1-x-%E6%9C%8D%E5%8A%A1%E4%B8%8B%E7%BA%BF%E5%BB%B6%E8%BF%9F%E2%80%94%E2%80%9410-%E7%A7%92%E7%9A%84%E5%9D%91"><span class="nav-number">7.1.</span> <span class="nav-text">Bug 1：Nacos 1.x 服务下线延迟——10 秒的坑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-2%EF%BC%9ASeata-AT-%E5%85%A8%E5%B1%80%E9%94%81%E6%AD%BB%E9%94%81"><span class="nav-number">7.2.</span> <span class="nav-text">Bug 2：Seata AT 全局锁死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-3%EF%BC%9ASentinel-%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%A2%E5%A4%B1"><span class="nav-number">7.3.</span> <span class="nav-text">Bug 3：Sentinel 规则持久化丢失</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">8.</span> <span class="nav-text">0x07 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">8.1.</span> <span class="nav-text">场景：秒杀系统的微服务架构设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-%E5%B0%8F%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">0x08 小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Cloud-Alibaba-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="后端面试题：Spring Cloud Alibaba 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          后端面试题：Spring Cloud Alibaba 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 12:00:00 / 修改时间：13:58:22" itemprop="dateCreated datePublished" datetime="2026-06-07T12:00:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">后端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本文是 Spring Cloud Alibaba 生态的面试全解手册，覆盖 Nacos、Sentinel、Seata、RocketMQ、Dubbo、Gateway 六大组件的核心原理、高频面试题、经典线上 Bug 和场景设计题。每题答案均经过验证，附参考来源。面试前通读这一篇即可。</p>
+</blockquote>
+<h2 id="0x00-Nacos-—-服务发现与配置中心"><a href="#0x00-Nacos-—-服务发现与配置中心" class="headerlink" title="0x00 Nacos — 服务发现与配置中心"></a>0x00 Nacos — 服务发现与配置中心</h2><h3 id="1-Nacos-的-AP-和-CP-模式分别用于什么场景？切换方式是什么？"><a href="#1-Nacos-的-AP-和-CP-模式分别用于什么场景？切换方式是什么？" class="headerlink" title="1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式是什么？"></a>1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式是什么？</h3><p>Nacos 是目前国内微服务体系的事实标准注册中心，同时支持 <strong>AP（临时实例）</strong> 和 <strong>CP（持久实例）</strong>。</p>
+<p><strong>AP 模式</strong> — 对应服务发现，默认行为：</p>
+<ul>
+<li>实例通过心跳续约（5s），15s 无心跳则自动剔除</li>
+<li>节点间通过 Distro 协议异步同步注册信息</li>
+<li>类似 Eureka 的自保护：网络分区时优先保证注册和发现可用</li>
+<li>适合：无状态微服务，服务实例频繁上下线</li>
+</ul>
+<p><strong>CP 模式</strong> — 对应配置管理和 DNS 场景：</p>
+<ul>
+<li>使用简化 Raft 协议，写操作必须经过 Leader</li>
+<li>网络分区时少数派拒绝写入，保证一致性</li>
+<li>适合：配置变更、服务元数据等需要强一致的场景</li>
+</ul>
+<p><strong>切换方式</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># AP 模式（默认，临时实例）</span></span><br><span class="line"><span class="string">spring.cloud.nacos.discovery.ephemeral=true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># CP 模式（持久实例）</span></span><br><span class="line"><span class="string">spring.cloud.nacos.discovery.ephemeral=false</span></span><br></pre></td></tr></table></figure>
+
+<p>Nacos 2.x 后通信协议从 HTTP 升级为长连接 gRPC，单机可支撑 10w+ 实例。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://nacos.io/docs/latest/architecture/">Nacos 官方架构文档</a></p>
+<h3 id="2-Nacos-配置中心的热更新是如何实现的？"><a href="#2-Nacos-配置中心的热更新是如何实现的？" class="headerlink" title="2. Nacos 配置中心的热更新是如何实现的？"></a>2. Nacos 配置中心的热更新是如何实现的？</h3><p>核心机制：</p>
+<ol>
+<li><strong>长轮询（1.x）</strong>：客户端发起 HTTP 请求到服务端，服务端持有连接 29.5s，期间配置有变更则立即返回，否则超时后返回 304 让客户端再次发起</li>
+<li><strong>gRPC 长连接（2.x）</strong>：客户端与服务端建立双向流，服务端主动推送变更通知</li>
+<li><strong>Spring 集成</strong>：<code>@RefreshScope</code> 或 <code>@NacosValue</code> 注解的 Bean 会在收到变更通知后重新初始化</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方式1：@RefreshScope — Spring Cloud 标准方式</span></span><br><span class="line"><span class="meta">@RefreshScope</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConfigController</span> &#123;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;app.timeout:3000&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> timeout;</span><br><span class="line">    <span class="comment">// 配置变更后，下次调用自动获取新值</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式2：Nacos 原生 Listener</span></span><br><span class="line">configService.addListener(<span class="string">&quot;dataId&quot;</span>, <span class="string">&quot;group&quot;</span>, <span class="keyword">new</span> <span class="title class_">Listener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">receiveConfigInfo</span><span class="params">(String configInfo)</span> &#123;</span><br><span class="line">        <span class="comment">// 处理配置变更</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：<code>@RefreshScope</code> 会为每个 Bean 创建代理，有性能开销，高频调用的 Bean 不建议使用。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://nacos.io/docs/latest/ecology/use-nacos-with-spring-cloud/">Nacos Spring Cloud 文档</a></p>
+<h3 id="3-Nacos-和-Eureka-的核心区别是什么？"><a href="#3-Nacos-和-Eureka-的核心区别是什么？" class="headerlink" title="3. Nacos 和 Eureka 的核心区别是什么？"></a>3. Nacos 和 Eureka 的核心区别是什么？</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Nacos</th>
+<th>Eureka</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CAP</td>
+<td>AP + CP 可切换</td>
+<td>AP only</td>
+</tr>
+<tr>
+<td>健康检查</td>
+<td>TCP&#x2F;HTTP&#x2F;MySQL 多种</td>
+<td>仅 HTTP 心跳</td>
+</tr>
+<tr>
+<td>配置中心</td>
+<td>内置</td>
+<td>无（需集成 Spring Cloud Config）</td>
+</tr>
+<tr>
+<td>通信协议</td>
+<td>gRPC 长连接（2.x）</td>
+<td>HTTP 短连接</td>
+</tr>
+<tr>
+<td>实例规模</td>
+<td>10w+ &#x2F; 节点</td>
+<td>~5000 &#x2F; 节点</td>
+</tr>
+<tr>
+<td>控制台</td>
+<td>完善的管理 UI</td>
+<td>基本的 Dashboard</td>
+</tr>
+<tr>
+<td>维护状态</td>
+<td>阿里持续活跃维护</td>
+<td>Netflix 停止维护</td>
+</tr>
+</tbody></table>
+<p><strong>一句话</strong>：Nacos &#x3D; Eureka + Config + 管理面板，是 Eureka 的超集。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://nacos.io/docs/latest/overview/">Nacos vs Eureka vs Consul</a></p>
+<hr>
+<h2 id="0x01-Sentinel-—-流量控制与熔断降级"><a href="#0x01-Sentinel-—-流量控制与熔断降级" class="headerlink" title="0x01 Sentinel — 流量控制与熔断降级"></a>0x01 Sentinel — 流量控制与熔断降级</h2><h3 id="4-Sentinel-的滑动窗口限流原理是什么？"><a href="#4-Sentinel-的滑动窗口限流原理是什么？" class="headerlink" title="4. Sentinel 的滑动窗口限流原理是什么？"></a>4. Sentinel 的滑动窗口限流原理是什么？</h3><p>Sentinel QPS 限流基于 <strong>滑动窗口计数器</strong>（<code>LeapArray</code>）：</p>
+<ul>
+<li>将 1 秒时间窗口切分为 N 个格子（默认 2 格，每格 500ms）</li>
+<li>每个格子维护一个 LongAdder 计数器</li>
+<li>请求到来时，遍历当前窗口内所有有效格子，累加计数</li>
+<li>超过阈值则触发限流</li>
+</ul>
+<p>三种限流效果：</p>
+<ul>
+<li><strong>快速失败</strong>：直接抛 <code>FlowException</code></li>
+<li><strong>Warm Up</strong>：预热模式，阈值从 <code>count/3</code> 线性增长到 <code>count</code></li>
+<li><strong>排队等待</strong>：匀速排队（漏桶算法），请求超过超时时间才失败</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">FlowRule</span> <span class="variable">rule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FlowRule</span>(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">rule.setGrade(RuleConstant.FLOW_GRADE_QPS);  <span class="comment">// QPS 模式</span></span><br><span class="line">rule.setCount(<span class="number">10</span>);                            <span class="comment">// 阈值 10 QPS</span></span><br><span class="line">rule.setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_WARM_UP);</span><br><span class="line">rule.setWarmUpPeriodSec(<span class="number">10</span>);                  <span class="comment">// 预热 10 秒</span></span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://sentinelguard.io/docs/flow-control/">Sentinel Flow Control</a></p>
+<h3 id="5-Sentinel-的熔断降级有哪三种策略？各自适用什么场景？"><a href="#5-Sentinel-的熔断降级有哪三种策略？各自适用什么场景？" class="headerlink" title="5. Sentinel 的熔断降级有哪三种策略？各自适用什么场景？"></a>5. Sentinel 的熔断降级有哪三种策略？各自适用什么场景？</h3><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>判断依据</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>慢调用比例</strong></td>
+<td>慢调用数 &#x2F; 总调用数 &gt; 阈值</td>
+<td>下游服务响应变慢（如 DB 慢查询）</td>
+</tr>
+<tr>
+<td><strong>异常比例</strong></td>
+<td>异常数 &#x2F; 总调用数 &gt; 阈值</td>
+<td>下游偶发性故障</td>
+</tr>
+<tr>
+<td><strong>异常数</strong></td>
+<td>异常数绝对值 &gt; 阈值</td>
+<td>低流量接口（比例不敏感）</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">DegradeRule</span> <span class="variable">rule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DegradeRule</span>(<span class="string">&quot;resource&quot;</span>);</span><br><span class="line">rule.setGrade(RuleConstant.DEGRADE_GRADE_RT);        <span class="comment">// 慢调用比例</span></span><br><span class="line">rule.setCount(<span class="number">100</span>);                                   <span class="comment">// 最大 RT 100ms</span></span><br><span class="line">rule.setSlowRatioThreshold(<span class="number">0.5</span>);                      <span class="comment">// 50% 慢调用触发熔断</span></span><br><span class="line">rule.setTimeWindow(<span class="number">10</span>);                               <span class="comment">// 熔断 10 秒</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>核心逻辑</strong>：Sentinel 熔断器是<strong>半开-全开-全关</strong>三段式，不是 Hystrix 的半开试探模式。熔断时间窗口结束后自动恢复，不需要单独的探测请求。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://sentinelguard.io/docs/circuit-breaking/">Sentinel Circuit Breaking</a></p>
+<h3 id="6-Sentinel-和-Hystrix-的本质区别？"><a href="#6-Sentinel-和-Hystrix-的本质区别？" class="headerlink" title="6. Sentinel 和 Hystrix 的本质区别？"></a>6. Sentinel 和 Hystrix 的本质区别？</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Sentinel</th>
+<th>Hystrix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>隔离策略</td>
+<td>信号量隔离（无额外线程）</td>
+<td>线程池隔离（额外线程开销大）</td>
+</tr>
+<tr>
+<td>规则管理</td>
+<td>控制台实时推送，动态热更新</td>
+<td>静态配置，修改需重启</td>
+</tr>
+<tr>
+<td>熔断策略</td>
+<td>3 种（慢调用&#x2F;异常比例&#x2F;异常数）</td>
+<td>1 种（异常比例）</td>
+</tr>
+<tr>
+<td>流量整形</td>
+<td>预热、匀速排队、冷启动</td>
+<td>无</td>
+</tr>
+<tr>
+<td>扩展性</td>
+<td>SPI 插件机制</td>
+<td>接口实现</td>
+</tr>
+<tr>
+<td>维护状态</td>
+<td>阿里开源活跃维护</td>
+<td>Netflix 停止维护</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议</strong>：2026 年新项目优先 Sentinel。Hystrix 仅遗留系统还在跑。</p>
+<hr>
+<h2 id="0x02-Seata-—-分布式事务"><a href="#0x02-Seata-—-分布式事务" class="headerlink" title="0x02 Seata — 分布式事务"></a>0x02 Seata — 分布式事务</h2><h3 id="7-Seata-的四种事务模式分别是什么？如何选型？"><a href="#7-Seata-的四种事务模式分别是什么？如何选型？" class="headerlink" title="7. Seata 的四种事务模式分别是什么？如何选型？"></a>7. Seata 的四种事务模式分别是什么？如何选型？</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>侵入性</th>
+<th>性能</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>AT</strong></td>
+<td>零侵入</td>
+<td>中等</td>
+<td>纯关系型数据库操作</td>
+</tr>
+<tr>
+<td><strong>TCC</strong></td>
+<td>高（需实现 Try&#x2F;Confirm&#x2F;Cancel）</td>
+<td>高</td>
+<td>涉及 Redis&#x2F;MQ&#x2F;第三方 RPC</td>
+</tr>
+<tr>
+<td><strong>SAGA</strong></td>
+<td>中（需实现正向+补偿）</td>
+<td>高</td>
+<td>长事务（分钟级）</td>
+</tr>
+<tr>
+<td><strong>XA</strong></td>
+<td>零侵入</td>
+<td>低</td>
+<td>强一致性要求（金融）</td>
+</tr>
+</tbody></table>
+<p><strong>选型决策树</strong>：</p>
+<ul>
+<li>纯 DB 操作 → AT（前提：SQL 可被解析）</li>
+<li>涉及外部资源（Redis&#x2F;MQ&#x2F;RPC）→ TCC</li>
+<li>长事务（分钟级）→ SAGA 或最终一致性消息</li>
+<li>金融级强一致 → XA（但很少用）</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://seata.io/zh-cn/docs/overview/what-is-seata.html">Seata 官方文档</a></p>
+<h3 id="8-Seata-AT-模式的实现原理是什么？为什么需要全局锁？"><a href="#8-Seata-AT-模式的实现原理是什么？为什么需要全局锁？" class="headerlink" title="8. Seata AT 模式的实现原理是什么？为什么需要全局锁？"></a>8. Seata AT 模式的实现原理是什么？为什么需要全局锁？</h3><p>AT 模式核心是<strong>自动补偿</strong>，两阶段实现：</p>
+<p><strong>一阶段</strong>：</p>
+<ul>
+<li>Seata 拦截业务 SQL，解析出前后镜像存入 <code>undo_log</code> 表</li>
+<li>将业务 SQL + undo_log 在同一本地事务中提交</li>
+<li>注册分支事务到 TC（Transaction Coordinator）</li>
+</ul>
+<p><strong>二阶段</strong>：</p>
+<ul>
+<li><strong>成功</strong>：TC 通知各分支删除 undo_log（异步，无阻塞）</li>
+<li><strong>失败</strong>：TC 通知各分支根据 undo_log 反向生成回滚 SQL 并执行</li>
+</ul>
+<p><strong>全局锁的必要性</strong>：<br>在一阶段提交后、二阶段完成前，其他事务可能修改同一行数据。全局锁保证在全局事务未结束时，其他事务不能写入已被 AT 模式锁定的数据行，防止脏写。</p>
+<p><strong>脏写防护</strong>：如果全局锁获取失败 → 重试 → 超时则回滚本地事务并上报 TC。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://seata.io/zh-cn/docs/dev/mode/at-mode.html">Seata AT Mode</a></p>
+<hr>
+<h2 id="0x03-RocketMQ-—-消息驱动"><a href="#0x03-RocketMQ-—-消息驱动" class="headerlink" title="0x03 RocketMQ — 消息驱动"></a>0x03 RocketMQ — 消息驱动</h2><h3 id="9-RocketMQ-如何保证消息不丢失？"><a href="#9-RocketMQ-如何保证消息不丢失？" class="headerlink" title="9. RocketMQ 如何保证消息不丢失？"></a>9. RocketMQ 如何保证消息不丢失？</h3><p>需要从三个环节保障：</p>
+<p><strong>生产者（发送端）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 同步发送 + 重试</span></span><br><span class="line">producer.send(msg, <span class="keyword">new</span> <span class="title class_">SendCallback</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSuccess</span><span class="params">(SendResult result)</span> &#123;</span><br><span class="line">        <span class="comment">// 确认发送成功</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onException</span><span class="params">(Throwable e)</span> &#123;</span><br><span class="line">        <span class="comment">// 重试或记录失败</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>Broker（存储端）</strong>：</p>
+<ul>
+<li>同步刷盘（<code>flushDiskType=SYNC_FLUSH</code>）：写入 PageCache 后强制 fsync</li>
+<li>主从同步（<code>brokerRole=SYNC_MASTER</code>）：Master 写入后等待 Slave 确认</li>
+</ul>
+<p><strong>消费者（消费端）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">consumer.registerMessageListener((MessageListenerOrderly) (msgs, context) -&gt; &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 处理消息</span></span><br><span class="line">        <span class="keyword">return</span> ConsumeOrderlyStatus.SUCCESS;  <span class="comment">// 成功后才提交 offset</span></span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">return</span> ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;  <span class="comment">// 稍后重试</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>一句话</strong>：一端发确认 + 一端存可靠 + 一端消费确认 &#x3D; 全链路不丢。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/docs/">RocketMQ 官方文档</a></p>
+<h3 id="10-RocketMQ-的事务消息是怎么实现的？"><a href="#10-RocketMQ-的事务消息是怎么实现的？" class="headerlink" title="10. RocketMQ 的事务消息是怎么实现的？"></a>10. RocketMQ 的事务消息是怎么实现的？</h3><p>事务消息用于解决<strong>本地事务 + 消息发送</strong>的原子性问题。流程如下：</p>
+<ol>
+<li>生产者发送 <strong>half 消息</strong>（prepare 状态，消费者不可见）</li>
+<li>执行<strong>本地事务</strong></li>
+<li>根据本地事务结果：成功 → commit（消息可见），失败 → rollback（消息删除）</li>
+<li>Broker 定期回查生产者：如果 half 消息长时间未确认（默认 60s），回调 <code>checkLocalTransaction()</code> 确认状态</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TransactionMQProducer</span> <span class="variable">producer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransactionMQProducer</span>(<span class="string">&quot;tx_group&quot;</span>);</span><br><span class="line">producer.setTransactionListener(<span class="keyword">new</span> <span class="title class_">TransactionListener</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalTransactionState <span class="title function_">executeLocalTransaction</span><span class="params">(Message msg, Object arg)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 执行本地事务</span></span><br><span class="line">            orderService.createOrder();</span><br><span class="line">            <span class="keyword">return</span> LocalTransactionState.COMMIT_MESSAGE;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">return</span> LocalTransactionState.ROLLBACK_MESSAGE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalTransactionState <span class="title function_">checkLocalTransaction</span><span class="params">(MessageExt msg)</span> &#123;</span><br><span class="line">        <span class="comment">// 回查：查询本地事务执行状态</span></span><br><span class="line">        <span class="keyword">return</span> orderService.isOrderCreated(msg.getKeys())</span><br><span class="line">            ? LocalTransactionState.COMMIT_MESSAGE</span><br><span class="line">            : LocalTransactionState.ROLLBACK_MESSAGE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心设计</strong>：half 消息不是真实消息，是占位符。只有 commit 后才对消费者可见。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/docs/featureBehavior/04transaction">RocketMQ Transaction Message</a></p>
+<hr>
+<h2 id="0x04-Dubbo-—-RPC-通信"><a href="#0x04-Dubbo-—-RPC-通信" class="headerlink" title="0x04 Dubbo — RPC 通信"></a>0x04 Dubbo — RPC 通信</h2><h3 id="11-Dubbo-的服务调用流程是怎样的？"><a href="#11-Dubbo-的服务调用流程是怎样的？" class="headerlink" title="11. Dubbo 的服务调用流程是怎样的？"></a>11. Dubbo 的服务调用流程是怎样的？</h3><p>完整链路（以 Dubbo 3 + Nacos 为例）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Consumer → Proxy → Cluster → Filter Chain → </span><br><span class="line">  LoadBalance → Protocol(Invoker) → NettyClient → Provider</span><br></pre></td></tr></table></figure>
+
+<p>关键步骤：</p>
+<ol>
+<li><strong>代理层</strong>：Consumer 通过 <code>@DubboReference</code> 生成动态代理</li>
+<li><strong>路由层</strong>：从 Registry（Nacos）获取 Provider 列表，经过路由规则过滤</li>
+<li><strong>负载均衡</strong>：从候选列表中选择一个 Provider</li>
+<li><strong>协议层</strong>：序列化请求，通过 Netty 发送</li>
+<li><strong>Filter 链</strong>：Provider 端依次执行 Filter（可插拔，用于监控&#x2F;限流&#x2F;鉴权）</li>
+<li><strong>反射调用</strong>：最终执行 Provider 实现</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Consumer 侧</span></span><br><span class="line"><span class="meta">@DubboReference(version = &quot;1.0.0&quot;, timeout = 3000, </span></span><br><span class="line"><span class="meta">                cluster = &quot;failfast&quot;, loadbalance = &quot;roundrobin&quot;)</span></span><br><span class="line"><span class="keyword">private</span> OrderService orderService;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Provider 侧</span></span><br><span class="line"><span class="meta">@DubboService(version = &quot;1.0.0&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">OrderService</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://dubbo.apache.org/zh-cn/docs/">Dubbo 官方文档</a></p>
+<h3 id="12-Dubbo-的负载均衡策略有哪些？"><a href="#12-Dubbo-的负载均衡策略有哪些？" class="headerlink" title="12. Dubbo 的负载均衡策略有哪些？"></a>12. Dubbo 的负载均衡策略有哪些？</h3><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Random</strong>（默认）</td>
+<td>加权随机</td>
+<td>通用，各节点配置相同</td>
+</tr>
+<tr>
+<td><strong>RoundRobin</strong></td>
+<td>加权轮询</td>
+<td>请求处理时间均匀</td>
+</tr>
+<tr>
+<td><strong>LeastActive</strong></td>
+<td>最小活跃数（inflight 请求最少）</td>
+<td>长连接、处理时间不均</td>
+</tr>
+<tr>
+<td><strong>ConsistentHash</strong></td>
+<td>一致性哈希（同参数请求总打到同一节点）</td>
+<td>有状态服务、缓存亲和</td>
+</tr>
+<tr>
+<td><strong>ShortestResponse</strong></td>
+<td>最短响应时间（Dubbo 3.2+）</td>
+<td>自适应，兼顾延迟和负载</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 指定负载均衡策略</span></span><br><span class="line"><span class="meta">@DubboReference(loadbalance = &quot;consistenthash&quot;)</span></span><br><span class="line"><span class="keyword">private</span> OrderService orderService;</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://dubbo.apache.org/zh-cn/docs/advanced/loadbalance/">Dubbo LoadBalance</a></p>
+<hr>
+<h2 id="0x05-Spring-Cloud-Gateway-—-API-网关"><a href="#0x05-Spring-Cloud-Gateway-—-API-网关" class="headerlink" title="0x05 Spring Cloud Gateway — API 网关"></a>0x05 Spring Cloud Gateway — API 网关</h2><h3 id="13-Gateway-的三大核心组件是什么？请求处理流程是怎样的？"><a href="#13-Gateway-的三大核心组件是什么？请求处理流程是怎样的？" class="headerlink" title="13. Gateway 的三大核心组件是什么？请求处理流程是怎样的？"></a>13. Gateway 的三大核心组件是什么？请求处理流程是怎样的？</h3><p><strong>三大组件</strong>：</p>
+<ul>
+<li><strong>Route</strong>：路由定义（ID + URI + Predicates + Filters）</li>
+<li><strong>Predicate</strong>：断言（请求匹配条件，如 Path&#x2F;Cookie&#x2F;Header）</li>
+<li><strong>Filter</strong>：过滤器（请求&#x2F;响应处理，如 StripPrefix&#x2F;AddHeader）</li>
+</ul>
+<p><strong>请求流程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Request → Route Predicate 匹配 → WebFilter 链 → </span><br><span class="line">  目标微服务 → Response Filter 链 → Response</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">order-service</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://order-service</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/api/order/**</span></span><br><span class="line">          <span class="attr">filters:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">StripPrefix=1</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">AddRequestHeader=X-Source,</span> <span class="string">gateway</span></span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/">Spring Cloud Gateway Docs</a></p>
+<h3 id="14-Gateway-如何实现动态路由？"><a href="#14-Gateway-如何实现动态路由？" class="headerlink" title="14. Gateway 如何实现动态路由？"></a>14. Gateway 如何实现动态路由？</h3><p>两种方案：</p>
+<p><strong>方案1：Nacos Config + RefreshRoutesEvent</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicRouteListener</span> &#123;</span><br><span class="line">    <span class="meta">@EventListener</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onRouteRefresh</span><span class="params">(RefreshRoutesEvent event)</span> &#123;</span><br><span class="line">        <span class="comment">// 路由自动刷新</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Nacos 配置变更 → 发送 RefreshRoutesEvent → Gateway 重建 RouteLocator</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案2：自定义 RouteDefinitionRepository</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NacosRouteDefinitionRepository</span> </span><br><span class="line">    <span class="keyword">implements</span> <span class="title class_">RouteDefinitionRepository</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;RouteDefinition&gt; <span class="title function_">getRouteDefinitions</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 从 Nacos Config 读取路由定义 JSON</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> configService.getConfig(<span class="string">&quot;gateway-routes.json&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>, <span class="number">5000</span>);</span><br><span class="line">        List&lt;RouteDefinition&gt; routes = JSON.parseArray(json, RouteDefinition.class);</span><br><span class="line">        <span class="keyword">return</span> Flux.fromIterable(routes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Nacos 配置改变 → <code>RouteDefinitionRepository.getRouteDefinitions()</code> 被调用 → 路由热更新，无需重启。</p>
+<hr>
+<h2 id="0x06-经典-Bug"><a href="#0x06-经典-Bug" class="headerlink" title="0x06 经典 Bug"></a>0x06 经典 Bug</h2><h3 id="Bug-1：Nacos-1-x-服务下线延迟——10-秒的坑"><a href="#Bug-1：Nacos-1-x-服务下线延迟——10-秒的坑" class="headerlink" title="Bug 1：Nacos 1.x 服务下线延迟——10 秒的坑"></a>Bug 1：Nacos 1.x 服务下线延迟——10 秒的坑</h3><p><strong>现象</strong>：服务重启后，消费方连续 10 秒内大量报 <code>ConnectException: Connection refused</code>。</p>
+<p><strong>根因</strong>：Nacos 1.x 客户端默认 10s 拉取一次服务列表。UDP push 常被防火墙拦截。加上 Ribbon 本地缓存，实际延迟可达 15s。</p>
+<p><strong>修复</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 治标：降低拉取间隔</span></span><br><span class="line"><span class="attr">spring.cloud.nacos.discovery.watch-delay:</span> <span class="number">3000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 治本：升级到 Nacos 2.x（gRPC 长连接，秒级推送）</span></span><br><span class="line"><span class="comment"># 同时加优雅下线</span></span><br><span class="line"><span class="attr">server.shutdown:</span> <span class="string">graceful</span></span><br><span class="line"><span class="attr">spring.lifecycle.timeout-per-shutdown-phase:</span> <span class="string">20s</span></span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/alibaba/nacos/issues/4128">GitHub nacos#4128</a></p>
+<h3 id="Bug-2：Seata-AT-全局锁死锁"><a href="#Bug-2：Seata-AT-全局锁死锁" class="headerlink" title="Bug 2：Seata AT 全局锁死锁"></a>Bug 2：Seata AT 全局锁死锁</h3><p><strong>现象</strong>：<code>LockConflictException: get global lock fail</code> 无限重试后回滚，下一个请求继续死锁。</p>
+<p><strong>根因</strong>：事务A先锁 <code>order</code> 后 <code>inventory</code>，事务B先锁 <code>inventory</code> 后 <code>order</code>，形成死锁。</p>
+<p><strong>修复</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 统一资源加锁顺序（代码规约）</span></span><br><span class="line"><span class="comment"># 2. 缩短锁等待</span></span><br><span class="line"><span class="string">seata.client.lock.retry-interval=10</span></span><br><span class="line"><span class="string">seata.client.lock.retry-times=30</span></span><br><span class="line"><span class="comment"># 3. 高频冲突表改行级锁</span></span><br><span class="line"><span class="string">SELECT</span> <span class="string">*</span> <span class="string">FROM</span> <span class="string">inventory</span> <span class="string">WHERE</span> <span class="string">id</span> <span class="string">=</span> <span class="string">?</span> <span class="string">FOR</span> <span class="string">UPDATE</span></span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://segmentfault.com/">SegmentFault - Seata AT 死锁排查</a></p>
+<h3 id="Bug-3：Sentinel-规则持久化丢失"><a href="#Bug-3：Sentinel-规则持久化丢失" class="headerlink" title="Bug 3：Sentinel 规则持久化丢失"></a>Bug 3：Sentinel 规则持久化丢失</h3><p><strong>现象</strong>：服务重启后，通过 Dashboard 设置的 Sentinel 规则全部丢失。</p>
+<p><strong>根因</strong>：Sentinel 规则默认存储在 JVM 内存中。</p>
+<p><strong>修复</strong>：接入 Nacos 持久化数据源</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring.cloud.sentinel.datasource.ds.nacos:</span></span><br><span class="line">  <span class="attr">server-addr:</span> <span class="string">localhost:8848</span></span><br><span class="line">  <span class="attr">data-id:</span> <span class="string">sentinel-rules</span></span><br><span class="line">  <span class="attr">group-id:</span> <span class="string">DEFAULT_GROUP</span></span><br><span class="line">  <span class="attr">rule-type:</span> <span class="string">flow</span></span><br></pre></td></tr></table></figure>
+<p>服务重启后从 Nacos 重新加载规则，不再丢失。</p>
+<hr>
+<h2 id="0x07-场景设计"><a href="#0x07-场景设计" class="headerlink" title="0x07 场景设计"></a>0x07 场景设计</h2><h3 id="场景：秒杀系统的微服务架构设计"><a href="#场景：秒杀系统的微服务架构设计" class="headerlink" title="场景：秒杀系统的微服务架构设计"></a>场景：秒杀系统的微服务架构设计</h3><p><strong>需求</strong>：10w QPS 秒杀场景，保证不超卖、不崩溃。</p>
+<p><strong>架构层次</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">用户请求 → CDN / WAF</span><br><span class="line">  → Nginx 限流（limit_req）</span><br><span class="line">  → Gateway（Spring Cloud Gateway）</span><br><span class="line">    ├─ Sentinel 全局限流（租户+API 维度）</span><br><span class="line">    ├─ 鉴权（JWT）</span><br><span class="line">    └─ 路由转发</span><br><span class="line">      → 秒杀服务</span><br><span class="line">        ├─ Redis 预减库存（Lua 原子操作）</span><br><span class="line">        ├─ Sentinel 热点参数限流（商品ID维度）</span><br><span class="line">        └─ RocketMQ 异步下单</span><br><span class="line">          → 订单服务（Seata TCC）</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键技术点</strong>：</p>
+<ul>
+<li><strong>前端</strong>：按钮防抖 + 验证码削峰</li>
+<li><strong>网关</strong>：Sentinel 限流 + 黑名单拦截</li>
+<li><strong>服务层</strong>：Redis Lua 原子减库存，RocketMQ 异步下单</li>
+<li><strong>数据层</strong>：Seata TCC 保证库存扣减 + 订单创建的分布式事务一致性</li>
+<li><strong>兜底</strong>：Sentinel 降级，秒杀失败返回友好提示</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Redis Lua 原子减库存</span></span><br><span class="line"><span class="type">String</span> <span class="variable">script</span> <span class="operator">=</span> </span><br><span class="line">    <span class="string">&quot;local stock = redis.call(&#x27;get&#x27;, KEYS[1]) &quot;</span> +</span><br><span class="line">    <span class="string">&quot;if stock and tonumber(stock) &gt; 0 then &quot;</span> +</span><br><span class="line">    <span class="string">&quot;  redis.call(&#x27;decr&#x27;, KEYS[1]) &quot;</span> +</span><br><span class="line">    <span class="string">&quot;  return 1 &quot;</span> +</span><br><span class="line">    <span class="string">&quot;else &quot;</span> +</span><br><span class="line">    <span class="string">&quot;  return 0 &quot;</span> +</span><br><span class="line">    <span class="string">&quot;end&quot;</span>;</span><br><span class="line"><span class="type">Long</span> <span class="variable">result</span> <span class="operator">=</span> redisTemplate.execute(</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">DefaultRedisScript</span>&lt;&gt;(script, Long.class), </span><br><span class="line">    Arrays.asList(<span class="string">&quot;seckill:stock:&quot;</span> + productId)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x08-小结"><a href="#0x08-小结" class="headerlink" title="0x08 小结"></a>0x08 小结</h2><p>Spring Cloud Alibaba 面试的核心不是背参数，而是理解各组件的<strong>定位、原理、trade-off</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>一句话</th>
+<th>最常问</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Nacos</strong></td>
+<td>服务发现(AP) + 配置中心(CP)</td>
+<td>AP&#x2F;CP 切换、热更新原理</td>
+</tr>
+<tr>
+<td><strong>Sentinel</strong></td>
+<td>流量整形 + 熔断降级</td>
+<td>滑动窗口、三种熔断策略</td>
+</tr>
+<tr>
+<td><strong>Seata</strong></td>
+<td>分布式事务编排</td>
+<td>AT vs TCC 选型、全局锁</td>
+</tr>
+<tr>
+<td><strong>RocketMQ</strong></td>
+<td>高可靠消息 + 事务消息</td>
+<td>不丢消息、事务消息流程</td>
+</tr>
+<tr>
+<td><strong>Dubbo</strong></td>
+<td>高性能 RPC</td>
+<td>调用链路、负载均衡</td>
+</tr>
+<tr>
+<td><strong>Gateway</strong></td>
+<td>API 网关</td>
+<td>动态路由、过滤器链</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>本文将持续更新。有新的面试题或 Bug 案例会追加到对应章节，保持「一个技术大类一篇文章」。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Spring-Cloud-Alibaba/" rel="tag"># Spring Cloud Alibaba</a>
+              <a href="/tags/Nacos/" rel="tag"># Nacos</a>
+              <a href="/tags/Sentinel/" rel="tag"># Sentinel</a>
+              <a href="/tags/Seata/" rel="tag"># Seata</a>
+              <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+              <a href="/tags/Dubbo/" rel="tag"># Dubbo</a>
+              <a href="/tags/Gateway/" rel="tag"># Gateway</a>
+              <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/06/%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-TypeScript%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%B8%B8%E8%A7%81%E9%99%B7%E9%98%B12026%E7%89%88/" rel="prev" title="前端面试题：TypeScript高级类型与常见陷阱（2026版）">
+                  <i class="fa fa-angle-left"></i> 前端面试题：TypeScript高级类型与常见陷阱（2026版）
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
