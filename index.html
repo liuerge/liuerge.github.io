@@ -140,18 +140,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -168,6 +168,214 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Cloud-Alibaba-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%81%BF%E5%9D%912026%E7%89%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Cloud-Alibaba-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E4%B8%8E%E7%94%9F%E4%BA%A7%E9%81%BF%E5%9D%912026%E7%89%88/" class="post-title-link" itemprop="url">后端面试题：Spring Cloud Alibaba 核心原理与生产避坑（2026版）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 12:00:00 / 修改时间：13:44:42" itemprop="dateCreated datePublished" datetime="2026-06-07T12:00:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">后端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <blockquote>
+<p>本文整理了 Spring Cloud Alibaba 生态中高频出现的核心原理面试题、两个线上经典事故的排查复盘，以及一个网关+配置中心联动场景的实战设计。适合中高级 Java&#x2F;微服务工程师准备面试。</p>
+</blockquote>
+<h2 id="0x00-面试题"><a href="#0x00-面试题" class="headerlink" title="0x00 面试题"></a>0x00 面试题</h2><h3 id="1-Nacos-同时支持-AP-和-CP-模式，什么场景选哪个？和-Eureka-Consul-的对比？"><a href="#1-Nacos-同时支持-AP-和-CP-模式，什么场景选哪个？和-Eureka-Consul-的对比？" class="headerlink" title="1. Nacos 同时支持 AP 和 CP 模式，什么场景选哪个？和 Eureka &#x2F; Consul 的对比？"></a>1. Nacos 同时支持 AP 和 CP 模式，什么场景选哪个？和 Eureka &#x2F; Consul 的对比？</h3><p>Nacos 是目前国内微服务体系的事实标准注册中心。它与 Eureka 最大的区别在于 Nacos 支持 <strong>临时实例（AP）</strong> 和 <strong>持久实例（CP）</strong> 两种模式，可以在一致性与可用性之间按需切换。</p>
+<p><strong>AP 模式（临时实例）</strong> —— 默认行为，对应服务发现场景：</p>
+<ul>
+<li>实例通过心跳续约（默认 5s），15s 无心跳则剔除</li>
+<li>节点间采用 Distro 协议异步同步，强调可用性</li>
+<li>类似 Eureka 的自保护模式，网络分区时优先保证能注册和发现</li>
+</ul>
+<p><strong>CP 模式（持久实例）</strong> —— 对应配置管理&#x2F;DNS 场景：</p>
+<ul>
+<li>使用简化的 Raft 协议，写操作必须经过 Leader</li>
+<li>网络分区时少数派拒绝写，保证数据一致性</li>
+<li>类似 Consul 的强一致性模式</li>
+</ul>
+<p><strong>一句记住</strong>：Nacos &#x3D; Eureka（服务发现）+ Config（配置中心）的合体，但 Nacos 2.x 后通信协议从 HTTP 升级为 gRPC，大幅降低了心跳压力，单机可支撑 10w+ 实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Nacos 服务注册示例</span></span><br><span class="line">spring.cloud.nacos.discovery.server-addr=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8848</span></span><br><span class="line"># 临时实例（AP模式，默认）</span><br><span class="line">spring.cloud.nacos.discovery.ephemeral=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"># 持久实例（CP模式）</span><br><span class="line">spring.cloud.nacos.discovery.ephemeral=<span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://nacos.io/docs/latest/architecture/">Nacos 官方架构文档</a> &#x2F; 掘金《Nacos 2.x 架构演进》</p>
+<h3 id="2-Sentinel-的滑动窗口限流是怎么工作的？和-Hystrix-有什么本质区别？"><a href="#2-Sentinel-的滑动窗口限流是怎么工作的？和-Hystrix-有什么本质区别？" class="headerlink" title="2. Sentinel 的滑动窗口限流是怎么工作的？和 Hystrix 有什么本质区别？"></a>2. Sentinel 的滑动窗口限流是怎么工作的？和 Hystrix 有什么本质区别？</h3><p>Sentinel 的 QPS 限流基于<strong>滑动窗口计数器</strong>实现，核心数据结构为 <code>LeapArray</code>：</p>
+<ul>
+<li>将 1 秒时间窗口切分为 N 个格子（默认 2 格，每格 500ms）</li>
+<li>请求到来时计算当前窗口内所有格子的累计通过数</li>
+<li>超过阈值则触发限流（快速失败 &#x2F; Warm Up &#x2F; 排队等待三种效果）</li>
+</ul>
+<p>与 Hystrix 的本质区别：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Sentinel</th>
+<th>Hystrix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线程模型</td>
+<td>信号量隔离（无额外线程开销）</td>
+<td>线程池隔离（额外线程开销大）</td>
+</tr>
+<tr>
+<td>规则推送</td>
+<td>控制台实时下发，支持动态规则</td>
+<td>静态配置，修改需重启</td>
+</tr>
+<tr>
+<td>熔断策略</td>
+<td>慢调用比例 &#x2F; 异常比例 &#x2F; 异常数 三种</td>
+<td>仅异常比例</td>
+</tr>
+<tr>
+<td>扩展性</td>
+<td>SPI 插件机制，支持规则动态数据源</td>
+<td>接口实现，灵活性较低</td>
+</tr>
+<tr>
+<td>维护状态</td>
+<td>活跃维护（阿里开源）</td>
+<td>停止维护，进入维护模式</td>
+</tr>
+</tbody></table>
+<p><strong>一句话</strong>：Sentinel 是”规则驱动的流量整形工具”，Hystrix 是”资源隔离的熔断工具”。2026 年选型优先 Sentinel，Hystrix 仅遗留系统还在跑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Sentinel 流控规则示例</span></span><br><span class="line"><span class="type">FlowRule</span> <span class="variable">rule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FlowRule</span>();</span><br><span class="line">rule.setResource(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">rule.setGrade(RuleConstant.FLOW_GRADE_QPS);</span><br><span class="line">rule.setCount(<span class="number">10</span>);  <span class="comment">// QPS 阈值</span></span><br><span class="line">rule.setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_WARM_UP);</span><br><span class="line">rule.setWarmUpPeriodSec(<span class="number">10</span>);  <span class="comment">// 预热 10 秒</span></span><br><span class="line">FlowRuleManager.loadRules(Collections.singletonList(rule));</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki">Sentinel Wiki</a> &#x2F; 牛客网《微服务治理面试高频考点》</p>
+<h3 id="3-Seata-分布式事务-AT-模式和-TCC-模式怎么选？各自有什么坑？"><a href="#3-Seata-分布式事务-AT-模式和-TCC-模式怎么选？各自有什么坑？" class="headerlink" title="3. Seata 分布式事务 AT 模式和 TCC 模式怎么选？各自有什么坑？"></a>3. Seata 分布式事务 AT 模式和 TCC 模式怎么选？各自有什么坑？</h3><p>Seata 提供四种分布式事务模式，最常用的是 AT 和 TCC：</p>
+<p><strong>AT 模式（自动补偿）</strong> —— 适合无外部依赖的纯数据库操作：</p>
+<ul>
+<li>一阶段：拦截 SQL，解析出前后镜像（undo_log），把业务 SQL + undo_log 在同一本地事务提交</li>
+<li>二阶段：成功则异步删 undo_log；失败则根据 undo_log 反向生成回滚 SQL</li>
+<li><strong>核心前提</strong>：必须用支持 ACID 的关系型数据库，且 SQL 能被 Seata 正确解析</li>
+</ul>
+<p><strong>TCC 模式（手动补偿）</strong> —— 适合有外部 RPC&#x2F;缓存&#x2F;MQ 的复杂场景：</p>
+<ul>
+<li>Try：资源预留和检查</li>
+<li>Confirm：真正执行业务，幂等</li>
+<li>Cancel：释放预留资源，幂等</li>
+<li>需要业务方实现三个接口，代码侵入性强</li>
+</ul>
+<p><strong>选型决策</strong>：</p>
+<ul>
+<li>纯数据库操作 → AT（零侵入，前提是 SQL 可解析）</li>
+<li>涉及 Redis &#x2F; MQ &#x2F; 第三方 RPC → TCC（必须业务自己写补偿）</li>
+<li>长事务（分钟级） → SAGA 或最终一致性消息（避免长时间锁表）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AT 模式：开发者无感知，Seata 自动代理数据源</span></span><br><span class="line"><span class="meta">@GlobalTransactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">createOrder</span><span class="params">()</span> &#123;</span><br><span class="line">    orderDao.insert(order);      <span class="comment">// 本地事务</span></span><br><span class="line">    storageService.deduct();     <span class="comment">// RPC，Seata 自动传播 xid</span></span><br><span class="line">    <span class="comment">// 如果 deduct() 抛异常，order 的 insert 会被自动回滚</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TCC 模式：需要自己实现 Try / Confirm / Cancel</span></span><br><span class="line"><span class="meta">@LocalTCC</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">AccountTcc</span> &#123;</span><br><span class="line">    <span class="meta">@TwoPhaseBusinessAction(name = &quot;deduct&quot;, commitMethod = &quot;confirm&quot;, rollbackMethod = &quot;cancel&quot;)</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">tryDeduct</span><span class="params">(<span class="meta">@BusinessActionContextParameter(paramName = &quot;userId&quot;)</span> String userId,</span></span><br><span class="line"><span class="params">                      <span class="meta">@BusinessActionContextParameter(paramName = &quot;money&quot;)</span> BigDecimal money)</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">confirm</span><span class="params">(BusinessActionContext ctx)</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">cancel</span><span class="params">(BusinessActionContext ctx)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://seata.io/zh-cn/docs/overview/what-is-seata.html">Seata 官方文档</a> &#x2F; 掘金《Seata AT 模式踩坑记》</p>
+<h2 id="0x01-经典-Bug"><a href="#0x01-经典-Bug" class="headerlink" title="0x01 经典 Bug"></a>0x01 经典 Bug</h2><h3 id="Bug-1：Nacos-服务下线延迟——客户端缓存-10-秒害死猫"><a href="#Bug-1：Nacos-服务下线延迟——客户端缓存-10-秒害死猫" class="headerlink" title="Bug 1：Nacos 服务下线延迟——客户端缓存 10 秒害死猫"></a>Bug 1：Nacos 服务下线延迟——客户端缓存 10 秒害死猫</h3><p><strong>现象</strong>：服务重启后，消费方连续 10 秒内大量调用报错 <code>java.net.ConnectException: Connection refused</code>。</p>
+<p><strong>原因</strong>：Nacos 1.x 客户端默认每 10 秒从服务端拉取一次服务列表（UDP push 在生产环境经常被防火墙拦截），服务下线后消费者感知有最大 10 秒延迟。再加上 Ribbon 本地缓存，实际延迟可能到 15 秒。</p>
+<p><strong>修复</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方案1：降低拉取间隔（治标）</span></span><br><span class="line"><span class="attr">spring.cloud.nacos.discovery.watch-delay:</span> <span class="number">3000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方案2：Nacos 2.x 升级 gRPC 长连接（治本）</span></span><br><span class="line"><span class="comment"># gRPC 模式支持服务端主动推送变更，延迟降到秒级</span></span><br><span class="line"><span class="comment"># 升级后 UDP push 不再需要，防火墙问题也一并解决</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>额外加固</strong>：即便是 Nacos 2.x，服务下线也应<strong>先摘流量再停进程</strong>。Spring Boot 优雅下线配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server.shutdown:</span> <span class="string">graceful</span></span><br><span class="line"><span class="attr">spring.lifecycle.timeout-per-shutdown-phase:</span> <span class="string">20s</span></span><br></pre></td></tr></table></figure>
+
+<p>参考：GitHub Issues <a target="_blank" rel="noopener" href="https://github.com/alibaba/nacos/issues/4128">nacos#4128</a></p>
+<h3 id="Bug-2：Seata-AT-模式下全局锁等待超时，事务被无限回滚"><a href="#Bug-2：Seata-AT-模式下全局锁等待超时，事务被无限回滚" class="headerlink" title="Bug 2：Seata AT 模式下全局锁等待超时，事务被无限回滚"></a>Bug 2：Seata AT 模式下全局锁等待超时，事务被无限回滚</h3><p><strong>现象</strong>：某下单接口偶发超时，日志显示 <code>LockConflictException: get global lock fail</code>，然后不断重试直到超时回滚，但下一个请求又遇到同样的锁冲突。</p>
+<p><strong>原因</strong>：两个全局事务分别操作 <code>order</code> 表和 <code>inventory</code> 表，但执行顺序相反——事务A先锁 <code>order</code> 后锁 <code>inventory</code>，事务B先锁 <code>inventory</code> 后锁 <code>order</code>，形成死锁。Seata 的全局锁等待超时（默认 10s）后回滚，但如果请求量大，回滚后立即有新请求进来再次死锁。</p>
+<p><strong>修复</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 统一资源加锁顺序：所有人先锁 order 再锁 inventory</span></span><br><span class="line"><span class="comment">#    通过代码规约强制执行，不要依赖数据库索引顺序</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 缩短全局锁等待时间，快速失败而非长时间等待</span></span><br><span class="line"><span class="string">seata.client.lock.retry-interval=10</span></span><br><span class="line"><span class="string">seata.client.lock.retry-times=30</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 关键：对高频冲突表拆分粒度</span></span><br><span class="line"><span class="comment">#    不要锁整张表，用 WHERE id = ? FOR UPDATE 精确锁行</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>核心教训</strong>：Seata AT 的全局锁是行级锁的补充，不是替代——本地锁 + 全局锁都需要注意加锁顺序。</p>
+<p>参考：SegmentFault《Seata AT 模式全局锁死锁排查实战》</p>
+<h2 id="0x02-场景问题"><a href="#0x02-场景问题" class="headerlink" title="0x02 场景问题"></a>0x02 场景问题</h2><h3 id="需求：API-网关如何接入-Nacos-实现动态路由-Sentinel-全局限流？"><a href="#需求：API-网关如何接入-Nacos-实现动态路由-Sentinel-全局限流？" class="headerlink" title="需求：API 网关如何接入 Nacos 实现动态路由 + Sentinel 全局限流？"></a>需求：API 网关如何接入 Nacos 实现动态路由 + Sentinel 全局限流？</h3><p><strong>场景</strong>：某电商平台微服务数量从 20 个增长到 80 个，路由规则频繁变更，每改一次就要重启网关。要求实现路由配置热更新，并能对不同租户实施差异化限流。</p>
+<p><strong>方案设计</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">┌─────────┐    路由规则     ┌──────────┐</span><br><span class="line">│  Nacos  │ ◄─────────── │ Gateway  │</span><br><span class="line">│ Config  │              │ (SCG)    │</span><br><span class="line">│         │   动态路由     │          │</span><br><span class="line">│ .routes │ ────────────►│  Route   │</span><br><span class="line">│ .yaml   │              │  Locator │</span><br><span class="line">└─────────┘              └────┬─────┘</span><br><span class="line">                              │</span><br><span class="line">                    ┌─────────┴─────────┐</span><br><span class="line">                    │   Sentinel        │</span><br><span class="line">                    │   GatewayFilter   │</span><br><span class="line">                    └───────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心实现</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 从 Nacos Config 读取动态路由</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DynamicRouteConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RouteLocator <span class="title function_">customRouteLocator</span><span class="params">(RouteLocatorBuilder builder,</span></span><br><span class="line"><span class="params">                                            NacosConfigManager nacosConfigManager)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> () -&gt; &#123;</span><br><span class="line">            <span class="comment">// 从 Nacos 读取路由规则 JSON</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">routeJson</span> <span class="operator">=</span> nacosConfigManager.getConfigService()</span><br><span class="line">                .getConfig(<span class="string">&quot;gateway-routes.json&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>, <span class="number">5000</span>);</span><br><span class="line">            </span><br><span class="line">            List&lt;RouteDefinition&gt; routes = JSON.parseArray(routeJson, RouteDefinition.class);</span><br><span class="line">            <span class="keyword">return</span> Flux.fromIterable(routes)</span><br><span class="line">                .map(def -&gt; builder.routes().route(def.getId(), r -&gt; &#123;</span><br><span class="line">                    <span class="comment">// 将 RouteDefinition 转换为 Route</span></span><br><span class="line">                    r.path(def.getPredicates().get(<span class="number">0</span>).getArgs().get(<span class="string">&quot;pattern&quot;</span>))</span><br><span class="line">                     .uri(def.getUri().toString());</span><br><span class="line">                    <span class="keyword">return</span> r;</span><br><span class="line">                &#125;))</span><br><span class="line">                .collectList()</span><br><span class="line">                .flatMapMany(routes -&gt; routes);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 监听 Nacos 配置变更自动刷新路由</span></span><br><span class="line">    <span class="meta">@EventListener</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onRouteRefresh</span><span class="params">(RefreshRoutesEvent event)</span> &#123;</span><br><span class="line">        <span class="comment">// Spring Cloud Gateway 自动触发路由重载</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Nacos 中存储的 gateway-routes.json 示例</span></span><br><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">&quot;id&quot;:</span> <span class="string">&quot;order-service&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;uri&quot;:</span> <span class="string">&quot;lb://order-service&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;predicates&quot;:</span> [</span><br><span class="line">      &#123;<span class="attr">&quot;name&quot;:</span> <span class="string">&quot;Path&quot;</span>, <span class="attr">&quot;args&quot;:</span> &#123;<span class="attr">&quot;pattern&quot;:</span> <span class="string">&quot;/api/order/**&quot;</span>&#125;&#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">&quot;filters&quot;:</span> [</span><br><span class="line">      &#123;<span class="attr">&quot;name&quot;:</span> <span class="string">&quot;StripPrefix&quot;</span>, <span class="attr">&quot;args&quot;:</span> &#123;<span class="attr">&quot;parts&quot;:</span> <span class="string">&quot;2&quot;</span>&#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p><strong>Sentinel 网关限流</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 3. Sentinel GatewayFilter — 按租户 + API 双维度限流</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SentinelGatewayFilter</span> <span class="keyword">implements</span> <span class="title class_">GlobalFilter</span>, Ordered &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">tenantId</span> <span class="operator">=</span> exchange.getRequest().getHeaders().getFirst(<span class="string">&quot;X-Tenant-Id&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">apiPath</span> <span class="operator">=</span> exchange.getRequest().getPath().value();</span><br><span class="line">        <span class="type">String</span> <span class="variable">resourceName</span> <span class="operator">=</span> tenantId + <span class="string">&quot;:&quot;</span> + apiPath;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 自动创建租户级别的流控规则</span></span><br><span class="line">        <span class="keyword">if</span> (!DegradeRuleManager.hasConfig(resourceName)) &#123;</span><br><span class="line">            <span class="type">FlowRule</span> <span class="variable">rule</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FlowRule</span>(resourceName)</span><br><span class="line">                .setGrade(RuleConstant.FLOW_GRADE_QPS)</span><br><span class="line">                .setCount(tenantId.equals(<span class="string">&quot;VIP&quot;</span>) ? <span class="number">1000</span> : <span class="number">100</span>);</span><br><span class="line">            FlowRuleManager.loadRules(Collections.singletonList(rule));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">Entry</span> <span class="variable">entry</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            entry = SphU.entry(resourceName);</span><br><span class="line">            <span class="keyword">return</span> chain.filter(exchange);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (BlockException e) &#123;</span><br><span class="line">            exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);</span><br><span class="line">            <span class="keyword">return</span> exchange.getResponse().setComplete();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (entry != <span class="literal">null</span>) entry.exit();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>Nacos 配置变更通过 <code>@RefreshScope</code> 或自定义 Listener 实现网关路由热更新，无需重启</li>
+<li>Sentinel 支持 Gateway 维度的精细化限流，可以按 API、租户、IP 等任意维度组合</li>
+<li>生产环境建议将 Sentinel 规则也存入 Nacos Config，通过 Sentinel Dashboard 可视化调整</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/">Spring Cloud Gateway 官方文档</a> &#x2F; Sentinel Gateway 适配 &#x2F; 掘金《Spring Cloud Gateway 动态路由方案对比》</p>
+<h2 id="0x03-小结"><a href="#0x03-小结" class="headerlink" title="0x03 小结"></a>0x03 小结</h2><p>Spring Cloud Alibaba 面试的核心不是背题，而是理解三个”为什么”：</p>
+<ol>
+<li><strong>Nacos 为什么选 AP 做服务发现？</strong> — 可用性优先，服务列表的短暂不一致通常不致命</li>
+<li><strong>Sentinel 为什么用信号量而不用线程池？</strong> — 降低资源开销，适合高 QPS 网关场景</li>
+<li><strong>Seata AT 为什么要解析 SQL？</strong> — 只有拿到前后镜像才能自动生成回滚 SQL，这是它”零侵入”的代价</li>
+</ol>
+<p>掌握这些”为什么”，比记住配置参数重要得多。面试官要的不是运维手册，是你能在设计选型时说出 trade-off。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
