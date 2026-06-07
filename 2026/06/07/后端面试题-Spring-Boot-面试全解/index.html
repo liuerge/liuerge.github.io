@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Spring Boot 高级面试全解，覆盖自动配置原理、Starter 机制、Actuator 监控、性能调优和常见生产踩坑。面向高级研发，侧重源码理解和架构设计。  0x00 自动配置原理1. @SpringBootApplication 注解到底做了什么？拆解： 1234@SpringBootApplication  &#x2F;&#x2F; 等价于下面三个注解的组合  &#x3D; @SpringBootConfigu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="后端面试题：Spring Boot 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Boot-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="Spring Boot 高级面试全解，覆盖自动配置原理、Starter 机制、Actuator 监控、性能调优和常见生产踩坑。面向高级研发，侧重源码理解和架构设计。  0x00 自动配置原理1. @SpringBootApplication 注解到底做了什么？拆解： 1234@SpringBootApplication  &#x2F;&#x2F; 等价于下面三个注解的组合  &#x3D; @SpringBootConfigu">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T06:52:45.333Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Spring Boot">
+<meta property="article:tag" content="自动配置">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Boot-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Boot-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/后端面试题-Spring-Boot-面试全解/","title":"后端面试题：Spring Boot 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>后端面试题：Spring Boot 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86"><span class="nav-text">0x00 自动配置原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-SpringBootApplication-%E6%B3%A8%E8%A7%A3%E5%88%B0%E5%BA%95%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. @SpringBootApplication 注解到底做了什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA-Starter%EF%BC%9F"><span class="nav-text">2. 如何自定义一个 Starter？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x01 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spring-Boot-%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">3. Spring Boot 的异常处理机制是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-ConfigurationProperties-vs-Value-%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">4. @ConfigurationProperties vs @Value 怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Actuator-%E4%B8%8E%E7%9B%91%E6%8E%A7"><span class="nav-text">0x02 Actuator 与监控</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Actuator-%E6%9C%89%E5%93%AA%E4%BA%9B%E5%85%B3%E9%94%AE%E7%AB%AF%E7%82%B9%EF%BC%9F%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%A6%82%E4%BD%95%E5%AE%89%E5%85%A8%E6%9A%B4%E9%9C%B2%EF%BC%9F"><span class="nav-text">5. Actuator 有哪些关键端点？生产环境如何安全暴露？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spring-Boot-3-x-%E8%BF%81%E7%A7%BB%E8%A6%81%E7%82%B9"><span class="nav-text">0x03 Spring Boot 3.x 迁移要点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Spring-Boot-2-x-%E2%86%92-3-x-%E6%9C%89%E5%93%AA%E4%BA%9B-Breaking-Changes%EF%BC%9F"><span class="nav-text">6. Spring Boot 2.x → 3.x 有哪些 Breaking Changes？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="nav-text">0x04 性能调优</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spring-Boot-%E5%BA%94%E7%94%A8%E5%B8%B8%E8%A7%81%E6%80%A7%E8%83%BD%E7%93%B6%E9%A2%88%E5%8F%8A%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">7. Spring Boot 应用常见性能瓶颈及优化？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E7%BB%8F%E5%85%B8-Bug"><span class="nav-text">0x05 经典 Bug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-1%EF%BC%9A-Transactional-%E5%A4%B1%E6%95%88"><span class="nav-text">Bug 1：@Transactional 失效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-2%EF%BC%9A%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E5%AF%BC%E8%87%B4%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5"><span class="nav-text">Bug 2：循环依赖导致启动失败</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x06 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%94%AF%E6%8C%81%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">设计一个支持灰度发布的配置中心</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E5%B0%8F%E7%BB%93"><span class="nav-text">0x07 小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Boot-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="后端面试题：Spring Boot 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          后端面试题：Spring Boot 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-07 15:00:00 / 修改时间：14:52:45" itemprop="dateCreated datePublished" datetime="2026-06-07T15:00:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">后端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>Spring Boot 高级面试全解，覆盖自动配置原理、Starter 机制、Actuator 监控、性能调优和常见生产踩坑。面向高级研发，侧重源码理解和架构设计。</p>
+</blockquote>
+<h2 id="0x00-自动配置原理"><a href="#0x00-自动配置原理" class="headerlink" title="0x00 自动配置原理"></a>0x00 自动配置原理</h2><h3 id="1-SpringBootApplication-注解到底做了什么？"><a href="#1-SpringBootApplication-注解到底做了什么？" class="headerlink" title="1. @SpringBootApplication 注解到底做了什么？"></a>1. <code>@SpringBootApplication</code> 注解到底做了什么？</h3><p>拆解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span>  <span class="comment">// 等价于下面三个注解的组合</span></span><br><span class="line">  = <span class="meta">@SpringBootConfiguration</span>   <span class="comment">// → @Configuration，标记配置类</span></span><br><span class="line">  + <span class="meta">@EnableAutoConfiguration</span>   <span class="comment">// → 触发自动配置</span></span><br><span class="line">  + <span class="meta">@ComponentScan</span>              <span class="comment">// → 扫描当前包及子包的组件</span></span><br></pre></td></tr></table></figure>
+
+<p>关键在于 <code>@EnableAutoConfiguration</code>：</p>
+<ol>
+<li>通过 <code>@Import(AutoConfigurationImportSelector.class)</code> 导入选择器</li>
+<li>选择器读取 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>（Spring Boot 3.x）或 <code>spring.factories</code>（2.x）</li>
+<li>加载全部候选配置类（约 150+）</li>
+<li>通过 <code>@ConditionalOnClass</code>、<code>@ConditionalOnMissingBean</code> 等条件注解过滤</li>
+<li>最终只加载符合当前环境的配置</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 典型的条件自动配置示例</span></span><br><span class="line"><span class="meta">@AutoConfiguration</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(&#123; DataSource.class, EmbeddedDatabaseType.class &#125;)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(DataSourceProperties.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DataSourceAutoConfiguration</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> DataSource <span class="title function_">dataSource</span><span class="params">(DataSourceProperties properties)</span> &#123;</span><br><span class="line">        <span class="comment">// 创建 DataSource</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：第三方 Starter 的 <code>AutoConfiguration.imports</code> 可能定义了你不想要的 Bean。排除方式：<code>@SpringBootApplication(exclude = {XXXAutoConfiguration.class})</code> 或在 <code>application.properties</code> 中 <code>spring.autoconfigure.exclude=...</code></li>
+<li><strong>源码层面</strong>：Spring Boot 3.x 换用 <code>.imports</code> 文件替代 <code>spring.factories</code> 是为了减少类加载开销——<code>spring.factories</code> 需要加载所有文件中的所有行，<code>.imports</code> 只加载对应文件</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/current/reference/html/auto-configuration.html">Spring Boot 自动配置文档</a></p>
+<h3 id="2-如何自定义一个-Starter？"><a href="#2-如何自定义一个-Starter？" class="headerlink" title="2. 如何自定义一个 Starter？"></a>2. 如何自定义一个 Starter？</h3><p>三步：</p>
+<p><strong>1. 创建 autoconfigure 模块</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@AutoConfiguration</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(MyStarterProperties.class)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(MyService.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyStarterAutoConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> MyService <span class="title function_">myService</span><span class="params">(MyStarterProperties props)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">MyService</span>(props.getUrl(), props.getTimeout());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;my.starter&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyStarterProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;http://localhost:8080&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">timeout</span> <span class="operator">=</span> <span class="number">3000</span>;</span><br><span class="line">    <span class="comment">// getters/setters</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 创建 spring 配置文件</strong>：<code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> 中写入 <code>com.example.MyStarterAutoConfiguration</code></p>
+<p><strong>3. 可选依赖 BOM</strong>：如果提供版本管理，创建 <code>spring-boot-starter-my</code> 的 pom 依赖 autoconfigure 模块</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.developing-auto-configuration">Creating Your Own Starter</a></p>
+<hr>
+<h2 id="0x01-核心机制"><a href="#0x01-核心机制" class="headerlink" title="0x01 核心机制"></a>0x01 核心机制</h2><h3 id="3-Spring-Boot-的异常处理机制是什么？"><a href="#3-Spring-Boot-的异常处理机制是什么？" class="headerlink" title="3. Spring Boot 的异常处理机制是什么？"></a>3. Spring Boot 的异常处理机制是什么？</h3><p>三层异常处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. @ExceptionHandler — 控制器级别</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderController</span> &#123;</span><br><span class="line">    <span class="meta">@ExceptionHandler(OrderNotFoundException.class)</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.NOT_FOUND)</span></span><br><span class="line">    <span class="keyword">public</span> ErrorResponse <span class="title function_">handleNotFound</span><span class="params">(OrderNotFoundException e)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ErrorResponse</span>(<span class="number">404</span>, e.getMessage());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. @ControllerAdvice — 全局级别</span></span><br><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GlobalExceptionHandler</span> &#123;</span><br><span class="line">    <span class="meta">@ExceptionHandler(MethodArgumentNotValidException.class)</span></span><br><span class="line">    <span class="keyword">public</span> ErrorResponse <span class="title function_">handleValidation</span><span class="params">(MethodArgumentNotValidException e)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> e.getBindingResult().getFieldErrors().stream()</span><br><span class="line">            .map(FieldError::getDefaultMessage)</span><br><span class="line">            .collect(Collectors.joining(<span class="string">&quot;, &quot;</span>));</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ErrorResponse</span>(<span class="number">400</span>, msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="keyword">public</span> ErrorResponse <span class="title function_">handleAll</span><span class="params">(Exception e)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ErrorResponse</span>(<span class="number">500</span>, <span class="string">&quot;Internal Server Error&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. BasicErrorController — Spring Boot 默认兜底</span></span><br><span class="line"><span class="comment">// 当没有任何 @ExceptionHandler 处理时，由 BasicErrorController 接管</span></span><br><span class="line"><span class="comment">// 返回 /error 页面的 JSON 或 HTML</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>优先级</strong>：<code>@ExceptionHandler</code> &gt; <code>@ControllerAdvice</code> &gt; <code>BasicErrorController</code></p>
+<p>参考：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/current/reference/html/web.html#web.servlet.spring-mvc.error-handling">Spring Boot Error Handling</a></p>
+<h3 id="4-ConfigurationProperties-vs-Value-怎么选？"><a href="#4-ConfigurationProperties-vs-Value-怎么选？" class="headerlink" title="4. @ConfigurationProperties vs @Value 怎么选？"></a>4. <code>@ConfigurationProperties</code> vs <code>@Value</code> 怎么选？</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th><code>@ConfigurationProperties</code></th>
+<th><code>@Value</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>绑定方式</td>
+<td>按前缀批量绑定（类型安全）</td>
+<td>逐个注入</td>
+</tr>
+<tr>
+<td>松散绑定</td>
+<td>支持（<code>my-prop</code> → <code>myProp</code>）</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>校验</td>
+<td>支持 JSR303 <code>@Validated</code></td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>复杂类型</td>
+<td>支持 List&#x2F;Map&#x2F;嵌套对象</td>
+<td>仅支持简单类型</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>一组相关配置</td>
+<td>单个独立配置</td>
+</tr>
+</tbody></table>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @ConfigurationProperties: 适合有前缀的一组配置</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;app.pool&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PoolProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">coreSize</span> <span class="operator">=</span> <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">maxSize</span> <span class="operator">=</span> <span class="number">50</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Duration</span> <span class="variable">keepAlive</span> <span class="operator">=</span> Duration.ofSeconds(<span class="number">60</span>);</span><br><span class="line">    <span class="comment">// 支持嵌套</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">Retry</span> <span class="variable">retry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Retry</span>();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Retry</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="type">int</span> <span class="variable">maxAttempts</span> <span class="operator">=</span> <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// @Value: 适合零散的单个配置</span></span><br><span class="line"><span class="meta">@Value(&quot;$&#123;app.pool.core-size&#125;&quot;)</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">int</span> coreSize;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产经验</strong>：<code>@ConfigurationProperties</code> 需要启用 <code>@EnableConfigurationProperties</code> 或注册为 Bean，否则不生效。最常见踩坑：写了 <code>@ConfigurationProperties</code> 但忘了加 <code>@Component</code> 或 <code>@EnableConfigurationProperties</code></li>
+</ul>
+<hr>
+<h2 id="0x02-Actuator-与监控"><a href="#0x02-Actuator-与监控" class="headerlink" title="0x02 Actuator 与监控"></a>0x02 Actuator 与监控</h2><h3 id="5-Actuator-有哪些关键端点？生产环境如何安全暴露？"><a href="#5-Actuator-有哪些关键端点？生产环境如何安全暴露？" class="headerlink" title="5. Actuator 有哪些关键端点？生产环境如何安全暴露？"></a>5. Actuator 有哪些关键端点？生产环境如何安全暴露？</h3><p>常用端点：</p>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>用途</th>
+<th>风险等级</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/health</code></td>
+<td>健康检查（K8s liveness&#x2F;readiness）</td>
+<td>低</td>
+</tr>
+<tr>
+<td><code>/info</code></td>
+<td>应用信息</td>
+<td>低</td>
+</tr>
+<tr>
+<td><code>/metrics</code></td>
+<td>JVM&#x2F;HTTP&#x2F;DB 指标</td>
+<td>中</td>
+</tr>
+<tr>
+<td><code>/env</code></td>
+<td>环境变量和配置</td>
+<td><strong>高</strong>（可能泄露密码）</td>
+</tr>
+<tr>
+<td><code>/threaddump</code></td>
+<td>线程转储</td>
+<td>中</td>
+</tr>
+<tr>
+<td><code>/heapdump</code></td>
+<td>堆转储（敏感数据）</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td><code>/loggers</code></td>
+<td>动态调整日志级别</td>
+<td>中</td>
+</tr>
+<tr>
+<td><code>/mappings</code></td>
+<td>所有请求映射</td>
+<td>低</td>
+</tr>
+</tbody></table>
+<p><strong>生产安全配置</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">management:</span></span><br><span class="line">  <span class="attr">endpoints:</span></span><br><span class="line">    <span class="attr">web:</span></span><br><span class="line">      <span class="attr">exposure:</span></span><br><span class="line">        <span class="comment"># 生产环境：只暴露健康检查和指标</span></span><br><span class="line">        <span class="attr">include:</span> <span class="string">health,info,metrics,prometheus</span></span><br><span class="line">  <span class="attr">endpoint:</span></span><br><span class="line">    <span class="attr">health:</span></span><br><span class="line">      <span class="attr">show-details:</span> <span class="string">when-authorized</span>  <span class="comment"># 有权限才显示详情</span></span><br><span class="line">      <span class="attr">probes:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span>                <span class="comment"># K8s 探针</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>架构设计</strong>：管理端口和生产端口分离是最佳实践——<code>management.server.port=8081</code>，生产端口 8080 走业务流量，管理端口 8081 只对内网开放</li>
+</ul>
+<hr>
+<h2 id="0x03-Spring-Boot-3-x-迁移要点"><a href="#0x03-Spring-Boot-3-x-迁移要点" class="headerlink" title="0x03 Spring Boot 3.x 迁移要点"></a>0x03 Spring Boot 3.x 迁移要点</h2><h3 id="6-Spring-Boot-2-x-→-3-x-有哪些-Breaking-Changes？"><a href="#6-Spring-Boot-2-x-→-3-x-有哪些-Breaking-Changes？" class="headerlink" title="6. Spring Boot 2.x → 3.x 有哪些 Breaking Changes？"></a>6. Spring Boot 2.x → 3.x 有哪些 Breaking Changes？</h3><table>
+<thead>
+<tr>
+<th>变更</th>
+<th>2.x</th>
+<th>3.x</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java 基线</td>
+<td>Java 8&#x2F;11</td>
+<td><strong>Java 17+</strong></td>
+</tr>
+<tr>
+<td>Jakarta EE</td>
+<td><code>javax.*</code></td>
+<td><strong><code>jakarta.*</code></strong></td>
+</tr>
+<tr>
+<td>自动配置注册</td>
+<td><code>spring.factories</code></td>
+<td><strong><code>AutoConfiguration.imports</code></strong></td>
+</tr>
+<tr>
+<td>可观测性</td>
+<td>无统一 API</td>
+<td><strong>Micrometer Observation API</strong></td>
+</tr>
+<tr>
+<td>AOT 编译</td>
+<td>不支持</td>
+<td>原生支持 GraalVM Native Image</td>
+</tr>
+<tr>
+<td>虚拟线程</td>
+<td>不支持</td>
+<td>支持 Virtual Threads</td>
+</tr>
+<tr>
+<td><code>HttpMethod</code></td>
+<td><code>PATCH</code> 不存在</td>
+<td>新增 <code>PATCH</code></td>
+</tr>
+</tbody></table>
+<p><strong>实际踩坑</strong>：</p>
+<ul>
+<li>大量第三方库的 <code>javax.servlet</code> 依赖需要替换为 <code>jakarta.servlet</code></li>
+<li>如果有自定义 <code>spring.factories</code>，必须迁移到 <code>.imports</code> 文件</li>
+<li><code>spring-security</code> 的配置方式有较大变化（lambda DSL）</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide">Spring Boot 3.0 Migration Guide</a></p>
+<hr>
+<h2 id="0x04-性能调优"><a href="#0x04-性能调优" class="headerlink" title="0x04 性能调优"></a>0x04 性能调优</h2><h3 id="7-Spring-Boot-应用常见性能瓶颈及优化？"><a href="#7-Spring-Boot-应用常见性能瓶颈及优化？" class="headerlink" title="7. Spring Boot 应用常见性能瓶颈及优化？"></a>7. Spring Boot 应用常见性能瓶颈及优化？</h3><p><strong>1. 数据库连接池</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring.datasource.hikari:</span></span><br><span class="line">  <span class="attr">maximum-pool-size:</span> <span class="number">20</span>        <span class="comment"># 不要瞎设 200，看实际并发</span></span><br><span class="line">  <span class="attr">minimum-idle:</span> <span class="number">5</span></span><br><span class="line">  <span class="attr">connection-timeout:</span> <span class="number">3000</span></span><br><span class="line">  <span class="attr">idle-timeout:</span> <span class="number">600000</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2. Tomcat 线程池</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server.tomcat:</span></span><br><span class="line">  <span class="attr">threads.max:</span> <span class="number">200</span>             <span class="comment"># 默认 200，高并发场景可调高</span></span><br><span class="line">  <span class="attr">accept-count:</span> <span class="number">100</span>            <span class="comment"># 等待队列长度</span></span><br><span class="line">  <span class="attr">connection-timeout:</span> <span class="number">20000</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. JVM 调优</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xms2g -Xmx2g</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 缓存策略</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Cacheable(value = &quot;orders&quot;, key = &quot;#id&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Order <span class="title function_">getOrder</span><span class="params">(Long id)</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 异步处理</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Async</span></span><br><span class="line"><span class="keyword">public</span> CompletableFuture&lt;Result&gt; <span class="title function_">processAsync</span><span class="params">()</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>架构设计</strong>：不要盲目增加线程数。Tomcat 线程数 × 平均 RT(秒) &#x3D; 理论并发 QPS。如果 RT&#x3D;200ms，200 线程 &#x3D; 1000 QPS。超过这个值先看 RT 能不能降，再看能不能加线程</li>
+</ul>
+<hr>
+<h2 id="0x05-经典-Bug"><a href="#0x05-经典-Bug" class="headerlink" title="0x05 经典 Bug"></a>0x05 经典 Bug</h2><h3 id="Bug-1：-Transactional-失效"><a href="#Bug-1：-Transactional-失效" class="headerlink" title="Bug 1：@Transactional 失效"></a>Bug 1：<code>@Transactional</code> 失效</h3><p><strong>现象</strong>：方法上加了 <code>@Transactional</code>，异常抛出后数据没有回滚。</p>
+<p><strong>根因</strong>（三种常见情况）：</p>
+<ol>
+<li><strong>同类内部调用</strong>：Spring AOP 代理只拦截外部调用</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">outer</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.inner();  <span class="comment">// 内部调用，不经过代理，@Transactional 失效！</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">inner</span><span class="params">()</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>非 public 方法</strong>：CGLIB 代理只能代理 public 方法</li>
+<li><strong>checked exception 不回滚</strong>：默认只对 RuntimeException 和 Error 回滚</li>
+</ol>
+<p><strong>修复</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 自注入绕过代理限制</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> OrderService self;  <span class="comment">// 注入代理</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">outer</span><span class="params">()</span> &#123;</span><br><span class="line">        self.inner();  <span class="comment">// 通过代理调用</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">inner</span><span class="params">()</span> &#123; ... &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 指定回滚异常类型</span></span><br><span class="line"><span class="meta">@Transactional(rollbackFor = Exception.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">process</span><span class="params">()</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Bug-2：循环依赖导致启动失败"><a href="#Bug-2：循环依赖导致启动失败" class="headerlink" title="Bug 2：循环依赖导致启动失败"></a>Bug 2：循环依赖导致启动失败</h3><p><strong>现象</strong>：<code>BeanCurrentlyInCreationException</code></p>
+<p><strong>根因</strong>：A 依赖 B，B 依赖 A，构造器注入时形成死循环。</p>
+<p><strong>修复</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方案1：改用 @Lazy</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">A</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> B b;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">A</span><span class="params">(<span class="meta">@Lazy</span> B b)</span> &#123; <span class="built_in">this</span>.b = b; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方案2：用 Setter/Field 注入代替构造器注入</span></span><br><span class="line"><span class="comment">// 方案3：提取公共逻辑到第三个类 C，打破循环</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x06-场景设计"><a href="#0x06-场景设计" class="headerlink" title="0x06 场景设计"></a>0x06 场景设计</h2><h3 id="设计一个支持灰度发布的配置中心"><a href="#设计一个支持灰度发布的配置中心" class="headerlink" title="设计一个支持灰度发布的配置中心"></a>设计一个支持灰度发布的配置中心</h3><p><strong>需求</strong>：配置变更不能全量生效，需要按比例灰度。</p>
+<p><strong>方案</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;app.feature&quot;)</span></span><br><span class="line"><span class="meta">@RefreshScope</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FeatureConfig</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, FeatureRule&gt; rules = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isEnabled</span><span class="params">(String feature, String userId)</span> &#123;</span><br><span class="line">        <span class="type">FeatureRule</span> <span class="variable">rule</span> <span class="operator">=</span> rules.get(feature);</span><br><span class="line">        <span class="keyword">if</span> (rule == <span class="literal">null</span>) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="comment">// 按 userId 哈希做灰度</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">hash</span> <span class="operator">=</span> Math.abs(userId.hashCode()) % <span class="number">100</span>;</span><br><span class="line">        <span class="keyword">return</span> hash &lt; rule.getPercentage();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">FeatureRule</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="type">int</span> percentage; <span class="comment">// 0-100</span></span><br><span class="line">        <span class="keyword">private</span> <span class="type">boolean</span> enabled;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配合 Nacos&#x2F;Apollo 配置中心热更新，修改 <code>app.feature.rules.new-feature.percentage=10</code> 即可让 10% 用户看到新功能，无需重启。</p>
+<hr>
+<h2 id="0x07-小结"><a href="#0x07-小结" class="headerlink" title="0x07 小结"></a>0x07 小结</h2><p>Spring Boot 面试重点：</p>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>核心</th>
+<th>考察点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>自动配置</td>
+<td><code>@EnableAutoConfiguration</code> + 条件注解</td>
+<td>原理理解，不是背配置</td>
+</tr>
+<tr>
+<td>Starter</td>
+<td>META-INF + <code>@ConfigurationProperties</code></td>
+<td>模块化设计能力</td>
+</tr>
+<tr>
+<td>生产化</td>
+<td>Actuator + 优雅下线 + 健康检查</td>
+<td>K8s 集成经验</td>
+</tr>
+<tr>
+<td>调优</td>
+<td>连接池 + 线程池 + JVM</td>
+<td>不是背参数，是理解公式</td>
+</tr>
+<tr>
+<td>异常</td>
+<td><code>@ControllerAdvice</code> + 代理原理</td>
+<td>AOP 理解深度</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>本文将持续更新。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Spring-Boot/" rel="tag"># Spring Boot</a>
+              <a href="/tags/%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE/" rel="tag"># 自动配置</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-Cloud-Alibaba-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：Spring Cloud Alibaba 面试全解">
+                  <i class="fa fa-angle-left"></i> 后端面试题：Spring Cloud Alibaba 面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Java-%E9%AB%98%E7%BA%A7%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：Java 高级面试全解 — 高并发、JVM、设计模式">
+                  后端面试题：Java 高级面试全解 — 高并发、JVM、设计模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
