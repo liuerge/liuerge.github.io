@@ -830,68 +830,6 @@ Task 对象的状态机在某些边缘情况下卡住（如 Agent 进程崩溃�
       </tags>
   </entry>
   <entry>
-    <title>Centos6.7安装Elasticsearch 6.1.3</title>
-    <url>/2019/08/18/Centos6-7%E5%AE%89%E8%A3%85Elasticsearch-6-1-3/</url>
-    <content><![CDATA[0x00 前知1，该ES6.1.3需要适配的JDK版本为1.8+
-2，本文安装前JDK环境已配置好，如无配置，请自行谷歌并配置好JDK环境
-3，该ES6.1.3不能使用root用户启动，所以需要新建一个elasticsearch用户执行ES所在目录，本文使用elsearch
-0x01 开始安装1，解压 tar -zxf esxxx -C &#x2F;opt&#x2F;app
-2，chown -R elsearch:elsearch esxxx
-3，修改配置文件 cd &#x2F;esxxx&#x2F;config   vi elasticsearch.yml       “[]”内为提示内容，不是修改的内容，谨记
-cluster.name: my-test-applicationnode.name: node-1path.data: /data/elsearch6/datapath.logs: /data/elsearch6/logsbootstrap.system_call_filter: falsebootstrap.memory_lock: falsenetwork.host: 192.168.91.163http.cors.enabled: truehttp.cors.allow-origin: &quot;*&quot;
-
-0x02 异常1，max number of threads [2048] for user [elsearch] is too low, increase to at least [4096]
-vi &#x2F;etc&#x2F;security&#x2F;limits.d&#x2F;90-nproc.conf 
-
-soft nofile 65536
-hard nofile 131072
-soft nproc 4096
-hard nproc 4096
-
-如果无效，修改 vi &#x2F;etc&#x2F;security&#x2F;limits.conf 修改elsearch的limitelsearch hard nofile 131072elsearch soft nproc 4096elsearch soft nofile 65536
-0x03 安装 head1，需要node，去node官网下载node，如果下载的是XZ格式的还需要安装XZ格式的解压器[yum install xz]
-2，配置node的环境变量
-3，安装npm
-npm install -g cnpm --registry=https://registry.npm.taobao.org
-
-4，使用npm安装grunt
-npm install -g grunt
-npm install -g grunt-cli –registry&#x3D;https://registry.npm.taobao.org –no-proxy
-5，确认是否安装成功
-node -v# v10.16.0
-
-6，下载head插件源码
-wget https://github.com/mobz/elasticsearch-head/archive/master.zip
-uzip msater.zip
-7，依赖
-进入上面解压后的目录，执行以下命令npm install
-如果网速过慢失败–可以使用下面的npm install -g cnpm –registry&#x3D;https://registry.npm.taobao.org
-8，结合ES
-1,先停掉ES2,修改es的配置文件[前面的那个]添加–注意”:”后面有一个空格http.cors.enabled: truehttp.cors.allow-origin: “*”
-2,修改head中的文件 vi Gruntfile.js找到connect:Server,添加hostnameconnect: {                        server: {                                options: {                                        hostname: ‘0.0.0.0’,                                        port: 9100,                                        base: ‘.’,                                        keepalive: true                                }                        }                }hostname改为’0.0.0.0’和’*’均可，看应用场景
-9，启动
-先启动ESbin&#x2F;elasticsearch -d
-然后在head目录下启动nohup npm run start &amp;
-10，访问
-打开http://192.168.91.163:9100/
-0x04 安装 IK支持两种形式的安装
-1，以plugin方式安装
-进入ES的bin路径，执行以下命令：elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.1.3/elasticsearch-analysis-ik-6.1.3.zip
-执行完毕，重启ES，ik安装完毕
-2，手动安装
-：注意版本号要求一致1,在 https://github.com/medcl/elasticsearch-analysis-ik/releases下载这个版本的IK和Es的版本对应关系一致，本文使用es 6.1.3，下载后2，解压到ES_HOME&#x2F;plugins&#x2F;ik 目录下面(直接包含一个conf文件夹和一堆.jar包)3，重新启动ES4，如果 看到try load config ….IK相关信息，说明启动完成后和安装IK插件完成。或者访问http://spark01:9200/_cat/plugins  出现node-1 analysis-ik 6.1.3即为完成安装
-3，验证
-curl -H “Content-Type: application&#x2F;json” -XPOST “http://spark01:9200/_analyze?pretty=true“ -d ‘{“text”:”helloworld,我是一个粉刷匠”}’
-{  “tokens” : [    {      “token” : “helloworld”,      “start_offset” : 0,      “end_offset” : 10,      “type” : ““,      “position” : 0    },    {      “token” : “我”,      “start_offset” : 11,      “end_offset” : 12,      “type” : ““,      “position” : 1    },    {      “token” : “是”,      “start_offset” : 12,      “end_offset” : 13,      “type” : ““,      “position” : 2    },    {      “token” : “一”,      “start_offset” : 13,      “end_offset” : 14,      “type” : ““,      “position” : 3    },    {      “token” : “个”,      “start_offset” : 14,      “end_offset” : 15,      “type” : ““,      “position” : 4    },    {      “token” : “粉”,      “start_offset” : 15,      “end_offset” : 16,      “type” : ““,      “position” : 5    },    {      “token” : “刷”,      “start_offset” : 16,      “end_offset” : 17,      “type” : ““,      “position” : 6    },    {      “token” : “匠”,      “start_offset” : 17,      “end_offset” : 18,      “type” : ““,      “position” : 7    }  ]}
-]]></content>
-      <categories>
-        <category>fortest</category>
-      </categories>
-      <tags>
-        <tag>大数据相关</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hexo博客重建记录</title>
     <url>/2019/09/14/hexo%E8%BF%81%E7%A7%BB/</url>
     <content><![CDATA[
@@ -977,6 +915,68 @@ Token 不要写在配置文件里hexo-deployer-git 支持在 repo URL 中嵌入 
       </tags>
   </entry>
   <entry>
+    <title>Centos6.7安装Elasticsearch 6.1.3</title>
+    <url>/2019/08/18/Centos6-7%E5%AE%89%E8%A3%85Elasticsearch-6-1-3/</url>
+    <content><![CDATA[0x00 前知1，该ES6.1.3需要适配的JDK版本为1.8+
+2，本文安装前JDK环境已配置好，如无配置，请自行谷歌并配置好JDK环境
+3，该ES6.1.3不能使用root用户启动，所以需要新建一个elasticsearch用户执行ES所在目录，本文使用elsearch
+0x01 开始安装1，解压 tar -zxf esxxx -C &#x2F;opt&#x2F;app
+2，chown -R elsearch:elsearch esxxx
+3，修改配置文件 cd &#x2F;esxxx&#x2F;config   vi elasticsearch.yml       “[]”内为提示内容，不是修改的内容，谨记
+cluster.name: my-test-applicationnode.name: node-1path.data: /data/elsearch6/datapath.logs: /data/elsearch6/logsbootstrap.system_call_filter: falsebootstrap.memory_lock: falsenetwork.host: 192.168.91.163http.cors.enabled: truehttp.cors.allow-origin: &quot;*&quot;
+
+0x02 异常1，max number of threads [2048] for user [elsearch] is too low, increase to at least [4096]
+vi &#x2F;etc&#x2F;security&#x2F;limits.d&#x2F;90-nproc.conf 
+
+soft nofile 65536
+hard nofile 131072
+soft nproc 4096
+hard nproc 4096
+
+如果无效，修改 vi &#x2F;etc&#x2F;security&#x2F;limits.conf 修改elsearch的limitelsearch hard nofile 131072elsearch soft nproc 4096elsearch soft nofile 65536
+0x03 安装 head1，需要node，去node官网下载node，如果下载的是XZ格式的还需要安装XZ格式的解压器[yum install xz]
+2，配置node的环境变量
+3，安装npm
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+
+4，使用npm安装grunt
+npm install -g grunt
+npm install -g grunt-cli –registry&#x3D;https://registry.npm.taobao.org –no-proxy
+5，确认是否安装成功
+node -v# v10.16.0
+
+6，下载head插件源码
+wget https://github.com/mobz/elasticsearch-head/archive/master.zip
+uzip msater.zip
+7，依赖
+进入上面解压后的目录，执行以下命令npm install
+如果网速过慢失败–可以使用下面的npm install -g cnpm –registry&#x3D;https://registry.npm.taobao.org
+8，结合ES
+1,先停掉ES2,修改es的配置文件[前面的那个]添加–注意”:”后面有一个空格http.cors.enabled: truehttp.cors.allow-origin: “*”
+2,修改head中的文件 vi Gruntfile.js找到connect:Server,添加hostnameconnect: {                        server: {                                options: {                                        hostname: ‘0.0.0.0’,                                        port: 9100,                                        base: ‘.’,                                        keepalive: true                                }                        }                }hostname改为’0.0.0.0’和’*’均可，看应用场景
+9，启动
+先启动ESbin&#x2F;elasticsearch -d
+然后在head目录下启动nohup npm run start &amp;
+10，访问
+打开http://192.168.91.163:9100/
+0x04 安装 IK支持两种形式的安装
+1，以plugin方式安装
+进入ES的bin路径，执行以下命令：elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.1.3/elasticsearch-analysis-ik-6.1.3.zip
+执行完毕，重启ES，ik安装完毕
+2，手动安装
+：注意版本号要求一致1,在 https://github.com/medcl/elasticsearch-analysis-ik/releases下载这个版本的IK和Es的版本对应关系一致，本文使用es 6.1.3，下载后2，解压到ES_HOME&#x2F;plugins&#x2F;ik 目录下面(直接包含一个conf文件夹和一堆.jar包)3，重新启动ES4，如果 看到try load config ….IK相关信息，说明启动完成后和安装IK插件完成。或者访问http://spark01:9200/_cat/plugins  出现node-1 analysis-ik 6.1.3即为完成安装
+3，验证
+curl -H “Content-Type: application&#x2F;json” -XPOST “http://spark01:9200/_analyze?pretty=true“ -d ‘{“text”:”helloworld,我是一个粉刷匠”}’
+{  “tokens” : [    {      “token” : “helloworld”,      “start_offset” : 0,      “end_offset” : 10,      “type” : ““,      “position” : 0    },    {      “token” : “我”,      “start_offset” : 11,      “end_offset” : 12,      “type” : ““,      “position” : 1    },    {      “token” : “是”,      “start_offset” : 12,      “end_offset” : 13,      “type” : ““,      “position” : 2    },    {      “token” : “一”,      “start_offset” : 13,      “end_offset” : 14,      “type” : ““,      “position” : 3    },    {      “token” : “个”,      “start_offset” : 14,      “end_offset” : 15,      “type” : ““,      “position” : 4    },    {      “token” : “粉”,      “start_offset” : 15,      “end_offset” : 16,      “type” : ““,      “position” : 5    },    {      “token” : “刷”,      “start_offset” : 16,      “end_offset” : 17,      “type” : ““,      “position” : 6    },    {      “token” : “匠”,      “start_offset” : 17,      “end_offset” : 18,      “type” : ““,      “position” : 7    }  ]}
+]]></content>
+      <categories>
+        <category>fortest</category>
+      </categories>
+      <tags>
+        <tag>大数据相关</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>书籍推荐</title>
     <url>/2019/08/13/%E4%B9%A6%E7%B1%8D%E6%8E%A8%E8%8D%90/</url>
     <content><![CDATA[0x00 概述初次推荐书籍，这里我看的书籍也不多，目前也在充实自己中，欢迎大家推荐和自荐~
@@ -994,158 +994,6 @@ Token 不要写在配置文件里hexo-deployer-git 支持在 repo URL 中嵌入 
       </categories>
       <tags>
         <tag>大数据相关</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端面试题：React 面试全解</title>
-    <url>/2026/06/07/%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-React-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
-    <content><![CDATA[
-React 高级面试全解，覆盖 Fiber 架构、Hooks 原理、状态管理、性能优化和 SSR。
-
-0x00 Fiber 架构1. React Fiber 解决了什么问题？React 15 的 Stack Reconciler 是递归同步渲染，一旦开始无法中断，长任务会阻塞浏览器：
-更新 → 递归遍历整个虚拟 DOM 树 → 提交 DOM → 浏览器才能响应                  ↑ 可能耗时 100ms+，页面卡顿
-
-Fiber（React 16+）把渲染拆成可中断的小任务：
-更新 → workLoop:   while (有工作时间) &#123;    处理一个 Fiber 节点  ← 可在此中断    if (有更高优先级任务) break ← 把控制权还给浏览器  &#125;  → 完成所有 Fiber 节点处理 → 一次性提交 DOM
-
-双缓存机制：current 树（当前显示）和 workInProgress 树（正在构建），完成后直接交换指针（current = workInProgress）
-深入思考：
-
-源码层面：Fiber 节点是一个 JS 对象，包含 child&#x2F;sibling&#x2F;return 三个指针构成链表树。workLoop 在 Scheduler 包的 shouldYield() 控制下执行
-优先级：用户输入 &gt; 动画 &gt; 数据更新。lane 模型用 31 位二进制表示不同优先级
-
-2. React 18 的并发特性有哪些？
-
-
-特性
-API
-说明
-
-
-
-Automatic Batching
-默认开启
-setState 自动合并渲染
-
-
-Transitions
-useTransition &#x2F; startTransition
-标记低优先级更新
-
-
-Suspense
-&lt;Suspense&gt;
-数据加载的声明式 fallback
-
-
-useDeferredValue
-useDeferredValue(value)
-延迟更新某值
-
-
-// useTransition：搜索输入function SearchPage() &#123;  const [query, setQuery] = useState(&#x27;&#x27;);  const [isPending, startTransition] = useTransition();    function handleInput(e: ChangeEvent&lt;HTMLInputElement&gt;) &#123;    setQuery(e.target.value);  // 高优先级：立即更新输入框    startTransition(() =&gt; &#123;      setSearchResults(search(e.target.value));  // 低优先级：搜索结果可延迟    &#125;);  &#125;    return (    &lt;&gt;      &lt;input value=&#123;query&#125; onChange=&#123;handleInput&#125; /&gt;      &#123;isPending ? &lt;Spinner /&gt; : &lt;Results data=&#123;searchResults&#125; /&gt;&#125;    &lt;/&gt;  );&#125;// useDeferredValue：列表过滤const deferredQuery = useDeferredValue(query);const filtered = useMemo(() =&gt;   hugeList.filter(item =&gt; item.name.includes(deferredQuery)),  [deferredQuery]);// query 变化立即更新输入框，filtered 延迟更新（不阻塞输入）
-
-
-0x02 Hooks 原理3. useState 和 useEffect 的底层实现？Hooks 基于 Fiber 节点的链表存储：
-// 简化版 Hooks 实现let currentFiber = null;let hookIndex = 0;function useState(initialValue) &#123;  const fiber = currentFiber;  const hook = fiber.memoizedState?.[hookIndex] || &#123; state: initialValue &#125;;    const setState = (newValue) =&gt; &#123;    hook.state = typeof newValue === &#x27;function&#x27;       ? newValue(hook.state) : newValue;    scheduleUpdate(fiber);  // 触发重新渲染  &#125;;    fiber.memoizedState = fiber.memoizedState || [];  fiber.memoizedState[hookIndex] = hook;  hookIndex++;    return [hook.state, setState];&#125;
-
-为什么 Hooks 不能放在条件语句里？因为 Hooks 靠调用顺序索引。如果某次渲染跳过一个 Hook，所有后续 Hook 的索引都会错位，导致状态混乱。
-// 坏：条件 Hook → 索引错位if (condition) &#123;  useState(0);  // 第一次渲染有，第二次可能没有&#125;useState(&#x27;&#x27;);   // 这个的索引不一致了！// 好：条件逻辑放 Hook 内部useState(() =&gt; condition ? 0 : undefined);
-
-4. useMemo、useCallback、React.memo 什么时候用？// useMemo：缓存计算结果（值）const expensiveValue = useMemo(() =&gt; &#123;  return computeExpensiveValue(a, b);&#125;, [a, b]);  // a 或 b 变化时重新计算// useCallback：缓存函数引用const handleClick = useCallback((id: string) =&gt; &#123;  doSomething(id);&#125;, []);  // 依赖不变，函数引用不变// React.memo：组件 props 没变化就跳过渲染const ExpensiveChild = React.memo(function Child(&#123; data &#125;: Props) &#123;  return &lt;div&gt;&#123;data.map(...)&#125;&lt;/div&gt;;&#125;);
-
-不滥用原则：只在确实有性能问题时才用。useMemo 本身有开销（比较依赖数组），对简单计算反而更慢。
-深入思考：
-
-传给子组件的回调函数 → 必须用 useCallback，否则子组件的 React.memo 形同虚设（每次父组件渲染都会生成新函数引用）
-
-
-0x03 状态管理5. Context 和状态管理库（Zustand&#x2F;Jotai）怎么选？
-
-
-方案
-适用场景
-缺点
-
-
-
-useState
-组件内部状态
-跨组件共享需 prop drilling
-
-
-Context
-主题&#x2F;语言&#x2F;认证等全局低频变更
-任何 Context 值变化，所有消费者重渲染
-
-
-Zustand
-中大型应用全局状态
-需要理解 selector 机制
-
-
-Jotai
-原子化状态，细粒度更新
-原子多了难管理
-
-
-// Zustand：简洁 + 支持 selectorimport &#123; create &#125; from &#x27;zustand&#x27;;const useStore = create((set) =&gt; (&#123;  count: 0,  increment: () =&gt; set((state) =&gt; (&#123; count: state.count + 1 &#125;)),  reset: () =&gt; set(&#123; count: 0 &#125;),&#125;));function Counter() &#123;  const count = useStore((s) =&gt; s.count);     // selector：只有 count 变化才渲染  const increment = useStore((s) =&gt; s.increment);  // 不会因为 count 变化而渲染  return &lt;button onClick=&#123;increment&#125;&gt;&#123;count&#125;&lt;/button&gt;;&#125;
-
-Context 优化：拆分 Context 或使用 useMemo 包裹 value，避免不必要的重渲染。
-
-0x04 性能优化6. React 性能优化的系统方法// 1. 虚拟列表（长列表渲染）import &#123; FixedSizeList &#125; from &#x27;react-window&#x27;;// 2. 懒加载组件const HeavyComponent = lazy(() =&gt; import(&#x27;./HeavyComponent&#x27;));&lt;Suspense fallback=&#123;&lt;Skeleton /&gt;&#125;&gt;  &lt;HeavyComponent /&gt;&lt;/Suspense&gt;// 3. Key 的正确使用&#123;items.map(item =&gt; &lt;Item key=&#123;item.id&#125; /&gt;)&#125;     // 用稳定 ID，别用 index// 4. 防抖与节流const debouncedSearch = useMemo(  () =&gt; debounce((q: string) =&gt; search(q), 300),  []);// 5. Profiler 定位瓶颈&lt;Profiler id=&quot;Dashboard&quot; onRender=&#123;onRenderCallback&#125;&gt;  &lt;Dashboard /&gt;&lt;/Profiler&gt;// onRender 参数：id, phase, actualDuration, baseDuration
-
-
-0x05 SSR &#x2F; Next.js7. SSR 和 CSR 的区别？Next.js 的渲染策略？
-
-
-策略
-首屏速度
-SEO
-交互复杂度
-
-
-
-SSR
-快
-✅
-中等
-
-
-SSG
-最快
-✅
-纯静态
-
-
-ISR
-快（缓存后）
-✅
-定时更新
-
-
-CSR
-慢
-❌
-高交互
-
-
-// Next.js App Router// Server Component（默认）— 服务端渲染，无客户端 JSasync function BlogPost(&#123; params &#125;: &#123; params: &#123; slug: string &#125; &#125;) &#123;  const post = await db.post.findUnique(&#123; where: &#123; slug: params.slug &#125; &#125;);  return &lt;article&gt;&#123;post.content&#125;&lt;/article&gt;;&#125;// Client Component — 需要交互时&#x27;use client&#x27;;function LikeButton(&#123; postId &#125;: &#123; postId: string &#125;) &#123;  const [liked, setLiked] = useState(false);  return &lt;button onClick=&#123;() =&gt; setLiked(!liked)&#125;&gt;❤️ &#123;liked ? &#x27;1&#x27; : &#x27;0&#x27;&#125;&lt;/button&gt;;&#125;
-
-水合 (Hydration)：SSR 发送 HTML → 客户端加载 JS → React 把事件绑定到已有的 DOM 上。如果服务端和客户端渲染不一致，会报 Hydration mismatch。
-
-
-本文将持续更新。
-
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>面试题</tag>
-        <tag>React</tag>
-        <tag>Hooks</tag>
-        <tag>性能优化</tag>
       </tags>
   </entry>
   <entry>
@@ -4010,6 +3858,158 @@ SQL 注入风险：Gateway 面向 BI 工具时，需限制可执行的 SQL 类�
       </tags>
   </entry>
   <entry>
+    <title>前端面试题：React 面试全解</title>
+    <url>/2026/06/07/%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-React-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
+    <content><![CDATA[
+React 高级面试全解，覆盖 Fiber 架构、Hooks 原理、状态管理、性能优化和 SSR。
+
+0x00 Fiber 架构1. React Fiber 解决了什么问题？React 15 的 Stack Reconciler 是递归同步渲染，一旦开始无法中断，长任务会阻塞浏览器：
+更新 → 递归遍历整个虚拟 DOM 树 → 提交 DOM → 浏览器才能响应                  ↑ 可能耗时 100ms+，页面卡顿
+
+Fiber（React 16+）把渲染拆成可中断的小任务：
+更新 → workLoop:   while (有工作时间) &#123;    处理一个 Fiber 节点  ← 可在此中断    if (有更高优先级任务) break ← 把控制权还给浏览器  &#125;  → 完成所有 Fiber 节点处理 → 一次性提交 DOM
+
+双缓存机制：current 树（当前显示）和 workInProgress 树（正在构建），完成后直接交换指针（current = workInProgress）
+深入思考：
+
+源码层面：Fiber 节点是一个 JS 对象，包含 child&#x2F;sibling&#x2F;return 三个指针构成链表树。workLoop 在 Scheduler 包的 shouldYield() 控制下执行
+优先级：用户输入 &gt; 动画 &gt; 数据更新。lane 模型用 31 位二进制表示不同优先级
+
+2. React 18 的并发特性有哪些？
+
+
+特性
+API
+说明
+
+
+
+Automatic Batching
+默认开启
+setState 自动合并渲染
+
+
+Transitions
+useTransition &#x2F; startTransition
+标记低优先级更新
+
+
+Suspense
+&lt;Suspense&gt;
+数据加载的声明式 fallback
+
+
+useDeferredValue
+useDeferredValue(value)
+延迟更新某值
+
+
+// useTransition：搜索输入function SearchPage() &#123;  const [query, setQuery] = useState(&#x27;&#x27;);  const [isPending, startTransition] = useTransition();    function handleInput(e: ChangeEvent&lt;HTMLInputElement&gt;) &#123;    setQuery(e.target.value);  // 高优先级：立即更新输入框    startTransition(() =&gt; &#123;      setSearchResults(search(e.target.value));  // 低优先级：搜索结果可延迟    &#125;);  &#125;    return (    &lt;&gt;      &lt;input value=&#123;query&#125; onChange=&#123;handleInput&#125; /&gt;      &#123;isPending ? &lt;Spinner /&gt; : &lt;Results data=&#123;searchResults&#125; /&gt;&#125;    &lt;/&gt;  );&#125;// useDeferredValue：列表过滤const deferredQuery = useDeferredValue(query);const filtered = useMemo(() =&gt;   hugeList.filter(item =&gt; item.name.includes(deferredQuery)),  [deferredQuery]);// query 变化立即更新输入框，filtered 延迟更新（不阻塞输入）
+
+
+0x02 Hooks 原理3. useState 和 useEffect 的底层实现？Hooks 基于 Fiber 节点的链表存储：
+// 简化版 Hooks 实现let currentFiber = null;let hookIndex = 0;function useState(initialValue) &#123;  const fiber = currentFiber;  const hook = fiber.memoizedState?.[hookIndex] || &#123; state: initialValue &#125;;    const setState = (newValue) =&gt; &#123;    hook.state = typeof newValue === &#x27;function&#x27;       ? newValue(hook.state) : newValue;    scheduleUpdate(fiber);  // 触发重新渲染  &#125;;    fiber.memoizedState = fiber.memoizedState || [];  fiber.memoizedState[hookIndex] = hook;  hookIndex++;    return [hook.state, setState];&#125;
+
+为什么 Hooks 不能放在条件语句里？因为 Hooks 靠调用顺序索引。如果某次渲染跳过一个 Hook，所有后续 Hook 的索引都会错位，导致状态混乱。
+// 坏：条件 Hook → 索引错位if (condition) &#123;  useState(0);  // 第一次渲染有，第二次可能没有&#125;useState(&#x27;&#x27;);   // 这个的索引不一致了！// 好：条件逻辑放 Hook 内部useState(() =&gt; condition ? 0 : undefined);
+
+4. useMemo、useCallback、React.memo 什么时候用？// useMemo：缓存计算结果（值）const expensiveValue = useMemo(() =&gt; &#123;  return computeExpensiveValue(a, b);&#125;, [a, b]);  // a 或 b 变化时重新计算// useCallback：缓存函数引用const handleClick = useCallback((id: string) =&gt; &#123;  doSomething(id);&#125;, []);  // 依赖不变，函数引用不变// React.memo：组件 props 没变化就跳过渲染const ExpensiveChild = React.memo(function Child(&#123; data &#125;: Props) &#123;  return &lt;div&gt;&#123;data.map(...)&#125;&lt;/div&gt;;&#125;);
+
+不滥用原则：只在确实有性能问题时才用。useMemo 本身有开销（比较依赖数组），对简单计算反而更慢。
+深入思考：
+
+传给子组件的回调函数 → 必须用 useCallback，否则子组件的 React.memo 形同虚设（每次父组件渲染都会生成新函数引用）
+
+
+0x03 状态管理5. Context 和状态管理库（Zustand&#x2F;Jotai）怎么选？
+
+
+方案
+适用场景
+缺点
+
+
+
+useState
+组件内部状态
+跨组件共享需 prop drilling
+
+
+Context
+主题&#x2F;语言&#x2F;认证等全局低频变更
+任何 Context 值变化，所有消费者重渲染
+
+
+Zustand
+中大型应用全局状态
+需要理解 selector 机制
+
+
+Jotai
+原子化状态，细粒度更新
+原子多了难管理
+
+
+// Zustand：简洁 + 支持 selectorimport &#123; create &#125; from &#x27;zustand&#x27;;const useStore = create((set) =&gt; (&#123;  count: 0,  increment: () =&gt; set((state) =&gt; (&#123; count: state.count + 1 &#125;)),  reset: () =&gt; set(&#123; count: 0 &#125;),&#125;));function Counter() &#123;  const count = useStore((s) =&gt; s.count);     // selector：只有 count 变化才渲染  const increment = useStore((s) =&gt; s.increment);  // 不会因为 count 变化而渲染  return &lt;button onClick=&#123;increment&#125;&gt;&#123;count&#125;&lt;/button&gt;;&#125;
+
+Context 优化：拆分 Context 或使用 useMemo 包裹 value，避免不必要的重渲染。
+
+0x04 性能优化6. React 性能优化的系统方法// 1. 虚拟列表（长列表渲染）import &#123; FixedSizeList &#125; from &#x27;react-window&#x27;;// 2. 懒加载组件const HeavyComponent = lazy(() =&gt; import(&#x27;./HeavyComponent&#x27;));&lt;Suspense fallback=&#123;&lt;Skeleton /&gt;&#125;&gt;  &lt;HeavyComponent /&gt;&lt;/Suspense&gt;// 3. Key 的正确使用&#123;items.map(item =&gt; &lt;Item key=&#123;item.id&#125; /&gt;)&#125;     // 用稳定 ID，别用 index// 4. 防抖与节流const debouncedSearch = useMemo(  () =&gt; debounce((q: string) =&gt; search(q), 300),  []);// 5. Profiler 定位瓶颈&lt;Profiler id=&quot;Dashboard&quot; onRender=&#123;onRenderCallback&#125;&gt;  &lt;Dashboard /&gt;&lt;/Profiler&gt;// onRender 参数：id, phase, actualDuration, baseDuration
+
+
+0x05 SSR &#x2F; Next.js7. SSR 和 CSR 的区别？Next.js 的渲染策略？
+
+
+策略
+首屏速度
+SEO
+交互复杂度
+
+
+
+SSR
+快
+✅
+中等
+
+
+SSG
+最快
+✅
+纯静态
+
+
+ISR
+快（缓存后）
+✅
+定时更新
+
+
+CSR
+慢
+❌
+高交互
+
+
+// Next.js App Router// Server Component（默认）— 服务端渲染，无客户端 JSasync function BlogPost(&#123; params &#125;: &#123; params: &#123; slug: string &#125; &#125;) &#123;  const post = await db.post.findUnique(&#123; where: &#123; slug: params.slug &#125; &#125;);  return &lt;article&gt;&#123;post.content&#125;&lt;/article&gt;;&#125;// Client Component — 需要交互时&#x27;use client&#x27;;function LikeButton(&#123; postId &#125;: &#123; postId: string &#125;) &#123;  const [liked, setLiked] = useState(false);  return &lt;button onClick=&#123;() =&gt; setLiked(!liked)&#125;&gt;❤️ &#123;liked ? &#x27;1&#x27; : &#x27;0&#x27;&#125;&lt;/button&gt;;&#125;
+
+水合 (Hydration)：SSR 发送 HTML → 客户端加载 JS → React 把事件绑定到已有的 DOM 上。如果服务端和客户端渲染不一致，会报 Hydration mismatch。
+
+
+本文将持续更新。
+
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>面试题</tag>
+        <tag>React</tag>
+        <tag>Hooks</tag>
+        <tag>性能优化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>大数据面试题：Hive &amp; SQL 面试全解</title>
     <url>/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
     <content><![CDATA[
@@ -4128,94 +4128,6 @@ Vectorization：SET hive.vectorized.execution.enabled=true，批量处理 1024 �
         <tag>Hive</tag>
         <tag>SQL</tag>
         <tag>数据倾斜</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>大数据面试题：Kafka 面试全解</title>
-    <url>/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Kafka-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
-    <content><![CDATA[
-Kafka 高级面试全解，覆盖 ISR 机制、高性能设计、Exactly-Once 和常见生产问题。
-
-0x00 核心机制1. Kafka 为什么这么快？四大设计：
-
-顺序写磁盘：每个 Partition 是顺序 Append 的日志文件，顺序 IO 接近内存速度
-零拷贝（Zero-Copy）：sendfile() 系统调用，数据从 PageCache 直接到网卡，不经过用户态
-PageCache：消息先写到 OS 的 PageCache，异步刷盘。读命中 PageCache 时完全不走磁盘
-批量 + 压缩：Producer 批量发送（batch.size&#x2F;linger.ms），Broker 端支持 gzip&#x2F;snappy&#x2F;lz4 压缩
-
-// Producer 批量配置props.put(&quot;batch.size&quot;, 16384);      // 16KB 一批props.put(&quot;linger.ms&quot;, 5);           // 最多等 5msprops.put(&quot;compression.type&quot;, &quot;lz4&quot;);
-
-深入思考：
-
-边界情况：linger.ms=0 时每条消息立即发送，吞吐量骤降。acks=0 最快但不保证送达，acks=all 最安全但延迟最高
-
-2. Kafka 的 ISR 机制是什么？与 acks 的关系？ISR（In-Sync Replicas）：与 Leader 保持同步的 Follower 集合。
-# 查看 ISRkafka-topics.sh --describe --topic orders# Topic: orders  Partition: 0  Leader: 1  Replicas: 1,2,3  Isr: 1,2#                                                              ↑ 3 掉队了
-
-replica.lag.time.max.ms（默认 30s）：Follower 超过这个时间没跟上 Leader，被踢出 ISR。
-
-
-
-acks
-行为
-可靠性
-延迟
-
-
-
-0
-不等待任何确认
-可能丢
-最低
-
-
-1
-Leader 写入即确认
-Leader 宕机可能丢
-中
-
-
-all&#x2F;-1
-所有 ISR 写入才确认
-最高
-最高
-
-
-# 生产推荐：acks=all + min.insync.replicas=2# Leader +至少 1 个 ISR Follower 确认才返回
-
-深入思考：
-
-生产经验：如果 min.insync.replicas=2 但 ISR 只剩 Leader 一个，acks=all 的写入会一直等待。设 min.insync.replicas=2 时必须 replication.factor &gt;= 2
-
-
-0x02 消费与 Exactly-Once3. Kafka 如何实现 Exactly-Once 语义？幂等 Producer（enable.idempotence=true）：
-Producer 给每条消息分配 PID + Sequence NumberBroker 记录每个 Partition 最近的 5 个 Sequence Number重复消息（SN &lt;= 已记录）→ 丢弃
-
-事务 Producer：
-producer.initTransactions();producer.beginTransaction();producer.send(record1);producer.send(record2);producer.sendOffsetsToTransaction(offsetMap, &quot;consumer-group&quot;);producer.commitTransaction();  // 原子提交：消息 + offset 一起提交
-
-消费端：isolation.level=read_committed，只读已提交事务的消息。
-// 消费端配置props.put(&quot;isolation.level&quot;, &quot;read_committed&quot;);props.put(&quot;enable.auto.commit&quot;, &quot;false&quot;);  // 手动提交 offset
-
-4. 如何避免消息重复消费？三层防御：
-// 1. 业务幂等：数据库 unique key 去重INSERT INTO order_consumed (order_id, offset) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id;// 2. Redis 去重String key = &quot;consumed:&quot; + orderId;Boolean success = redis.setnx(key, &quot;1&quot;, 3600);  // 1小时过期if (!success) return;  // 已消费，跳过// 3. HBase/MySQL 记录消费 offset（精确到 Partition + Offset）
-
-
-0x03 生产问题5. 消息积压怎么处理？# 1. 定位：找到 lag 最大的 Consumer Groupkafka-consumer-groups.sh --bootstrap-server broker:9092 --describe --group my-group# 2. 临时扩容# - 增加 Partition（需要先停服务）kafka-topics.sh --alter --topic orders --partitions 20# - 增加 Consumer 实例（最多 = Partition 数）# 3. 临时跳过积压consumer.seekToEnd(partitions);  // 跳到最后，丢弃历史# 4. 长期优化# - Producer 压缩（lz4 兼顾速度和压缩比）# - Consumer 批量处理（max.poll.records=500）# - 增加 Consumer 线程（多线程处理）
-
-排查方向：Consumer 处理慢 → 检查下游 DB&#x2F;Redis 的 RT；Producer 太快 → 加限流或扩容 Partition。
-
-
-本文将持续更新。
-
-]]></content>
-      <categories>
-        <category>大数据</category>
-      </categories>
-      <tags>
-        <tag>面试题</tag>
-        <tag>Kafka</tag>
-        <tag>消息队列</tag>
       </tags>
   </entry>
   <entry>
@@ -4530,6 +4442,204 @@ RocksDB 作为默认状态后端：
       </tags>
   </entry>
   <entry>
+    <title>大数据面试题：Kafka 面试全解</title>
+    <url>/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Kafka-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
+    <content><![CDATA[
+Kafka 高级面试全解，覆盖 ISR 机制、高性能设计、Exactly-Once 和常见生产问题。
+
+0x00 核心机制1. Kafka 为什么这么快？四大设计：
+
+顺序写磁盘：每个 Partition 是顺序 Append 的日志文件，顺序 IO 接近内存速度
+零拷贝（Zero-Copy）：sendfile() 系统调用，数据从 PageCache 直接到网卡，不经过用户态
+PageCache：消息先写到 OS 的 PageCache，异步刷盘。读命中 PageCache 时完全不走磁盘
+批量 + 压缩：Producer 批量发送（batch.size&#x2F;linger.ms），Broker 端支持 gzip&#x2F;snappy&#x2F;lz4 压缩
+
+// Producer 批量配置props.put(&quot;batch.size&quot;, 16384);      // 16KB 一批props.put(&quot;linger.ms&quot;, 5);           // 最多等 5msprops.put(&quot;compression.type&quot;, &quot;lz4&quot;);
+
+深入思考：
+
+边界情况：linger.ms=0 时每条消息立即发送，吞吐量骤降。acks=0 最快但不保证送达，acks=all 最安全但延迟最高
+
+2. Kafka 的 ISR 机制是什么？与 acks 的关系？ISR（In-Sync Replicas）：与 Leader 保持同步的 Follower 集合。
+# 查看 ISRkafka-topics.sh --describe --topic orders# Topic: orders  Partition: 0  Leader: 1  Replicas: 1,2,3  Isr: 1,2#                                                              ↑ 3 掉队了
+
+replica.lag.time.max.ms（默认 30s）：Follower 超过这个时间没跟上 Leader，被踢出 ISR。
+
+
+
+acks
+行为
+可靠性
+延迟
+
+
+
+0
+不等待任何确认
+可能丢
+最低
+
+
+1
+Leader 写入即确认
+Leader 宕机可能丢
+中
+
+
+all&#x2F;-1
+所有 ISR 写入才确认
+最高
+最高
+
+
+# 生产推荐：acks=all + min.insync.replicas=2# Leader +至少 1 个 ISR Follower 确认才返回
+
+深入思考：
+
+生产经验：如果 min.insync.replicas=2 但 ISR 只剩 Leader 一个，acks=all 的写入会一直等待。设 min.insync.replicas=2 时必须 replication.factor &gt;= 2
+
+
+0x02 消费与 Exactly-Once3. Kafka 如何实现 Exactly-Once 语义？幂等 Producer（enable.idempotence=true）：
+Producer 给每条消息分配 PID + Sequence NumberBroker 记录每个 Partition 最近的 5 个 Sequence Number重复消息（SN &lt;= 已记录）→ 丢弃
+
+事务 Producer：
+producer.initTransactions();producer.beginTransaction();producer.send(record1);producer.send(record2);producer.sendOffsetsToTransaction(offsetMap, &quot;consumer-group&quot;);producer.commitTransaction();  // 原子提交：消息 + offset 一起提交
+
+消费端：isolation.level=read_committed，只读已提交事务的消息。
+// 消费端配置props.put(&quot;isolation.level&quot;, &quot;read_committed&quot;);props.put(&quot;enable.auto.commit&quot;, &quot;false&quot;);  // 手动提交 offset
+
+4. 如何避免消息重复消费？三层防御：
+// 1. 业务幂等：数据库 unique key 去重INSERT INTO order_consumed (order_id, offset) VALUES (?, ?) ON DUPLICATE KEY UPDATE id=id;// 2. Redis 去重String key = &quot;consumed:&quot; + orderId;Boolean success = redis.setnx(key, &quot;1&quot;, 3600);  // 1小时过期if (!success) return;  // 已消费，跳过// 3. HBase/MySQL 记录消费 offset（精确到 Partition + Offset）
+
+
+0x03 生产问题5. 消息积压怎么处理？# 1. 定位：找到 lag 最大的 Consumer Groupkafka-consumer-groups.sh --bootstrap-server broker:9092 --describe --group my-group# 2. 临时扩容# - 增加 Partition（需要先停服务）kafka-topics.sh --alter --topic orders --partitions 20# - 增加 Consumer 实例（最多 = Partition 数）# 3. 临时跳过积压consumer.seekToEnd(partitions);  // 跳到最后，丢弃历史# 4. 长期优化# - Producer 压缩（lz4 兼顾速度和压缩比）# - Consumer 批量处理（max.poll.records=500）# - 增加 Consumer 线程（多线程处理）
+
+排查方向：Consumer 处理慢 → 检查下游 DB&#x2F;Redis 的 RT；Producer 太快 → 加限流或扩容 Partition。
+
+
+本文将持续更新。
+
+]]></content>
+      <categories>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>面试题</tag>
+        <tag>Kafka</tag>
+        <tag>消息队列</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>工具面试题：Docker 面试全解</title>
+    <url>/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Docker-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
+    <content><![CDATA[
+Docker 面试全解，覆盖 Dockerfile 最佳实践、网络与存储、Docker Compose 和生产化经验。
+
+0x00 Dockerfile 最佳实践1. 如何写一个高质量的 Dockerfile？# 1. 固定基础镜像版本，不用 latestFROM openjdk:17-slim# 2. 合并 RUN 减少层数RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; \    rm -rf /var/lib/apt/lists/*# 3. 先 COPY 依赖文件（利用缓存），再 COPY 源码COPY pom.xml .RUN mvn dependency:resolveCOPY src/ src/RUN mvn package -DskipTests# 4. 多阶段构建：编译和运行分离FROM maven:3.9 AS builderCOPY . .RUN mvn package -DskipTestsFROM openjdk:17-slimCOPY --from=builder /app/target/app.jar /app.jar# 5. 不要用 root 运行RUN addgroup --system app &amp;&amp; adduser --system --group appUSER app# 6. HEALTHCHECKHEALTHCHECK --interval=30s --timeout=3s \  CMD curl -f http://localhost:8080/actuator/health || exit 1ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;/app.jar&quot;]
+
+深入思考：
+
+生产经验：多阶段构建可让最终镜像缩小 80%+（去掉 Maven&#x2F;Gradle 编译依赖）。Alpine 镜像更小但使用 musl libc，某些 JNI 库不兼容
+
+2. Docker 镜像分层原理和写时复制？镜像层（只读）：  Layer 5: ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;/app.jar&quot;]    — 5KB  Layer 4: COPY app.jar                               — 50MB  Layer 3: RUN apt-get install curl                   — 20MB  Layer 2: RUN apt-get update                         — 10MB  Layer 1: FROM openjdk:17                            — 200MB容器层（读写）：  Container Layer (R/W)                               — 临时
+
+
+每一层是一个文件系统的增量变更
+拉取镜像时，已存在的层不重复下载（不同镜像可共享层）
+写操作使用 COW：修改只读层的文件时，先复制到容器层再修改
+
+优化策略：把变化频率高的指令放下面（如 COPY 源码），变化频率低的放上面（如 apt-get install）
+
+0x02 网络与存储3. Docker 的五种网络模式？
+
+
+模式
+命令
+特点
+
+
+
+bridge（默认）
+--network bridge
+独立网络栈，通过 docker0 网桥通信
+
+
+host
+--network host
+直接使用宿主机网络，性能最高
+
+
+none
+--network none
+无网络，完全隔离
+
+
+overlay
+--network overlay
+跨主机通信（Swarm&#x2F;K8s）
+
+
+container
+--network container:xxx
+共享另一个容器的网络栈
+
+
+# 自定义 bridge 网络（推荐：支持 DNS 解析容器名）docker network create --driver bridge mynetdocker run --network mynet --name app1 app:v1docker run --network mynet --name app2 app:v2# app1 可以直接 ping app2# host 网络（性能敏感场景）docker run --network host nginx  # 直接监听宿主机 80 端口
+
+4. Docker Volume 和 Bind Mount 的区别？
+
+
+维度
+Volume
+Bind Mount
+
+
+
+管理
+Docker 管理（/var/lib/docker/volumes/）
+宿主机路径
+
+
+权限
+Docker 控制
+宿主机文件权限
+
+
+跨平台
+✅ 可移植
+❌ 依赖宿主机路径
+
+
+适用
+持久化数据、DB
+开发时挂载代码
+
+
+# Volume（推荐生产用）docker run -v myvolume:/data mysql# Bind Mount（开发用）docker run -v $(pwd)/app:/app node npm run dev
+
+
+0x03 常用命令与排障5. 常用 Docker 命令# 查看日志docker logs -f --tail 100 container_name# 进入容器docker exec -it container_name /bin/bash# 资源限制docker run -m 512m --cpus 2 --memory-swap 1g app# 清理docker system prune -a  # 清理所有未使用的镜像/容器/网络/缓存# 查看容器内进程docker top container_name# 查看资源使用docker stats# 导出/导入镜像docker save -o app.tar app:v1docker load -i app.tar# 查看镜像层历史docker history app:v1
+
+6. 容器启动失败怎么排查？# 1. 看日志docker logs container_id# 2. 看退出码docker inspect container_id | grep ExitCode# Exit 1 = 应用错误，Exit 137 = OOM 被 kill，Exit 0 = 正常退出# 3. 覆盖 ENTRYPOINT 调试docker run -it --entrypoint /bin/bash app:v1# 4. 检查资源docker inspect container_id | jq &#x27;.[0].State&#x27;
+
+
+0x04 Docker Composeversion: &quot;3.8&quot;services:  app:    build: .    ports: [&quot;8080:8080&quot;]    environment:      - SPRING_PROFILES_ACTIVE=prod      - DB_URL=jdbc:mysql://db:3306/mydb    depends_on:      db:        condition: service_healthy    healthcheck:      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8080/actuator/health&quot;]      interval: 10s      retries: 3  db:    image: mysql:8.0    volumes:      - db_data:/var/lib/mysql    environment:      MYSQL_ROOT_PASSWORD: $&#123;DB_PASSWORD&#125;  # 从 .env 读取    healthcheck:      test: [&quot;CMD&quot;, &quot;mysqladmin&quot;, &quot;ping&quot;, &quot;-h&quot;, &quot;localhost&quot;]volumes:  db_data:
+
+
+
+本文将持续更新。
+
+]]></content>
+      <categories>
+        <category>DevOps</category>
+      </categories>
+      <tags>
+        <tag>面试题</tag>
+        <tag>Docker</tag>
+        <tag>容器</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>大数据面试题：数据湖面试全解</title>
     <url>/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%95%B0%E6%8D%AE%E6%B9%96-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
     <content><![CDATA[
@@ -4686,116 +4796,6 @@ Databricks 用户
         <tag>Iceberg</tag>
         <tag>Hudi</tag>
         <tag>Delta Lake</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>工具面试题：Docker 面试全解</title>
-    <url>/2026/06/07/%E5%B7%A5%E5%85%B7%E9%9D%A2%E8%AF%95%E9%A2%98-Docker-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/</url>
-    <content><![CDATA[
-Docker 面试全解，覆盖 Dockerfile 最佳实践、网络与存储、Docker Compose 和生产化经验。
-
-0x00 Dockerfile 最佳实践1. 如何写一个高质量的 Dockerfile？# 1. 固定基础镜像版本，不用 latestFROM openjdk:17-slim# 2. 合并 RUN 减少层数RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; \    rm -rf /var/lib/apt/lists/*# 3. 先 COPY 依赖文件（利用缓存），再 COPY 源码COPY pom.xml .RUN mvn dependency:resolveCOPY src/ src/RUN mvn package -DskipTests# 4. 多阶段构建：编译和运行分离FROM maven:3.9 AS builderCOPY . .RUN mvn package -DskipTestsFROM openjdk:17-slimCOPY --from=builder /app/target/app.jar /app.jar# 5. 不要用 root 运行RUN addgroup --system app &amp;&amp; adduser --system --group appUSER app# 6. HEALTHCHECKHEALTHCHECK --interval=30s --timeout=3s \  CMD curl -f http://localhost:8080/actuator/health || exit 1ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;/app.jar&quot;]
-
-深入思考：
-
-生产经验：多阶段构建可让最终镜像缩小 80%+（去掉 Maven&#x2F;Gradle 编译依赖）。Alpine 镜像更小但使用 musl libc，某些 JNI 库不兼容
-
-2. Docker 镜像分层原理和写时复制？镜像层（只读）：  Layer 5: ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;/app.jar&quot;]    — 5KB  Layer 4: COPY app.jar                               — 50MB  Layer 3: RUN apt-get install curl                   — 20MB  Layer 2: RUN apt-get update                         — 10MB  Layer 1: FROM openjdk:17                            — 200MB容器层（读写）：  Container Layer (R/W)                               — 临时
-
-
-每一层是一个文件系统的增量变更
-拉取镜像时，已存在的层不重复下载（不同镜像可共享层）
-写操作使用 COW：修改只读层的文件时，先复制到容器层再修改
-
-优化策略：把变化频率高的指令放下面（如 COPY 源码），变化频率低的放上面（如 apt-get install）
-
-0x02 网络与存储3. Docker 的五种网络模式？
-
-
-模式
-命令
-特点
-
-
-
-bridge（默认）
---network bridge
-独立网络栈，通过 docker0 网桥通信
-
-
-host
---network host
-直接使用宿主机网络，性能最高
-
-
-none
---network none
-无网络，完全隔离
-
-
-overlay
---network overlay
-跨主机通信（Swarm&#x2F;K8s）
-
-
-container
---network container:xxx
-共享另一个容器的网络栈
-
-
-# 自定义 bridge 网络（推荐：支持 DNS 解析容器名）docker network create --driver bridge mynetdocker run --network mynet --name app1 app:v1docker run --network mynet --name app2 app:v2# app1 可以直接 ping app2# host 网络（性能敏感场景）docker run --network host nginx  # 直接监听宿主机 80 端口
-
-4. Docker Volume 和 Bind Mount 的区别？
-
-
-维度
-Volume
-Bind Mount
-
-
-
-管理
-Docker 管理（/var/lib/docker/volumes/）
-宿主机路径
-
-
-权限
-Docker 控制
-宿主机文件权限
-
-
-跨平台
-✅ 可移植
-❌ 依赖宿主机路径
-
-
-适用
-持久化数据、DB
-开发时挂载代码
-
-
-# Volume（推荐生产用）docker run -v myvolume:/data mysql# Bind Mount（开发用）docker run -v $(pwd)/app:/app node npm run dev
-
-
-0x03 常用命令与排障5. 常用 Docker 命令# 查看日志docker logs -f --tail 100 container_name# 进入容器docker exec -it container_name /bin/bash# 资源限制docker run -m 512m --cpus 2 --memory-swap 1g app# 清理docker system prune -a  # 清理所有未使用的镜像/容器/网络/缓存# 查看容器内进程docker top container_name# 查看资源使用docker stats# 导出/导入镜像docker save -o app.tar app:v1docker load -i app.tar# 查看镜像层历史docker history app:v1
-
-6. 容器启动失败怎么排查？# 1. 看日志docker logs container_id# 2. 看退出码docker inspect container_id | grep ExitCode# Exit 1 = 应用错误，Exit 137 = OOM 被 kill，Exit 0 = 正常退出# 3. 覆盖 ENTRYPOINT 调试docker run -it --entrypoint /bin/bash app:v1# 4. 检查资源docker inspect container_id | jq &#x27;.[0].State&#x27;
-
-
-0x04 Docker Composeversion: &quot;3.8&quot;services:  app:    build: .    ports: [&quot;8080:8080&quot;]    environment:      - SPRING_PROFILES_ACTIVE=prod      - DB_URL=jdbc:mysql://db:3306/mydb    depends_on:      db:        condition: service_healthy    healthcheck:      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8080/actuator/health&quot;]      interval: 10s      retries: 3  db:    image: mysql:8.0    volumes:      - db_data:/var/lib/mysql    environment:      MYSQL_ROOT_PASSWORD: $&#123;DB_PASSWORD&#125;  # 从 .env 读取    healthcheck:      test: [&quot;CMD&quot;, &quot;mysqladmin&quot;, &quot;ping&quot;, &quot;-h&quot;, &quot;localhost&quot;]volumes:  db_data:
-
-
-
-本文将持续更新。
-
-]]></content>
-      <categories>
-        <category>DevOps</category>
-      </categories>
-      <tags>
-        <tag>面试题</tag>
-        <tag>Docker</tag>
-        <tag>容器</tag>
       </tags>
   </entry>
   <entry>
