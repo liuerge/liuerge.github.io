@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
@@ -17,8 +16,10 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="Spark 高级面试全解，覆盖 Shuffle 原理、内存管理、Spark SQL 优化和流处理。面向高级研发。  0x00 核心架构1. Spark 的 Job、Stage、Task 是怎么划分的？123456Action → Job → 宽依赖切分 Stage → Stage 内 Task（并行度）       map    reduceByKey   map   collectRDD ──">
 <meta property="og:type" content="article">
@@ -28,7 +29,7 @@
 <meta property="og:description" content="Spark 高级面试全解，覆盖 Shuffle 原理、内存管理、Spark SQL 优化和流处理。面向高级研发。  0x00 核心架构1. Spark 的 Job、Stage、Task 是怎么划分的？123456Action → Job → 宽依赖切分 Stage → Stage 内 Task（并行度）       map    reduceByKey   map   collectRDD ──">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T09:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-07T06:56:22.885Z">
+<meta property="article:modified_time" content="2026-06-08T13:12:15.257Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="DataFrame">
 <meta property="article:tag" content="Shuffle">
@@ -58,18 +59,24 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
 <script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
   
 
 
 
 
-
-
-  
-
-
-
-
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
 
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
@@ -102,6 +109,7 @@
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -110,11 +118,37 @@
 
 <nav class="site-nav">
   <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </header>
         
@@ -134,7 +168,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-text">0x00 核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Spark-%E7%9A%84-Job%E3%80%81Stage%E3%80%81Task-%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%92%E5%88%86%E7%9A%84%EF%BC%9F"><span class="nav-text">1. Spark 的 Job、Stage、Task 是怎么划分的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Spark-Shuffle-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E5%8F%8A%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">2. Spark Shuffle 的三种实现及演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x02 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spark-%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">3. Spark 统一内存模型是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spark-SQL-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03 Spark SQL 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-DataFrame-%E6%AF%94-RDD-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">4. DataFrame 比 RDD 为什么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-text">5. 数据倾斜怎么解决？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%B5%81%E5%A4%84%E7%90%86"><span class="nav-text">0x04 流处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Structured-Streaming-%E7%9A%84-Exactly-Once-%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%EF%BC%9F"><span class="nav-text">6. Structured Streaming 的 Exactly-Once 怎么保证？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x05 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F%E6%A0%87%E7%AD%BE%E8%AE%A1%E7%AE%97%EF%BC%88%E6%89%B9%E6%B5%81%E4%B8%80%E4%BD%93%EF%BC%89"><span class="nav-text">用户画像标签计算（批流一体）</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-text">0x00 核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Spark-%E7%9A%84-Job%E3%80%81Stage%E3%80%81Task-%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%92%E5%88%86%E7%9A%84%EF%BC%9F"><span class="nav-text">1. Spark 的 Job、Stage、Task 是怎么划分的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Spark-Shuffle-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E5%8F%8A%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">2. Spark Shuffle 的三种实现及演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x02 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spark-%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">3. Spark 统一内存模型是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spark-SQL-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03 Spark SQL 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-DataFrame-%E6%AF%94-RDD-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">4. DataFrame 比 RDD 为什么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-text">5. 数据倾斜怎么解决？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%B5%81%E5%A4%84%E7%90%86"><span class="nav-text">0x04 流处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Structured-Streaming-%E7%9A%84-Exactly-Once-%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%EF%BC%9F"><span class="nav-text">6. Structured Streaming 的 Exactly-Once 怎么保证？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x05 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F%E6%A0%87%E7%AD%BE%E8%AE%A1%E7%AE%97%EF%BC%88%E6%89%B9%E6%B5%81%E4%B8%80%E4%BD%93%EF%BC%89"><span class="nav-text">用户画像标签计算（批流一体）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E8%BF%9B%E9%98%B6"><span class="nav-text">0x06 内存管理进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spark-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9E%8B"><span class="nav-text">7. Spark 内存管理模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E6%B5%81%E5%A4%84%E7%90%86%E5%AF%B9%E6%AF%94%E4%B8%8E%E6%BC%94%E8%BF%9B"><span class="nav-text">0x07 流处理对比与演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Spark-Streaming-%E4%B8%8E-Structured-Streaming"><span class="nav-text">8. Spark Streaming 与 Structured Streaming</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Spark-4-x-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-Spark-Connect"><span class="nav-text">9. Spark 4.x 新特性与 Spark Connect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Spark-Structured-Streaming-3%EF%BC%88%E6%B5%81%E5%BC%8F%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E%E5%BC%82%E6%AD%A5%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%89%E2%80%94%E2%80%94Spark-4-x-%E6%B5%81%E5%A4%84%E7%90%86%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90"><span class="nav-text">10. Spark Structured Streaming 3（流式物化视图与异步状态管理）——Spark 4.x 流处理深度剖析</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -147,18 +181,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-count">69</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -213,9 +247,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-06-07 17:00:00 / 修改时间：14:56:22" itemprop="dateCreated datePublished" datetime="2026-06-07T17:00:00+08:00">2026-06-07</time>
+      <time title="创建时间：2026-06-07 17:00:00" itemprop="dateCreated datePublished" datetime="2026-06-07T17:00:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-08 21:12:15" itemprop="dateModified" datetime="2026-06-08T21:12:15+08:00">2026-06-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -337,6 +377,198 @@
 <h2 id="0x05-场景设计"><a href="#0x05-场景设计" class="headerlink" title="0x05 场景设计"></a>0x05 场景设计</h2><h3 id="用户画像标签计算（批流一体）"><a href="#用户画像标签计算（批流一体）" class="headerlink" title="用户画像标签计算（批流一体）"></a>用户画像标签计算（批流一体）</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 批处理：历史数据全量计算</span></span><br><span class="line"><span class="keyword">val</span> historyDF = spark.read.parquet(<span class="string">&quot;hdfs://.../user_behavior&quot;</span>)</span><br><span class="line">  .groupBy(<span class="string">&quot;user_id&quot;</span>)</span><br><span class="line">  .agg(</span><br><span class="line">    count(<span class="string">&quot;*&quot;</span>).as(<span class="string">&quot;pv&quot;</span>),</span><br><span class="line">    countDistinct(<span class="string">&quot;session_id&quot;</span>).as(<span class="string">&quot;sessions&quot;</span>),</span><br><span class="line">    max(<span class="string">&quot;timestamp&quot;</span>).as(<span class="string">&quot;last_active&quot;</span>)</span><br><span class="line">  )</span><br><span class="line">  .withColumn(<span class="string">&quot;tag&quot;</span>, udf_tag($<span class="string">&quot;pv&quot;</span>, $<span class="string">&quot;sessions&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">// 流处理：实时增量更新</span></span><br><span class="line"><span class="keyword">val</span> streamDF = spark.readStream</span><br><span class="line">  .format(<span class="string">&quot;kafka&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;subscribe&quot;</span>, <span class="string">&quot;user_behavior&quot;</span>)</span><br><span class="line">  .load()</span><br><span class="line">  .selectExpr(<span class="string">&quot;CAST(value AS STRING)&quot;</span>)</span><br><span class="line">  .select(from_json($<span class="string">&quot;value&quot;</span>, schema).as(<span class="string">&quot;data&quot;</span>))</span><br><span class="line">  .select(<span class="string">&quot;data.*&quot;</span>)</span><br><span class="line">  .groupBy(<span class="string">&quot;user_id&quot;</span>)</span><br><span class="line">  .agg(</span><br><span class="line">    count(<span class="string">&quot;*&quot;</span>).as(<span class="string">&quot;pv&quot;</span>),</span><br><span class="line">    approx_count_distinct(<span class="string">&quot;session_id&quot;</span>).as(<span class="string">&quot;sessions&quot;</span>)</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">streamDF.writeStream</span><br><span class="line">  .outputMode(<span class="string">&quot;update&quot;</span>)  <span class="comment">// 更新模式</span></span><br><span class="line">  .foreachBatch &#123; (batchDF, _) =&gt;</span><br><span class="line">    batchDF.write.mode(<span class="string">&quot;merge&quot;</span>).jdbc(url, <span class="string">&quot;user_tags&quot;</span>, props)</span><br><span class="line">  &#125;</span><br><span class="line">  .start()</span><br></pre></td></tr></table></figure>
 
 <hr>
+<h2 id="0x06-内存管理进阶"><a href="#0x06-内存管理进阶" class="headerlink" title="0x06 内存管理进阶"></a>0x06 内存管理进阶</h2><h3 id="7-Spark-内存管理模型"><a href="#7-Spark-内存管理模型" class="headerlink" title="7. Spark 内存管理模型"></a>7. Spark 内存管理模型</h3><p><strong>难度</strong>：⭐⭐<br><strong>问题</strong>：Spark 3.x 的统一内存管理是如何分配内存的？</p>
+<p><strong>解析</strong>：<br>Spark 将 JVM 堆内内存分为三大区域（spark.memory.fraction&#x3D;0.6）：</p>
+<ul>
+<li><strong>Storage Memory</strong>：<code>spark.memory.fraction * spark.memory.storageFraction</code>（默认 0.6 * 0.5 &#x3D; 0.3）<ul>
+<li>用途：缓存 RDD、Broadcast 变量</li>
+<li>可被 Execution 抢占</li>
+</ul>
+</li>
+<li><strong>Execution Memory</strong>：同上，与 Storage 共享剩余 50%<ul>
+<li>用途：shuffle、join、sort、aggregation 的中间缓冲区</li>
+<li>可抢占 Storage 的空间</li>
+</ul>
+</li>
+<li><strong>Reserved Memory</strong>：300MB，保护 JVM OOM</li>
+</ul>
+<p><strong>动态占用</strong>：</p>
+<ul>
+<li>Execution 可占用 Storage 的闲置空间，反之亦然</li>
+<li>如果 Storage 需要空间而 Execution 正在使用，不会被强制回收（避免性能退化）</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 调优参数</span></span><br><span class="line">spark.memory.fraction=0.75       <span class="comment"># 总可用内存比例（默认 0.6）</span></span><br><span class="line">spark.memory.storageFraction=0.5 <span class="comment"># 内部 Storage 比例</span></span><br><span class="line">spark.executor.memory=8g         <span class="comment"># Executor 总 JVM 堆</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x07-流处理对比与演进"><a href="#0x07-流处理对比与演进" class="headerlink" title="0x07 流处理对比与演进"></a>0x07 流处理对比与演进</h2><h3 id="8-Spark-Streaming-与-Structured-Streaming"><a href="#8-Spark-Streaming-与-Structured-Streaming" class="headerlink" title="8. Spark Streaming 与 Structured Streaming"></a>8. Spark Streaming 与 Structured Streaming</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Spark Streaming（DStream）和 Structured Streaming 的区别？Structured Streaming 的”端到端 Exactly-Once”是如何实现的？</p>
+<p><strong>解析</strong>：<br><strong>区别</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Spark Streaming</th>
+<th>Structured Streaming</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>语义模型</td>
+<td>DStream（离散化流）</td>
+<td>无界 DataFrame</td>
+</tr>
+<tr>
+<td>时间语义</td>
+<td>基于批处理间隔</td>
+<td>Event Time 原生支持</td>
+</tr>
+<tr>
+<td>一致性</td>
+<td>At-Least-Once</td>
+<td>Exactly-Once（提交式 Sink）</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>秒级（mini-batch）</td>
+<td>毫秒级（Continuous Processing）</td>
+</tr>
+<tr>
+<td>Watermark</td>
+<td>需要手动实现</td>
+<td>内置 Watermark 支持</td>
+</tr>
+<tr>
+<td>API</td>
+<td>DStream API</td>
+<td>DataFrame&#x2F;SQL API</td>
+</tr>
+</tbody></table>
+<p><strong>Exactly-Once 实现</strong>：</p>
+<ol>
+<li><strong>Source</strong>：Kafka 偏移量记录在 checkpoint</li>
+<li><strong>处理</strong>：幂等计算 + 预写日志（WAL）</li>
+<li><strong>Sink</strong>：幂等写入（如 Kafka 的 idempotent producer）或事务写入（如 FileSink 的 <code>_SUCCESS</code> 文件）</li>
+<li><strong>失败恢复</strong>：从 checkpoint 恢复偏移量重新处理，通过 WAL + 幂等 Sink 保证结果不重复</li>
+</ol>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> df = spark</span><br><span class="line">  .readStream</span><br><span class="line">  .format(<span class="string">&quot;kafka&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;kafka.bootstrap.servers&quot;</span>, <span class="string">&quot;localhost:9092&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;subscribe&quot;</span>, <span class="string">&quot;topic1&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;failOnDataLoss&quot;</span>, <span class="string">&quot;false&quot;</span>)  <span class="comment">// Exactly-Once 保证</span></span><br><span class="line">  .load()</span><br><span class="line"></span><br><span class="line">df.writeStream</span><br><span class="line">  .format(<span class="string">&quot;kafka&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;kafka.bootstrap.servers&quot;</span>, <span class="string">&quot;localhost:9092&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;topic&quot;</span>, <span class="string">&quot;output&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;checkpointLocation&quot;</span>, <span class="string">&quot;/tmp/checkpoint&quot;</span>)</span><br><span class="line">  .trigger(<span class="type">Trigger</span>.<span class="type">ProcessingTime</span>(<span class="string">&quot;10 seconds&quot;</span>))</span><br><span class="line">  .start()</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="9-Spark-4-x-新特性与-Spark-Connect"><a href="#9-Spark-4-x-新特性与-Spark-Connect" class="headerlink" title="9. Spark 4.x 新特性与 Spark Connect"></a>9. Spark 4.x 新特性与 Spark Connect</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Apache Spark 4.x 带来了哪些重要新特性？Spark Connect 是什么？解决了什么问题？</p>
+<p><strong>解析</strong>：</p>
+<p><strong>Spark 4.x 核心新特性</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Spark Connect</strong></td>
+<td>解耦 Driver 和执行器，客户端通过 gRPC 提交任务，支持任意语言客户端</td>
+</tr>
+<tr>
+<td><strong>Structured Streaming 3</strong></td>
+<td>流式物化视图、流式 Delta Join、异步状态管理</td>
+</tr>
+<tr>
+<td><strong>ANSII SQL 全面兼容</strong></td>
+<td>更严格的 SQL 标准支持，类型安全提升</td>
+</tr>
+<tr>
+<td><strong>物化视图（Materialized View）</strong></td>
+<td>增量更新物化结果，减少重复计算</td>
+</tr>
+<tr>
+<td><strong>Improved Python&#x2F;Pandas API</strong></td>
+<td>pandas API 覆盖度提升到 95%+，PySpark 性能提升</td>
+</tr>
+<tr>
+<td><strong>Predictive Optimization</strong></td>
+<td>基于历史执行数据的智能优化</td>
+</tr>
+<tr>
+<td><strong>RocksDB State Store</strong></td>
+<td>流处理状态后端默认切换为 RocksDB，支持海量状态</td>
+</tr>
+</tbody></table>
+<p><strong>Spark Connect 详解</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 传统模式：客户端直连 Spark 集群（紧耦合）</span></span><br><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line">spark = SparkSession.builder \</span><br><span class="line">    .master(<span class="string">&quot;spark://host:7077&quot;</span>) \</span><br><span class="line">    .appName(<span class="string">&quot;MyApp&quot;</span>) \</span><br><span class="line">    .getOrCreate()</span><br><span class="line"><span class="comment"># ⚠️ 客户端需和 Driver 同一网络，客户端语言受限（仅 Java/Scala/Python/R）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Spark Connect 解耦模式（Spark 4.x 默认）</span></span><br><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line">spark = SparkSession.builder \</span><br><span class="line">    .remote(<span class="string">&quot;sc://host:15002&quot;</span>) \   <span class="comment"># gRPC 接入</span></span><br><span class="line">    .appName(<span class="string">&quot;MyConnectApp&quot;</span>) \</span><br><span class="line">    .getOrCreate()</span><br><span class="line"><span class="comment"># ✅ 任意语言客户端（现已有: Python、JavaScript、Rust）</span></span><br><span class="line"><span class="comment"># ✅ 客户端无须部署 Spark 依赖</span></span><br><span class="line"><span class="comment"># ✅ 支持细粒度权限管理和多租户隔离</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>架构优势</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">传统 Spark:</span><br><span class="line">Client → Driver (内含执行器管理) → Executors</span><br><span class="line">        ↑ 紧耦合，一个 Client 一个 Driver</span><br><span class="line"></span><br><span class="line">Spark Connect:</span><br><span class="line">Client A (Python) ─┐</span><br><span class="line">Client B (JS) ─────┼→ Spark Connect Server → Spark Session → Executors</span><br><span class="line">Client C (Rust) ───┘   ↑ 解耦，连接池复用，多客户端共享</span><br></pre></td></tr></table></figure>
+
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“Spark Connect 将 Spark 从 ‘计算框架’ 升级为 ‘计算服务’。客户端通过统一的 gRPC 接口接入，内部负责会话管理和资源调度。这意味着你可以在 Web 前端用 JavaScript 直接提交 Spark 作业，或者在 Jupyter Notebook 中零配置远程连接集群。这是 Spark 走向 Lakehouse 时代的核心架构变革。”</p>
+</blockquote>
+<hr>
+<h3 id="10-Spark-Structured-Streaming-3（流式物化视图与异步状态管理）——Spark-4-x-流处理深度剖析"><a href="#10-Spark-Structured-Streaming-3（流式物化视图与异步状态管理）——Spark-4-x-流处理深度剖析" class="headerlink" title="10. Spark Structured Streaming 3（流式物化视图与异步状态管理）——Spark 4.x 流处理深度剖析"></a>10. Spark Structured Streaming 3（流式物化视图与异步状态管理）——Spark 4.x 流处理深度剖析</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Spark 4.x 引入了全新的 Structured Streaming 3 流处理引擎。相比 Spark 3.x 的 Structured Streaming，Structured Streaming 3 在流式物化视图（Streaming Materialized View）、异步状态管理（Async State Management）和流式 Delta Join 方面有哪些重要改进？Spark 4.x 为何将 RocksDB 作为流处理状态存储的默认后端？</p>
+<p><strong>解析</strong>：</p>
+<p><strong>Structured Streaming 3 架构变革</strong>：</p>
+<p>Structured Streaming 3 在 Spark 4.x 中进行了深度重构，核心变化如下：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Spark 3.x Structured Streaming</th>
+<th>Spark 4.x Structured Streaming 3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>状态后端</strong></td>
+<td>HashMapStateBackend（默认）</td>
+<td>RocksDBStateBackend（默认）</td>
+</tr>
+<tr>
+<td><strong>状态管理</strong></td>
+<td>同步状态访问（算子内串行）</td>
+<td>异步状态访问（多线程并发）</td>
+</tr>
+<tr>
+<td><strong>物化视图</strong></td>
+<td>❌ 不支持</td>
+<td>✅ 流式物化视图（持续更新）</td>
+</tr>
+<tr>
+<td><strong>Delta Join</strong></td>
+<td>普通 Stateful Join</td>
+<td>流式 Delta Join（增量关联）</td>
+</tr>
+<tr>
+<td><strong>背压机制</strong></td>
+<td>Rate Controller 控制摄入</td>
+<td>自适应 Backlog 反压</td>
+</tr>
+<tr>
+<td><strong>Exactly-Once</strong></td>
+<td>WAL + 幂等 Sink</td>
+<td>WAL + 状态快照 + 幂等 Sink</td>
+</tr>
+<tr>
+<td><strong>Watermark</strong></td>
+<td>固定配置</td>
+<td>可动态调整</td>
+</tr>
+</tbody></table>
+<p><strong>流式物化视图（Streaming Materialized View）</strong>：</p>
+<p>这是 Spark 4.x 最重磅的流处理特性。传统流处理中的聚合结果需要写入外部存储（如 Redis&#x2F;ES），再供查询引擎读取，存在数据延迟和口径不一致问题。流式物化视图直接让 Spark 作为”实时物化视图引擎”，持续更新物化结果。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spark 4.x 流式物化视图</span></span><br><span class="line"><span class="keyword">val</span> mv = spark.sql(</span><br><span class="line">  <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    |CREATE STREAMING MATERIALIZED VIEW mv_daily_gmv</span></span><br><span class="line"><span class="string">    |REFRESH EVERY 1 MINUTE</span></span><br><span class="line"><span class="string">    |AS</span></span><br><span class="line"><span class="string">    |SELECT dt, user_id, SUM(amount) AS total_gmv</span></span><br><span class="line"><span class="string">    |FROM orders_stream</span></span><br><span class="line"><span class="string">    |GROUP BY dt, user_id</span></span><br><span class="line"><span class="string">  &quot;&quot;&quot;</span>.stripMargin</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 物化视图可直接被查询（读最新快照）</span></span><br><span class="line">spark.sql(<span class="string">&quot;SELECT * FROM mv_daily_gmv WHERE dt = &#x27;2026-06-01&#x27; ORDER BY total_gmv DESC LIMIT 10&quot;</span>).show()</span><br></pre></td></tr></table></figure>
+
+<p><strong>异步状态管理（Async State Management）</strong>：</p>
+<p>Spark 3.x 中状态访问是同步的——每个微批处理批次中，状态读写都在单线程中串行执行，随着状态量增长（TB 级），状态访问成为瓶颈。Spark 4.x 引入了异步状态管理：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spark 4.x 异步状态访问示例</span></span><br><span class="line"><span class="comment">// 传统方式（Spark 3.x）：同步访问状态</span></span><br><span class="line">mapGroupsWithState &#123; (key, values, state: <span class="type">GroupState</span>[<span class="type">UserState</span>]) =&gt;</span><br><span class="line">  <span class="keyword">val</span> currentState = state.get  <span class="comment">// 同步读取</span></span><br><span class="line">  <span class="comment">// ... 处理逻辑</span></span><br><span class="line">  state.update(newState)         <span class="comment">// 同步写入</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Spark 4.x 异步方式：状态操作返回 Future</span></span><br><span class="line">mapGroupsWithState &#123; (key, values, state: <span class="type">AsyncGroupState</span>[<span class="type">UserState</span>]) =&gt;</span><br><span class="line">  state.getAsync().map &#123; currentState =&gt;</span><br><span class="line">    <span class="comment">// ... 异步处理</span></span><br><span class="line">  &#125;.flatMap &#123; _ =&gt;</span><br><span class="line">    state.updateAsync(newState)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>流式 Delta Join</strong>：</p>
+<p>传统流式 Join 需要将完整的历史数据存储在状态中，随着时间推移状态无限膨胀。Streaming Delta Join 只存储需要参与 Join 的增量数据：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Spark 4.x 流式 Delta Join 语法</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ STREAMING_DELTA_JOIN(orders, payments, INTERVAL 1 HOUR) */</span></span><br><span class="line">    o.order_id, o.amount, p.payment_status</span><br><span class="line"><span class="keyword">FROM</span> orders_stream o</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> payments_stream p</span><br><span class="line"><span class="keyword">ON</span> o.order_id <span class="operator">=</span> p.order_id</span><br><span class="line"><span class="comment">-- Spark 仅保留 1 小时范围内的状态数据，自动淘汰过期数据</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>RocksDB 作为默认状态后端</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># spark-defaults.conf (Spark 4.x 默认配置)</span></span><br><span class="line"><span class="attr">spark.sql.streaming.stateStore.providerClass:</span> <span class="string">org.apache.spark.sql.execution.streaming.state.RocksDBStateStoreProvider</span></span><br><span class="line"><span class="attr">spark.sql.streaming.stateStore.rocksdb.compaction.style:</span> <span class="string">universal</span></span><br><span class="line"><span class="attr">spark.sql.streaming.stateStore.rocksdb.blockCacheSize:</span> <span class="string">512m</span></span><br><span class="line"><span class="attr">spark.sql.streaming.stateStore.rocksdb.writeBufferSize:</span> <span class="string">256m</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“Spark 4.x Structured Streaming 3 最核心的三个改进是：流式物化视图让 Spark 本身成为实时物化引擎，无需外部存储中转；异步状态管理消除了 TB 级状态下的访问瓶颈；RocksDB 作为默认状态后端使状态量不再受 JVM 堆限制。这三个改进让 Spark Streaming 在流批一体和实时数仓场景下的竞争力大幅提升，直接对标 Flink 的状态管理能力。流式物化视图尤其值得关注——它模糊了流处理和 OLAP 的边界，是 Lakehouse 架构中实时服务层的关键组成部分。”</p>
+</blockquote>
+<hr>
 <blockquote>
 <p>本文将持续更新。</p>
 </blockquote>
@@ -393,7 +625,7 @@
     </span>
     <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
   </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
     </div>
@@ -410,6 +642,9 @@
     <i class="fa fa-arrow-up fa-lg"></i>
     <span>0%</span>
   </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
 
 <noscript>
   <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
