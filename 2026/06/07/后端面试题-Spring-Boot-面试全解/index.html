@@ -29,7 +29,7 @@
 <meta property="og:description" content="Spring Boot 高级面试全解，覆盖自动配置原理、Starter 机制、Actuator 监控、性能调优和常见生产踩坑。面向高级研发，侧重源码理解和架构设计。  0x00 自动配置原理1. @SpringBootApplication 注解到底做了什么？拆解： 1234@SpringBootApplication  &#x2F;&#x2F; 等价于下面三个注解的组合  &#x3D; @SpringBootConfigu">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T13:12:15.257Z">
+<meta property="article:modified_time" content="2026-06-09T12:22:15.946Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Spring Boot">
 <meta property="article:tag" content="自动配置">
@@ -166,7 +166,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86"><span class="nav-text">0x00 自动配置原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-SpringBootApplication-%E6%B3%A8%E8%A7%A3%E5%88%B0%E5%BA%95%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. @SpringBootApplication 注解到底做了什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA-Starter%EF%BC%9F"><span class="nav-text">2. 如何自定义一个 Starter？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x01 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spring-Boot-%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">3. Spring Boot 的异常处理机制是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-ConfigurationProperties-vs-Value-%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">4. @ConfigurationProperties vs @Value 怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Actuator-%E4%B8%8E%E7%9B%91%E6%8E%A7"><span class="nav-text">0x02 Actuator 与监控</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Actuator-%E6%9C%89%E5%93%AA%E4%BA%9B%E5%85%B3%E9%94%AE%E7%AB%AF%E7%82%B9%EF%BC%9F%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%A6%82%E4%BD%95%E5%AE%89%E5%85%A8%E6%9A%B4%E9%9C%B2%EF%BC%9F"><span class="nav-text">5. Actuator 有哪些关键端点？生产环境如何安全暴露？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spring-Boot-3-x-%E8%BF%81%E7%A7%BB%E8%A6%81%E7%82%B9"><span class="nav-text">0x03 Spring Boot 3.x 迁移要点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Spring-Boot-2-x-%E2%86%92-3-x-%E6%9C%89%E5%93%AA%E4%BA%9B-Breaking-Changes%EF%BC%9F"><span class="nav-text">6. Spring Boot 2.x → 3.x 有哪些 Breaking Changes？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="nav-text">0x04 性能调优</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spring-Boot-%E5%BA%94%E7%94%A8%E5%B8%B8%E8%A7%81%E6%80%A7%E8%83%BD%E7%93%B6%E9%A2%88%E5%8F%8A%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">7. Spring Boot 应用常见性能瓶颈及优化？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E7%BB%8F%E5%85%B8-Bug"><span class="nav-text">0x05 经典 Bug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-1%EF%BC%9A-Transactional-%E5%A4%B1%E6%95%88"><span class="nav-text">Bug 1：@Transactional 失效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-2%EF%BC%9A%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E5%AF%BC%E8%87%B4%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5"><span class="nav-text">Bug 2：循环依赖导致启动失败</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x06 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%94%AF%E6%8C%81%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">设计一个支持灰度发布的配置中心</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E5%B0%8F%E7%BB%93"><span class="nav-text">0x07 小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%97%AE%E7%AD%94%EF%BC%88%E8%A1%A5%E5%85%85%EF%BC%89"><span class="nav-text">0x08 基础面试问答（补充）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Spring-Boot-%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">8. Spring Boot 常用注解有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Spring-Boot-%E9%85%8D%E7%BD%AE%E5%8A%A0%E8%BD%BD%E9%A1%BA%E5%BA%8F%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">9. Spring Boot 配置加载顺序是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Spring-Boot-%E7%9A%84%E8%BF%90%E8%A1%8C%E6%96%B9%E5%BC%8F%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">10. Spring Boot 的运行方式有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-bootstrap-properties-%E5%92%8C-application-properties-%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">11. bootstrap.properties 和 application.properties 有何区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%BB%9F%E4%B8%80%E5%8F%82%E6%95%B0%E6%A0%A1%E9%AA%8C%EF%BC%9F"><span class="nav-text">12. Spring Boot 如何实现统一参数校验？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%BB%9F%E4%B8%80%E7%BB%93%E6%9E%9C%E8%BF%94%E5%9B%9E%EF%BC%9F"><span class="nav-text">13. Spring Boot 如何实现统一结果返回？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%EF%BC%9F"><span class="nav-text">14. Spring Boot 如何实现定时任务？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%BC%82%E6%AD%A5%E8%B0%83%E7%94%A8%EF%BC%9F"><span class="nav-text">15. Spring Boot 如何实现异步调用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-%E5%A6%82%E4%BD%95%E5%9C%A8-Spring-Boot-%E5%90%AF%E5%8A%A8%E6%97%B6%E8%BF%90%E8%A1%8C%E7%89%B9%E5%AE%9A%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F"><span class="nav-text">16. 如何在 Spring Boot 启动时运行特定的代码？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Spring-Boot-%E6%89%93%E6%88%90%E7%9A%84-jar-%E5%92%8C%E6%99%AE%E9%80%9A-jar-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">17. Spring Boot 打成的 jar 和普通 jar 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-Spring-Boot-%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6%EF%BC%9F"><span class="nav-text">18. Spring Boot 支持哪些日志框架？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Spring-Boot-%E7%9A%84%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E6%96%B9%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">19. Spring Boot 的安全防护方法有哪些？</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%8E%9F%E7%90%86"><span class="nav-text">0x00 自动配置原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-SpringBootApplication-%E6%B3%A8%E8%A7%A3%E5%88%B0%E5%BA%95%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. @SpringBootApplication 注解到底做了什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA-Starter%EF%BC%9F"><span class="nav-text">2. 如何自定义一个 Starter？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x01 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spring-Boot-%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">3. Spring Boot 的异常处理机制是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-ConfigurationProperties-vs-Value-%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">4. @ConfigurationProperties vs @Value 怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Actuator-%E4%B8%8E%E7%9B%91%E6%8E%A7"><span class="nav-text">0x02 Actuator 与监控</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Actuator-%E6%9C%89%E5%93%AA%E4%BA%9B%E5%85%B3%E9%94%AE%E7%AB%AF%E7%82%B9%EF%BC%9F%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%A6%82%E4%BD%95%E5%AE%89%E5%85%A8%E6%9A%B4%E9%9C%B2%EF%BC%9F"><span class="nav-text">5. Actuator 有哪些关键端点？生产环境如何安全暴露？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spring-Boot-3-x-%E8%BF%81%E7%A7%BB%E8%A6%81%E7%82%B9"><span class="nav-text">0x03 Spring Boot 3.x 迁移要点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Spring-Boot-2-x-%E2%86%92-3-x-%E6%9C%89%E5%93%AA%E4%BA%9B-Breaking-Changes%EF%BC%9F"><span class="nav-text">6. Spring Boot 2.x → 3.x 有哪些 Breaking Changes？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="nav-text">0x04 性能调优</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spring-Boot-%E5%BA%94%E7%94%A8%E5%B8%B8%E8%A7%81%E6%80%A7%E8%83%BD%E7%93%B6%E9%A2%88%E5%8F%8A%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">7. Spring Boot 应用常见性能瓶颈及优化？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E7%BB%8F%E5%85%B8-Bug"><span class="nav-text">0x05 经典 Bug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-1%EF%BC%9A-Transactional-%E5%A4%B1%E6%95%88"><span class="nav-text">Bug 1：@Transactional 失效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-2%EF%BC%9A%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E5%AF%BC%E8%87%B4%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5"><span class="nav-text">Bug 2：循环依赖导致启动失败</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x06 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%94%AF%E6%8C%81%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">设计一个支持灰度发布的配置中心</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E5%B0%8F%E7%BB%93"><span class="nav-text">0x07 小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%97%AE%E7%AD%94%EF%BC%88%E8%A1%A5%E5%85%85%EF%BC%89"><span class="nav-text">0x08 基础面试问答（补充）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Spring-Boot-%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">8. Spring Boot 常用注解有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Spring-Boot-%E9%85%8D%E7%BD%AE%E5%8A%A0%E8%BD%BD%E9%A1%BA%E5%BA%8F%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">9. Spring Boot 配置加载顺序是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Spring-Boot-%E7%9A%84%E8%BF%90%E8%A1%8C%E6%96%B9%E5%BC%8F%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">10. Spring Boot 的运行方式有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-bootstrap-properties-%E5%92%8C-application-properties-%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">11. bootstrap.properties 和 application.properties 有何区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%BB%9F%E4%B8%80%E5%8F%82%E6%95%B0%E6%A0%A1%E9%AA%8C%EF%BC%9F"><span class="nav-text">12. Spring Boot 如何实现统一参数校验？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%BB%9F%E4%B8%80%E7%BB%93%E6%9E%9C%E8%BF%94%E5%9B%9E%EF%BC%9F"><span class="nav-text">13. Spring Boot 如何实现统一结果返回？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%EF%BC%9F"><span class="nav-text">14. Spring Boot 如何实现定时任务？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Spring-Boot-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%BC%82%E6%AD%A5%E8%B0%83%E7%94%A8%EF%BC%9F"><span class="nav-text">15. Spring Boot 如何实现异步调用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-%E5%A6%82%E4%BD%95%E5%9C%A8-Spring-Boot-%E5%90%AF%E5%8A%A8%E6%97%B6%E8%BF%90%E8%A1%8C%E7%89%B9%E5%AE%9A%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F"><span class="nav-text">16. 如何在 Spring Boot 启动时运行特定的代码？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Spring-Boot-%E6%89%93%E6%88%90%E7%9A%84-jar-%E5%92%8C%E6%99%AE%E9%80%9A-jar-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">17. Spring Boot 打成的 jar 和普通 jar 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-Spring-Boot-%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6%EF%BC%9F"><span class="nav-text">18. Spring Boot 支持哪些日志框架？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Spring-Boot-%E7%9A%84%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E6%96%B9%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">19. Spring Boot 的安全防护方法有哪些？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-Spring-Boot-3-x-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E%E8%BF%81%E7%A7%BB"><span class="nav-text">0x05 Spring Boot 3.x 新特性与迁移</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#20-Virtual-Threads%EF%BC%88%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B%EF%BC%89%E4%B8%8E-Spring-Boot-3-2-%E6%95%B4%E5%90%88"><span class="nav-text">20. Virtual Threads（虚拟线程）与 Spring Boot 3.2+ 整合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-Spring-Boot-3-x-%E4%BB%8E-2-x-%E8%BF%81%E7%A7%BB%E5%85%A8%E6%8C%87%E5%8D%97"><span class="nav-text">21. Spring Boot 3.x 从 2.x 迁移全指南</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-Spring-Boot-%E7%94%9F%E4%BA%A7%E7%9B%91%E6%8E%A7%E2%80%94%E2%80%94Micrometer-OpenTelemetry"><span class="nav-text">22. Spring Boot 生产监控——Micrometer + OpenTelemetry</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -253,7 +253,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-08 21:12:15" itemprop="dateModified" datetime="2026-06-08T21:12:15+08:00">2026-06-08</time>
+      <time title="修改时间：2026-06-09 20:22:15" itemprop="dateModified" datetime="2026-06-09T20:22:15+08:00">2026-06-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -738,8 +738,227 @@
 <li><strong>输入校验</strong>：对用户输入做白名单校验，防止 SQL 注入和命令注入</li>
 </ol>
 <p>出处：Tom哥《Spring Boot 那点破事》</p>
+<hr>
+<h2 id="0x05-Spring-Boot-3-x-新特性与迁移"><a href="#0x05-Spring-Boot-3-x-新特性与迁移" class="headerlink" title="0x05 Spring Boot 3.x 新特性与迁移"></a>0x05 Spring Boot 3.x 新特性与迁移</h2><h3 id="20-Virtual-Threads（虚拟线程）与-Spring-Boot-3-2-整合"><a href="#20-Virtual-Threads（虚拟线程）与-Spring-Boot-3-2-整合" class="headerlink" title="20. Virtual Threads（虚拟线程）与 Spring Boot 3.2+ 整合"></a>20. Virtual Threads（虚拟线程）与 Spring Boot 3.2+ 整合</h3><p><strong>背景</strong>：JDK 21 正式发布 Virtual Threads（JEP 444），Spring Boot 3.2 起通过 <code>spring.threads.virtual.enabled=true</code> 一键开启。</p>
+<p><strong>配置方式</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># application.yaml — 一键开启虚拟线程</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">threads:</span></span><br><span class="line">    <span class="attr">virtual:</span></span><br><span class="line">      <span class="attr">enabled:</span> <span class="literal">true</span>  <span class="comment"># Spring Boot 3.2+</span></span><br></pre></td></tr></table></figure>
+
+<p>开启后以下组件自动使用虚拟线程：</p>
+<ul>
+<li><strong>Tomcat</strong>：<code>protocol-handler</code> 每个请求一个虚拟线程（替代平台线程池）</li>
+<li><strong>@Async</strong>：异步任务运行在虚拟线程</li>
+<li><strong>@Scheduled</strong>：定时任务使用虚拟线程</li>
+<li><strong>RabbitMQ&#x2F;Kafka 监听器</strong>：消息消费在虚拟线程</li>
+</ul>
+<p><strong>Tomcat 线程模型变化</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 传统线程池模式（Tomcat 默认）</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">tomcat:</span></span><br><span class="line">    <span class="attr">threads:</span></span><br><span class="line">      <span class="attr">max:</span> <span class="number">200</span>        <span class="comment"># 平台线程，内存开销大</span></span><br><span class="line">      <span class="attr">min-spare:</span> <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 虚拟线程模式（Spring Boot 3.2+）</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">threads:</span></span><br><span class="line">    <span class="attr">virtual:</span></span><br><span class="line">      <span class="attr">enabled:</span> <span class="literal">true</span>   <span class="comment"># Tomcat 的 max/min-spare 配置失效</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">tomcat:</span></span><br><span class="line">    <span class="attr">threads:</span></span><br><span class="line">      <span class="attr">max:</span> <span class="number">0</span>          <span class="comment"># 虚拟模式下 Tomcat 线程池设置不再生效</span></span><br><span class="line"><span class="comment"># 因为虚拟线程无内存开销，可以创建数百万个</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>🔥 生产踩坑：虚拟线程下的三大陷阱</strong></p>
+<p><strong>案例 1：synchronized 导致虚拟线程 pinned（某电商支付服务）</strong></p>
+<ul>
+<li><strong>场景</strong>：Spring Boot 3.2 + JDK 21 虚拟线程，支付服务 50 台集群</li>
+<li><strong>症状</strong>：开启虚拟线程后吞吐量下降 40%，线程 dump 显示大量虚拟线程处于 <code>CARRIER</code> 状态</li>
+<li><strong>排查</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看虚拟线程是否被 pinned</span></span><br><span class="line">jcmd &lt;pid&gt; Thread.dump_to_file -format=json /tmp/threads.json</span><br><span class="line"><span class="comment"># 搜索 &quot;pinned&quot; 或 &quot;carrier&quot; 关键词</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>根因</strong>：支付模块在 <code>synchronized</code> 块内调用了远程服务——虚拟线程被 pinned 到 carrier 线程，3s 的 RPC 调用占用了 carrier 线程</li>
+<li><strong>修复</strong>：将 <code>synchronized</code> 替换为 <code>ReentrantLock</code><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 坏：synchronized 会 pinned 虚拟线程</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> PaymentResult <span class="title function_">process</span><span class="params">(PaymentReq req)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> paymentClient.call(req);  <span class="comment">// 3s 的远程调用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 好：ReentrantLock 不会 pinned</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Lock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line"><span class="keyword">public</span> PaymentResult <span class="title function_">process</span><span class="params">(PaymentReq req)</span> &#123;</span><br><span class="line">    lock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> paymentClient.call(req);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>修复效果</strong>：吞吐量恢复，P99 延迟从 800ms 降至 200ms</li>
+</ul>
+<p><strong>案例 2：ThreadLocal 内存泄漏（某内容推荐服务）</strong></p>
+<ul>
+<li><strong>场景</strong>：使用 <code>ThreadLocal</code> 存储请求追踪 ID，开启虚拟线程后出现 OOM</li>
+<li><strong>根因</strong>：虚拟线程池不回收线程，<code>ThreadLocal</code> 值在虚拟线程生命周期内一直存在。百万级请求创建百万级虚拟线程、百万个 ThreadLocal 实例</li>
+<li><strong>修复</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方案一：虚拟线程仍可能复用 carrier 线程，ThreadLocal 值需手动清理</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方案二：用 ScopedValue（JDK 21+）替代 ThreadLocal</span></span><br><span class="line"><span class="comment">// ThreadLocal version（不适合虚拟线程）</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;String&gt; requestId = <span class="keyword">new</span> <span class="title class_">ThreadLocal</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">// ScopedValue version（推荐 JDK 21+）</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ScopedValue&lt;String&gt; REQUEST_ID = ScopedValue.newInstance();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleRequest</span><span class="params">(HttpRequest request)</span> &#123;</span><br><span class="line">    ScopedValue.where(REQUEST_ID, request.getHeader(<span class="string">&quot;X-Request-Id&quot;</span>))</span><br><span class="line">        .run(() -&gt; &#123;</span><br><span class="line">            <span class="comment">// 在这个 lambda 中可以用 REQUEST_ID.get() 获取值</span></span><br><span class="line">            <span class="comment">// 离开作用域自动释放，不会泄漏</span></span><br><span class="line">            process();</span><br><span class="line">        &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>最佳实践</strong>：<ul>
+<li>虚拟线程场景下完全禁止 <code>ThreadLocal</code>（JDK 官方也建议迁移到 <code>ScopedValue</code>）</li>
+<li>如果必须用，在 finally 块中显式 <code>remove()</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>案例 3：池化资源（连接池&#x2F;线程池）与虚拟线程不兼容（某社交平台）</strong></p>
+<ul>
+<li><strong>场景</strong>：数据库连接池 HikariCP，每个请求获取连接后等待数据库响应</li>
+<li><strong>症状</strong>：数据库连接池被占满，新的请求等待连接超时</li>
+<li><strong>根因</strong>：传统模式下 200 个平台线程共用 50 个连接，现在 10 万个虚拟线程同时竞争 50 个连接——连接池被击穿</li>
+<li><strong>修复</strong>：调大连接池 + 缩短连接持有时间<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">hikari:</span></span><br><span class="line">      <span class="attr">maximum-pool-size:</span> <span class="number">100</span>      <span class="comment"># 从 50 提升到 100</span></span><br><span class="line">      <span class="attr">minimum-idle:</span> <span class="number">20</span></span><br><span class="line">      <span class="attr">idle-timeout:</span> <span class="number">300000</span></span><br><span class="line">      <span class="attr">connection-timeout:</span> <span class="number">5000</span>    <span class="comment"># 5s 连接超时</span></span><br><span class="line">      <span class="attr">max-lifetime:</span> <span class="number">600000</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>最佳实践</strong>：虚拟线程场景下连接池需要调大 2-3 倍，并设置更短的超时时间</li>
+</ul>
+<p><strong>Virtual Threads 兼容性审计清单</strong>：</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>synchronized</code> 块&#x2F;方法 → 替换为 <code>ReentrantLock</code> &#x2F; <code>StampedLock</code></li>
+<li><input disabled="" type="checkbox"> <code>ThreadLocal</code> 使用 → 替换为 <code>ScopedValue</code>（JDK 21+）</li>
+<li><input disabled="" type="checkbox"> 池化资源（连接池、线程池）→ 调大 2-3 倍</li>
+<li><input disabled="" type="checkbox"> <code>ThreadPoolTaskExecutor</code> → 移除自定义线程池（虚拟线程用默认即可）</li>
+<li><input disabled="" type="checkbox"> 第三方库兼容性 → 检查依赖是否支持虚拟线程（Netty&#x2F;Undertow 默认支持）</li>
+<li><input disabled="" type="checkbox"> 监控指标 → 检查虚拟线程活跃数、队列深度、pinned 次数</li>
+</ul>
+<p><strong>面试金句</strong>：</p>
 <blockquote>
-<p>本文将持续更新。</p>
+<p>“虚拟线程不是银弹。我在 Spring Boot 3.2 生产中遇到三个核心坑：synchronized 导致 pinned（吞吐下降 40%）、ThreadLocal 内存泄漏（百万实例 OOM）、连接池被击穿（10 万虚拟线程争 50 个连接）。迁移顺序：先审计所有 synchronized + ThreadLocal，再调大连接池，最后一键开启 <code>spring.threads.virtual.enabled=true</code>。”</p>
+</blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://spring.io/blog/2023/11/07/spring-boot-3-2-0-available-now">Spring Boot 3.2 Virtual Threads</a> | <a target="_blank" rel="noopener" href="https://openjdk.org/jeps/444">JEP 444</a></p>
+<h3 id="21-Spring-Boot-3-x-从-2-x-迁移全指南"><a href="#21-Spring-Boot-3-x-从-2-x-迁移全指南" class="headerlink" title="21. Spring Boot 3.x 从 2.x 迁移全指南"></a>21. Spring Boot 3.x 从 2.x 迁移全指南</h3><p><strong>核心变更清单</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>变更项</th>
+<th>Spring Boot 2.x</th>
+<th>Spring Boot 3.x</th>
+<th>迁移影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Java 基线</td>
+<td>JDK 8&#x2F;11&#x2F;17</td>
+<td>JDK 17+</td>
+<td>必须升级 JDK</td>
+</tr>
+<tr>
+<td>Jakarta EE</td>
+<td>javax.*</td>
+<td>jakarta.*</td>
+<td>包名全局替换</td>
+</tr>
+<tr>
+<td>Hibernate</td>
+<td>5.x</td>
+<td>6.x</td>
+<td>大量 API 变更</td>
+</tr>
+<tr>
+<td>Spring Security</td>
+<td>5.x</td>
+<td>6.x</td>
+<td>配置变化大</td>
+</tr>
+<tr>
+<td>Actuator 端点</td>
+<td><code>/actuator/</code></td>
+<td><code>/actuator/</code>（路径不变但返回格式微调）</td>
+<td>兼容性好</td>
+</tr>
+<tr>
+<td><code>spring.factories</code></td>
+<td>自动配置加载</td>
+<td><code>META-INF/spring/*.imports</code></td>
+<td>第三方 Starter 需更新</td>
+</tr>
+<tr>
+<td><code>@ConstructorBinding</code></td>
+<td>需要显式</td>
+<td>默认启用</td>
+<td>配置类简化</td>
+</tr>
+</tbody></table>
+<p><strong>迁移红牌禁令</strong>：</p>
+<ul>
+<li>❌ <strong>不要一次性升级所有服务</strong> — 分批灰度，先升级无状态边缘服务</li>
+<li>❌ <strong>不要忽略 <code>-Xlint:all</code> 编译警告</strong> — 模块化系统对跨模块反射敏感</li>
+<li>❌ <strong>不要跳过 JDK 过渡版本</strong> — JDK 8 → 21 直接升级风险极高</li>
+<li>✅ 先升级到 JDK 11 → 17 过渡，验证兼容性后再升级到 JDK 21</li>
+<li>✅ 使用 <code>sdkman</code> 管理多版本 JDK，配置切换脚本</li>
+</ul>
+<p><strong>🔥 迁移踩坑案例：javax → jakarta 包名替换遗漏（某物流平台）</strong></p>
+<ul>
+<li><strong>场景</strong>：50+ 微服务从 Spring Boot 2.7 迁移到 3.1，3 个月迁移窗口</li>
+<li><strong>症状</strong>：第 5 个服务上线后，订单导入功能偶发 ClassNotFoundException</li>
+<li><strong>排查</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用 jdeps 检查引用</span></span><br><span class="line">jdeps --multi-release 17 -apionly order-service.jar | grep javax</span><br><span class="line"><span class="comment"># 输出显示某第三方 jar 仍引用了 javax.persistence</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>根因</strong>：个别微服务依赖的第三方 jar 未更新到 Jakarta 版本</li>
+<li><strong>修复</strong>：<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 使用 Maven 的 javax-to-jakarta 迁移工具 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-jdeps-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">multiRelease</span>&gt;</span>17<span class="tag">&lt;/<span class="name">multiRelease</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">apiOnly</span>&gt;</span>true<span class="tag">&lt;/<span class="name">apiOnly</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 或使用 OpenRewrite 自动迁移 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- mvn -U org.openrewrite.maven:rewrite-maven-plugin:run \</span></span><br><span class="line"><span class="comment">  -Drewrite.activeRecipes=org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_0 --&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>修复效果</strong>：全量扫描后修复 12 个依赖，迁移完成率 100%</li>
+</ul>
+<p><strong>迁移后验证清单</strong>：</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>mvn compile -Xlint:all</code> 无编译警告</li>
+<li><input disabled="" type="checkbox"> 所有 <code>javax.*</code> 引用已替换为 <code>jakarta.*</code></li>
+<li><input disabled="" type="checkbox"> Hibernate 6.x 的 JPA 方言已更新（如 <code>org.hibernate.dialect.MySQLDialect</code>）</li>
+<li><input disabled="" type="checkbox"> Spring Security 配置已从 <code>WebSecurityConfigurerAdapter</code> 迁移到组件化配置</li>
+<li><input disabled="" type="checkbox"> Actuator 端点白名单已更新（<code>management.endpoints.web.exposure.include</code>）</li>
+<li><input disabled="" type="checkbox"> 集成测试全部通过</li>
+<li><input disabled="" type="checkbox"> 生产灰度验证 24 小时无异常</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide">Spring Boot 3.0 Migration Guide</a></p>
+<h3 id="22-Spring-Boot-生产监控——Micrometer-OpenTelemetry"><a href="#22-Spring-Boot-生产监控——Micrometer-OpenTelemetry" class="headerlink" title="22. Spring Boot 生产监控——Micrometer + OpenTelemetry"></a>22. Spring Boot 生产监控——Micrometer + OpenTelemetry</h3><p><strong>可观测性三支柱配置</strong>：</p>
+<p><strong>1. 指标（Metrics）— Micrometer</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 集成 Prometheus</span></span><br><span class="line"><span class="attr">management:</span></span><br><span class="line">  <span class="attr">endpoints:</span></span><br><span class="line">    <span class="attr">web:</span></span><br><span class="line">      <span class="attr">exposure:</span></span><br><span class="line">        <span class="attr">include:</span> <span class="string">health,metrics,prometheus</span></span><br><span class="line">  <span class="attr">metrics:</span></span><br><span class="line">    <span class="attr">tags:</span></span><br><span class="line">      <span class="attr">application:</span> <span class="string">$&#123;spring.application.name&#125;</span></span><br><span class="line">    <span class="attr">export:</span></span><br><span class="line">      <span class="attr">prometheus:</span></span><br><span class="line">        <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">step:</span> <span class="string">30s</span>  <span class="comment"># 采集间隔</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 链路追踪（Tracing）— OpenTelemetry</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.opentelemetry.instrumentation<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>opentelemetry-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">otel:</span></span><br><span class="line">  <span class="attr">service.name:</span> <span class="string">$&#123;spring.application.name&#125;</span></span><br><span class="line">  <span class="attr">traces:</span></span><br><span class="line">    <span class="attr">exporter:</span> <span class="string">otlp</span></span><br><span class="line">  <span class="attr">exporter:</span></span><br><span class="line">    <span class="attr">otlp:</span></span><br><span class="line">      <span class="attr">endpoint:</span> <span class="string">http://otel-collector:4317</span></span><br><span class="line">      <span class="attr">timeout:</span> <span class="string">5s</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 日志（Logging）— JSON + 结构化</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># logback-spring.xml 配置 JSON 输出</span></span><br><span class="line"><span class="string">&lt;appender</span> <span class="string">name=&quot;JSON&quot;</span> <span class="string">class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;</span></span><br><span class="line">    <span class="string">&lt;encoder</span> <span class="string">class=&quot;net.logstash.logback.encoder.LogstashEncoder&quot;&gt;</span></span><br><span class="line">        <span class="string">&lt;includeContext&gt;false&lt;/includeContext&gt;</span></span><br><span class="line">        <span class="string">&lt;fieldNames&gt;</span></span><br><span class="line">            <span class="string">&lt;timestamp&gt;@timestamp&lt;/timestamp&gt;</span></span><br><span class="line">            <span class="string">&lt;level&gt;level&lt;/level&gt;</span></span><br><span class="line">            <span class="string">&lt;logger&gt;logger&lt;/logger&gt;</span></span><br><span class="line">            <span class="string">&lt;thread&gt;thread&lt;/thread&gt;</span></span><br><span class="line">            <span class="string">&lt;message&gt;message&lt;/message&gt;</span></span><br><span class="line">        <span class="string">&lt;/fieldNames&gt;</span></span><br><span class="line">    <span class="string">&lt;/encoder&gt;</span></span><br><span class="line"><span class="string">&lt;/appender&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>必须监控的指标与告警阈值</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>PromQL</th>
+<th>告警阈值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP 错误率</td>
+<td><code>rate(http_server_requests_seconds_count{status=~&quot;5..&quot;}[1m])</code></td>
+<td>&gt; 1%</td>
+<td>5xx 比例</td>
+</tr>
+<tr>
+<td>P99 延迟</td>
+<td><code>histogram_quantile(0.99, ...)</code></td>
+<td>&gt; 1000ms</td>
+<td>用户体验红线</td>
+</tr>
+<tr>
+<td>活跃线程数</td>
+<td><code>jvm_threads_live_threads</code></td>
+<td>&gt; 80% 池大小</td>
+<td>线程耗尽预警</td>
+</tr>
+<tr>
+<td>GC 暂停时间</td>
+<td><code>jvm_gc_pause_seconds_max</code></td>
+<td>&gt; 1s</td>
+<td>Full GC 风险</td>
+</tr>
+<tr>
+<td>堆内存使用率</td>
+<td><code>jvm_memory_used_bytes{area=&quot;heap&quot;}</code></td>
+<td>&gt; 80%</td>
+<td>即将 OOM</td>
+</tr>
+<tr>
+<td>数据库连接池</td>
+<td><code>hikaricp_connections_active</code></td>
+<td>&gt; 80% maximum-pool-size</td>
+<td>连接池告急</td>
+</tr>
+<tr>
+<td>健康检查</td>
+<td><code>probe_success{group=&quot;readiness&quot;}</code></td>
+<td>&lt; 1</td>
+<td>服务不健康</td>
+</tr>
+</tbody></table>
+<p><strong>🔥 生产案例：GC 频繁导致 Actuator 响应超时引发的告警风暴（某金融交易系统）</strong></p>
+<ul>
+<li><strong>场景</strong>：Spring Boot 2.7 + G1 GC，8 节点集群</li>
+<li><strong>症状</strong>：Prometheus 告警 &quot;Target Down&quot; 每 2 小时报告一次，持续 30-60 秒</li>
+<li><strong>排查</strong>：抓取 JMX 数据发现 GC 暂停期间 JVM 线程全部 STW，包括 HTTP 请求处理线程。Actuator <code>/actuator/health</code> 端点 30s 无响应，Prometheus 标记为 Down</li>
+<li><strong>根因</strong>：G1 Mixed GC 阶段回收大对象（Humongous Allocation），单次暂停 800ms-1.2s，导致 Actuator 超时</li>
+<li><strong>修复</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方案一：调小 Region 大小，减少 Humongous</span></span><br><span class="line"><span class="comment"># -XX:G1HeapRegionSize=4m → 8m</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方案二：Actuator 超时设置大于 GC pause</span></span><br><span class="line"><span class="attr">management:</span></span><br><span class="line">  <span class="attr">health:</span></span><br><span class="line">    <span class="attr">readinessstate:</span></span><br><span class="line">      <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">endpoint:</span></span><br><span class="line">    <span class="attr">health:</span></span><br><span class="line">      <span class="attr">show-details:</span> <span class="string">always</span></span><br><span class="line">      <span class="attr">time-to-live:</span> <span class="string">5000ms</span>  <span class="comment"># 缓存 5s 避免每次触发 GC</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>最佳实践</strong>：Actuator 健康检查设置 <code>time-to-live</code> 缓存，避免 Prometheus 每次拉取都触发类加载和 GC</li>
+</ul>
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“生产监控不是配好依赖就完了。我在金融交易系统中踩过 ‘Prometheus Target Down’ 告警风暴——G1 GC 暂停 800ms 导致 Actuator 超时。解决方案是在 Actuator 健康端点加 5s 缓存，把不必要触发的 GC 隔离开。Micrometer + OTEL 很好用，但每个指标的告警阈值要按业务场景调。”</p>
+</blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://micrometer.io/">Micrometer</a> | <a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/instrumentation/java/spring-boot/">OpenTelemetry Spring Boot Starter</a></p>
+<hr>
+<blockquote>
+<p>本文将持续更新。本次更新：2026-06-09 — 新增 Virtual Threads 整合与生产踩坑、Spring Boot 3.x 迁移指南、Micrometer + OTEL 监控配置（Work Hermes）。</p>
 </blockquote>
 
     </div>

@@ -29,7 +29,7 @@
 <meta property="og:description" content="Kafka 高级面试全解，覆盖 ISR 机制、高性能设计、Exactly-Once 和常见生产问题。  0x00 核心机制1. Kafka 为什么这么快？四大设计：  顺序写磁盘：每个 Partition 是顺序 Append 的日志文件，顺序 IO 接近内存速度 零拷贝（Zero-Copy）：sendfile() 系统调用，数据从 PageCache 直接到网卡，不经过用户态 PageCach">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T10:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-07T06:58:10.409Z">
+<meta property="article:modified_time" content="2026-06-09T12:32:04.710Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="消息队列">
@@ -166,7 +166,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x00 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Kafka-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">1. Kafka 为什么这么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Kafka-%E7%9A%84-ISR-%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-acks-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-text">2. Kafka 的 ISR 机制是什么？与 acks 的关系？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E6%B6%88%E8%B4%B9%E4%B8%8E-Exactly-Once"><span class="nav-text">0x02 消费与 Exactly-Once</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Kafka-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0-Exactly-Once-%E8%AF%AD%E4%B9%89%EF%BC%9F"><span class="nav-text">3. Kafka 如何实现 Exactly-Once 语义？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%EF%BC%9F"><span class="nav-text">4. 如何避免消息重复消费？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98"><span class="nav-text">0x03 生产问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9F"><span class="nav-text">5. 消息积压怎么处理？</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x00 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Kafka-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">1. Kafka 为什么这么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Kafka-%E7%9A%84-ISR-%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-acks-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-text">2. Kafka 的 ISR 机制是什么？与 acks 的关系？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E6%B6%88%E8%B4%B9%E4%B8%8E-Exactly-Once"><span class="nav-text">0x02 消费与 Exactly-Once</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Kafka-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0-Exactly-Once-%E8%AF%AD%E4%B9%89%EF%BC%9F"><span class="nav-text">3. Kafka 如何实现 Exactly-Once 语义？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%EF%BC%9F"><span class="nav-text">4. 如何避免消息重复消费？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98"><span class="nav-text">0x03 生产问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9F"><span class="nav-text">5. 消息积压怎么处理？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Kafka-4-0-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-KRaft"><span class="nav-text">0x04 Kafka 4.0 新特性与 KRaft</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Kafka-4-0-KRaft-%E6%A8%A1%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-ZooKeeper-%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">6. Kafka 4.0 KRaft 模式是什么？与 ZooKeeper 模式的核心区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Kafka-4-0-%E7%9A%84-Shared-Groups%EF%BC%88KIP-932%EF%BC%89%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E%E7%BB%8F%E5%85%B8-Consumer-Group-%E6%9C%89%E4%BD%95%E4%B8%8D%E5%90%8C%EF%BC%9F"><span class="nav-text">7. Kafka 4.0 的 Shared Groups（KIP-932）是什么？与经典 Consumer Group 有何不同？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-ELR%EF%BC%88Eligible-Leader-Replicas%EF%BC%89%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-text">8. ELR（Eligible Leader Replicas）解决了什么问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Kafka-Tiered-Storage%EF%BC%88%E5%88%86%E5%B1%82%E5%AD%98%E5%82%A8%EF%BC%89%E7%9A%84%E6%9E%B6%E6%9E%84%E5%92%8C%E6%94%B6%E7%9B%8A%EF%BC%9F"><span class="nav-text">9. Kafka Tiered Storage（分层存储）的架构和收益？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Kafka-4-0-%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9B%91%E6%8E%A7%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%88KIP-714-KIP-1076%EF%BC%89%EF%BC%9F"><span class="nav-text">10. Kafka 4.0 客户端监控新特性（KIP-714 &#x2F; KIP-1076）？</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -245,9 +245,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-06-07 18:30:00 / 修改时间：14:58:10" itemprop="dateCreated datePublished" datetime="2026-06-07T18:30:00+08:00">2026-06-07</time>
+      <time title="创建时间：2026-06-07 18:30:00" itemprop="dateCreated datePublished" datetime="2026-06-07T18:30:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-09 20:32:04" itemprop="dateModified" datetime="2026-06-09T20:32:04+08:00">2026-06-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -339,6 +345,148 @@
 <h2 id="0x03-生产问题"><a href="#0x03-生产问题" class="headerlink" title="0x03 生产问题"></a>0x03 生产问题</h2><h3 id="5-消息积压怎么处理？"><a href="#5-消息积压怎么处理？" class="headerlink" title="5. 消息积压怎么处理？"></a>5. 消息积压怎么处理？</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 定位：找到 lag 最大的 Consumer Group</span></span><br><span class="line">kafka-consumer-groups.sh --bootstrap-server broker:9092 --describe --group my-group</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 临时扩容</span></span><br><span class="line"><span class="comment"># - 增加 Partition（需要先停服务）</span></span><br><span class="line">kafka-topics.sh --alter --topic orders --partitions 20</span><br><span class="line"><span class="comment"># - 增加 Consumer 实例（最多 = Partition 数）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 临时跳过积压</span></span><br><span class="line">consumer.seekToEnd(partitions);  // 跳到最后，丢弃历史</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 长期优化</span></span><br><span class="line"><span class="comment"># - Producer 压缩（lz4 兼顾速度和压缩比）</span></span><br><span class="line"><span class="comment"># - Consumer 批量处理（max.poll.records=500）</span></span><br><span class="line"><span class="comment"># - 增加 Consumer 线程（多线程处理）</span></span><br></pre></td></tr></table></figure>
 
 <p><strong>排查方向</strong>：Consumer 处理慢 → 检查下游 DB&#x2F;Redis 的 RT；Producer 太快 → 加限流或扩容 Partition。</p>
+<hr>
+<hr>
+<h2 id="0x04-Kafka-4-0-新特性与-KRaft"><a href="#0x04-Kafka-4-0-新特性与-KRaft" class="headerlink" title="0x04 Kafka 4.0 新特性与 KRaft"></a>0x04 Kafka 4.0 新特性与 KRaft</h2><h3 id="6-Kafka-4-0-KRaft-模式是什么？与-ZooKeeper-模式的核心区别？"><a href="#6-Kafka-4-0-KRaft-模式是什么？与-ZooKeeper-模式的核心区别？" class="headerlink" title="6. Kafka 4.0 KRaft 模式是什么？与 ZooKeeper 模式的核心区别？"></a>6. Kafka 4.0 KRaft 模式是什么？与 ZooKeeper 模式的核心区别？</h3><p><strong>标准答案</strong>：</p>
+<p>Kafka 4.0（2025年3月发布）完全移除 ZooKeeper 依赖，KRaft（Kafka Raft）成为唯一元数据管理模式。KRaft 使用 Raft 共识算法直接在 Kafka Broker 内部管理集群元数据，不再需要外部 ZooKeeper 集群。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Kafka &lt; 4.0:                    Kafka 4.0+:</span><br><span class="line">┌──────────┐  ┌──────────┐     ┌──────────────────────┐</span><br><span class="line">│  Broker  │  │  Broker  │     │  Broker (Controller)  │</span><br><span class="line">│  节点    │  │  节点    │     │  + KRaft 共识层       │</span><br><span class="line">└────┬─────┘  └────┬─────┘     │  + 元数据存储         │</span><br><span class="line">     │              │           └──────────────────────┘</span><br><span class="line">     └──────┬───────┘</span><br><span class="line">     ┌──────┴──────┐</span><br><span class="line">     │  ZooKeeper  │  ← 外部依赖</span><br><span class="line">     │  Ensemble   │</span><br><span class="line">     └─────────────┘</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ZooKeeper 模式</th>
+<th>KRaft 模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>外部依赖</strong></td>
+<td>需要独立 ZK 集群（3-5节点）</td>
+<td>零外部依赖</td>
+</tr>
+<tr>
+<td><strong>元数据存储</strong></td>
+<td>ZK 树形结构</td>
+<td>Kafka 内部 Topic <code>@metadata</code></td>
+</tr>
+<tr>
+<td><strong>Controller 选举</strong></td>
+<td>ZK 临时节点争抢</td>
+<td>Raft 共识选举</td>
+</tr>
+<tr>
+<td><strong>元数据传播</strong></td>
+<td>Controller → ZK → Broker（两跳）</td>
+<td>Controller → Broker 直推（一跳）</td>
+</tr>
+<tr>
+<td><strong>Partition 上限</strong></td>
+<td>~200K（ZK 瓶颈）</td>
+<td>百万级</td>
+</tr>
+<tr>
+<td><strong>Controller 切换</strong></td>
+<td>秒级</td>
+<td>亚秒级</td>
+</tr>
+<tr>
+<td><strong>部署复杂度</strong></td>
+<td>需管理两套系统</td>
+<td>单一系统</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>迁移路径</strong>（ZK → KRaft）：通过 <code>kafka-metadata-quorum.sh</code> 分阶段迁移。Phase 1 部署 KRaft Controller Quorum → Phase 2 启用 Broker 双写 → Phase 3 Broker 切到 KRaft → Phase 4 Controller 脱 ZK → Phase 5 移除 ZK。全程滚动操作，零停机</li>
+<li><strong>生产经验</strong>：KRaft Controller 节点需奇数个（3&#x2F;5），类似于 ZK 的过半投票。Controller 和 Broker 可以分离部署（<code>process.roles=controller</code> &#x2F; <code>process.roles=broker</code>）或合并（<code>process.roles=controller,broker</code>），生产建议分离</li>
+<li><strong>边界情况</strong>：KRaft 模式下 <code>min.insync.replicas</code> 语义不变，但 Controller 节点自身故障会触发 Raft 重新选举，需关注 <code>controller.quorum.election.timeout.ms</code></li>
+</ul>
+<p><strong>参考来源</strong>：Apache Kafka 4.0 Release Notes, Confluent Blog</p>
+<h3 id="7-Kafka-4-0-的-Shared-Groups（KIP-932）是什么？与经典-Consumer-Group-有何不同？"><a href="#7-Kafka-4-0-的-Shared-Groups（KIP-932）是什么？与经典-Consumer-Group-有何不同？" class="headerlink" title="7. Kafka 4.0 的 Shared Groups（KIP-932）是什么？与经典 Consumer Group 有何不同？"></a>7. Kafka 4.0 的 Shared Groups（KIP-932）是什么？与经典 Consumer Group 有何不同？</h3><p><strong>标准答案</strong>：</p>
+<p>KIP-932 在 Kafka 4.0 中引入 <strong>Share Groups（共享消费组）</strong>，实现了真正的队列语义——允许 Consumer 数量超过 Partition 数量，并支持单条消息的独立确认（ack&#x2F;nack）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">经典 Consumer Group:              Shared Group (KIP-932):</span><br><span class="line">Partition 0 → Consumer A         Partition 0 → Consumer A</span><br><span class="line">Partition 1 → Consumer B                      ↘ Consumer B</span><br><span class="line">Partition 2 → Consumer C         Partition 1 → Consumer C</span><br><span class="line">(Consumer D 闲置！)                           ↘ Consumer D</span><br><span class="line">                                               (所有 Consumer 都工作！)</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>经典 Consumer Group</th>
+<th>Shared Group</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Consumer : Partition</strong></td>
+<td>Consumer ≤ Partition</td>
+<td>无限制</td>
+</tr>
+<tr>
+<td><strong>消息确认</strong></td>
+<td>仅 offset commit（批次）</td>
+<td>单条 ack&#x2F;nack</td>
+</tr>
+<tr>
+<td><strong>顺序保证</strong></td>
+<td>单 Partition 内有序</td>
+<td>尽力而为，不保证顺序</td>
+</tr>
+<tr>
+<td><strong>消息重试</strong></td>
+<td>seek 回退 offset，整批重试</td>
+<td>nack 单条消息即可重投</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>流处理、有序消费</td>
+<td>任务队列、工作分发</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 Share Group</span></span><br><span class="line">kafka-share-groups.sh --bootstrap-server broker:9092 --create --group my-share-group</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 Share Group 状态</span></span><br><span class="line">kafka-share-groups.sh --describe --group my-share-group</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码层面</strong>：Share Group 在 Broker 端维护 <code>__share_group_state</code> 内部 Topic，记录每条消息的 ack 状态。消息投递后进入 “in-flight” 状态，超时未 ack 自动重投（<code>share.group.max.in.flight.records</code> 控制并发度）</li>
+<li><strong>生产经验</strong>：用 Share Group 替代 “多 Partition + Worker 线程池” 的 hack 方案（如在 Consumer 内部开线程池处理消息再手动 commit），天然支持动态扩缩 Consumer。但需注意：消息顺序丢失，不适合有状态流处理</li>
+<li><strong>对比</strong>：RabbitMQ 的 competing consumers 模式天然支持队列语义。Kafka 的 Shared Group 弥补了这一短板，但相比 RabbitMQ 持久队列，Kafka 仍基于 Log 存储，回溯能力更强</li>
+</ul>
+<p><strong>参考来源</strong>：KIP-932, Confluent Blog</p>
+<h3 id="8-ELR（Eligible-Leader-Replicas）解决了什么问题？"><a href="#8-ELR（Eligible-Leader-Replicas）解决了什么问题？" class="headerlink" title="8. ELR（Eligible Leader Replicas）解决了什么问题？"></a>8. ELR（Eligible Leader Replicas）解决了什么问题？</h3><p><strong>标准答案</strong>：</p>
+<p>ELR（KIP-966）是 Kafka 4.0 引入的预览特性，解决 ISR 机制在极端场景下的数据丢失问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">场景：min.insync.replicas=2, acks=all</span><br><span class="line"></span><br><span class="line">ZK 模式问题：</span><br><span class="line">  ISR = [Broker1(Leader), Broker2]</span><br><span class="line">  Broker2 故障 → ISR = [Broker1] 只剩 Leader</span><br><span class="line">  此时 acks=all 的写入只需 Leader 确认即可</span><br><span class="line">  如果此时 Broker1 也故障 → 数据丢失！</span><br><span class="line"></span><br><span class="line">ELR 方案：</span><br><span class="line">  ISR = [Broker1, Broker2]   ELR = [Broker2]  ← 记录最后一个已知同步副本</span><br><span class="line">  Broker2 故障 → ISR = [Broker1]</span><br><span class="line">  但 ELR 仍记录 Broker2，Leader 选举时优先选 ELR 中的副本</span><br><span class="line">  避免选到落后太多的副本</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：ELR 不是银弹——如果所有 ISR 和 ELR 副本都挂了，仍然可能丢数据。它只是将丢失窗口缩小</li>
+<li><strong>与传统 ISR 的关系</strong>：ELR 是 ISR 的补充而非替代。正常运行时 ISR&#x3D;ELR。仅在 ISR 缩减到不满足 min.insync.replicas 时，ELR 发挥作用</li>
+<li><strong>生产经验</strong>：结合 <code>unclean.leader.election.enable=false</code>（禁止从非 ISR 副本选举 Leader）使用。开启 ELR 后可以更安全地设为 false</li>
+</ul>
+<p><strong>参考来源</strong>：KIP-966, Apache Kafka 4.0 Release Notes</p>
+<h3 id="9-Kafka-Tiered-Storage（分层存储）的架构和收益？"><a href="#9-Kafka-Tiered-Storage（分层存储）的架构和收益？" class="headerlink" title="9. Kafka Tiered Storage（分层存储）的架构和收益？"></a>9. Kafka Tiered Storage（分层存储）的架构和收益？</h3><p><strong>标准答案</strong>：</p>
+<p>KIP-405 在 Kafka 3.9 进入生产就绪，4.0 完善。核心思想：热数据本地存储，冷数据自动迁移到对象存储（S3&#x2F;MinIO），降低存储成本 80%+。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────────────┐</span><br><span class="line">│            Kafka Broker              │</span><br><span class="line">│  ┌──────────┐    ┌──────────────┐   │</span><br><span class="line">│  │ 本地 SSD │ ←→ │ Remote Storage│   │</span><br><span class="line">│  │ (热数据) │    │ Manager      │   │</span><br><span class="line">│  │ Segment  │    └──────┬───────┘   │</span><br><span class="line">│  │ 0-100MB  │           │           │</span><br><span class="line">│  └──────────┘    ┌──────▼───────┐   │</span><br><span class="line">│                  │   S3/MinIO   │   │</span><br><span class="line">│                  │  (冷数据)    │   │</span><br><span class="line">│                  │  Segment     │   │</span><br><span class="line">│                  │  101MB-1GB   │   │</span><br><span class="line">│                  └──────────────┘   │</span><br><span class="line">└──────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Broker 端配置</span></span><br><span class="line"><span class="attr">remote.log.storage.system.enable</span>=<span class="string">true</span></span><br><span class="line"><span class="attr">remote.log.storage.manager.class.name</span>=<span class="string">org.apache.kafka.server.log.remote.storage.RemoteLogManager</span></span><br><span class="line"><span class="attr">remote.log.metadata.custom.metadata.max.bytes</span>=<span class="string">128</span></span><br><span class="line"><span class="attr">remote.log.storage.manager.impl.prefix</span>=<span class="string">rsm.config.</span></span><br><span class="line"><span class="attr">rsm.config.s3.bucket.name</span>=<span class="string">kafka-tiered-storage</span></span><br><span class="line"><span class="attr">rsm.config.s3.region</span>=<span class="string">us-east-1</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># Topic 级别</span></span><br><span class="line"><span class="attr">kafka-configs.sh</span> <span class="string">--alter --topic my-topic \</span></span><br><span class="line"><span class="string">  --add-config remote.storage.enable=true,\</span></span><br><span class="line"><span class="string">  local.retention.ms=86400000</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>成本对比</strong>：本地 SSD 约 $0.10&#x2F;GB&#x2F;月，S3 标准约 $0.023&#x2F;GB&#x2F;月。对于保留 30 天数据的 Topic，分层存储可节省 70-85% 存储成本</li>
+<li><strong>延迟权衡</strong>：消费热数据（本地 Segments）延迟不变。消费冷数据（远程 Segments）首次访问有 S3 GET 延迟（~50-200ms），但会缓存到本地</li>
+<li><strong>生产经验</strong>：<code>local.retention.ms</code> 控制本地保留时间。设为 1 天意味着最近 24 小时数据全在本地 SSD。设太大会降低分层存储收益，设太小会增加 S3 请求费用</li>
+</ul>
+<p><strong>参考来源</strong>：KIP-405, Apache Kafka Documentation</p>
+<h3 id="10-Kafka-4-0-客户端监控新特性（KIP-714-KIP-1076）？"><a href="#10-Kafka-4-0-客户端监控新特性（KIP-714-KIP-1076）？" class="headerlink" title="10. Kafka 4.0 客户端监控新特性（KIP-714 &#x2F; KIP-1076）？"></a>10. Kafka 4.0 客户端监控新特性（KIP-714 &#x2F; KIP-1076）？</h3><p><strong>标准答案</strong>：</p>
+<p>Kafka 4.0 大幅增强了客户端可观测性。KIP-714 允许客户端将自身指标推送到 Broker，KIP-1076 扩展支持 Kafka Streams 等应用级指标上报。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Producer/Consumer 端开启指标推送</span></span><br><span class="line"><span class="attr">enable.metrics.push</span>=<span class="string">true</span></span><br><span class="line"><span class="attr">metrics.push.interval.ms</span>=<span class="string">10000   # 每10秒推送一次</span></span><br></pre></td></tr></table></figure>
+
+<p>Broker 端自动创建 <code>__client_metrics</code> 内部 Topic 存储所有客户端指标：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看客户端指标</span></span><br><span class="line">kafka-client-metrics.sh --bootstrap-server broker:9092 --list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 典型指标</span></span><br><span class="line"><span class="comment"># - produce-total-time-avg: 生产平均延迟</span></span><br><span class="line"><span class="comment"># - fetch-total-time-avg: 消费平均延迟  </span></span><br><span class="line"><span class="comment"># - io-ratio: IO 线程繁忙度</span></span><br><span class="line"><span class="comment"># - connection-count: 连接数</span></span><br><span class="line"><span class="comment"># - outgoing-byte-rate: 出站流量</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>架构优势</strong>：传统方式需每个客户端部署 Prometheus JMX Exporter，KIP-714 统一了指标采集出口，无需额外组件</li>
+<li><strong>生产经验</strong>：<code>metrics.push.interval.ms</code> 不宜设太小（如 1s），会产生大量内部 Topic 流量。建议 10-30s。Broker 端 <code>__client_metrics</code> 默认保留 24h，通过 kafka-console-consumer 可直接消费分析</li>
+<li><strong>边界情况</strong>：指标推送使用 Producer 内部线程，不阻塞业务线程。但如果 Broker 不可达，指标会丢失（Fire-and-Forget 模式），不影响业务</li>
+</ul>
+<p><strong>参考来源</strong>：KIP-714, KIP-1076, Apache Kafka 4.0 Release Notes</p>
 <hr>
 <blockquote>
 <p>本文将持续更新。</p>

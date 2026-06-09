@@ -29,7 +29,7 @@
 <meta property="og:description" content="Spark 高级面试全解，覆盖 Shuffle 原理、内存管理、Spark SQL 优化和流处理。面向高级研发。  0x00 核心架构1. Spark 的 Job、Stage、Task 是怎么划分的？123456Action → Job → 宽依赖切分 Stage → Stage 内 Task（并行度）       map    reduceByKey   map   collectRDD ──">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T09:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-08T13:12:15.257Z">
+<meta property="article:modified_time" content="2026-06-09T12:34:32.037Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="DataFrame">
 <meta property="article:tag" content="Shuffle">
@@ -168,7 +168,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-text">0x00 核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Spark-%E7%9A%84-Job%E3%80%81Stage%E3%80%81Task-%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%92%E5%88%86%E7%9A%84%EF%BC%9F"><span class="nav-text">1. Spark 的 Job、Stage、Task 是怎么划分的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Spark-Shuffle-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E5%8F%8A%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">2. Spark Shuffle 的三种实现及演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x02 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spark-%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">3. Spark 统一内存模型是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spark-SQL-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03 Spark SQL 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-DataFrame-%E6%AF%94-RDD-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">4. DataFrame 比 RDD 为什么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-text">5. 数据倾斜怎么解决？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%B5%81%E5%A4%84%E7%90%86"><span class="nav-text">0x04 流处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Structured-Streaming-%E7%9A%84-Exactly-Once-%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%EF%BC%9F"><span class="nav-text">6. Structured Streaming 的 Exactly-Once 怎么保证？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x05 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F%E6%A0%87%E7%AD%BE%E8%AE%A1%E7%AE%97%EF%BC%88%E6%89%B9%E6%B5%81%E4%B8%80%E4%BD%93%EF%BC%89"><span class="nav-text">用户画像标签计算（批流一体）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E8%BF%9B%E9%98%B6"><span class="nav-text">0x06 内存管理进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spark-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9E%8B"><span class="nav-text">7. Spark 内存管理模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E6%B5%81%E5%A4%84%E7%90%86%E5%AF%B9%E6%AF%94%E4%B8%8E%E6%BC%94%E8%BF%9B"><span class="nav-text">0x07 流处理对比与演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Spark-Streaming-%E4%B8%8E-Structured-Streaming"><span class="nav-text">8. Spark Streaming 与 Structured Streaming</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Spark-4-x-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-Spark-Connect"><span class="nav-text">9. Spark 4.x 新特性与 Spark Connect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Spark-Structured-Streaming-3%EF%BC%88%E6%B5%81%E5%BC%8F%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E%E5%BC%82%E6%AD%A5%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%89%E2%80%94%E2%80%94Spark-4-x-%E6%B5%81%E5%A4%84%E7%90%86%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90"><span class="nav-text">10. Spark Structured Streaming 3（流式物化视图与异步状态管理）——Spark 4.x 流处理深度剖析</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-text">0x00 核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Spark-%E7%9A%84-Job%E3%80%81Stage%E3%80%81Task-%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%92%E5%88%86%E7%9A%84%EF%BC%9F"><span class="nav-text">1. Spark 的 Job、Stage、Task 是怎么划分的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Spark-Shuffle-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E5%8F%8A%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">2. Spark Shuffle 的三种实现及演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x02 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spark-%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">3. Spark 统一内存模型是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spark-SQL-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03 Spark SQL 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-DataFrame-%E6%AF%94-RDD-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">4. DataFrame 比 RDD 为什么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-text">5. 数据倾斜怎么解决？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%B5%81%E5%A4%84%E7%90%86"><span class="nav-text">0x04 流处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Structured-Streaming-%E7%9A%84-Exactly-Once-%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%EF%BC%9F"><span class="nav-text">6. Structured Streaming 的 Exactly-Once 怎么保证？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x05 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F%E6%A0%87%E7%AD%BE%E8%AE%A1%E7%AE%97%EF%BC%88%E6%89%B9%E6%B5%81%E4%B8%80%E4%BD%93%EF%BC%89"><span class="nav-text">用户画像标签计算（批流一体）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E8%BF%9B%E9%98%B6"><span class="nav-text">0x06 内存管理进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spark-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9E%8B"><span class="nav-text">7. Spark 内存管理模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E6%B5%81%E5%A4%84%E7%90%86%E5%AF%B9%E6%AF%94%E4%B8%8E%E6%BC%94%E8%BF%9B"><span class="nav-text">0x07 流处理对比与演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Spark-Streaming-%E4%B8%8E-Structured-Streaming"><span class="nav-text">8. Spark Streaming 与 Structured Streaming</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Spark-4-x-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-Spark-Connect"><span class="nav-text">9. Spark 4.x 新特性与 Spark Connect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Spark-Structured-Streaming-3%EF%BC%88%E6%B5%81%E5%BC%8F%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E%E5%BC%82%E6%AD%A5%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%89%E2%80%94%E2%80%94Spark-4-x-%E6%B5%81%E5%A4%84%E7%90%86%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90"><span class="nav-text">10. Spark Structured Streaming 3（流式物化视图与异步状态管理）——Spark 4.x 流处理深度剖析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-Spark-4-0-%E6%96%B0%E7%89%B9%E6%80%A7%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90"><span class="nav-text">0x08 Spark 4.0 新特性深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Spark-4-0-VARIANT-%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-text">11. Spark 4.0 VARIANT 类型与半结构化数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Spark-4-0-SQL-Scripting-%E4%B8%8E-Session-Variables"><span class="nav-text">12. Spark 4.0 SQL Scripting 与 Session Variables</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Spark-4-0-ANSI-SQL-%E6%A8%A1%E5%BC%8F%E9%BB%98%E8%AE%A4%E5%BC%80%E5%90%AF"><span class="nav-text">13. Spark 4.0 ANSI SQL 模式默认开启</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Spark-4-0-Structured-Streaming-transformWithState-API"><span class="nav-text">14. Spark 4.0 Structured Streaming transformWithState API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Spark-4-0-RocksDB-Shuffle-%E4%B8%8E%E7%8A%B6%E6%80%81%E5%AD%98%E5%82%A8"><span class="nav-text">15. Spark 4.0 RocksDB Shuffle 与状态存储</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -255,7 +255,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-08 21:12:15" itemprop="dateModified" datetime="2026-06-08T21:12:15+08:00">2026-06-08</time>
+      <time title="修改时间：2026-06-09 20:34:32" itemprop="dateModified" datetime="2026-06-09T20:34:32+08:00">2026-06-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -568,6 +568,160 @@
 <blockquote>
 <p>“Spark 4.x Structured Streaming 3 最核心的三个改进是：流式物化视图让 Spark 本身成为实时物化引擎，无需外部存储中转；异步状态管理消除了 TB 级状态下的访问瓶颈；RocksDB 作为默认状态后端使状态量不再受 JVM 堆限制。这三个改进让 Spark Streaming 在流批一体和实时数仓场景下的竞争力大幅提升，直接对标 Flink 的状态管理能力。流式物化视图尤其值得关注——它模糊了流处理和 OLAP 的边界，是 Lakehouse 架构中实时服务层的关键组成部分。”</p>
 </blockquote>
+<hr>
+<h2 id="0x08-Spark-4-0-新特性深度解析"><a href="#0x08-Spark-4-0-新特性深度解析" class="headerlink" title="0x08 Spark 4.0 新特性深度解析"></a>0x08 Spark 4.0 新特性深度解析</h2><h3 id="11-Spark-4-0-VARIANT-类型与半结构化数据处理"><a href="#11-Spark-4-0-VARIANT-类型与半结构化数据处理" class="headerlink" title="11. Spark 4.0 VARIANT 类型与半结构化数据处理"></a>11. Spark 4.0 VARIANT 类型与半结构化数据处理</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Spark 4.0 引入的 VARIANT 数据类型解决了什么问题？和传统 STRING + from_json 方式有何区别？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Spark 4.0 引入了 <strong>VARIANT</strong> 原生数据类型，用于高效存储和查询半结构化数据（JSON 等），无需预定义 Schema。</p>
+<p><strong>传统方式（Spark 3.x）</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- JSON 存为 STRING，查询时解析</span></span><br><span class="line"><span class="keyword">SELECT</span> from_json(json_col, <span class="string">&#x27;user_id INT, events ARRAY&lt;STRING&gt;&#x27;</span>).user_id</span><br><span class="line"><span class="keyword">FROM</span> events;</span><br></pre></td></tr></table></figure>
+<p>问题：每次查询都要解析 JSON，CPU 开销大；无法利用列式存储的谓词下推和统计信息。</p>
+<p><strong>Spark 4.0 VARIANT 方式</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> events (data VARIANT);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 内联提取字段，无需 from_json</span></span><br><span class="line"><span class="keyword">SELECT</span> data:user_id, data:events[<span class="number">0</span>], data:metadata.timestamp</span><br><span class="line"><span class="keyword">FROM</span> events</span><br><span class="line"><span class="keyword">WHERE</span> data:event_type <span class="operator">=</span> <span class="string">&#x27;purchase&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心优势</strong>：</p>
+<ul>
+<li><strong>高效存储</strong>：VARIANT 列内部按字段”shredded”存储（类似列存），查询只需读取相关字段</li>
+<li><strong>谓词下推</strong>：<code>data:event_type = &#39;purchase&#39;</code> 可以利用 Parquet 的 min&#x2F;max 统计跳过文件</li>
+<li><strong>无需 Schema 声明</strong>：灵活的 Schema-on-Read，适合 IoT 日志、营销事件等动态 schema 场景</li>
+<li><strong>性能</strong>：相比 STRING + JSON 解析，读取性能提升数倍</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：VARIANT 适用于 JSON 结构多样化但字段名相对稳定的场景。如果每个 JSON 的字段名都完全不同（如随机 Key），shredding 效果会退化到近似 STRING。嵌套深度建议控制在 5 层以内。</p>
+</li>
+<li><p><strong>源码层面</strong>：VARIANT 基于 Spark 4.0 的 <code>VariantType</code> 实现，底层使用 Parquet 的 Variant 编码（Shredded Columnar Encoding）。写入时将 JSON 字段按路径拆分为多个子列，查询时通过 <code>:field</code> 语法直接引用子列，避免了运行时 JSON 解析。类似于 Iceberg v3 的 VARIANT 类型，共享相同的 Parquet 编码规范。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Iceberg v3 和 Delta Lake 4.0 也引入了 VARIANT 类型，三者基于相同的底层编码规范（Variant Binary Encoding）。这意味着 Spark 4.0 写的 VARIANT 可以被 Trino&#x2F;Flink 读取，前提是引擎实现了 VARIANT reader。</p>
+</li>
+<li><p><strong>生产经验</strong>：适合埋点日志（schema 频繁变更）、API 响应缓存、IoT 遥测数据。注意：VARIANT 不支持所有 SQL 函数，聚合&#x2F;排序需要先提取为具体类型。迁移时建议渐进式——新表用 VARIANT，旧表保持不变。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Apache Spark 4.0 Release: <a target="_blank" rel="noopener" href="https://spark.apache.org/news/spark-4.0.0.html">https://spark.apache.org/news/spark-4.0.0.html</a></li>
+<li>Databricks Spark 4.0 Blog: <a target="_blank" rel="noopener" href="https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627">https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627</a></li>
+</ul>
+<hr>
+<h3 id="12-Spark-4-0-SQL-Scripting-与-Session-Variables"><a href="#12-Spark-4-0-SQL-Scripting-与-Session-Variables" class="headerlink" title="12. Spark 4.0 SQL Scripting 与 Session Variables"></a>12. Spark 4.0 SQL Scripting 与 Session Variables</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Spark 4.0 引入的 SQL Scripting 和 Session Variables 是什么？它们如何改变 Spark SQL 的使用方式？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Spark 4.0 引入了 <strong>SQL Scripting</strong>（SQL 脚本编程）和 <strong>Session Variables</strong>（会话变量），让 Spark SQL 具备了类似存储过程的编程能力。</p>
+<p><strong>Session Variables</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 声明会话变量</span></span><br><span class="line"><span class="keyword">DECLARE</span> VAR target_date <span class="operator">=</span> <span class="type">DATE</span> <span class="string">&#x27;2026-06-01&#x27;</span>;</span><br><span class="line"><span class="keyword">DECLARE</span> VAR min_amount <span class="operator">=</span> <span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在查询中使用</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> orders</span><br><span class="line"><span class="keyword">WHERE</span> order_date <span class="operator">&gt;=</span> target_date</span><br><span class="line">  <span class="keyword">AND</span> amount <span class="operator">&gt;</span> min_amount;</span><br></pre></td></tr></table></figure>
+
+<p><strong>SQL Scripting（控制流）</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  <span class="keyword">DECLARE</span> VAR cnt <span class="type">BIGINT</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">-- IF/ELSE 分支</span></span><br><span class="line">  IF (<span class="keyword">SELECT</span> <span class="built_in">MAX</span>(order_date) <span class="keyword">FROM</span> orders) <span class="operator">&gt;</span> <span class="type">DATE</span> <span class="string">&#x27;2026-06-01&#x27;</span> <span class="keyword">THEN</span></span><br><span class="line">    <span class="keyword">INSERT</span> OVERWRITE report_daily</span><br><span class="line">    <span class="keyword">SELECT</span> ... <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> order_date <span class="operator">&gt;</span> <span class="type">DATE</span> <span class="string">&#x27;2026-06-01&#x27;</span>;</span><br><span class="line">  <span class="keyword">ELSE</span></span><br><span class="line">    PRINT <span class="string">&#x27;No new data to process&#x27;</span>;</span><br><span class="line">  <span class="keyword">END</span> IF;</span><br><span class="line"></span><br><span class="line">  <span class="comment">-- LOOP 循环</span></span><br><span class="line">  <span class="keyword">FOR</span> i <span class="keyword">IN</span> <span class="number">1.</span><span class="number">.7</span> DO</span><br><span class="line">    <span class="keyword">INSERT INTO</span> weekly_stats</span><br><span class="line">    <span class="keyword">SELECT</span> DATE_SUB(<span class="built_in">CURRENT_DATE</span>, i), <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> orders</span><br><span class="line">    <span class="keyword">WHERE</span> order_date <span class="operator">=</span> DATE_SUB(<span class="built_in">CURRENT_DATE</span>, i);</span><br><span class="line">  <span class="keyword">END</span> <span class="keyword">FOR</span>;</span><br><span class="line"><span class="keyword">END</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>其他 SQL 增强</strong>：</p>
+<ul>
+<li><strong>PIPE 语法</strong>（<code>|&gt;</code>）：链式数据转换，提升可读性<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">TABLE</span> orders</span><br><span class="line"><span class="operator">|</span><span class="operator">&gt;</span> <span class="keyword">WHERE</span> status <span class="operator">=</span> <span class="string">&#x27;completed&#x27;</span></span><br><span class="line"><span class="operator">|</span><span class="operator">&gt;</span> <span class="keyword">SELECT</span> user_id, amount</span><br><span class="line"><span class="operator">|</span><span class="operator">&gt;</span> AGGREGATE <span class="built_in">SUM</span>(amount) <span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id</span><br></pre></td></tr></table></figure></li>
+<li><strong>SQL UDF</strong>：纯 SQL 自定义函数，与优化器集成，比 Python&#x2F;Scala UDF 快<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> REPLACE <span class="keyword">FUNCTION</span> clean_email(email STRING)</span><br><span class="line"><span class="keyword">RETURNS</span> STRING <span class="keyword">RETURN</span> <span class="built_in">lower</span>(<span class="built_in">trim</span>(email));</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：SQL Scripting 目前不支持异常处理（TRY&#x2F;CATCH），出错会中止整个脚本。Session Variables 的作用域是会话级别，多用户共享 SparkSession 时会有变量冲突。</p>
+</li>
+<li><p><strong>对比延伸</strong>：类似 Hive 的 HPL&#x2F;SQL 和传统数据库的 PL&#x2F;SQL、T-SQL。Spark 4.0 的 SQL Scripting 更轻量，目标是替代简单的 Python wrapper 脚本而非构建复杂存储过程。</p>
+</li>
+<li><p><strong>生产经验</strong>：最实用的场景是 ETL 调度脚本——原来需要 Python&#x2F;Airflow 串联多个 Spark SQL，现在一个 SQL 脚本搞定，减少了语言切换和序列化开销。PIPE 语法对数据探索场景特别友好，代码可读性提升显著。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Apache Spark 4.0 SQL Scripting: <a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/sql-scripting.html">https://spark.apache.org/docs/latest/sql-scripting.html</a></li>
+<li>Databricks “Introducing Apache Spark 4.0”: <a target="_blank" rel="noopener" href="https://www.linkedin.com/posts/smilegator_introducing-apache-spark-40-activity-7333562592038162436-Ev3w">https://www.linkedin.com/posts/smilegator_introducing-apache-spark-40-activity-7333562592038162436-Ev3w</a></li>
+</ul>
+<hr>
+<h3 id="13-Spark-4-0-ANSI-SQL-模式默认开启"><a href="#13-Spark-4-0-ANSI-SQL-模式默认开启" class="headerlink" title="13. Spark 4.0 ANSI SQL 模式默认开启"></a>13. Spark 4.0 ANSI SQL 模式默认开启</h3><p><strong>难度</strong>：⭐⭐<br><strong>问题</strong>：Spark 4.0 默认开启了 ANSI SQL 模式，这对现有作业有什么影响？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Spark 4.0 将 <code>spark.sql.ansi.enabled</code> 默认值从 <code>false</code> 改为 <code>true</code>。这意味着：</p>
+<p><strong>行为变化</strong>：</p>
+<ul>
+<li><strong>溢出检查</strong>：整数溢出（如 <code>Int.MaxValue + 1</code>）从返回 NULL 变为<strong>抛出异常</strong></li>
+<li><strong>除零检查</strong>：<code>1/0</code> 从返回 NULL 变为<strong>抛出异常</strong></li>
+<li><strong>类型安全</strong>：不合法的 CAST（如 <code>CAST(&#39;abc&#39; AS INT)</code>）从返回 NULL 变为<strong>抛出异常</strong></li>
+<li><strong>日期&#x2F;时间</strong>：不合法的日期（如 <code>date &#39;2026-02-30&#39;</code>）直接报错而非返回 NULL</li>
+</ul>
+<p><strong>兼容性处理</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 关闭 ANSI（恢复旧行为）</span></span><br><span class="line"><span class="keyword">SET</span> spark.sql.ansi.enabled <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或使用 SAFE_ 函数系列（仅特定场景）</span></span><br><span class="line"><span class="keyword">SELECT</span> SAFE_CAST(<span class="string">&#x27;abc&#x27;</span> <span class="keyword">AS</span> <span class="type">INT</span>);  <span class="comment">-- 返回 NULL 而非报错</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：ANSI 模式对脏数据敏感的 ETL 管道影响最大——之前靠返回 NULL 容忍脏数据，现在会直接导致作业失败。对于数据质量差的场景（如解析用户上传的 CSV），建议先做数据质量检查或使用 SAFE_ 函数。</p>
+</li>
+<li><p><strong>生产经验</strong>：迁移 Spark 4.0 前，建议先用 <code>spark.sql.ansi.enabled=false</code> 跑一遍灰度，统计所有会触发异常的位置，逐步修复。团队在 3.x 就主动开启 ANSI 模式是业界的推荐实践——提前发现数据质量问题，避免 4.0 迁移被动。</p>
+</li>
+<li><p><strong>面试金句</strong>：&gt;”Spark 4.0 默认 ANSI SQL 模式体现了从’容错优先’到’正确性优先’的理念转变——宁可作业失败也要暴露数据质量问题，这是数据工程成熟的标志。”</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Apache Spark 4.0 Migration Guide: <a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/sql-migration-guide.html">https://spark.apache.org/docs/latest/sql-migration-guide.html</a></li>
+<li>Databricks Blog “Spark 4.0 ANSI Mode”: <a target="_blank" rel="noopener" href="https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627">https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627</a></li>
+</ul>
+<hr>
+<h3 id="14-Spark-4-0-Structured-Streaming-transformWithState-API"><a href="#14-Spark-4-0-Structured-Streaming-transformWithState-API" class="headerlink" title="14. Spark 4.0 Structured Streaming transformWithState API"></a>14. Spark 4.0 Structured Streaming transformWithState API</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Spark 4.0 Structured Streaming 的 transformWithState API 是什么？和传统 mapGroupsWithState 有什么区别？</p>
+<p><strong>标准答案</strong>：</p>
+<p><code>transformWithState</code> 是 Spark 4.0 引入的全新状态管理 API，替代旧的 <code>mapGroupsWithState</code> &#x2F; <code>flatMapGroupsWithState</code>，提供了更健壮、更灵活的自定义有状态逻辑。</p>
+<p><strong>传统方式（Spark 3.x）</strong>：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mapGroupsWithState：API 复杂，状态过期控制有限</span></span><br><span class="line">df.groupByKey(_.userId)</span><br><span class="line">  .mapGroupsWithState(<span class="type">GroupStateTimeout</span>.<span class="type">EventTimeTimeout</span>()) &#123;</span><br><span class="line">    (key, values, state: <span class="type">GroupState</span>[<span class="type">UserState</span>]) =&gt;</span><br><span class="line">      <span class="comment">// 手动管理状态、超时、输出</span></span><br><span class="line">      state.setTimeoutTimestamp(...)</span><br><span class="line">      <span class="comment">// 容易遗漏边界情况（如状态过期、watermark 延迟）</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Spark 4.0 transformWithState</strong>：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.spark.sql.streaming.<span class="type">StatefulProcessor</span></span><br><span class="line"></span><br><span class="line">df.groupByKey(_.userId)</span><br><span class="line">  .transformWithState(<span class="keyword">new</span> <span class="type">StatefulProcessor</span>[<span class="type">String</span>, <span class="type">Event</span>, <span class="type">UserState</span>, <span class="type">Output</span>] &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">init</span></span>(outputMode: <span class="type">OutputMode</span>, timeMode: <span class="type">TimeMode</span>): <span class="type">Unit</span> = &#123; <span class="comment">/* 初始化 */</span> &#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">handleInputRows</span></span>(</span><br><span class="line">      key: <span class="type">String</span>,</span><br><span class="line">      inputRows: <span class="type">Iterator</span>[<span class="type">Event</span>],</span><br><span class="line">      oldState: <span class="type">UserState</span>,</span><br><span class="line">      timerValues: <span class="type">TimerValues</span></span><br><span class="line">    ): (<span class="type">UserState</span>, <span class="type">Iterator</span>[<span class="type">Output</span>]) = &#123;</span><br><span class="line">      <span class="comment">// 更清晰的 API：输入行迭代器 + 旧状态 → 新状态 + 输出</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onTimer</span></span>(...): (<span class="type">UserState</span>, <span class="type">Iterator</span>[<span class="type">Output</span>]) = &#123; <span class="comment">/* 定时器回调 */</span> &#125;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">close</span></span>(): <span class="type">Unit</span> = &#123; <span class="comment">/* 清理资源 */</span> &#125;</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键改进</strong>：</p>
+<ul>
+<li><strong>TtlState 支持</strong>：内置状态 TTL（Time-to-Live），自动清理过期状态</li>
+<li><strong>异步状态访问</strong>（配合 RocksDB 后端）：状态操作返回 Future，消除 I&#x2F;O 阻塞</li>
+<li><strong>更好的可调试性</strong>：新 State Store Data Source 可以查询状态快照</li>
+<li><strong>RocksDB 默认后端</strong>：状态不再受 JVM 堆限制</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：<code>transformWithState</code> 需要 Spark 4.0+，且 API 仍在演进中。大规模状态场景下需要关注 RocksDB compaction 对延迟的影响。在事件时间模式下，watermark 延迟可能导致状态迟迟不过期。</p>
+</li>
+<li><p><strong>对比延伸</strong>：<code>transformWithState</code> 的设计明显对标 Flink 的 <code>KeyedProcessFunction</code>——更清晰的生命周期管理、更强的时间语义支持。差距在于 Spark 仍是微批处理，状态访问延迟比 Flink 高。</p>
+</li>
+<li><p><strong>生产经验</strong>：40% 的 JVM 内存使用下降（生产数据），得益于 RocksDB 将状态移出堆。建议 <code>spark.sql.streaming.stateStore.providerClass=org.apache.spark.sql.execution.streaming.state.RocksDBStateStoreProvider</code>（4.0 默认），cache 设为 executor 内存的 50%。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Databricks Spark 4.0 Blog: <a target="_blank" rel="noopener" href="https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627">https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627</a></li>
+<li>Spark 4.0 Structured Streaming docs: <a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html">https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html</a></li>
+</ul>
+<hr>
+<h3 id="15-Spark-4-0-RocksDB-Shuffle-与状态存储"><a href="#15-Spark-4-0-RocksDB-Shuffle-与状态存储" class="headerlink" title="15. Spark 4.0 RocksDB Shuffle 与状态存储"></a>15. Spark 4.0 RocksDB Shuffle 与状态存储</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Spark 4.0 为什么将 Shuffle 和状态存储的默认后端改为 RocksDB？有哪些性能收益？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Spark 4.0 将 External Shuffle Service 和 Streaming State Store 的默认实现从内存&#x2F;LevelDB 改为 <strong>RocksDB</strong>。</p>
+<p><strong>改造点</strong>：</p>
+<ul>
+<li><strong>Shuffle Service</strong>：External Shuffle Service 使用 RocksDB 存储 Shuffle 数据（替代之前的本地文件）</li>
+<li><strong>Streaming State</strong>：Structured Streaming 状态后端默认使用 RocksDB（替代 HDFSBackedStateStore）</li>
+</ul>
+<p><strong>优势</strong>：</p>
+<ul>
+<li><strong>Off-Heap 存储</strong>：RocksDB 使用本地内存（Native Memory）和磁盘，不占用 JVM 堆，大幅减少 GC 压力</li>
+<li><strong>更大的 Shuffle 容量</strong>：Shuffle 数据不再受 JVM 堆限制，适合大 Shuffle 作业</li>
+<li><strong>内存下降</strong>：一个生产 Streaming 作业报告 JVM 内存使用下降 ~40%</li>
+<li><strong>稳定性</strong>：避免大 Shuffle 导致的 OOM，减少 GC 停顿</li>
+</ul>
+<p><strong>配置</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Shuffle 用 RocksDB（Spark 4.0 默认）</span></span><br><span class="line"><span class="attr">spark.shuffle.service.db.enabled:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">spark.shuffle.service.db.backend:</span> <span class="string">ROCKSDB</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Streaming State 用 RocksDB</span></span><br><span class="line"><span class="attr">spark.sql.streaming.stateStore.providerClass:</span> <span class="string">org.apache.spark.sql.execution.streaming.state.RocksDBStateStoreProvider</span></span><br><span class="line"><span class="attr">spark.sql.streaming.stateStore.rocksdb.blockCacheSize:</span> <span class="string">512m</span></span><br><span class="line"><span class="attr">spark.sql.streaming.stateStore.rocksdb.writeBufferSize:</span> <span class="string">256m</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：RocksDB 需要额外的本地磁盘空间存储数据，磁盘 I&#x2F;O 可能成为新瓶颈（建议 SSD）。Shuffle 数据写入 RocksDB 比写入本地文件多一层序列化，极端情况下 write 延迟略高，但 read 路径优化更好。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Flink 2.0 的 ForSt 是”远程 DFS + 本地缓存”模式，Spark 4.0 的 RocksDB 是”本地磁盘 + 本地内存”模式。前者适合云原生 K8s + 存算分离，后者适合传统 YARN&#x2F;Standalone 集群。两种方案不是竞争而是互补——取决于部署形态。</p>
+</li>
+<li><p><strong>生产经验</strong>：升级 Spark 4.0 后，原有的 Shuffle OOM 问题基本消失，但需要监控磁盘使用率（RocksDB 会占用临时目录）。建议为 Shuffle 目录单独 mount SSD，配置 <code>spark.local.dir</code> 指向 SSD 路径。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Databricks Blog “Spark 4.0 Memory &amp; Shuffle Optimizations”: <a target="_blank" rel="noopener" href="https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627">https://community.databricks.com/t5/technical-blog/apache-spark-4-0-a-new-era-for-scalable-machine-learning-and-ai/ba-p/120627</a></li>
+<li>Spark 4.0 Tuning Guide: <a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/tuning.html">https://spark.apache.org/docs/latest/tuning.html</a></li>
+</ul>
 <hr>
 <blockquote>
 <p>本文将持续更新。</p>

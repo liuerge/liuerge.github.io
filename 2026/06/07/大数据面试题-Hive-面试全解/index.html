@@ -29,7 +29,7 @@
 <meta property="og:description" content="Hive 与 SQL 高级面试全解，覆盖分区&#x2F;分桶、HiveSQL 高级写法、数据倾斜治理、存储格式和性能调优。  0x00 核心概念1. Hive 分区和分桶的区别？   维度 分区 (Partition) 分桶 (Bucket)    物理存储 独立目录 dt&#x3D;2026-06-07&#x2F; 独立文件 000000_0, 000001_0...   字段类型 通常是日期、地区等低基数字段">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T09:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-07T06:57:02.766Z">
+<meta property="article:modified_time" content="2026-06-09T12:35:28.115Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Hive">
 <meta property="article:tag" content="SQL">
@@ -167,7 +167,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-text">0x00 核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Hive-%E5%88%86%E5%8C%BA%E5%92%8C%E5%88%86%E6%A1%B6%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">1. Hive 分区和分桶的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Hive-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9F"><span class="nav-text">2. Hive 数据倾斜的产生原因和解决方案？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-HiveSQL-%E9%AB%98%E7%BA%A7%E5%86%99%E6%B3%95"><span class="nav-text">0x01 HiveSQL 高级写法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%AE%9E%E6%88%98"><span class="nav-text">3. 窗口函数实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-SQL-%E6%8A%80%E5%B7%A7"><span class="nav-text">4. 性能优化 SQL 技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="nav-text">0x02 存储格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-ORC%E3%80%81Parquet%E3%80%81TextFile-%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">5. ORC、Parquet、TextFile 怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x03 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E4%BB%93%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1%EF%BC%88ODS-%E2%86%92-DWD-%E2%86%92-DWS-%E2%86%92-ADS%EF%BC%89"><span class="nav-text">数仓分层设计（ODS → DWD → DWS → ADS）</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-text">0x00 核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Hive-%E5%88%86%E5%8C%BA%E5%92%8C%E5%88%86%E6%A1%B6%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">1. Hive 分区和分桶的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Hive-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9F"><span class="nav-text">2. Hive 数据倾斜的产生原因和解决方案？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-HiveSQL-%E9%AB%98%E7%BA%A7%E5%86%99%E6%B3%95"><span class="nav-text">0x01 HiveSQL 高级写法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%AE%9E%E6%88%98"><span class="nav-text">3. 窗口函数实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-SQL-%E6%8A%80%E5%B7%A7"><span class="nav-text">4. 性能优化 SQL 技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="nav-text">0x02 存储格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-ORC%E3%80%81Parquet%E3%80%81TextFile-%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">5. ORC、Parquet、TextFile 怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x03 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E4%BB%93%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1%EF%BC%88ODS-%E2%86%92-DWD-%E2%86%92-DWS-%E2%86%92-ADS%EF%BC%89"><span class="nav-text">数仓分层设计（ODS → DWD → DWS → ADS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Hive-4-0-%E4%B8%8E-Iceberg-%E9%9B%86%E6%88%90%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90"><span class="nav-text">0x04 Hive 4.0 与 Iceberg 集成深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Hive-4-0-Iceberg-%E5%8E%9F%E7%94%9F%E9%9B%86%E6%88%90"><span class="nav-text">9. Hive 4.0 Iceberg 原生集成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Hive-%E8%A1%A8%E8%BF%81%E7%A7%BB%E5%88%B0-Iceberg%EF%BC%9AALTER-TABLE-SET-STORED-AS-ICEBERG"><span class="nav-text">10. Hive 表迁移到 Iceberg：ALTER TABLE SET STORED AS ICEBERG</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Hive-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%EF%BC%9A%E5%8A%A8%E6%80%81%E5%88%86%E5%8C%BA%E5%AF%BC%E8%87%B4%E7%9A%84%E5%B0%8F%E6%96%87%E4%BB%B6%E9%97%AE%E9%A2%98"><span class="nav-text">11. Hive 数据倾斜：动态分区导致的小文件问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Hive-MERGE-INTO-%E4%B8%8E-ACID-%E4%BA%8B%E5%8A%A1%E7%9A%84%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5"><span class="nav-text">12. Hive MERGE INTO 与 ACID 事务的生产实践</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -246,9 +246,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-06-07 17:30:00 / 修改时间：14:57:02" itemprop="dateCreated datePublished" datetime="2026-06-07T17:30:00+08:00">2026-06-07</time>
+      <time title="创建时间：2026-06-07 17:30:00" itemprop="dateCreated datePublished" datetime="2026-06-07T17:30:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-09 20:35:28" itemprop="dateModified" datetime="2026-06-09T20:35:28+08:00">2026-06-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -372,6 +378,237 @@
 
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- DWD 层：订单清洗</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> dwd.fact_orders <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    order_id,</span><br><span class="line">    <span class="built_in">COALESCE</span>(user_id, <span class="string">&#x27;unknown&#x27;</span>) <span class="keyword">AS</span> user_id,  <span class="comment">-- null 处理</span></span><br><span class="line">    <span class="keyword">CASE</span> status </span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">1</span> <span class="keyword">THEN</span> <span class="string">&#x27;paid&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">2</span> <span class="keyword">THEN</span> <span class="string">&#x27;shipped&#x27;</span></span><br><span class="line">        <span class="keyword">ELSE</span> <span class="string">&#x27;unknown&#x27;</span></span><br><span class="line">    <span class="keyword">END</span> <span class="keyword">AS</span> status,</span><br><span class="line">    amount</span><br><span class="line"><span class="keyword">FROM</span> ods.orders_binlog</span><br><span class="line"><span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> order_id <span class="keyword">IS</span> <span class="keyword">NOT NULL</span>;  <span class="comment">-- 脏数据过滤</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- DWS 层：用户日汇总</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> dws.user_daily_stats <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    user_id,</span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="keyword">DISTINCT</span> order_id) <span class="keyword">AS</span> order_cnt,</span><br><span class="line">    <span class="built_in">SUM</span>(amount) <span class="keyword">AS</span> total_amount,</span><br><span class="line">    <span class="built_in">MAX</span>(order_time) <span class="keyword">AS</span> last_order_time</span><br><span class="line"><span class="keyword">FROM</span> dwd.fact_orders</span><br><span class="line"><span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
 
+<hr>
+<h2 id="0x04-Hive-4-0-与-Iceberg-集成深度解析"><a href="#0x04-Hive-4-0-与-Iceberg-集成深度解析" class="headerlink" title="0x04 Hive 4.0 与 Iceberg 集成深度解析"></a>0x04 Hive 4.0 与 Iceberg 集成深度解析</h2><h3 id="9-Hive-4-0-Iceberg-原生集成"><a href="#9-Hive-4-0-Iceberg-原生集成" class="headerlink" title="9. Hive 4.0 Iceberg 原生集成"></a>9. Hive 4.0 Iceberg 原生集成</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Hive 4.0 如何原生支持 Apache Iceberg？和传统的 Hive 表有什么根本区别？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Hive 4.0 通过 <strong>HiveIcebergStorageHandler</strong> 提供对 Iceberg 表格式的原生支持，使得 Hive 可以直接创建、读取、写入 Iceberg 表。</p>
+<p><strong>架构差异</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">传统 Hive 表：  SQL → Hive Metastore（目录路径）→ 列出目录文件 → 读取</span><br><span class="line">Iceberg 表：    SQL → Hive Metastore（metadata 指针）→ Iceberg metadata → 定位文件 → 读取</span><br></pre></td></tr></table></figure>
+
+<p><strong>创建 Iceberg 表（Hive 4.0+）</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 使用 STORED BY ICEBERG</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> iceberg_orders (</span><br><span class="line">  order_id <span class="type">BIGINT</span>,</span><br><span class="line">  user_id <span class="type">BIGINT</span>,</span><br><span class="line">  amount <span class="type">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>),</span><br><span class="line">  order_date <span class="type">DATE</span></span><br><span class="line">)</span><br><span class="line">STORED <span class="keyword">BY</span> <span class="string">&#x27;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#x27;</span></span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (order_date);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或使用 STORED AS ICEBERG（简写）</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> iceberg_orders (...)</span><br><span class="line">STORED <span class="keyword">AS</span> ICEBERG;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Hive 4.0 Iceberg 支持矩阵</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>支持程度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CREATE TABLE</td>
+<td>✅</td>
+<td>原生创建 Iceberg 表</td>
+</tr>
+<tr>
+<td>SELECT</td>
+<td>✅</td>
+<td>完整查询支持</td>
+</tr>
+<tr>
+<td>INSERT INTO&#x2F;OVERWRITE</td>
+<td>✅</td>
+<td>批量写入</td>
+</tr>
+<tr>
+<td>DELETE&#x2F;UPDATE&#x2F;MERGE</td>
+<td>✅</td>
+<td>需 Tez 引擎（MapReduce 不支持）</td>
+</tr>
+<tr>
+<td>时间旅行</td>
+<td>⚠️ 有限</td>
+<td>通过表属性设置快照，不支持 SQL 语法</td>
+</tr>
+<tr>
+<td>Schema Evolution</td>
+<td>✅</td>
+<td>ALTER TABLE ADD&#x2F;RENAME COLUMN</td>
+</tr>
+<tr>
+<td>分区演进</td>
+<td>⚠️ 有限</td>
+<td>通过 ALTER TABLE 修改分区策略</td>
+</tr>
+<tr>
+<td>存储策略</td>
+<td>CoW 仅可读</td>
+<td>不产生 MoR（Merge-on-Read）文件</td>
+</tr>
+<tr>
+<td>格式版本</td>
+<td>v1&#x2F;v2</td>
+<td>不支持 v3（捆绑 Iceberg 1.4.3）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Hive 4.0 捆绑的是 Iceberg 1.4.3，功能落后当前最新版本（1.11+）。不支持 Iceberg v3 的 Deletion Vectors、VARIANT 类型等新特性。DELETE&#x2F;UPDATE&#x2F;MERGE 只能在 Tez 引擎上运行，MapReduce 模式会失败。不适合作为实时写入入口（建议用 Flink&#x2F;Spark 写 Iceberg，Hive 纯读）。</p>
+</li>
+<li><p><strong>源码层面</strong>：<code>HiveIcebergStorageHandler</code> 实现了 Hive 的 <code>StorageHandler</code> 接口，将 Hive 的 SQL 操作转化为 Iceberg 的 Table API。关键在于 InputFormat&#x2F;OutputFormat 的实现——<code>HiveIcebergInputFormat</code> 通过 Iceberg 的 TableScan API 定位文件，而非 Hive 传统的目录列表方式。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Hive 4.0 + Iceberg 的方案是”存量 Hive 用户的渐进式迁移路径”。相比直接用 Spark&#x2F;Flink + Iceberg，优势是不改变用户的 SQL 工具链；劣势是性能不如 Spark&#x2F;Trino 原生 Iceberg 集成。一个典型混合架构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">写：Flink/Spark → Iceberg（实时/近实时写入）</span><br><span class="line">读：Hive 4.0 → Iceberg（历史数据查询） + Trino → Iceberg（交互式分析）</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>生产经验</strong>：生产上不建议用 Hive 做 Iceberg 写入——批量写入性能差且不支持 MoR。典型用法是”Spark&#x2F;Flink 写 Iceberg，Hive 4.0 读 Iceberg”，利用 Hive 已有的 SQL 调度体系。迁移旧 Hive 表到 Iceberg 建议用 <code>ALTER TABLE ... SET STORED AS ICEBERG</code>（见下题）。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Apache Iceberg Hive Docs: <a target="_blank" rel="noopener" href="https://iceberg.apache.org/docs/latest/hive">https://iceberg.apache.org/docs/latest/hive</a></li>
+<li>OLake “Apache Hive 4.0+ &amp; Iceberg Integration”: <a target="_blank" rel="noopener" href="https://olake.io/iceberg/query-engine/hive">https://olake.io/iceberg/query-engine/hive</a></li>
+</ul>
+<hr>
+<h3 id="10-Hive-表迁移到-Iceberg：ALTER-TABLE-SET-STORED-AS-ICEBERG"><a href="#10-Hive-表迁移到-Iceberg：ALTER-TABLE-SET-STORED-AS-ICEBERG" class="headerlink" title="10. Hive 表迁移到 Iceberg：ALTER TABLE SET STORED AS ICEBERG"></a>10. Hive 表迁移到 Iceberg：ALTER TABLE SET STORED AS ICEBERG</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：如何将已有的 Hive 表迁移到 Iceberg 格式？迁移过程中有哪些注意事项？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Hive 4.0 提供了 <strong>ALTER TABLE SET STORED AS ICEBERG</strong> 命令，可以将现有 Hive 表就地迁移为 Iceberg 格式。</p>
+<p><strong>迁移步骤</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 迁移表格式（Hive 4.0+）</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> hive_orders <span class="keyword">SET</span> STORED <span class="keyword">AS</span> ICEBERG;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 可选：后续调整分区策略</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> hive_orders <span class="keyword">SET</span> <span class="keyword">PARTITION</span> SPEC (days(order_date));</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 压缩小文件</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> hive_orders <span class="keyword">EXECUTE</span> COMPACT;</span><br></pre></td></tr></table></figure>
+
+<p><strong>迁移原理</strong>：该命令不会重写数据文件，而是在原表目录下生成 Iceberg 的 metadata 文件（metadata.json → manifest list → manifest files），将已有的 Parquet&#x2F;ORC 文件”纳入”Iceberg 管理。</p>
+<p><strong>迁移策略对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>方式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>就地迁移</td>
+<td><code>ALTER TABLE SET STORED AS ICEBERG</code></td>
+<td>零数据拷贝、速度快</td>
+<td>需 Hive 4.0+；存在回滚风险</td>
+</tr>
+<tr>
+<td>CTAS 迁移</td>
+<td><code>CREATE TABLE iceberg_tbl STORED AS ICEBERG AS SELECT * FROM hive_tbl</code></td>
+<td>安全、可灰度</td>
+<td>全量数据拷贝、耗时长</td>
+</tr>
+<tr>
+<td>增量迁移</td>
+<td>并行写双表，切流</td>
+<td>业务无感</td>
+<td>复杂度高、需双写一致性</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：就地迁移是单向操作，回滚困难——迁移后元数据变为 Iceberg 格式，回退需要重新创建 Hive 表。迁移前务必：</p>
+<ol>
+<li>备份 Hive Metastore</li>
+<li>在测试环境验证</li>
+<li>检查数据文件兼容性（ORC&#x2F;Parquet 都支持，但自定义 SerDe 不行）</li>
+</ol>
+</li>
+<li><p><strong>生产经验</strong>：大表（TB 级以上）推荐 CTAS + 灰度验证，小表可以直接就地迁移。迁移后立即验证：<code>SELECT * FROM table FOR SYSTEM_TIME AS OF ...</code> 确认时间旅行可用。注意：迁移后旧 Hive 的 <code>MSCK REPAIR TABLE</code> 不再有效——Iceberg 自动管理分区。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>OLake “Hive 4.0 Iceberg Integration”: <a target="_blank" rel="noopener" href="https://olake.io/iceberg/query-engine/hive">https://olake.io/iceberg/query-engine/hive</a></li>
+<li>Conduktor “Migrating to Iceberg from Hive”: <a target="_blank" rel="noopener" href="https://www.conduktor.io/glossary/migrating-to-apache-iceberg-from-hive-or-parquet">https://www.conduktor.io/glossary/migrating-to-apache-iceberg-from-hive-or-parquet</a></li>
+</ul>
+<hr>
+<h3 id="11-Hive-数据倾斜：动态分区导致的小文件问题"><a href="#11-Hive-数据倾斜：动态分区导致的小文件问题" class="headerlink" title="11. Hive 数据倾斜：动态分区导致的小文件问题"></a>11. Hive 数据倾斜：动态分区导致的小文件问题</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Hive 动态分区写入时产生大量小文件，如何处理？Iceberg 如何解决这个问题？</p>
+<p><strong>标准答案</strong>：</p>
+<p><strong>传统 Hive 动态分区问题</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 危险：每个 partition + reduce task 组合生成一个文件</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt)</span><br><span class="line"><span class="keyword">SELECT</span> ..., dt <span class="keyword">FROM</span> source;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 如果有 1000 个分区，每个 200 个 reducer → 最多 200,000 个文件！</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>缓解方案</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 减少 reducer 数量</span></span><br><span class="line"><span class="keyword">SET</span> hive.exec.reducers.bytes.per.reducer<span class="operator">=</span><span class="number">256000000</span>;  <span class="comment">-- 256MB per reducer</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 使用 DISTRIBUTE BY 控制文件数</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt)</span><br><span class="line"><span class="keyword">SELECT</span> ..., dt <span class="keyword">FROM</span> source</span><br><span class="line">DISTRIBUTE <span class="keyword">BY</span> dt, <span class="built_in">FLOOR</span>(RAND() <span class="operator">*</span> <span class="number">10</span>);  <span class="comment">-- 每个分区最多 10 个文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 合并小文件（事后）</span></span><br><span class="line"><span class="keyword">SET</span> hive.merge.mapfiles<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.merge.mapredfiles<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.merge.size.per.task<span class="operator">=</span><span class="number">256000000</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.merge.smallfiles.avgsize<span class="operator">=</span><span class="number">128000000</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Iceberg 的解决方案</strong>：<br>Iceberg 从根本上消除了”文件数 &#x3D; 分区数 × reducer数”的耦合：</p>
+<ul>
+<li><strong>自动合并</strong>：写入时自动匹配合适的文件大小（target file size）</li>
+<li><strong>Compaction</strong>：定期执行 <code>OPTIMIZE</code> 或 Hive 的 <code>ALTER TABLE EXECUTE COMPACT</code></li>
+<li><strong>无需 MSCK REPAIR</strong>：Iceberg 通过 metadata 跟踪文件，新增分区无需手动修复</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Hive 4.0 中 Iceberg 表的 compaction</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> iceberg_orders <span class="keyword">EXECUTE</span> COMPACT;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：动态分区上限 <code>hive.exec.max.dynamic.partitions</code> 默认 1000，超出会报错。对于高基数分区字段（如 user_id），绝对不能做动态分区——应该用分桶（Bucketing）替代。</p>
+</li>
+<li><p><strong>生产经验</strong>：生产上最实用的组合是 <code>DISTRIBUTE BY dt, CAST(RAND() * N AS INT)</code> 控制每分区文件数 + <code>hive.merge</code> 事后合并。但根本解决方案是迁移到 Iceberg——其自动文件管理和 Compaction 机制从根本上解决了小文件问题。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Hive LanguageManual DML: <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML</a></li>
+<li>Iceberg Hive Integration: <a target="_blank" rel="noopener" href="https://iceberg.apache.org/docs/latest/hive">https://iceberg.apache.org/docs/latest/hive</a></li>
+</ul>
+<hr>
+<h3 id="12-Hive-MERGE-INTO-与-ACID-事务的生产实践"><a href="#12-Hive-MERGE-INTO-与-ACID-事务的生产实践" class="headerlink" title="12. Hive MERGE INTO 与 ACID 事务的生产实践"></a>12. Hive MERGE INTO 与 ACID 事务的生产实践</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Hive 的 MERGE INTO 和 ACID 事务在生产中有哪些实际限制？如何正确使用？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Hive 从 3.0 开始支持 ACID 事务和 MERGE INTO，但生产上有很多限制需要了解。</p>
+<p><strong>MERGE INTO 语法</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MERGE</span> <span class="keyword">INTO</span> target_table <span class="keyword">AS</span> t</span><br><span class="line"><span class="keyword">USING</span> source_table <span class="keyword">AS</span> s</span><br><span class="line"><span class="keyword">ON</span> t.id <span class="operator">=</span> s.id</span><br><span class="line"><span class="keyword">WHEN</span> MATCHED <span class="keyword">AND</span> t.amount <span class="operator">&lt;&gt;</span> s.amount <span class="keyword">THEN</span></span><br><span class="line">  <span class="keyword">UPDATE</span> <span class="keyword">SET</span> amount <span class="operator">=</span> s.amount, update_time <span class="operator">=</span> <span class="built_in">CURRENT_TIMESTAMP</span></span><br><span class="line"><span class="keyword">WHEN</span> <span class="keyword">NOT</span> MATCHED <span class="keyword">THEN</span></span><br><span class="line">  <span class="keyword">INSERT</span> <span class="keyword">VALUES</span> (s.id, s.amount, <span class="built_in">CURRENT_TIMESTAMP</span>)</span><br><span class="line"><span class="keyword">WHEN</span> MATCHED <span class="keyword">AND</span> s.deleted <span class="operator">=</span> <span class="literal">true</span> <span class="keyword">THEN</span></span><br><span class="line">  <span class="keyword">DELETE</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>生产限制与注意事项</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>限制</th>
+<th>说明</th>
+<th>对策</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>仅支持 ORC</td>
+<td>ACID 表必须是 ORC 格式，且 <code>transactional=true</code></td>
+<td>建表时指定 STORED AS ORC</td>
+</tr>
+<tr>
+<td>Bucketing 要求</td>
+<td>Hive 3.x 要求分桶，4.0 放宽</td>
+<td>4.0 升级后可省去</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>每次 MERGE 产生 delta 文件，需定期 Compaction</td>
+<td>配置自动 Compaction</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>比传统 INSERT OVERWRITE 慢 3-10x</td>
+<td>小批量用 MERGE，大批量用 INSERT OVERWRITE</td>
+</tr>
+<tr>
+<td>并发限制</td>
+<td>同一分区同时只能有一个写入</td>
+<td>按分区粒度调度</td>
+</tr>
+<tr>
+<td>Tez 依赖</td>
+<td>MERGE&#x2F;UPDATE&#x2F;DELETE 必须用 Tez</td>
+<td>MapReduce 不可用</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Hive 的 ACID 实现基于”delta 文件 + 基础文件”模型，频繁 MERGE 会导致大量 delta 文件积压，查询时需要合并 delta 和基础文件（读放大）。<code>ALTER TABLE ... COMPACT</code> 的必要性常被忽视，导致查询越来越慢。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Hive ACID vs Iceberg MERGE：</p>
+<ul>
+<li>Hive ACID：Hive 原生、SQL 支持好、但性能差、格式绑定 ORC</li>
+<li>Iceberg MERGE：引擎无关、支持 Parquet&#x2F;ORC&#x2F;Avro、性能更好、Hive 4.0 支持</li>
+<li>建议：新项目直接用 Iceberg 表 + MERGE，旧 Hive ACID 表逐步迁移</li>
+</ul>
+</li>
+<li><p><strong>生产经验</strong>：如果 MERGE 数据量超过表大小的 10%，考虑改用 INSERT OVERWRITE 全量替换分区。Compaction 建议在业务低峰期自动执行（<code>hive.compactor.worker.threads=1</code>），避免和查询争抢资源。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Hive ACID docs: <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions">https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions</a></li>
+<li>Cloudera Hive 3 ACID: <a target="_blank" rel="noopener" href="https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_3_internals.html">https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_3_internals.html</a></li>
+</ul>
 <hr>
 <blockquote>
 <p>本文将持续更新。</p>

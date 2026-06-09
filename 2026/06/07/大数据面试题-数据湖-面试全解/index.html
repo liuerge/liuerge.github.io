@@ -29,7 +29,7 @@
 <meta property="og:description" content="数据湖高级面试全解，覆盖 Iceberg &#x2F; Hudi &#x2F; Delta Lake 三大框架的核心原理、选型对比和湖仓一体架构。  0x00 数据湖概念1. 数据湖和数仓有什么区别？   维度 数据仓库 数据湖    数据质量 Schema-on-Write（先定义后写入） Schema-on-Read（读取时解析）   数据格式 结构化表 结构化 + 半结构 + 非结构化">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T10:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-07T06:57:39.599Z">
+<meta property="article:modified_time" content="2026-06-09T12:36:45.241Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Delta Lake">
 <meta property="article:tag" content="Hudi">
@@ -168,7 +168,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%95%B0%E6%8D%AE%E6%B9%96%E6%A6%82%E5%BF%B5"><span class="nav-text">0x00 数据湖概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%95%B0%E6%8D%AE%E6%B9%96%E5%92%8C%E6%95%B0%E4%BB%93%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">1. 数据湖和数仓有什么区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Apache-Iceberg"><span class="nav-text">0x01 Apache Iceberg</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Iceberg-%E7%9A%84%E8%A1%A8%E6%A0%BC%E5%BC%8F%E5%92%8C%E5%BF%AB%E7%85%A7%E6%9C%BA%E5%88%B6%EF%BC%9F"><span class="nav-text">2. Iceberg 的表格式和快照机制？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Iceberg-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%88%86%E5%8C%BA%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">3. Iceberg 如何实现分区演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Apache-Hudi"><span class="nav-text">0x02 Apache Hudi</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Hudi-%E7%9A%84-COW-%E5%92%8C-MOR-%E8%A1%A8%E7%B1%BB%E5%9E%8B%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">4. Hudi 的 COW 和 MOR 表类型怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Delta-Lake"><span class="nav-text">0x03 Delta Lake</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Delta-Lake-%E7%9A%84-ACID-%E4%BA%8B%E5%8A%A1%E5%92%8C%E4%B9%90%E8%A7%82%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%EF%BC%9F"><span class="nav-text">5. Delta Lake 的 ACID 事务和乐观并发控制？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x04 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%97%B6%E5%85%A5%E6%B9%96%EF%BC%9AMySQL-CDC-%E2%86%92-Kafka-%E2%86%92-Flink-%E2%86%92-Iceberg"><span class="nav-text">实时入湖：MySQL CDC → Kafka → Flink → Iceberg</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%95%B0%E6%8D%AE%E6%B9%96%E6%A6%82%E5%BF%B5"><span class="nav-text">0x00 数据湖概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%95%B0%E6%8D%AE%E6%B9%96%E5%92%8C%E6%95%B0%E4%BB%93%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">1. 数据湖和数仓有什么区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Apache-Iceberg"><span class="nav-text">0x01 Apache Iceberg</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Iceberg-%E7%9A%84%E8%A1%A8%E6%A0%BC%E5%BC%8F%E5%92%8C%E5%BF%AB%E7%85%A7%E6%9C%BA%E5%88%B6%EF%BC%9F"><span class="nav-text">2. Iceberg 的表格式和快照机制？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Iceberg-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%88%86%E5%8C%BA%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">3. Iceberg 如何实现分区演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Apache-Hudi"><span class="nav-text">0x02 Apache Hudi</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Hudi-%E7%9A%84-COW-%E5%92%8C-MOR-%E8%A1%A8%E7%B1%BB%E5%9E%8B%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">4. Hudi 的 COW 和 MOR 表类型怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Delta-Lake"><span class="nav-text">0x03 Delta Lake</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Delta-Lake-%E7%9A%84-ACID-%E4%BA%8B%E5%8A%A1%E5%92%8C%E4%B9%90%E8%A7%82%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6%EF%BC%9F"><span class="nav-text">5. Delta Lake 的 ACID 事务和乐观并发控制？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x04 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%97%B6%E5%85%A5%E6%B9%96%EF%BC%9AMySQL-CDC-%E2%86%92-Kafka-%E2%86%92-Flink-%E2%86%92-Iceberg"><span class="nav-text">实时入湖：MySQL CDC → Kafka → Flink → Iceberg</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-2026-%E5%B9%B4%E6%95%B0%E6%8D%AE%E6%B9%96%E5%89%8D%E6%B2%BF%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90"><span class="nav-text">0x05 2026 年数据湖前沿深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Iceberg-v3-Deletion-Vectors%EF%BC%9A%E8%A1%8C%E7%BA%A7%E5%88%A0%E9%99%A4%E7%9A%84%E6%80%A7%E8%83%BD%E9%9D%A9%E5%91%BD"><span class="nav-text">11. Iceberg v3 Deletion Vectors：行级删除的性能革命</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Iceberg-v3-VARIANT-%E7%B1%BB%E5%9E%8B%E4%B8%8E-Row-Lineage"><span class="nav-text">12. Iceberg v3 VARIANT 类型与 Row Lineage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Delta-Lake-4-0-Coordinated-Commits%EF%BC%9A%E5%A4%9A%E5%BC%95%E6%93%8E%E5%86%99%E5%85%A5%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-text">13. Delta Lake 4.0 Coordinated Commits：多引擎写入一致性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-%E6%95%B0%E6%8D%AE%E6%B9%96-Upsert-%E6%80%A7%E8%83%BD%E7%BB%88%E6%9E%81%E5%AF%B9%E6%AF%94%EF%BC%9AIceberg-Hudi-Delta-Lake"><span class="nav-text">14. 数据湖 Upsert 性能终极对比：Iceberg &#x2F; Hudi &#x2F; Delta Lake</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-%E6%95%B0%E6%8D%AE%E6%B9%96%E7%9A%84-Compaction-%E7%AD%96%E7%95%A5%E4%B8%8E%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%90%E7%BB%B4"><span class="nav-text">15. 数据湖的 Compaction 策略与自动化运维</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -247,9 +247,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-06-07 18:00:00 / 修改时间：14:57:39" itemprop="dateCreated datePublished" datetime="2026-06-07T18:00:00+08:00">2026-06-07</time>
+      <time title="创建时间：2026-06-07 18:00:00" itemprop="dateCreated datePublished" datetime="2026-06-07T18:00:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-09 20:36:45" itemprop="dateModified" datetime="2026-06-09T20:36:45+08:00">2026-06-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -410,6 +416,304 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Flink 实时写入 Iceberg</span></span><br><span class="line"><span class="type">StreamExecutionEnvironment</span> <span class="variable">env</span> <span class="operator">=</span> StreamExecutionEnvironment.getExecutionEnvironment();</span><br><span class="line"></span><br><span class="line">FlinkSource.&lt;RowData&gt;builder()</span><br><span class="line">    .source(KafkaSource.&lt;RowData&gt;builder()</span><br><span class="line">        .setTopics(<span class="string">&quot;mysql-cdc-orders&quot;</span>)</span><br><span class="line">        .setBootstrapServers(<span class="string">&quot;broker:9092&quot;</span>)</span><br><span class="line">        .build())</span><br><span class="line">    .build()</span><br><span class="line">    .keyBy(row -&gt; row.getString(<span class="number">0</span>))  <span class="comment">// 按主键分区</span></span><br><span class="line">    .sinkTo(FlinkSink.forRowData(</span><br><span class="line">        DataFileWriter.forTable(</span><br><span class="line">            HadoopTables.icebergTable(conf, <span class="string">&quot;s3://lakehouse/warehouse/orders&quot;</span>))))</span><br><span class="line">    .build();</span><br><span class="line"></span><br><span class="line">env.execute(<span class="string">&quot;MySQL-to-Iceberg&quot;</span>);</span><br></pre></td></tr></table></figure>
 
 <p><strong>优势</strong>：数据秒级可见 + 支持时间旅行 + 无需 ETL 预分区 + Trino 直接查询 Iceberg 表跑报表。</p>
+<hr>
+<h2 id="0x05-2026-年数据湖前沿深度解析"><a href="#0x05-2026-年数据湖前沿深度解析" class="headerlink" title="0x05 2026 年数据湖前沿深度解析"></a>0x05 2026 年数据湖前沿深度解析</h2><h3 id="11-Iceberg-v3-Deletion-Vectors：行级删除的性能革命"><a href="#11-Iceberg-v3-Deletion-Vectors：行级删除的性能革命" class="headerlink" title="11. Iceberg v3 Deletion Vectors：行级删除的性能革命"></a>11. Iceberg v3 Deletion Vectors：行级删除的性能革命</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Iceberg v3 的 Deletion Vectors 是什么？它如何比 v2 的 Position Delete Files 更高效？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Deletion Vectors (DVs) 是 Iceberg v3 最核心的性能优化，用<strong>紧凑的位图</strong>替代 v2 的 Position Delete Files。</p>
+<p><strong>v2 Position Delete Files 的问题</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">─ data_file_1.parquet (100 MB, 100万行)</span><br><span class="line">─ pos_delete_1.avro       (标记删除第 5, 23, 4567... 行)</span><br><span class="line">─ pos_delete_2.avro       (又一批删除)</span><br><span class="line">─ pos_delete_3.avro       (又一批...)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>每个 DELETE&#x2F;UPDATE 操作产生新的 delete 文件</li>
+<li>频繁更新后可能有成百上千个 delete 文件</li>
+<li>查询时需要 Join 所有 delete 文件（读放大严重）</li>
+<li>元数据膨胀：manifest 文件需要跟踪大量 delete 文件</li>
+</ul>
+<p><strong>v3 Deletion Vectors 方案</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">─ data_file_1.parquet (100 MB)</span><br><span class="line">   └─ 内嵌 Roaring Bitmap: [5, 23, 4567, ...] （标记已删除行）</span><br></pre></td></tr></table></figure>
+<ul>
+<li>删除信息以 Roaring Bitmap 形式关联到数据文件</li>
+<li>一个 bitmap 替代 N 个 delete 文件</li>
+<li>读取时直接在数据文件内检查 bitmap（无需 Join 额外文件）</li>
+<li>读性能提升 <strong>50-80%</strong>（Dremio 实测）</li>
+</ul>
+<p><strong>对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>v2 Position Delete Files</th>
+<th>v3 Deletion Vectors</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>存储方式</td>
+<td>独立 Avro 文件</td>
+<td>内嵌 Roaring Bitmap</td>
+</tr>
+<tr>
+<td>文件数量</td>
+<td>每个操作 +1 文件</td>
+<td>0 额外文件</td>
+</tr>
+<tr>
+<td>查询开销</td>
+<td>Join delete 文件</td>
+<td>检查 bit（O(1)）</td>
+</tr>
+<tr>
+<td>元数据大小</td>
+<td>随操作数线性增长</td>
+<td>固定小容量</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>频繁需要</td>
+<td>显著减少频率</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Deletion Vectors 在删除比例高时效果最好。如果一张表有 99% 的行标记为删除，bitmap 本身很小但读放大仍在（需要跳过 99% 的行），此时仍需 Compaction。Iceberg v3 的 DVs 降低了 Compaction 频率但没完全消除需求。</p>
+</li>
+<li><p><strong>源码层面</strong>：Roaring Bitmap 是高效的压缩位图数据结构，对于稀疏删除（少量行被删）压缩率极高；对于密集删除，自动切换为 bitset 模式。DVs 存储在 manifest 文件的 <code>deletion-vector</code> 字段中，通过 Parquet 的 column chunk metadata 与数据文件关联。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Delta Lake 早在 2022 年就引入了 Deletion Vectors，Iceberg v3 在 2025 年跟进。Hudi 的 MoR (Merge-on-Read) 有类似的 delta log 机制。三者在”避免全文件重写”上的思路一致，但 Iceberg 的 DVs 在跨引擎兼容性上有优势（REST Catalog 标准化）。</p>
+</li>
+<li><p><strong>生产经验</strong>：开启 DVs（v3 表）后，UPDATE&#x2F;DELETE 延迟下降 50-80%，但需注意：</p>
+<ul>
+<li>需要引擎支持 v3（Spark 4.0 + Iceberg 1.10+，Databricks Runtime 18.0+，Snowflake，Dremio）</li>
+<li>定期 Compaction 仍有必要（建议按天&#x2F;周，取决于更新频率）</li>
+<li>升级表到 v3 是<strong>单向操作</strong>（<code>ALTER TABLE ... SET TBLPROPERTIES (&#39;format-version&#39;=&#39;3&#39;)</code>）</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Google Open Source Blog “What’s new in Iceberg v3”: <a target="_blank" rel="noopener" href="https://opensource.googleblog.com/2025/08/whats-new-in-iceberg-v3.html">https://opensource.googleblog.com/2025/08/whats-new-in-iceberg-v3.html</a></li>
+<li>Dremio “Dremio Ships Iceberg V3”: <a target="_blank" rel="noopener" href="https://www.dremio.com/blog/dremio-ships-iceberg-v3-as-the-next-evolution-of-the-open-lakehouse">https://www.dremio.com/blog/dremio-ships-iceberg-v3-as-the-next-evolution-of-the-open-lakehouse</a></li>
+<li>Iceberg Spec v3: <a target="_blank" rel="noopener" href="https://iceberg.apache.org/spec">https://iceberg.apache.org/spec</a></li>
+</ul>
+<hr>
+<h3 id="12-Iceberg-v3-VARIANT-类型与-Row-Lineage"><a href="#12-Iceberg-v3-VARIANT-类型与-Row-Lineage" class="headerlink" title="12. Iceberg v3 VARIANT 类型与 Row Lineage"></a>12. Iceberg v3 VARIANT 类型与 Row Lineage</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Iceberg v3 引入的 VARIANT 类型和 Row Lineage 分别解决什么场景？它们如何协同工作？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Iceberg v3 新增两个关键特性，分别解决<strong>半结构化数据</strong>和<strong>行级追踪</strong>需求：</p>
+<p><strong>VARIANT 类型</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> events (</span><br><span class="line">  event_id <span class="type">BIGINT</span>,</span><br><span class="line">  payload VARIANT  <span class="comment">-- 灵活的半结构化字段</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 无需预定义 schema，直接提取字段</span></span><br><span class="line"><span class="keyword">SELECT</span> payload:user_id, payload:metadata.browser, payload:events[<span class="number">0</span>]:type</span><br><span class="line"><span class="keyword">FROM</span> events</span><br><span class="line"><span class="keyword">WHERE</span> payload:event_type <span class="operator">=</span> <span class="string">&#x27;page_view&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心优势</strong>：</p>
+<ul>
+<li><strong>无需 Schema 声明</strong>：JSON 字段自动 shredding（按路径拆分为子列），查询只读需要的子列</li>
+<li><strong>谓词下推</strong>：<code>payload:event_type = &#39;page_view&#39;</code> 可以利用 Parquet min&#x2F;max 统计</li>
+<li><strong>与 Spark 4.0 &#x2F; Delta Lake 4.0 VARIANT 共用同一编码规范</strong></li>
+</ul>
+<p><strong>Row Lineage</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- v3 表自动维护每行的元数据</span></span><br><span class="line"><span class="keyword">SELECT</span> _row_id, _last_updated_sequence_number, _change_type</span><br><span class="line"><span class="keyword">FROM</span> events</span><br><span class="line"><span class="keyword">WHERE</span> _last_updated_sequence_number <span class="operator">&gt;</span> <span class="number">1000</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>内置字段</strong>：</p>
+<ul>
+<li><code>_row_id</code>：每行的全局唯一 ID，在表内永远不变</li>
+<li><code>_last_updated_sequence_number</code>：该行最后一次修改的序列号</li>
+<li><code>_change_type</code>：INSERT &#x2F; UPDATE_BEFORE &#x2F; UPDATE_AFTER &#x2F; DELETE</li>
+</ul>
+<p><strong>协同场景 — CDC 增量消费</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 只消费上次快照之后变更的行</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> events</span><br><span class="line"><span class="keyword">WHERE</span> _last_updated_sequence_number <span class="operator">&gt;</span> :last_consumed_seq;</span><br></pre></td></tr></table></figure>
+<p>无需依赖外部 CDC 工具或手动维护 watermark 表。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Row Lineage 的 <code>_row_id</code> 从 <code>next-row-id</code> 自增分配，升级旧表时初始化为 0，历史数据 <code>_row_id</code> 为 NULL。对于已有大量数据的表做迁移，历史行的 lineage 缺失是常见问题——需业务层面处理 NULL。</p>
+</li>
+<li><p><strong>生产经验</strong>：VARIANT 适合埋点日志、API 响应等 schema 变更频繁的数据。但要注意 VARIANT 列的聚合&#x2F;排序&#x2F;Join 性能不如强类型列——高频分析的字段建议提取为独立列。Row Lineage 最佳实践是配合 Iceberg 的增量查询（Incremental Scan）做下游 CDC 消费，替代 Kafka + Debezium 的复杂链路。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Iceberg Spec v3 Row Lineage: <a target="_blank" rel="noopener" href="https://iceberg.apache.org/spec/#row-lineage">https://iceberg.apache.org/spec/#row-lineage</a></li>
+<li>Google Open Source Blog “What’s new in Iceberg v3”: <a target="_blank" rel="noopener" href="https://opensource.googleblog.com/2025/08/whats-new-in-iceberg-v3.html">https://opensource.googleblog.com/2025/08/whats-new-in-iceberg-v3.html</a></li>
+</ul>
+<hr>
+<h3 id="13-Delta-Lake-4-0-Coordinated-Commits：多引擎写入一致性"><a href="#13-Delta-Lake-4-0-Coordinated-Commits：多引擎写入一致性" class="headerlink" title="13. Delta Lake 4.0 Coordinated Commits：多引擎写入一致性"></a>13. Delta Lake 4.0 Coordinated Commits：多引擎写入一致性</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Delta Lake 4.0 的 Coordinated Commits 是什么？解决了什么多引擎写入问题？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Coordinated Commits 是 Delta Lake 4.0 引入的<strong>集中式提交协调服务</strong>，解决多引擎并发写入 Delta 表的冲突问题。</p>
+<p><strong>传统 Delta Lake 写入问题</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">引擎 A（Spark）──→ 写 data_file_a.parquet ──→ 原子提交 _delta_log/00010.json ✅</span><br><span class="line">引擎 B（Flink）──→ 写 data_file_b.parquet ──→ 原子提交 _delta_log/00010.json ❌ 冲突！</span><br></pre></td></tr></table></figure>
+<p>Delta Lake 依赖<strong>文件系统的原子重命名</strong>来保证提交原子性，当两个引擎同时写入时会冲突，其中一个需要重试。这在多引擎（Spark + Flink + Trino）写入的场景下频繁发生。</p>
+<p><strong>Coordinated Commits 方案</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">引擎 A ──→ Commit Coordinator（DynamoDB）──→ 获取 commit 00010 ✅</span><br><span class="line">引擎 B ──→ Commit Coordinator（DynamoDB）──→ 获取 commit 00011 ✅</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Commit Coordinator 集中管理所有提交，确保全局有序</li>
+<li>引擎不再依赖文件系统原子性，只需与 Coordinator 通信</li>
+<li>冲突由 Coordinator 主动检测和解决</li>
+</ul>
+<p><strong>内置实现</strong>：</p>
+<ul>
+<li><strong>DynamoDB Commit Coordinator</strong>：首个生产级实现，适用于 AWS 环境</li>
+<li>架构预留了可插拔接口，后续可扩展 Redis&#x2F;etcd 等</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Coordinated Commits 引入了额外的网络开销（每次写入需要与 Coordinator 通信），对于单引擎场景收益不大甚至略有性能损失。Coordinator 的可用性直接影响所有写入——DynamoDB 是托管服务，但如果用自建 Coordinator 需要做高可用。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Iceberg 使用乐观并发控制（OCC），通过 metadata.json 的原子 swap 实现提交——无需外部 Coordinator 但冲突时需要重试。Hudi 使用 timeline server 协调。Delta Lake 的 Coordinated Commits 在实现上更集中（类似分布式锁），适合写入冲突频繁的场景（如多个 Flink 作业同时写一张表）。</p>
+</li>
+<li><p><strong>生产经验</strong>：</p>
+<ul>
+<li>单引擎写入：不需要 Coordinated Commits，传统模式足够</li>
+<li>多引擎写入（Spark + Flink + Trino）：强烈推荐</li>
+<li>多表事务：Coordinated Commits 为后续 multi-table transactions 奠定基础</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Delta Lake 4.0 Preview: <a target="_blank" rel="noopener" href="https://delta.io/blog/delta-lake-4-0">https://delta.io/blog/delta-lake-4-0</a></li>
+</ul>
+<hr>
+<h3 id="14-数据湖-Upsert-性能终极对比：Iceberg-Hudi-Delta-Lake"><a href="#14-数据湖-Upsert-性能终极对比：Iceberg-Hudi-Delta-Lake" class="headerlink" title="14. 数据湖 Upsert 性能终极对比：Iceberg &#x2F; Hudi &#x2F; Delta Lake"></a>14. 数据湖 Upsert 性能终极对比：Iceberg &#x2F; Hudi &#x2F; Delta Lake</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Iceberg、Hudi、Delta Lake 在 Upsert 场景下的性能差异如何？各自适合什么场景？</p>
+<p><strong>标准答案</strong>：</p>
+<p>三个框架对 Upsert 的支持机制和性能差异显著，选型需要根据具体场景：</p>
+<p><strong>Upsert 机制对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Iceberg (v3)</th>
+<th>Hudi</th>
+<th>Delta Lake (4.0)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>核心机制</strong></td>
+<td>Copy-on-Write + Deletion Vectors</td>
+<td>CoW + MoR + 索引</td>
+<td>CoW + Deletion Vectors</td>
+</tr>
+<tr>
+<td><strong>索引</strong></td>
+<td>无原生索引</td>
+<td>Bloom&#x2F;HBase&#x2F;Bucket&#x2F;Record Index</td>
+<td>无原生索引</td>
+</tr>
+<tr>
+<td><strong>Upsert 速度</strong></td>
+<td>中（依赖全文件扫描）</td>
+<td><strong>快</strong>（索引定位目标文件）</td>
+<td>中（依赖全文件扫描）</td>
+</tr>
+<tr>
+<td><strong>读取性能</strong></td>
+<td><strong>快</strong>（DVs 优化后）</td>
+<td>MoR 需合并，慢于 CoW</td>
+<td><strong>快</strong>（DVs 优化后）</td>
+</tr>
+<tr>
+<td><strong>写入放大</strong></td>
+<td>低（DVs 仅标记删除）</td>
+<td>MoR 低，CoW 高</td>
+<td>低（DVs 仅标记删除）</td>
+</tr>
+<tr>
+<td><strong>并发写入</strong></td>
+<td>乐观并发（OCC）</td>
+<td>Timeline 协调</td>
+<td>OCC + Coordinated Commits</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>通用分析 + CDC</td>
+<td><strong>CDC &#x2F; 近实时 Upsert</strong></td>
+<td>Databricks 生态 + 分析</td>
+</tr>
+</tbody></table>
+<p><strong>场景选型决策树</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">是否高频 Upsert（每秒千级以上）？</span><br><span class="line">  ├── 是 → 是否已有 Hudi 经验？</span><br><span class="line">  │         ├── 是 → Hudi + MoR + Bloom Index（最佳性能）</span><br><span class="line">  │         └── 否 → Iceberg v3 + Flink CDC（更广生态）</span><br><span class="line">  └── 否 → 是否在 Databricks 上？</span><br><span class="line">            ├── 是 → Delta Lake（原生优化 + Photon）</span><br><span class="line">            └── 否 → Iceberg（跨引擎兼容性最强）</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Hudi 的索引是 Upsert 性能的关键但也最复杂——Bloom Index 有假阳性需要额外验证，HBase Index 需要额外运维 HBase 集群。如果 Upsert 模式是无主键 Append-only（如日志写入），三框架性能差异不大——瓶颈在 Parquet 写入而非 Upsert 机制。</p>
+</li>
+<li><p><strong>生产经验</strong>：</p>
+<ul>
+<li>某出行平台：用 Hudi MoR + Bloom Index 做司机位置实时更新（百万级&#x2F;秒 Upsert），写入延迟 &lt; 30s</li>
+<li>某电商平台：用 Iceberg v3 + Flink CDC 做订单实时入湖，小时级 Compaction，查询延迟 &lt; 500ms</li>
+<li>某金融平台：用 Delta Lake + Databricks Photon 做批量对账，KoW + Z-Order 优化查询</li>
+</ul>
+</li>
+<li><p><strong>2026 年社区判断</strong>（datavidhya.com 观点）：</p>
+<blockquote>
+<p>Hudi 在 Upsert 性能上仍有技术优势，但已失去”社区心智份额”——新项目选择 Iceberg 的比例持续上升。Delta Lake 在 Databricks 生态内有 10-20% 性能优势（Photon 引擎优化），但在跨引擎场景下劣势明显。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>datavidhya “Delta Lake vs Iceberg 2026”: <a target="_blank" rel="noopener" href="https://datavidhya.com/blog/delta-lake-vs-apache-iceberg">https://datavidhya.com/blog/delta-lake-vs-apache-iceberg</a></li>
+<li>Onehouse “Hudi vs Delta Lake vs Iceberg Feature Comparison”: <a target="_blank" rel="noopener" href="https://www.onehouse.ai/blog/apache-hudi-vs-delta-lake-vs-apache-iceberg-lakehouse-feature-comparison">https://www.onehouse.ai/blog/apache-hudi-vs-delta-lake-vs-apache-iceberg-lakehouse-feature-comparison</a></li>
+<li>Dremio Blog “Iceberg v2 vs v3”: <a target="_blank" rel="noopener" href="https://www.dremio.com/blog/apache-iceberg-v2-vs-v3-what-changed-and-what-it-means-for-your-tables">https://www.dremio.com/blog/apache-iceberg-v2-vs-v3-what-changed-and-what-it-means-for-your-tables</a></li>
+</ul>
+<hr>
+<h3 id="15-数据湖的-Compaction-策略与自动化运维"><a href="#15-数据湖的-Compaction-策略与自动化运维" class="headerlink" title="15. 数据湖的 Compaction 策略与自动化运维"></a>15. 数据湖的 Compaction 策略与自动化运维</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：数据湖写入产生小文件后，三个框架各自如何做 Compaction？频率和策略如何制定？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Compaction（文件合并）是数据湖运维的核心操作。三个框架的实现和最佳实践各不相同：</p>
+<p><strong>Iceberg</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Spark 操作</span></span><br><span class="line"><span class="keyword">CALL</span> catalog.system.rewrite_data_files(<span class="string">&#x27;db.orders&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或使用 SparkActions API</span></span><br><span class="line">SparkActions.get()</span><br><span class="line">  .rewriteDataFiles(<span class="keyword">table</span>)</span><br><span class="line">  .option(&quot;target-file-size-bytes&quot;, &quot;268435456&quot;)  <span class="comment">-- 256MB</span></span><br><span class="line">  .<span class="keyword">execute</span>();</span><br></pre></td></tr></table></figure>
+<ul>
+<li>策略：将小文件合并到 <code>target-file-size-bytes</code>（默认 512MB）</li>
+<li>支持 bin-pack（按分区合并）和 sort（按指定列排序合并）</li>
+</ul>
+<p><strong>Delta Lake</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 基础 Compaction</span></span><br><span class="line">OPTIMIZE orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Z-Order Clustering（按列排序优化查询）</span></span><br><span class="line">OPTIMIZE orders ZORDER <span class="keyword">BY</span> (order_date, user_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Liquid Clustering（Delta Lake 3.2+）：自适应布局</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> orders CLUSTER <span class="keyword">BY</span> (order_date, user_id);</span><br><span class="line">OPTIMIZE orders;  <span class="comment">-- 自动应用聚类</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Hudi</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 调度 Compaction</span></span><br><span class="line"><span class="keyword">CALL</span> run_compaction(op <span class="operator">=</span><span class="operator">&gt;</span> <span class="string">&#x27;schedule&#x27;</span>, <span class="keyword">table</span> <span class="operator">=</span><span class="operator">&gt;</span> <span class="string">&#x27;orders&#x27;</span>);</span><br><span class="line"><span class="keyword">CALL</span> run_compaction(op <span class="operator">=</span><span class="operator">&gt;</span> <span class="string">&#x27;execute&#x27;</span>, <span class="keyword">table</span> <span class="operator">=</span><span class="operator">&gt;</span> <span class="string">&#x27;orders&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或配置自动 Compaction</span></span><br><span class="line">hoodie.compact.inline<span class="operator">=</span><span class="literal">true</span></span><br><span class="line">hoodie.compact.inline.max.delta.commits<span class="operator">=</span><span class="number">5</span>  <span class="comment">-- 每 5 次提交执行一次</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Compaction 策略决策表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐策略</th>
+<th>频率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实时 CDC 写入</td>
+<td>自动 inline Compaction</td>
+<td>每 N 次提交</td>
+</tr>
+<tr>
+<td>批量 ETL 写入</td>
+<td>写入后手动 Compaction</td>
+<td>每天&#x2F;每小时</td>
+</tr>
+<tr>
+<td>低写入频率分析表</td>
+<td>按需 Compaction（监控文件数）</td>
+<td>文件数 &gt; 1000 或文件大小 &lt; 50MB</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Compaction 本身会产生大量 I&#x2F;O 和 CPU 开销。对高频写入表，inline Compaction 会拖慢写入——建议使用异步 Compaction（单独的 Spark 作业，在低峰期跑）。<code>target-file-size-bytes</code> 不是越大越好：太大降低并行度、影响写入性能；太小文件又多。推荐 128-512MB。</p>
+</li>
+<li><p><strong>生产经验</strong>：</p>
+<ul>
+<li>监控指标：每分区文件数、平均文件大小、最新 Compaction 时间</li>
+<li>自动化：通过 Airflow&#x2F;DolphinScheduler 调度 Compaction 作业</li>
+<li>Iceberg 表：<code>CALL catalog.system.rewrite_data_files</code> 配合 <code>WHERE</code> 子句只合并特定分区</li>
+<li>Delta Lake：Liquid Clustering（3.2+）是推荐的最优方案——替代传统静态分区 + Z-Order</li>
+<li>Hudi：MoR 表需要在 Compaction 和查询性能间做权衡</li>
+</ul>
+</li>
+</ul>
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“数据湖不是一次性建设的，而是持续运维的。Compaction 策略的成熟度决定了数据湖能走多远——不做 Compaction 的数据湖 3 个月后查询速度下降 10 倍是常见现象。”</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Delta Lake Liquid Clustering: <a target="_blank" rel="noopener" href="https://books.japila.pl/delta-lake-internals/liquid-clustering">https://books.japila.pl/delta-lake-internals/liquid-clustering</a></li>
+<li>Datalakehousehub “2025-2026 Guide to Data Lakehouses”: <a target="_blank" rel="noopener" href="https://datalakehousehub.com/blog/2025-09-2026-guide-to-data-lakehouses">https://datalakehousehub.com/blog/2025-09-2026-guide-to-data-lakehouses</a></li>
+</ul>
 <hr>
 <blockquote>
 <p>本文将持续更新。</p>
