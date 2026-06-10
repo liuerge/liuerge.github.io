@@ -29,7 +29,7 @@
 <meta property="og:description" content="Kafka 高级面试全解，覆盖 ISR 机制、高性能设计、Exactly-Once 和常见生产问题。  0x00 核心机制1. Kafka 为什么这么快？四大设计：  顺序写磁盘：每个 Partition 是顺序 Append 的日志文件，顺序 IO 接近内存速度 零拷贝（Zero-Copy）：sendfile() 系统调用，数据从 PageCache 直接到网卡，不经过用户态 PageCach">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T10:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-10T01:24:05.767Z">
+<meta property="article:modified_time" content="2026-06-10T01:32:03.538Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Kafka">
 <meta property="article:tag" content="消息队列">
@@ -166,7 +166,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x00 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Kafka-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">1. Kafka 为什么这么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Kafka-%E7%9A%84-ISR-%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-acks-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-text">2. Kafka 的 ISR 机制是什么？与 acks 的关系？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E6%B6%88%E8%B4%B9%E4%B8%8E-Exactly-Once"><span class="nav-text">0x02 消费与 Exactly-Once</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Kafka-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0-Exactly-Once-%E8%AF%AD%E4%B9%89%EF%BC%9F"><span class="nav-text">3. Kafka 如何实现 Exactly-Once 语义？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%EF%BC%9F"><span class="nav-text">4. 如何避免消息重复消费？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98"><span class="nav-text">0x03 生产问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9F"><span class="nav-text">5. 消息积压怎么处理？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Kafka-4-0-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-KRaft"><span class="nav-text">0x04 Kafka 4.0 新特性与 KRaft</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Kafka-4-0-KRaft-%E6%A8%A1%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-ZooKeeper-%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">6. Kafka 4.0 KRaft 模式是什么？与 ZooKeeper 模式的核心区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Kafka-4-0-%E7%9A%84-Shared-Groups%EF%BC%88KIP-932%EF%BC%89%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E%E7%BB%8F%E5%85%B8-Consumer-Group-%E6%9C%89%E4%BD%95%E4%B8%8D%E5%90%8C%EF%BC%9F"><span class="nav-text">7. Kafka 4.0 的 Shared Groups（KIP-932）是什么？与经典 Consumer Group 有何不同？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-ELR%EF%BC%88Eligible-Leader-Replicas%EF%BC%89%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-text">8. ELR（Eligible Leader Replicas）解决了什么问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Kafka-Tiered-Storage%EF%BC%88%E5%88%86%E5%B1%82%E5%AD%98%E5%82%A8%EF%BC%89%E7%9A%84%E6%9E%B6%E6%9E%84%E5%92%8C%E6%94%B6%E7%9B%8A%EF%BC%9F"><span class="nav-text">9. Kafka Tiered Storage（分层存储）的架构和收益？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Kafka-4-0-%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9B%91%E6%8E%A7%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%88KIP-714-KIP-1076%EF%BC%89%EF%BC%9F"><span class="nav-text">10. Kafka 4.0 客户端监控新特性（KIP-714 &#x2F; KIP-1076）？</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6"><span class="nav-text">0x00 核心机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Kafka-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">1. Kafka 为什么这么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Kafka-%E7%9A%84-ISR-%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-acks-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-text">2. Kafka 的 ISR 机制是什么？与 acks 的关系？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E6%B6%88%E8%B4%B9%E4%B8%8E-Exactly-Once"><span class="nav-text">0x02 消费与 Exactly-Once</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Kafka-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0-Exactly-Once-%E8%AF%AD%E4%B9%89%EF%BC%9F"><span class="nav-text">3. Kafka 如何实现 Exactly-Once 语义？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%EF%BC%9F"><span class="nav-text">4. 如何避免消息重复消费？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98"><span class="nav-text">0x03 生产问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9F"><span class="nav-text">5. 消息积压怎么处理？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Kafka-4-0-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-KRaft"><span class="nav-text">0x04 Kafka 4.0 新特性与 KRaft</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Kafka-4-0-KRaft-%E6%A8%A1%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E-ZooKeeper-%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">6. Kafka 4.0 KRaft 模式是什么？与 ZooKeeper 模式的核心区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Kafka-4-0-%E7%9A%84-Shared-Groups%EF%BC%88KIP-932%EF%BC%89%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%8E%E7%BB%8F%E5%85%B8-Consumer-Group-%E6%9C%89%E4%BD%95%E4%B8%8D%E5%90%8C%EF%BC%9F"><span class="nav-text">7. Kafka 4.0 的 Shared Groups（KIP-932）是什么？与经典 Consumer Group 有何不同？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-ELR%EF%BC%88Eligible-Leader-Replicas%EF%BC%89%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-text">8. ELR（Eligible Leader Replicas）解决了什么问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Kafka-Tiered-Storage%EF%BC%88%E5%88%86%E5%B1%82%E5%AD%98%E5%82%A8%EF%BC%89%E7%9A%84%E6%9E%B6%E6%9E%84%E5%92%8C%E6%94%B6%E7%9B%8A%EF%BC%9F"><span class="nav-text">9. Kafka Tiered Storage（分层存储）的架构和收益？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Kafka-4-0-%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9B%91%E6%8E%A7%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%88KIP-714-KIP-1076%EF%BC%89%EF%BC%9F"><span class="nav-text">10. Kafka 4.0 客户端监控新特性（KIP-714 &#x2F; KIP-1076）？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E7%94%9F%E4%BA%A7%E8%BF%90%E7%BB%B4%E4%B8%8E%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5"><span class="nav-text">0x05 生产运维与故障排查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Kafka-Consumer-Rebalance-%E6%B7%B1%E5%BA%A6%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84%E6%B6%88%E8%B4%B9%E8%80%85%E5%8D%A1%E4%BD%8F%E4%BA%86%EF%BC%9F"><span class="nav-text">9. Kafka Consumer Rebalance 深度故障排查：为什么你的消费者卡住了？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Kafka-%E7%A3%81%E7%9B%98%E5%86%99%E6%BB%A1%E7%9A%84%E7%B4%A7%E6%80%A5%E5%A4%84%E7%90%86%E4%B8%8E%E7%9B%91%E6%8E%A7%E4%BD%93%E7%B3%BB"><span class="nav-text">10. Kafka 磁盘写满的紧急处理与监控体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Kafka-%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%BF%9D%E9%9A%9C%E5%85%A8%E6%94%BB%E7%95%A5%EF%BC%9Aacks%E3%80%81min-insync-replicas-%E4%B8%8E%E5%B9%82%E7%AD%89%E6%80%A7"><span class="nav-text">11. Kafka 消息可靠性保障全攻略：acks、min.insync.replicas 与幂等性</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -253,7 +253,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-10 09:24:05" itemprop="dateModified" datetime="2026-06-10T09:24:05+08:00">2026-06-10</time>
+      <time title="修改时间：2026-06-10 09:32:03" itemprop="dateModified" datetime="2026-06-10T09:32:03+08:00">2026-06-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -487,6 +487,316 @@
 <li><strong>边界情况</strong>：指标推送使用 Producer 内部线程，不阻塞业务线程。但如果 Broker 不可达，指标会丢失（Fire-and-Forget 模式），不影响业务</li>
 </ul>
 <p><strong>参考来源</strong>：KIP-714, KIP-1076, Apache Kafka 4.0 Release Notes</p>
+<hr>
+<h2 id="0x05-生产运维与故障排查"><a href="#0x05-生产运维与故障排查" class="headerlink" title="0x05 生产运维与故障排查"></a>0x05 生产运维与故障排查</h2><h3 id="9-Kafka-Consumer-Rebalance-深度故障排查：为什么你的消费者卡住了？"><a href="#9-Kafka-Consumer-Rebalance-深度故障排查：为什么你的消费者卡住了？" class="headerlink" title="9. Kafka Consumer Rebalance 深度故障排查：为什么你的消费者卡住了？"></a>9. Kafka Consumer Rebalance 深度故障排查：为什么你的消费者卡住了？</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Kafka Consumer Group 出现频繁或长时间的 Rebalance，导致消费延迟飙升，如何定位和解决？</p>
+<p><strong>核心原理</strong>：</p>
+<p>Kafka Consumer Rebalance 是分区所有权重新分配的过程。Kafka 使用 <strong>Cooperative Sticky Assignor</strong>（Kafka 3.1+ 默认）替代了旧的 Eager 协议。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># Rebalance 触发条件</span><br><span class="line">1. 新 consumer 加入 group (JoinGroup)</span><br><span class="line">2. 现有 consumer 超时未发心跳 (Session Timeout)</span><br><span class="line">3. Group 订阅 topic 变更</span><br><span class="line">4. Consumer Group 元数据变更</span><br><span class="line"></span><br><span class="line"># 两种 Rebalance 协议对比</span><br><span class="line">Eager (旧): Stop-the-World → 所有消费者收回分区 → 重新分配 → 恢复消费</span><br><span class="line">            (所有消费者在此过程中停止消费)</span><br><span class="line"></span><br><span class="line">Cooperative Sticky (新): 逐步收回/分配 → 尽量减少不必要的 stop</span><br><span class="line">            Phase 1: 少数消费者释放分区</span><br><span class="line">            Phase 2: 分区重新分配给有需要的消费者</span><br></pre></td></tr></table></figure>
+
+<p><strong>核心时间参数</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>session.timeout.ms</code></td>
+<td>45000 (45s)</td>
+<td>消费者心跳超时，Kafka 3.0+ 默认 45s（之前是 10s）</td>
+</tr>
+<tr>
+<td><code>heartbeat.interval.ms</code></td>
+<td>3000 (3s)</td>
+<td>心跳发送间隔</td>
+</tr>
+<tr>
+<td><code>max.poll.interval.ms</code></td>
+<td>300000 (5min)</td>
+<td>两次 poll() 之间的最大间隔</td>
+</tr>
+<tr>
+<td><code>group.protocol</code></td>
+<td>consumer</td>
+<td>新的 group 协议（KIP-848, Kafka 3.7+）</td>
+</tr>
+<tr>
+<td><code>group.initial.rebalance.delay.ms</code></td>
+<td>3000 (3s)</td>
+<td>新 group 首次 rebalance 延迟</td>
+</tr>
+<tr>
+<td><code>partition.assignment.strategy</code></td>
+<td>CooperativeStickyAssignor</td>
+<td>默认分配策略</td>
+</tr>
+</tbody></table>
+<p><strong>源码级别</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心类: org.apache.kafka.clients.consumer.internals.ConsumerCoordinator</span></span><br><span class="line"><span class="comment">// Rebalance 状态机（源码路径）:</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line"><span class="comment">// 状态: JOIN → SYNC → STABLE</span></span><br><span class="line"><span class="comment">//        ↑       ↓</span></span><br><span class="line"><span class="comment">//        └── REJOIN ──┘</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// JOIN 阶段:</span></span><br><span class="line"><span class="comment">//   sendJoinGroupRequest() → 发送 JoinGroup 请求</span></span><br><span class="line"><span class="comment">//   GroupCoordinator 选 leader → leader 执行分区分配</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// SYNC 阶段:</span></span><br><span class="line"><span class="comment">//   sendSyncGroupRequest() → 所有消费者获取分配结果</span></span><br><span class="line"><span class="comment">//   leader 发送 SyncGroup 包含 assignment</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// STABLE 阶段:</span></span><br><span class="line"><span class="comment">//   正常消费，定期心跳</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// GroupCoordinator 端源码:</span></span><br><span class="line"><span class="comment">// kafka.coordinator.group.GroupCoordinator</span></span><br><span class="line"><span class="comment">// doJoinGroup() → 处理 JoinGroup 请求</span></span><br><span class="line"><span class="comment">// doSyncGroup() → 处理 SyncGroup 请求</span></span><br><span class="line"><span class="comment">// maybeLeaveGroup() → 处理消费者离开</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 新协议 (KIP-848, Kafka 3.7+):</span></span><br><span class="line"><span class="comment">// 不再需要 Join/Sync 两阶段，使用更轻量的 RPC</span></span><br><span class="line"><span class="comment">// org.apache.kafka.coordinator.group.consumer.ConsumerGroupCoordinator</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>生产实战</strong>：</p>
+<p><strong>踩坑案例 1：业务处理耗时导致 Rebalance 风暴（某广告实时计费系统）</strong></p>
+<ul>
+<li><strong>场景</strong>：8 个消费者组成 group，消费高优广告点击 topic，处理后将结果写入 Redis + MongoDB，<code>max.poll.records=500</code></li>
+<li><strong>症状</strong>：高峰时段 group 进入”Rebalance → 稳定 → 稳定一小会儿 → 又 Rebalance”的死循环，消费延迟从秒级飙升到 30 分钟</li>
+<li><strong>排查过程</strong>：<ol>
+<li>Kafka 日志：<code>kafka.controller: &quot;Rebalance of group ad-billing triggered, consumer leave detected&quot;</code></li>
+<li>消费者日志：<code>&quot;LeaveGroup request: current member timeout&quot;</code> — 不是消费者主动离开，是被 Kafka 踢出去的</li>
+<li>查看消费者指标：<code>kafka.consumer:type=consumer-coordinator-metrics,client-id=...</code> → <code>last-heartbeat-seconds-ago</code> 在 45-60s 之间波动</li>
+<li>检查业务处理耗时：一次 poll() 到下一次 poll() 之间的处理时间（包括 Redis + MongoDB 写入）在高峰时达 6-8 分钟</li>
+<li><code>max.poll.interval.ms=300000</code>（5分钟）→ 8 分钟 &gt; 5 分钟 → Kafka 认为消费者死了 → 踢出 group → 触发 Rebalance → 新的一轮又超时 → 循环</li>
+</ol>
+</li>
+<li><strong>根因</strong>：<ul>
+<li><code>max.poll.interval.ms=5min</code> 用于检测消费者是否还在处理消息</li>
+<li>业务高峰期 Redis + MongoDB 写入耗时超过 5min</li>
+<li>每次 poll() 后处理超时 → 消费者被标记为 dead → 触发 Rebalance</li>
+<li>但其他消费者也处于相同压力，各自也超时 → 形成 Rebalance 风暴</li>
+</ul>
+</li>
+<li><strong>修复方案</strong>：<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方案 1：减小每次 poll 的消息量</span></span><br><span class="line"><span class="attr">max.poll.records</span>=<span class="string">100       # 从 500 降至 100</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 方案 2：增加 max.poll.interval.ms</span></span><br><span class="line"><span class="attr">max.poll.interval.ms</span>=<span class="string">600000  # 从 5min 增加到 10min</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 方案 3：异步处理（推荐！）</span></span><br><span class="line"><span class="attr">//</span> <span class="string">之前：同步处理每条消息</span></span><br><span class="line"><span class="attr">//</span> <span class="string">while (true) &#123;</span></span><br><span class="line"><span class="attr">//</span>     <span class="string">records = consumer.poll(Duration.ofMillis(1000));</span></span><br><span class="line"><span class="attr">//</span>     <span class="string">for (record : records) &#123;</span></span><br><span class="line"><span class="attr">//</span>         <span class="string">processAndWriteToDB(record);  // 同步，6-8分钟</span></span><br><span class="line"><span class="attr">//</span>         <span class="string">consumer.commitSync();        // 位移提交</span></span><br><span class="line"><span class="attr">//</span>     <span class="string">&#125;</span></span><br><span class="line"><span class="attr">//</span> <span class="string">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">//</span> <span class="string">之后：异步处理 + 批量提交位移</span></span><br><span class="line"><span class="attr">//</span> <span class="string">将消息放入内部队列，poll 线程快速返回</span></span><br><span class="line"><span class="attr">//</span> <span class="string">后台线程处理队列并提交位移</span></span><br><span class="line"><span class="attr">final</span> <span class="string">BlockingQueue&lt;ConsumerRecord&gt; queue = new LinkedBlockingQueue&lt;&gt;();</span></span><br><span class="line"></span><br><span class="line"><span class="attr">//</span> <span class="string">Poll 线程：快速 poll，快速 put</span></span><br><span class="line"><span class="attr">while</span> <span class="string">(true) &#123;</span></span><br><span class="line">    <span class="attr">ConsumerRecords</span> <span class="string">records = consumer.poll(Duration.ofMillis(500));</span></span><br><span class="line">    <span class="attr">for</span> <span class="string">(ConsumerRecord record : records) &#123;</span></span><br><span class="line">        <span class="attr">queue.put(record);</span>  <span class="string">// 快速入队</span></span><br><span class="line">    <span class="attr">&#125;</span></span><br><span class="line">    <span class="attr">//</span> <span class="string">批量提交：提交已处理完成的消息位移</span></span><br><span class="line">    <span class="attr">consumer.commitAsync(batchOffsets,</span> <span class="string">null);</span></span><br><span class="line"><span class="attr">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">//</span> <span class="string">处理线程池（4 个后台线程）</span></span><br><span class="line"><span class="attr">executor.submit(()</span> <span class="string">-&gt; &#123;</span></span><br><span class="line">    <span class="attr">while</span> <span class="string">(true) &#123;</span></span><br><span class="line">        <span class="attr">ConsumerRecord</span> <span class="string">record = queue.poll(1, TimeUnit.SECONDS);</span></span><br><span class="line">        <span class="attr">if</span> <span class="string">(record != null) &#123;</span></span><br><span class="line">            <span class="attr">processAndWriteToDB(record);</span>  <span class="string">// 慢慢处理</span></span><br><span class="line">        <span class="attr">&#125;</span></span><br><span class="line">    <span class="attr">&#125;</span></span><br><span class="line"><span class="attr">&#125;);</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>修复效果</strong>：<ul>
+<li>max.poll.interval.ms 从 5min 增加到 10min + 减少每次 poll 数量</li>
+<li>Rebalance 风暴消除，消费延迟从 30min 恢复到 &lt; 5s</li>
+</ul>
+</li>
+<li><strong>注意</strong>：异步方案需处理位移提交语义——确保消费不丢不重</li>
+</ul>
+<p><strong>踩坑案例 2：Static Group Membership 未启用导致滚动重启引发 Rebalance（某日志采集平台）</strong></p>
+<ul>
+<li><strong>场景</strong>：50 个消费者节点组成 group，消费应用日志 topic</li>
+<li><strong>症状</strong>：每次发布（滚动更新 50 个节点）时，group 发生 50 次 Rebalance，每次 Rebalance 延迟 3-5 分钟，整个滚动更新过程消费中断约 2 小时</li>
+<li><strong>排查过程</strong>：<ol>
+<li>滚动更新过程：每停 1 个消费者 → 触发 Rebalance → 等待 3-5 分钟稳定 → 启动新消费者 → 再次触发 Rebalance → 持续 50 次</li>
+<li>问题确实是 Static Group Membership 没启用，导致每次新旧交替都触发 Rebalance</li>
+</ol>
+</li>
+<li><strong>根因</strong>：<ul>
+<li>默认情况下，消费者使用 Dynamic Membership（动态成员），每次 Leave → Join 都是新成员</li>
+<li>未启用 <code>group.instance.id</code>（静态成员），导致每次滚动更新触发全量 Rebalance</li>
+<li>Cooperate Sticky Assignor 虽减少了 stop-the-world，但 50 次连续 Rebalance 累积的停顿时长仍然很可观</li>
+</ul>
+</li>
+<li><strong>修复方案</strong>：<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启用 Static Group Membership</span></span><br><span class="line"><span class="attr">group.instance.id</span>=<span class="string">consumer-$&#123;HOSTNAME&#125;   # 每个消费者有唯一 ID</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># session.timeout.ms 增加到足够大，允许滚动窗口</span></span><br><span class="line"><span class="attr">session.timeout.ms</span>=<span class="string">120000  # 120s</span></span><br><span class="line"><span class="attr">heartbeat.interval.ms</span>=<span class="string">10000</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 每次滚动重启时，消费者使用相同的 group.instance.id</span></span><br><span class="line"><span class="comment"># Kafka 会认为这是&quot;同一个消费者重启&quot;，不触发 Rebalance</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>修复效果</strong>：<ul>
+<li>滚动更新期间零 Rebalance</li>
+<li>消费连续性从”中断 2 小时”变为”零中断”</li>
+<li>这是 Kafka 生产环境最被低估的配置之一</li>
+</ul>
+</li>
+</ul>
+<p><strong>Rebalance 故障排查决策树</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">消费者延迟飙升？</span><br><span class="line">├── 查看 consumer group 状态: kafka-consumer-groups --describe --group &lt;group&gt;</span><br><span class="line">│   ├── 所有消费者都在稳定消费(状态=Stable) → 问题不在 Rebalance</span><br><span class="line">│   └── 状态在 &quot;PreparingRebalance&quot; → Rebalance 问题</span><br><span class="line">│       ├── 检查 last-heartbeat-seconds-ago</span><br><span class="line">│       │   ├── &gt; session.timeout.ms → 心跳超时</span><br><span class="line">│       │   │   ├── 网络问题？检查带宽/延迟</span><br><span class="line">│       │   │   └── GC 暂停？检查 Full GC 频率和时间</span><br><span class="line">│       │   └── &lt; session.timeout.ms → 业务处理超时</span><br><span class="line">│       │       └── max.poll.interval.ms 不够大，或 max.poll.records 太多</span><br><span class="line">│       └── 滚动更新/部署？</span><br><span class="line">│           └── 启用 Static Group Membership (group.instance.id)</span><br><span class="line">└── 确认 Rebalance 协议</span><br><span class="line">    ├── 使用旧协议 (Eager) → 升级到 CooperativeStickyAssignor</span><br><span class="line">    └── 新协议但仍有问题 → 检查 group.protocol 版本 (3.7+)</span><br></pre></td></tr></table></figure>
+
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“Rebalance 风暴是 Kafka 生产环境最常见、也最隐蔽的杀手之一。它表现为消费延迟攀升，但很少直接报错。排查时牢记：先看消费者的心跳状态和 poll 间隔，再看网络和 GC。最容易被忽视的配置有两个：<code>group.instance.id</code>（静态成员）让滚动更新不再触发 Rebalance，和异步处理模式让业务逻辑不再受 <code>max.poll.interval.ms</code> 限制。”</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>KIP-848 (New Consumer Group Protocol): <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-848%3A+The+Next+Generation+of+the+Consumer+Rebalance+Protocol">https://cwiki.apache.org/confluence/display/KAFKA/KIP-848%3A+The+Next+Generation+of+the+Consumer+Rebalance+Protocol</a></li>
+<li>Kafka Consumer Configs: <a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#consumerconfigs">https://kafka.apache.org/documentation/#consumerconfigs</a></li>
+<li>Apache Kafka 4.0 Consumer Group Docs</li>
+</ul>
+<hr>
+<h3 id="10-Kafka-磁盘写满的紧急处理与监控体系"><a href="#10-Kafka-磁盘写满的紧急处理与监控体系" class="headerlink" title="10. Kafka 磁盘写满的紧急处理与监控体系"></a>10. Kafka 磁盘写满的紧急处理与监控体系</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Kafka Broker 磁盘写满是生产环境的高频故障。你有多少种应对方案？每种方案的代价是什么？</p>
+<p><strong>核心原理</strong>：</p>
+<p>Kafka 消息持久化到磁盘，当磁盘空间满时 Broker 会停止接收新消息，并可能停机：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 磁盘空间管理</span><br><span class="line"></span><br><span class="line"># 1. 日志保留策略（自动清理）</span><br><span class="line">log.retention.hours=168                    # 保留 7 天（默认）</span><br><span class="line">log.retention.bytes=1073741824            # 每个 partition 最大 1GB（默认-1，不限）</span><br><span class="line">log.segment.bytes=1073741824              # 每个 segment 1GB</span><br><span class="line">log.retention.check.interval.ms=300000    # 检查间隔 5 分钟</span><br><span class="line"></span><br><span class="line"># 2. 日志压缩（Log Compaction）</span><br><span class="line">cleanup.policy=compact                    # 对 key 做压缩，保留最新的 value</span><br><span class="line">log.cleaner.enable=true                   # 启用 cleaner 线程</span><br><span class="line"></span><br><span class="line"># 3. 磁盘残留文件的处理</span><br><span class="line"># Kafka 停止后可能残留 .log.deleted、.cleaned、.swap 文件</span><br><span class="line"># 这些文件不会被自动清理，会占用大量额外空间</span><br></pre></td></tr></table></figure>
+
+<p><strong>生产实战</strong>：</p>
+<p><strong>踩坑案例：磁盘 100% 写满，Kafka 集群级联崩溃（某金融支付，生产环境）</strong></p>
+<ul>
+<li><p><strong>场景</strong>：3 Broker 集群，每个 Broker 使用 2TB SSD，运行时均使用 80%</p>
+</li>
+<li><p><strong>症状</strong>：周五晚间，监控告警：Broker-3 磁盘 95% → 5 分钟后 100% → Broker 宕机 → 其他 Broker 开始大量 ISR 收缩 → ISR 丢失 → 集群不可用</p>
+</li>
+<li><p><strong>排查过程</strong>：</p>
+<ol>
+<li>登录 Broker-3：<code>df -h</code> 确认 <code>/data/kafka</code> 已 100%</li>
+<li><code>du -sh /data/kafka/* | sort -rh | head -10</code> 查看各目录大小</li>
+<li><code>find /data/kafka -name &quot;*.deleted&quot; -o -name &quot;*.cleaned&quot; | wc -l</code> — 发现 2000+ 个待删除文件，占用 300GB</li>
+<li><code>lsof | grep deleted | wc -l</code> — 发现 Kafka 进程持有这些文件的文件句柄（进程未关闭），所以 <code>rm</code> 无效</li>
+<li><code>kafka-log-dirs.sh --describe --bootstrap-server ...</code> — 查看各 Broker 磁盘使用量</li>
+</ol>
+</li>
+<li><p><strong>根因</strong>：</p>
+<ul>
+<li>业务流量高峰期，日志保留策略触发大量 segment 清理</li>
+<li>清理线程在 swap → rename → delete 过程中，旧文件的文件句柄未被释放</li>
+<li>这些 <code>.deleted</code> 文件占据了实际空间，但 log.retention.bytes 的计算不包括它们</li>
+<li>磁盘空间超过 90% 阈值后，Kafka 的 unclean.leader.election 可能被触发</li>
+<li>最终 Broker-3 无法写入 → partition leader 转移到其他 Broker → 级联负载飙升</li>
+</ul>
+</li>
+<li><p><strong>紧急处理方案</strong>（按优先级从高到低）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. [最紧急] 手动触发日志清理 + 删除残留文件</span></span><br><span class="line"><span class="comment"># 先停掉 Kafka，重启时不会重新持有文件句柄</span></span><br><span class="line">systemctl stop kafka</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除所有残留文件</span></span><br><span class="line">find /data/kafka -name <span class="string">&quot;*.deleted&quot;</span> -delete</span><br><span class="line">find /data/kafka -name <span class="string">&quot;*.cleaned&quot;</span> -delete</span><br><span class="line">find /data/kafka -name <span class="string">&quot;*.swap&quot;</span> -delete</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改 log.retention.bytes 到更小的值</span></span><br><span class="line"><span class="comment"># server.properties:</span></span><br><span class="line">log.retention.bytes=53687091200  <span class="comment"># 每个 partition 50GB</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动 Kafka</span></span><br><span class="line">systemctl start kafka</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. [次紧急] 直接删除最旧的 log segment</span></span><br><span class="line"><span class="comment"># 找到最旧的 segment（按修改时间排序）</span></span><br><span class="line"><span class="comment"># 注意：删除前确认 ISR 已完成同步</span></span><br><span class="line"><span class="comment"># 只删除已经关闭的 segment（文件名中没有 .log 的高位字节？）</span></span><br><span class="line"><span class="comment"># 更安全的做法：修改 log.retention.ms 触发清理</span></span><br><span class="line">kafka-configs.sh --bootstrap-server localhost:9092 \</span><br><span class="line">  --entity-type topics --entity-name &lt;topic&gt; \</span><br><span class="line">  --alter --add-config retention.ms=3600000  <span class="comment"># 临时改为 1 小时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 等待 5 分钟后清理完成，再改回原值</span></span><br><span class="line">kafka-configs.sh --bootstrap-server localhost:9092 \</span><br><span class="line">  --entity-type topics --entity-name &lt;topic&gt; \</span><br><span class="line">  --alter --add-config retention.ms=604800000  <span class="comment"># 恢复 7 天</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. [更高代价] 删除 topic / 移动数据</span></span><br><span class="line"><span class="comment"># 临时删除非关键 topic</span></span><br><span class="line">kafka-topics.sh --delete --topic &lt;less-important-topic&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. [最后手段] 增加新磁盘后迁移 partition</span></span><br><span class="line"><span class="comment"># 新挂载磁盘路径 /data/kafka2</span></span><br><span class="line"><span class="comment"># 修改 log.dirs=/data/kafka,/data/kafka2</span></span><br><span class="line">kafka-reassign-partitions.sh --bootstrap-server localhost:9092 \</span><br><span class="line">  --reassignment-json-file move.json --execute</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>预防方案（上线前必设）</strong>：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 磁盘空间预留</span></span><br><span class="line"><span class="comment"># log.retention.bytes 设置为总磁盘的 80%</span></span><br><span class="line"><span class="attr">log.retention.bytes</span>=<span class="string">1717986918400  # 1.6TB（2TB 盘）</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 2. 自动清理配置</span></span><br><span class="line"><span class="attr">log.cleaner.backoff.ms</span>=<span class="string">15000          # cleaner backoff</span></span><br><span class="line"><span class="attr">log.cleaner.dedupe.buffer.size</span>=<span class="string">536870912  # dedupe buffer 512MB</span></span><br><span class="line"><span class="attr">log.cleaner.io.buffer.size</span>=<span class="string">1048576        # IO buffer 1MB</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 3. 磁盘监控（Prometheus + Grafana）</span></span><br><span class="line"><span class="attr">curl</span> <span class="string">-s &quot;http://broker:9308/metrics&quot; | grep kafka_log</span></span><br><span class="line"><span class="attr">|</span> <span class="string">grep -E &quot;kafka_log_Log|kafka_log_log_size&quot;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 必须的告警规则:</span></span><br><span class="line"><span class="comment"># - disk_usage_percent &gt; 80% → P2: 通知 + 检查清理是否正常</span></span><br><span class="line"><span class="comment"># - disk_usage_percent &gt; 90% → P1: 紧急介入</span></span><br><span class="line"><span class="comment"># - kafka_log_LogManager_PartitionsCount &gt; 阈值 → P3: partition 过多</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 4. Kafka 自带的磁盘监控（KIP-636）</span></span><br><span class="line"><span class="comment"># metrics.reporter 推送磁盘使用信息到 __consumer_offsets</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>磁盘写满处理方案对比表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>恢复时间</th>
+<th>数据丢失风险</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>清理残留文件 + 重启</td>
+<td>5-10min</td>
+<td>无</td>
+<td>正常运维，推荐首选</td>
+</tr>
+<tr>
+<td>临时缩短 retention</td>
+<td>1-5min</td>
+<td>丢失旧数据</td>
+<td>紧急磁盘满，能接受丢旧数据</td>
+</tr>
+<tr>
+<td>删除非关键 topic</td>
+<td>即时</td>
+<td>丢失该 topic 所有数据</td>
+<td>紧急，且有不关键 topic</td>
+</tr>
+<tr>
+<td>添加新磁盘 + 迁移</td>
+<td>30min+</td>
+<td>无</td>
+<td>长期扩容方案</td>
+</tr>
+<tr>
+<td>直接 rm segment</td>
+<td>10min</td>
+<td>高</td>
+<td>极不推荐，仅作最后手段</td>
+</tr>
+</tbody></table>
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“Kafka 磁盘写满最危险的不是 Broker 宕机，而是<strong>级联故障</strong>——一个 Broker 磁盘写满触发 Leader 选举，其他 Broker 承载更多流量后也迅速写满，最后集群整体不可用。核心防御不是事后清理，而是三件事：<code>log.retention.bytes</code> 设置为磁盘 80%、监控 disk_usage &gt; 80% 触发 P2 告警、<code>group.instance.id</code> 确保运维操作不影响消费。这三件事做到，磁盘写满就不会是一个让你半夜被叫醒的问题。”</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Kafka Operations: <a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#operations">https://kafka.apache.org/documentation/#operations</a></li>
+<li>KIP-636: Log space monitoring</li>
+<li>LinkedIn Kafka Best Practices</li>
+</ul>
+<hr>
+<h3 id="11-Kafka-消息可靠性保障全攻略：acks、min-insync-replicas-与幂等性"><a href="#11-Kafka-消息可靠性保障全攻略：acks、min-insync-replicas-与幂等性" class="headerlink" title="11. Kafka 消息可靠性保障全攻略：acks、min.insync.replicas 与幂等性"></a>11. Kafka 消息可靠性保障全攻略：acks、min.insync.replicas 与幂等性</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Kafka 的 acks、min.insync.replicas、enable.idempotence 三个参数组合构成消息可靠性保障的不同等级。请详细说明各组合的效果和坑点。</p>
+<p><strong>核心原理</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 三个参数的语义:</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// acks:</span></span><br><span class="line"><span class="comment">//   0  = Fire-and-Forget: 不等待确认，吞吐最高，可能丢消息</span></span><br><span class="line"><span class="comment">//   1  = Leader 确认: Leader 写入本地即返回，Leader crash 时丢消息</span></span><br><span class="line"><span class="comment">//   -1 = All: 等待所有 ISR 副本确认，最强保障</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// min.insync.replicas:</span></span><br><span class="line"><span class="comment">//   最低可用副本数。当 ISR &lt; 此值时，Producer 写入失败</span></span><br><span class="line"><span class="comment">//   影响 acks=-1 时的可用性</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// enable.idempotence:</span></span><br><span class="line"><span class="comment">//   开启幂等生产者，防止网络重试导致的消息重复</span></span><br><span class="line"><span class="comment">//   通过 Producer ID (PID) + Sequence Number 实现</span></span><br><span class="line"><span class="comment">//   acks 设为 1 或 -1 时推荐与幂等性一起使用</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>可靠性与吞吐的权衡矩阵</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>组合</th>
+<th>acks</th>
+<th>min.insync</th>
+<th>幂等</th>
+<th>安全性</th>
+<th>吞吐</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>最高吞吐，能丢</td>
+<td>0</td>
+<td>1</td>
+<td>否</td>
+<td>⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>日志采集、指标上报</td>
+</tr>
+<tr>
+<td>吞吐优先，能丢少</td>
+<td>1</td>
+<td>1</td>
+<td>否</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>非关键业务事件</td>
+</tr>
+<tr>
+<td>平衡</td>
+<td>1</td>
+<td>2</td>
+<td>是</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>一般业务消息</td>
+</tr>
+<tr>
+<td>最强 safe</td>
+<td>-1</td>
+<td>2-3</td>
+<td>是</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>支付、交易、金融</td>
+</tr>
+</tbody></table>
+<p><strong>生产实战</strong>：</p>
+<p><strong>踩坑案例 1：acks&#x3D;-1 + min.insync.replicas&#x3D;3 + 单 Broker 宕机 &#x3D; 100% 写入不可用（某金融风控系统）</strong></p>
+<ul>
+<li><strong>场景</strong>：3 副本 topic，<code>acks=-1, min.insync.replicas=3</code>，生产重要风控事件</li>
+<li><strong>症状</strong>：某 Broker 宕机后 &lt; 10s，所有风控事件写入全部超时失败，业务链路断裂 30 分钟</li>
+<li><strong>排查过程</strong>：<ol>
+<li>检查 ISR：<code>kafka-topics.sh --describe --topic risk-events</code> — ISR&#x3D;[1,2], min.insync&#x3D;3</li>
+<li>ISR 有 2 个 &#x3D; min.insync 的 3？不对：ISR 当前 2 &lt; 3</li>
+<li><code>NotEnoughReplicasException: The broker&#39;s minimum in-sync replica count is 3, but the in-sync replicas are [1,2]</code></li>
+<li>确认：Broker-3 宕机后，ISR 从 [1,2,3] 变为 [1,2]</li>
+<li>min.insync.replicas&#x3D;3 要求不小于 3</li>
+<li>所以 acks&#x3D;-1 虽然要求”所有 ISR 确认”，但实际 ISR 只有 2 个</li>
+<li>即使 ISR&#x3D;2 &lt; min.insync&#x3D;3，Kafka 直接拒绝写入</li>
+</ol>
+</li>
+<li><strong>根因</strong>：<code>min.insync.replicas=3</code> 在 3 副本集群中触发了”一损俱损”——任何单点故障都导致整个 topic 不可写</li>
+<li><strong>修复方案</strong>：<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方案 1：调整 min.insync.replicas</span></span><br><span class="line"><span class="attr">min.insync.replicas</span>=<span class="string">2   # 3 副本集群，允许 1 个 Broker 宕机</span></span><br><span class="line"><span class="comment"># 公式: min.insync.replicas = replication.factor - 1</span></span><br><span class="line"><span class="comment"># 这样能在容忍 1 个副本故障的同时保证数据安全</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 方案 2：降级容错</span></span><br><span class="line"><span class="attr">//</span> <span class="string">Producer 端配置重试 + 降级</span></span><br><span class="line"><span class="attr">props.put(&quot;retries&quot;,</span> <span class="string">Integer.MAX_VALUE);</span></span><br><span class="line"><span class="attr">props.put(&quot;retry.backoff.ms&quot;,</span> <span class="string">1000);</span></span><br><span class="line"></span><br><span class="line"><span class="attr">//</span> <span class="string">出现 NotEnoughReplicasException 时降级</span></span><br><span class="line"><span class="attr">//</span> <span class="string">降级到 acks=1 写入一个健康 topic</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>修复效果</strong>：min.insync.replicas&#x3D;2 后，单 Broker 宕机不再阻塞写入，数据在剩下 2 个副本间保障</li>
+</ul>
+<p><strong>踩坑案例 2：幂等 Producer 的 Sequence Number Reset 导致位移跳跃（某电商消息平台）</strong></p>
+<ul>
+<li><strong>场景</strong>：<code>enable.idempotence=true</code> 生产订单消息，使用默认的 acks&#x3D;1</li>
+<li><strong>症状</strong>：某次 Producer 重启后，生产的所有消息都被 Kafka 跳过（skip），消费者永远收不到那批消息</li>
+<li><strong>排查过程</strong>：<ol>
+<li>Kafka 日志：<code>&quot;Detected 5 out-of-order messages from producer (PID=xxxx, epoch=0), skipping&quot;</code></li>
+<li>检查 Producer 日志：Producer 发送了一批消息后突然 crash（OOM），重启后 PID 重置</li>
+<li>新 PID 的 sequence number 从 0 开始，但 Broker 记录的 PID&#x3D;xxxx 的 sequence number 是 10</li>
+<li>新 sequence&#x3D;0 &lt; Broker 期待的 sequence&#x3D;11 → Broker 认为这是重复消息 → 全部 skip</li>
+</ol>
+</li>
+<li><strong>根因</strong>：<ul>
+<li>幂等 Producer 使用 PID + Epoch + Sequence Number 防止重复</li>
+<li>Producer crash 后 PID 丢失（PID 在 Producer 进程内存中）</li>
+<li>新 Producer 进程获得新的 PID，但 Broker 端还保留旧 PID 的状态</li>
+<li>旧 PID 的 sequence 状态在 <code>transaction.state.log</code> 中保留 7 天（默认）</li>
+<li>新 PID 发来的第一批消息被误判为 “过期的重试消息”</li>
+</ul>
+</li>
+<li><strong>修复方案</strong>：<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方案 1：每次重启前等待旧 PID 状态过期</span></span><br><span class="line"><span class="comment"># 但这在故障恢复场景不现实</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 方案 2：Producer 重启时用 Producer 名称触发 Broker 端清理</span></span><br><span class="line"><span class="comment"># 设置 client.id 并在 Producer 启动时显式发送一个特殊的控制消息</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 方案 3：开启 exactly-once 的 transactional producer</span></span><br><span class="line"><span class="attr">props.put(&quot;enable.idempotence&quot;,</span> <span class="string">true);</span></span><br><span class="line"><span class="attr">props.put(&quot;transactional.id&quot;,</span> <span class="string">&quot;order-producer-1&quot;);  // 关键！</span></span><br><span class="line"></span><br><span class="line"><span class="attr">//</span> <span class="string">使用事务 API</span></span><br><span class="line"><span class="attr">producer.initTransactions();</span></span><br><span class="line"><span class="attr">producer.beginTransaction();</span></span><br><span class="line"><span class="attr">//</span> <span class="string">... 发送消息 ...</span></span><br><span class="line"><span class="attr">producer.commitTransaction();</span></span><br><span class="line"><span class="attr">//</span> <span class="string">事务 Producer 的 transactional.id 保证：</span></span><br><span class="line"><span class="attr">//</span> <span class="string">- 重启后保留相同的 transactional.id → Broker 知道是同一个 Producer</span></span><br><span class="line"><span class="attr">//</span> <span class="string">- Epoch 递增，旧状态被覆盖</span></span><br><span class="line"><span class="attr">//</span> <span class="string">- 不会出现 sequence number 跳跃问题</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>修复效果</strong>：使用 <code>transactional.id</code> 后，Producer 重启不再触发消息跳过</li>
+</ul>
+<p><strong>上线 Checklist（消息可靠性专题）</strong>：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生产推荐配置（按重要性从高到低）</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 1. [必须] 幂等性 + 重试</span></span><br><span class="line"><span class="attr">enable.idempotence</span>=<span class="string">true</span></span><br><span class="line"><span class="attr">retries</span>=<span class="string">Integer.MAX_VALUE</span></span><br><span class="line"><span class="attr">delivery.timeout.ms</span>=<span class="string">120000</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 2. [必须] 合理配置 ack + min.insync</span></span><br><span class="line"><span class="attr">acks</span>=<span class="string">all                     # 或 -1</span></span><br><span class="line"><span class="attr">min.insync.replicas</span>=<span class="string">2        # 3 副本: 2; 5 副本: 3</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 3. [建议] 事务 ID（需要 exactly-once 场景）</span></span><br><span class="line"><span class="attr">transactional.id</span>=<span class="string">$&#123;CLIENT_ID&#125;-$&#123;HOSTNAME&#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 4. [监控] 关键指标</span></span><br><span class="line"><span class="comment"># kafka.server:type=BrokerTopicMetrics,name=FailedProduceRequestsPerSec</span></span><br><span class="line"><span class="comment"># → &gt; 0 代表写入失败</span></span><br><span class="line"><span class="comment"># kafka.server:type=ReplicaManager,name=UnderMinIsrPartitionCount</span></span><br><span class="line"><span class="comment"># → &gt; 0 代表有 partition 的 ISR 小于 min.insync</span></span><br><span class="line"><span class="comment"># kafka.server:type=ReplicaFetcherManager,name=MaxLag</span></span><br><span class="line"><span class="comment"># → 副本同步延迟</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># 5. [重试配置]</span></span><br><span class="line"><span class="attr">retry.backoff.ms</span>=<span class="string">100</span></span><br><span class="line"><span class="attr">request.timeout.ms</span>=<span class="string">30000</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“Kafka 消息可靠性的三个参数——acks、min.insync.replicas、幂等的组合，本质是在<strong>吞吐、可用性、安全性</strong>三角中做权衡。最常见的生产错误是 min.insync.replicas&#x3D;replication.factor，使得任何单点故障都导致写入不可用。最佳实践是 min.insync.replicas &#x3D; replication.factor - 1。幂等 Producer 的事务 ID 可以解决重启导致的 sequence 跳跃，但不要忘了同时开启 acks&#x3D;all，否则幂等的 without acks&#x3D;all 等于没保障。”</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Kafka Producer Configs: <a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#producerconfigs">https://kafka.apache.org/documentation/#producerconfigs</a></li>
+<li>KIP-98 (Exactly Once Semantics): <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-98+-+Exactly+Once+Delivery+and+Transactional+Messaging">https://cwiki.apache.org/confluence/display/KAFKA/KIP-98+-+Exactly+Once+Delivery+and+Transactional+Messaging</a></li>
+<li>Confluent Blog “Exactly Once Semantics in Apache Kafka”</li>
+</ul>
 <hr>
 <blockquote>
 <p>本文将持续更新。</p>
