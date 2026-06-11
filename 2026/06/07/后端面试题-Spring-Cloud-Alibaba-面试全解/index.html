@@ -29,7 +29,7 @@
 <meta property="og:description" content="本文是 Spring Cloud Alibaba 生态的面试全解手册，覆盖 Nacos、Sentinel、Seata、RocketMQ、Dubbo、Gateway 六大组件的核心原理、高频面试题、经典线上 Bug 和场景设计题。每题答案均经过验证，附参考来源。面试前通读这一篇即可。  0x00 Nacos — 服务发现与配置中心1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T04:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-10T01:24:05.767Z">
+<meta property="article:modified_time" content="2026-06-11T02:03:16.642Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Dubbo">
 <meta property="article:tag" content="Gateway">
@@ -172,7 +172,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-Nacos-%E2%80%94-%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E4%B8%8E%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">0x00 Nacos — 服务发现与配置中心</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Nacos-%E7%9A%84-AP-%E5%92%8C-CP-%E6%A8%A1%E5%BC%8F%E5%88%86%E5%88%AB%E7%94%A8%E4%BA%8E%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%EF%BC%9F%E5%88%87%E6%8D%A2%E6%96%B9%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Nacos-%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E7%83%AD%E6%9B%B4%E6%96%B0%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="nav-text">2. Nacos 配置中心的热更新是如何实现的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Nacos-%E5%92%8C-Eureka-%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">3. Nacos 和 Eureka 的核心区别是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Sentinel-%E2%80%94-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7"><span class="nav-text">0x01 Sentinel — 流量控制与熔断降级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Sentinel-%E7%9A%84%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E9%99%90%E6%B5%81%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">4. Sentinel 的滑动窗口限流原理是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Sentinel-%E7%9A%84%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7%E6%9C%89%E5%93%AA%E4%B8%89%E7%A7%8D%E7%AD%96%E7%95%A5%EF%BC%9F%E5%90%84%E8%87%AA%E9%80%82%E7%94%A8%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%EF%BC%9F"><span class="nav-text">5. Sentinel 的熔断降级有哪三种策略？各自适用什么场景？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Sentinel-%E5%92%8C-Hystrix-%E7%9A%84%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">6. Sentinel 和 Hystrix 的本质区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Seata-%E2%80%94-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="nav-text">0x02 Seata — 分布式事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Seata-%E7%9A%84%E5%9B%9B%E7%A7%8D%E4%BA%8B%E5%8A%A1%E6%A8%A1%E5%BC%8F%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%A6%82%E4%BD%95%E9%80%89%E5%9E%8B%EF%BC%9F"><span class="nav-text">7. Seata 的四种事务模式分别是什么？如何选型？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Seata-AT-%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%85%A8%E5%B1%80%E9%94%81%EF%BC%9F"><span class="nav-text">8. Seata AT 模式的实现原理是什么？为什么需要全局锁？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-RocketMQ-%E2%80%94-%E6%B6%88%E6%81%AF%E9%A9%B1%E5%8A%A8"><span class="nav-text">0x03 RocketMQ — 消息驱动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-RocketMQ-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1%EF%BC%9F"><span class="nav-text">9. RocketMQ 如何保证消息不丢失？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-RocketMQ-%E7%9A%84%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="nav-text">10. RocketMQ 的事务消息是怎么实现的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Dubbo-%E2%80%94-RPC-%E9%80%9A%E4%BF%A1"><span class="nav-text">0x04 Dubbo — RPC 通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Dubbo-%E7%9A%84%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">11. Dubbo 的服务调用流程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Dubbo-%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">12. Dubbo 的负载均衡策略有哪些？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-Spring-Cloud-Gateway-%E2%80%94-API-%E7%BD%91%E5%85%B3"><span class="nav-text">0x05 Spring Cloud Gateway — API 网关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Gateway-%E7%9A%84%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">13. Gateway 的三大核心组件是什么？请求处理流程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Gateway-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%EF%BC%9F"><span class="nav-text">14. Gateway 如何实现动态路由？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E7%BB%8F%E5%85%B8-Bug"><span class="nav-text">0x06 经典 Bug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-1%EF%BC%9ANacos-1-x-%E6%9C%8D%E5%8A%A1%E4%B8%8B%E7%BA%BF%E5%BB%B6%E8%BF%9F%E2%80%94%E2%80%9410-%E7%A7%92%E7%9A%84%E5%9D%91"><span class="nav-text">Bug 1：Nacos 1.x 服务下线延迟——10 秒的坑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-2%EF%BC%9ASeata-AT-%E5%85%A8%E5%B1%80%E9%94%81%E6%AD%BB%E9%94%81"><span class="nav-text">Bug 2：Seata AT 全局锁死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-3%EF%BC%9ASentinel-%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%A2%E5%A4%B1"><span class="nav-text">Bug 3：Sentinel 规则持久化丢失</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x07 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-text">场景：秒杀系统的微服务架构设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-%E5%B0%8F%E7%BB%93"><span class="nav-text">0x08 小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-Spring-Cloud-Netflix-%E5%9F%BA%E7%A1%80%E9%97%AE%E7%AD%94%EF%BC%88%E8%A1%A5%E5%85%85%EF%BC%89"><span class="nav-text">0x09 Spring Cloud Netflix 基础问答（补充）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Eureka-%E7%9A%84%E5%BF%83%E8%B7%B3%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">15. Eureka 的心跳检查机制是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Eureka-%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">16. Eureka 的自我保护机制是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Eureka-%E5%92%8C-ZooKeeper-%E7%9A%84%E5%85%B3%E9%94%AE%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">17. Eureka 和 ZooKeeper 的关键区别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-%E4%BB%80%E4%B9%88%E6%98%AF-Ribbon%EF%BC%9F%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">18. 什么是 Ribbon？工作原理是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Ribbon-%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95%EF%BC%9F"><span class="nav-text">19. Ribbon 支持哪些负载均衡算法？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-Feign-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FRibbon-%E5%92%8C-Feign-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">20. Feign 是什么？Ribbon 和 Feign 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-%E4%BB%80%E4%B9%88%E6%98%AF-Hystrix%EF%BC%9F%E6%A0%B8%E5%BF%83%E6%B3%A8%E8%A7%A3%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">21. 什么是 Hystrix？核心注解有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-%E4%BB%80%E4%B9%88%E6%98%AF-Spring-Cloud-Config-%E5%92%8C-Spring-Cloud-Bus%EF%BC%9F"><span class="nav-text">22. 什么是 Spring Cloud Config 和 Spring Cloud Bus？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#23-Spring-Cloud-%E5%92%8C-Spring-Boot-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">23. Spring Cloud 和 Spring Boot 的区别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#24-Spring-Cloud-%E5%92%8C-Dubbo-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">24. Spring Cloud 和 Dubbo 的区别是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-2024-2025-%E7%83%AD%E7%82%B9%EF%BC%9ADubbo-3-x%E3%80%81Nacos-2-x%E3%80%81Spring-Boot-3-x-%E9%80%82%E9%85%8D"><span class="nav-text">0x0A 2024-2025 热点：Dubbo 3.x、Nacos 2.x、Spring Boot 3.x 适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#25-Dubbo-3-x-%E7%9A%84-Triple-%E5%8D%8F%E8%AE%AE%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%92%8C-Dubbo-2-x-%E5%8D%8F%E8%AE%AE%E6%9C%89%E4%BD%95%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">25. Dubbo 3.x 的 Triple 协议是什么？和 Dubbo 2.x 协议有何本质区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#26-Nacos-2-x-%E7%9A%84-gRPC-%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E4%B8%8E-1-x-%E7%9A%84-HTTP-%E5%8D%8F%E8%AE%AE%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9F%E7%94%9F%E4%BA%A7%E7%81%B0%E5%BA%A6%E8%BF%81%E7%A7%BB%E6%80%8E%E4%B9%88%E5%81%9A%EF%BC%9F"><span class="nav-text">26. Nacos 2.x 的 gRPC 通信协议与 1.x 的 HTTP 协议有何区别？生产灰度迁移怎么做？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#27-Spring-Cloud-Alibaba-%E5%A6%82%E4%BD%95%E9%80%82%E9%85%8D-Spring-Boot-3-x%EF%BC%9F%E6%9C%89%E5%93%AA%E4%BA%9B-Breaking-Changes%EF%BC%9F"><span class="nav-text">27. Spring Cloud Alibaba 如何适配 Spring Boot 3.x？有哪些 Breaking Changes？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#28-Sentinel-%E9%9B%86%E7%BE%A4%E9%99%90%E6%B5%81%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%92%8C-Token-Server-%E6%A8%A1%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E7%94%9F%E4%BA%A7%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E5%9D%91%EF%BC%9F"><span class="nav-text">28. Sentinel 集群限流的工作原理和 Token Server 模式是什么？生产中有哪些坑？</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-Nacos-%E2%80%94-%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E4%B8%8E%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-text">0x00 Nacos — 服务发现与配置中心</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Nacos-%E7%9A%84-AP-%E5%92%8C-CP-%E6%A8%A1%E5%BC%8F%E5%88%86%E5%88%AB%E7%94%A8%E4%BA%8E%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%EF%BC%9F%E5%88%87%E6%8D%A2%E6%96%B9%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. Nacos 的 AP 和 CP 模式分别用于什么场景？切换方式是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Nacos-%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E7%83%AD%E6%9B%B4%E6%96%B0%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="nav-text">2. Nacos 配置中心的热更新是如何实现的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Nacos-%E5%92%8C-Eureka-%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">3. Nacos 和 Eureka 的核心区别是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Sentinel-%E2%80%94-%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7"><span class="nav-text">0x01 Sentinel — 流量控制与熔断降级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Sentinel-%E7%9A%84%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E9%99%90%E6%B5%81%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">4. Sentinel 的滑动窗口限流原理是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Sentinel-%E7%9A%84%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7%E6%9C%89%E5%93%AA%E4%B8%89%E7%A7%8D%E7%AD%96%E7%95%A5%EF%BC%9F%E5%90%84%E8%87%AA%E9%80%82%E7%94%A8%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%EF%BC%9F"><span class="nav-text">5. Sentinel 的熔断降级有哪三种策略？各自适用什么场景？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Sentinel-%E5%92%8C-Hystrix-%E7%9A%84%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">6. Sentinel 和 Hystrix 的本质区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Seata-%E2%80%94-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="nav-text">0x02 Seata — 分布式事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Seata-%E7%9A%84%E5%9B%9B%E7%A7%8D%E4%BA%8B%E5%8A%A1%E6%A8%A1%E5%BC%8F%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%A6%82%E4%BD%95%E9%80%89%E5%9E%8B%EF%BC%9F"><span class="nav-text">7. Seata 的四种事务模式分别是什么？如何选型？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Seata-AT-%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%85%A8%E5%B1%80%E9%94%81%EF%BC%9F"><span class="nav-text">8. Seata AT 模式的实现原理是什么？为什么需要全局锁？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-RocketMQ-%E2%80%94-%E6%B6%88%E6%81%AF%E9%A9%B1%E5%8A%A8"><span class="nav-text">0x03 RocketMQ — 消息驱动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-RocketMQ-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E4%B8%8D%E4%B8%A2%E5%A4%B1%EF%BC%9F"><span class="nav-text">9. RocketMQ 如何保证消息不丢失？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-RocketMQ-%E7%9A%84%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F"><span class="nav-text">10. RocketMQ 的事务消息是怎么实现的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Dubbo-%E2%80%94-RPC-%E9%80%9A%E4%BF%A1"><span class="nav-text">0x04 Dubbo — RPC 通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Dubbo-%E7%9A%84%E6%9C%8D%E5%8A%A1%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">11. Dubbo 的服务调用流程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Dubbo-%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">12. Dubbo 的负载均衡策略有哪些？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-Spring-Cloud-Gateway-%E2%80%94-API-%E7%BD%91%E5%85%B3"><span class="nav-text">0x05 Spring Cloud Gateway — API 网关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Gateway-%E7%9A%84%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">13. Gateway 的三大核心组件是什么？请求处理流程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Gateway-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%EF%BC%9F"><span class="nav-text">14. Gateway 如何实现动态路由？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E7%BB%8F%E5%85%B8-Bug"><span class="nav-text">0x06 经典 Bug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-1%EF%BC%9ANacos-1-x-%E6%9C%8D%E5%8A%A1%E4%B8%8B%E7%BA%BF%E5%BB%B6%E8%BF%9F%E2%80%94%E2%80%9410-%E7%A7%92%E7%9A%84%E5%9D%91"><span class="nav-text">Bug 1：Nacos 1.x 服务下线延迟——10 秒的坑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-2%EF%BC%9ASeata-AT-%E5%85%A8%E5%B1%80%E9%94%81%E6%AD%BB%E9%94%81"><span class="nav-text">Bug 2：Seata AT 全局锁死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bug-3%EF%BC%9ASentinel-%E8%A7%84%E5%88%99%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%A2%E5%A4%B1"><span class="nav-text">Bug 3：Sentinel 规则持久化丢失</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x07 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-text">场景：秒杀系统的微服务架构设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-%E5%B0%8F%E7%BB%93"><span class="nav-text">0x08 小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-Spring-Cloud-Netflix-%E5%9F%BA%E7%A1%80%E9%97%AE%E7%AD%94%EF%BC%88%E8%A1%A5%E5%85%85%EF%BC%89"><span class="nav-text">0x09 Spring Cloud Netflix 基础问答（补充）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Eureka-%E7%9A%84%E5%BF%83%E8%B7%B3%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">15. Eureka 的心跳检查机制是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Eureka-%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">16. Eureka 的自我保护机制是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Eureka-%E5%92%8C-ZooKeeper-%E7%9A%84%E5%85%B3%E9%94%AE%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">17. Eureka 和 ZooKeeper 的关键区别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-%E4%BB%80%E4%B9%88%E6%98%AF-Ribbon%EF%BC%9F%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">18. 什么是 Ribbon？工作原理是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Ribbon-%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95%EF%BC%9F"><span class="nav-text">19. Ribbon 支持哪些负载均衡算法？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-Feign-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FRibbon-%E5%92%8C-Feign-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">20. Feign 是什么？Ribbon 和 Feign 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-%E4%BB%80%E4%B9%88%E6%98%AF-Hystrix%EF%BC%9F%E6%A0%B8%E5%BF%83%E6%B3%A8%E8%A7%A3%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">21. 什么是 Hystrix？核心注解有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-%E4%BB%80%E4%B9%88%E6%98%AF-Spring-Cloud-Config-%E5%92%8C-Spring-Cloud-Bus%EF%BC%9F"><span class="nav-text">22. 什么是 Spring Cloud Config 和 Spring Cloud Bus？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#23-Spring-Cloud-%E5%92%8C-Spring-Boot-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">23. Spring Cloud 和 Spring Boot 的区别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#24-Spring-Cloud-%E5%92%8C-Dubbo-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">24. Spring Cloud 和 Dubbo 的区别是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-2024-2025-%E7%83%AD%E7%82%B9%EF%BC%9ADubbo-3-x%E3%80%81Nacos-2-x%E3%80%81Spring-Boot-3-x-%E9%80%82%E9%85%8D"><span class="nav-text">0x0A 2024-2025 热点：Dubbo 3.x、Nacos 2.x、Spring Boot 3.x 适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#25-Dubbo-3-x-%E7%9A%84-Triple-%E5%8D%8F%E8%AE%AE%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%92%8C-Dubbo-2-x-%E5%8D%8F%E8%AE%AE%E6%9C%89%E4%BD%95%E6%9C%AC%E8%B4%A8%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">25. Dubbo 3.x 的 Triple 协议是什么？和 Dubbo 2.x 协议有何本质区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#26-Nacos-2-x-%E7%9A%84-gRPC-%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E4%B8%8E-1-x-%E7%9A%84-HTTP-%E5%8D%8F%E8%AE%AE%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9F%E7%94%9F%E4%BA%A7%E7%81%B0%E5%BA%A6%E8%BF%81%E7%A7%BB%E6%80%8E%E4%B9%88%E5%81%9A%EF%BC%9F"><span class="nav-text">26. Nacos 2.x 的 gRPC 通信协议与 1.x 的 HTTP 协议有何区别？生产灰度迁移怎么做？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#27-Spring-Cloud-Alibaba-%E5%A6%82%E4%BD%95%E9%80%82%E9%85%8D-Spring-Boot-3-x%EF%BC%9F%E6%9C%89%E5%93%AA%E4%BA%9B-Breaking-Changes%EF%BC%9F"><span class="nav-text">27. Spring Cloud Alibaba 如何适配 Spring Boot 3.x？有哪些 Breaking Changes？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#28-Sentinel-%E9%9B%86%E7%BE%A4%E9%99%90%E6%B5%81%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E5%92%8C-Token-Server-%E6%A8%A1%E5%BC%8F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E7%94%9F%E4%BA%A7%E4%B8%AD%E6%9C%89%E5%93%AA%E4%BA%9B%E5%9D%91%EF%BC%9F"><span class="nav-text">28. Sentinel 集群限流的工作原理和 Token Server 模式是什么？生产中有哪些坑？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#29-Nacos-2-x-%E7%9A%84-JRaft-%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%E4%B8%8E-1-x-Distro-%E5%8D%8F%E8%AE%AE%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9FCP-AP-%E8%87%AA%E5%8A%A8%E5%88%87%E6%8D%A2%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%EF%BC%9F"><span class="nav-text">29. Nacos 2.x 的 JRaft 一致性协议与 1.x Distro 协议有何区别？CP&#x2F;AP 自动切换怎么实现？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#30-RocketMQ-5-x-%E8%BD%BB%E9%87%8F%E7%BA%A7%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%EF%BC%88Light-Message-Queue-%E6%B6%88%E6%81%AF%E4%BC%91%E7%9C%A0%EF%BC%89%E5%B8%A6%E6%9D%A5%E4%BA%86%E5%93%AA%E4%BA%9B%E6%9E%B6%E6%9E%84%E5%8F%98%E5%8C%96%EF%BC%9F"><span class="nav-text">30. RocketMQ 5.x 轻量级消息队列（Light Message Queue &#x2F; 消息休眠）带来了哪些架构变化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#31-Seata-AT-%E6%A8%A1%E5%BC%8F%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E5%85%A8%E5%B1%80%E9%94%81%E7%83%AD%E7%82%B9%E9%97%AE%E9%A2%98%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E5%92%8C%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">31. Seata AT 模式在高并发场景下的全局锁热点问题如何分析和优化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#32-Spring-Cloud-Alibaba-2022-x-2023-x-%E7%89%88%E6%9C%AC%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9F%A9%E9%98%B5%E4%B8%AD%EF%BC%8C%E5%A6%82%E4%BD%95%E8%A7%84%E5%88%92%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E7%9A%84%E7%BB%84%E4%BB%B6%E7%89%88%E6%9C%AC%E9%80%89%E5%9E%8B%EF%BC%9F"><span class="nav-text">32. Spring Cloud Alibaba 2022.x &#x2F; 2023.x 版本兼容性矩阵中，如何规划生产环境的组件版本选型？</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -259,7 +259,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-10 09:24:05" itemprop="dateModified" datetime="2026-06-10T09:24:05+08:00">2026-06-10</time>
+      <time title="修改时间：2026-06-11 10:03:16" itemprop="dateModified" datetime="2026-06-11T10:03:16+08:00">2026-06-11</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1241,8 +1241,278 @@
 </ol>
 <p>参考：<a target="_blank" rel="noopener" href="https://sentinelguard.io/zh-cn/docs/cluster-flow-control.html">Sentinel 集群流控文档</a></p>
 <hr>
+<h3 id="29-Nacos-2-x-的-JRaft-一致性协议与-1-x-Distro-协议有何区别？CP-AP-自动切换怎么实现？"><a href="#29-Nacos-2-x-的-JRaft-一致性协议与-1-x-Distro-协议有何区别？CP-AP-自动切换怎么实现？" class="headerlink" title="29. Nacos 2.x 的 JRaft 一致性协议与 1.x Distro 协议有何区别？CP&#x2F;AP 自动切换怎么实现？"></a>29. Nacos 2.x 的 JRaft 一致性协议与 1.x Distro 协议有何区别？CP&#x2F;AP 自动切换怎么实现？</h3><p><strong>标准答案</strong>：</p>
+<p>Nacos 在 1.x 和 2.x 中使用了不同的一致性协议来应对不同场景：</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>Nacos 1.x（Distro）</th>
+<th>Nacos 2.x（JRaft + Distro 升级版）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>一致性模型</strong></td>
+<td>AP（最终一致性）</td>
+<td>CP + AP 混合（自动切换）</td>
+</tr>
+<tr>
+<td><strong>协议基础</strong></td>
+<td>自研 Distro（最终一致性 + 心跳）</td>
+<td>JRaft（Raft 实现，强一致性） + 升级版 Distro</td>
+</tr>
+<tr>
+<td><strong>持久化服务</strong></td>
+<td>不支持强一致</td>
+<td>JRaft 保证写后一致读</td>
+</tr>
+<tr>
+<td><strong>临时服务</strong></td>
+<td>Distro 同步</td>
+<td>Distro + 批量同步优化</td>
+</tr>
+<tr>
+<td><strong>Leader 选举</strong></td>
+<td>无 Leader（对等集群）</td>
+<td>JRaft 有 Leader</td>
+</tr>
+<tr>
+<td><strong>数据一致性上限</strong></td>
+<td>秒级（1-3s）</td>
+<td>毫秒级（&lt; 100ms）</td>
+</tr>
+<tr>
+<td><strong>集群规模</strong></td>
+<td>大（50+ 节点）</td>
+<td>推荐 3-7 节点（JRaft 写放大）</td>
+</tr>
+</tbody></table>
+<p><strong>CP&#x2F;AP 自动切换机制</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">服务注册（临时实例，AP）     → Distro 异步同步，允许最终一致</span><br><span class="line">配置管理 / 持久化服务（CP）  → JRaft 强一致，写后读保证一致</span><br></pre></td></tr></table></figure>
+
+<p>Nacos 2.x 通过双协议混合架构实现”CP 配置 + AP 服务注册”的差异化保障：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 核心判断逻辑：服务是否为临时实例</span></span><br><span class="line"><span class="keyword">if</span> (instance.isEphemeral()) &#123;</span><br><span class="line">    <span class="comment">// AP 路径：Distro 异步复制</span></span><br><span class="line">    distroConsistencyService.put(key, value);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// CP 路径：JRaft 强一致</span></span><br><span class="line">    raftConsistencyService.put(key, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：当 JRaft Leader 宕机触发新选举时，CP 路径不可用约 5-15 秒。如果配置中心在这期间不可写入，应用启动时读取到旧配置。生产方案是给 Nacos 配 3 个节点，配 <code>NACOS_RAFT_ELECTION_TIMEOUT_MS=3000</code> 缩短选举时间</li>
+<li><strong>源码层面</strong>：<code>ConsistencyService</code> 接口有 <code>put(key, value)</code> 和 <code>get(key)</code> 两个核心方法，<code>RaftConsistencyServiceImpl</code> 和 <code>DistroConsistencyServiceImpl</code> 分别实现不同协议。切换点在 <code>AbstractConsistencyService</code> 的工厂方法中</li>
+<li><strong>生产经验</strong>：Distro 在 Nacos 2.x 有了批量同步优化——不再是每条数据单独发送 HTTP 请求，而是攒批通过 gRPC stream 批量同步，网络开销下降 90%</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/consistency-level.html">Nacos 一致性协议文档</a> | <a target="_blank" rel="noopener" href="https://github.com/alibaba/nacos/wiki/Nacos-2.0.0-%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%E8%AE%BE%E8%AE%A1">JRaft 用户指南</a></p>
+<hr>
+<h3 id="30-RocketMQ-5-x-轻量级消息队列（Light-Message-Queue-消息休眠）带来了哪些架构变化？"><a href="#30-RocketMQ-5-x-轻量级消息队列（Light-Message-Queue-消息休眠）带来了哪些架构变化？" class="headerlink" title="30. RocketMQ 5.x 轻量级消息队列（Light Message Queue &#x2F; 消息休眠）带来了哪些架构变化？"></a>30. RocketMQ 5.x 轻量级消息队列（Light Message Queue &#x2F; 消息休眠）带来了哪些架构变化？</h3><p><strong>标准答案</strong>：</p>
+<p>RocketMQ 5.x 引入了 <strong>轻量级消息队列（Light Message Queue，LMQ）</strong> 和 <strong>消息休眠（Message Hibernation）</strong>，根本上改变了 4.x 的存储架构：</p>
+<p><strong>核心变化对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>RocketMQ 4.x</th>
+<th>RocketMQ 5.x</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>队列模型</td>
+<td>每个 Topic 下固定的读&#x2F;写队列（物理文件）</td>
+<td>逻辑队列 + 物理 CommitLog 分离</td>
+</tr>
+<tr>
+<td>伸缩性</td>
+<td>队列数不可动态扩缩（需重启 Broker）</td>
+<td>队列逻辑化，支持秒级扩缩</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>CommitLog + ConsumeQueue</td>
+<td>CommitLog 统一存储，LMQ 从 CommitLog 按 Tag 过滤</td>
+</tr>
+<tr>
+<td>消息消费</td>
+<td>ConsumeQueue 全量消费</td>
+<td>按 Tag 生成轻量队列，消费更快</td>
+</tr>
+<tr>
+<td>磁盘占用</td>
+<td>ConsumeQueue + CommitLog 双写</td>
+<td>CommitLog 单写，ConsumeQueue 可选</td>
+</tr>
+<tr>
+<td>消息休眠</td>
+<td>不支持</td>
+<td>支持指定时间段不投递消息</td>
+</tr>
+</tbody></table>
+<p><strong>LMQ 工作原理</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Producer → CommitLog（统一写入）</span><br><span class="line">    ↓</span><br><span class="line">LMQ 1（Tag=order）→ Consumer Group A</span><br><span class="line">LMQ 2（Tag=payment）→ Consumer Group B</span><br><span class="line">LMQ 3（Tag=refund）→ Consumer Group C</span><br></pre></td></tr></table></figure>
+
+<p>LMQ 本质上是在 CommitLog 基础上按 Tag 生成的虚拟索引队列，避免了 ConsumeQueue 的写入放大——4.x 中一个消息要写 CommitLog + 写多个 ConsumeQueue（如果有多个消费组），5.x 只写一次 CommitLog。</p>
+<p><strong>Message Hibernation（消息休眠）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在发送消息时指定消息休眠时间</span></span><br><span class="line"><span class="type">Message</span> <span class="variable">msg</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Message</span>();</span><br><span class="line">msg.setTopic(<span class="string">&quot;order-topic&quot;</span>);</span><br><span class="line">msg.setBody(<span class="string">&quot;...&quot;</span>.getBytes());</span><br><span class="line">msg.setStartDeliverTime(System.currentTimeMillis() + <span class="number">30</span> * <span class="number">60</span> * <span class="number">1000L</span>);</span><br><span class="line"><span class="comment">// 消息将在 30 分钟后才可被消费</span></span><br><span class="line"><span class="type">SendResult</span> <span class="variable">result</span> <span class="operator">=</span> producer.send(msg);</span><br></pre></td></tr></table></figure>
+
+<p>适用于”下单后 30 分钟未支付取消”等延迟任务的场景，减少对定时消息的依赖。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：LMQ 的 Tag 过滤是基于 CommitLog 的扫描，如果 Topic 下 Tag 种类过多（&gt; 1000 种），扫描效率会下降。建议控制 Tag 种类不超过 500</li>
+<li><strong>源码层面</strong>：RocketMQ 5.x 的 <code>CommitLogDispatcher</code> 接口替代了 4.x 的 <code>CommitLog#putMessage</code> 后续分发逻辑，<code>BuildConsumeQueueTask</code> 和 <code>BuildLightMessageQueueTask</code> 分别处理传统队列和轻量队列</li>
+<li><strong>生产经验</strong>：升级到 5.x 后，之前 4.x 的 ConsumeQueue 仍会保留，需要在灰度验证 LMQ 稳定后再逐步清理。某电商平台升级后，Broker 的磁盘 IO 从 80% 降到 30%，因为去掉了一个 ConsumeQueue 的写入路径</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/zh/docs/feature/07lightmessagingqueue">RocketMQ 5.x 架构升级</a> | <a target="_blank" rel="noopener" href="https://rocketmq.apache.org/zh/docs/feature/05messagehibernation">RocketMQ 5.x LMQ 使用指南</a></p>
+<hr>
+<h3 id="31-Seata-AT-模式在高并发场景下的全局锁热点问题如何分析和优化？"><a href="#31-Seata-AT-模式在高并发场景下的全局锁热点问题如何分析和优化？" class="headerlink" title="31. Seata AT 模式在高并发场景下的全局锁热点问题如何分析和优化？"></a>31. Seata AT 模式在高并发场景下的全局锁热点问题如何分析和优化？</h3><p><strong>标准答案</strong>：</p>
+<p>Seata AT 模式的全局锁（Global Lock）在高并发场景下可能成为性能瓶颈：</p>
+<p><strong>问题本质</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">全局事务 T1 锁定行 Row-1</span><br><span class="line">    → 其他事务 T2/T3/T4 尝试更新 Row-1</span><br><span class="line">        → 等待 T1 释放全局锁</span><br><span class="line">            → T1 二阶段提交后释放 Row-1</span><br></pre></td></tr></table></figure>
+
+<p>热点问题出现的典型场景：</p>
+<ol>
+<li><strong>热点账户</strong>（秒杀场景下同一个商品的库存行）</li>
+<li><strong>热点 ID</strong>（分库分表下同一个用户的订单行）</li>
+<li><strong>统计行</strong>（多事务同时更新同一行统计数据）</li>
+</ol>
+<p><strong>性能分析工具</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Seata 全局锁表（lock_table）监控</span></span><br><span class="line"><span class="keyword">SELECT</span> xid, table_name, pk, transaction_id, branch_id,</span><br><span class="line">       TIMESTAMPDIFF(<span class="keyword">SECOND</span>, gmt_create, NOW()) <span class="keyword">AS</span> lock_held_seconds</span><br><span class="line"><span class="keyword">FROM</span> lock_table</span><br><span class="line"><span class="keyword">WHERE</span> gmt_create <span class="operator">&gt;</span> NOW() <span class="operator">-</span> <span class="type">INTERVAL</span> <span class="number">30</span> <span class="keyword">MINUTE</span></span><br><span class="line">  <span class="keyword">AND</span> TIMESTAMPDIFF(<span class="keyword">SECOND</span>, gmt_create, NOW()) <span class="operator">&gt;</span> <span class="number">10</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> lock_held_seconds <span class="keyword">DESC</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>优化策略</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>方案</th>
+<th>效果</th>
+<th>成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>全局锁粒度缩小</strong></td>
+<td>行级 → 字段级（业务层拆分）</td>
+<td>锁竞争降低 60%</td>
+<td>需修改业务代码</td>
+</tr>
+<tr>
+<td><strong>批量合并</strong></td>
+<td>将 N 行更新合并为一次分支事务</td>
+<td>全局锁数从 N → 1</td>
+<td>延迟增加</td>
+</tr>
+<tr>
+<td><strong>读写分离</strong></td>
+<td>热点行改为最终一致（BASE）而非强一致</td>
+<td>完全消除热点锁</td>
+<td>业务可接受弱一致</td>
+</tr>
+<tr>
+<td><strong>锁超时降级</strong></td>
+<td>配置 <code>client.rm.lock.retryInterval=10</code> + <code>client.rm.lock.retryTimes=10</code></td>
+<td>降级为本地锁后 AT → TCC</td>
+<td>降级期间可能脏读</td>
+</tr>
+<tr>
+<td><strong>分片治理</strong></td>
+<td>热点账号拆分为子账号 + 余额汇总</td>
+<td>热点行分散到多个 PK</td>
+<td>需重构设计</td>
+</tr>
+</tbody></table>
+<p><strong>🔥 生产踩坑：某支付系统 Seata 全局锁导致的业务雪崩</strong></p>
+<ul>
+<li><strong>场景</strong>：核心支付链路使用 Seata AT，日均 500 万笔交易</li>
+<li><strong>症状</strong>：大促期间 TPS 从 3000 骤降到 200，CPU 使用率反而从 30% 升到 90%</li>
+<li><strong>根因分析</strong>：<ol>
+<li>热点账户行（商家结算账户）被大量事务竞争全局锁</li>
+<li>持有锁的事务因网络延迟，二阶段提交耗时 500ms+</li>
+<li>后续事务在 lock_retry_interval（默认 10ms）内重试 30 次（默认 30 次）</li>
+<li>30 × 10ms &#x3D; 300ms 等待 + 再次重试……形成指数级等待</li>
+<li>数据库连接池被积压的等待事务占满</li>
+<li>最终雪崩：所有需要数据库连接的服务全部超时</li>
+</ol>
+</li>
+<li><strong>修复</strong>：将热点行操作从 Seata AT 改为 TCC 模式（自己控制锁粒度），非热点行继续使用 AT，整体 TPS 恢复至 2800+</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：当锁等待达到 <code>lock.retryTimes</code> 上限后，Seata 会抛出 <code>LockWaitTimeoutException</code>。如果调用方未捕获此异常，全局事务会被标记为回滚，但此时本地事务已提交——导致<strong>数据不一致</strong></li>
+<li><strong>源码层面</strong>：<code>io.seata.rm.datasource.exec.LockConflictException</code> 在 <code>AbstractDMLBaseExecutor</code> 中的 <code>executeAutoCommitFalse</code> 方法中抛出，重试逻辑由 <code>LockRetryController</code> 控制</li>
+<li><strong>对比延伸</strong>：TCC 模式虽然能避免全局锁，但需要业务方实现 try&#x2F;confirm&#x2F;cancel 三接口，开发量约为 AT 的 3 倍。选型建议：内部链路用 AT，外部支付&#x2F;资金操作用 TCC</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://seata.apache.org/zh-cn/docs/user/lock-design">Seata AT 模式锁设计</a> | <a target="_blank" rel="noopener" href="https://github.com/seata/seata/issues/4512">Seata 全局锁优化实践</a></p>
+<hr>
+<h3 id="32-Spring-Cloud-Alibaba-2022-x-2023-x-版本兼容性矩阵中，如何规划生产环境的组件版本选型？"><a href="#32-Spring-Cloud-Alibaba-2022-x-2023-x-版本兼容性矩阵中，如何规划生产环境的组件版本选型？" class="headerlink" title="32. Spring Cloud Alibaba 2022.x &#x2F; 2023.x 版本兼容性矩阵中，如何规划生产环境的组件版本选型？"></a>32. Spring Cloud Alibaba 2022.x &#x2F; 2023.x 版本兼容性矩阵中，如何规划生产环境的组件版本选型？</h3><p><strong>标准答案</strong>：</p>
+<p>Spring Cloud Alibaba 的版本与 Spring Boot &#x2F; Spring Cloud &#x2F; 各组件的兼容性关系复杂，选错版本会导致启动失败或运行时异常。</p>
+<p><strong>2023.x 推荐版本矩阵</strong>（截至 2026 年中）：</p>
+<table>
+<thead>
+<tr>
+<th>Spring Cloud Alibaba</th>
+<th>Spring Boot</th>
+<th>Spring Cloud</th>
+<th>Nacos</th>
+<th>Sentinel</th>
+<th>Seata</th>
+<th>RocketMQ</th>
+<th>Dubbo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>2023.0.3.2</strong></td>
+<td>3.3.x</td>
+<td>2023.0.x (Huxley)</td>
+<td>2.4.x</td>
+<td>1.8.8+</td>
+<td>2.x</td>
+<td>5.3.x</td>
+<td>3.3.x</td>
+</tr>
+<tr>
+<td><strong>2022.0.0.0-RC2</strong></td>
+<td>3.0.x</td>
+<td>2022.0.x (Huxley)</td>
+<td>2.2.x</td>
+<td>1.8.6+</td>
+<td>1.7.x</td>
+<td>4.9.x</td>
+<td>3.1.x</td>
+</tr>
+<tr>
+<td><strong>2021.0.5.0</strong></td>
+<td>2.7.x</td>
+<td>2021.0.x</td>
+<td>2.1.x</td>
+<td>1.8.4+</td>
+<td>1.6.x</td>
+<td>4.9.x</td>
+<td>2.7.x</td>
+</tr>
+</tbody></table>
+<p><strong>选型核心原则</strong>：</p>
+<ol>
+<li><strong>Spring Boot 先行</strong>——始终以 Spring Boot 版本为锚定，先确定 Boot 版本</li>
+<li><strong>SCA 向后兼容有限</strong>——SCA 2022.x 不兼容 Spring Boot 3.3+，如需 Boot 3.3+ 必须 SCA 2023.x</li>
+<li><strong>Nacos 2.x 向下兼容 1.x API</strong>——但 1.x 客户端连接 2.x 服务端时无法使用 gRPC 协议</li>
+<li><strong>Sentinel 1.8.6+ 支持 Spring Boot 3.x 的 WebFlux</strong>——旧版本不支持</li>
+<li><strong>Dubbo 3.x 协议不兼容 2.x 的默认协议</strong>——2.x 用 Dubbo 协议，3.x 默认 Triple（HTTP&#x2F;2）</li>
+</ol>
+<p><strong>🔥 生产踩坑：Nacos 2.3.x + Spring Boot 3.2 的 gRPC 端口冲突</strong></p>
+<ul>
+<li><strong>场景</strong>：某团队将 Spring Boot 从 2.7 升级到 3.2，同时升级 Nacos 从 2.1 到 2.3</li>
+<li><strong>症状</strong>：应用启动后，Nacos 客户端不断输出 <code>gRPC client connection refused</code>，10 秒后服务被 Nacos 标记为不健康</li>
+<li><strong>根因</strong>：<ol>
+<li>Nacos 2.3.x 新增了 gRPC 端口默认端口偏移（client port &#x3D; server port + 1000）</li>
+<li>应用的 server.port 配置由 8080 改为随机端口（0）</li>
+<li>Nacos 客户端计算 gRPC 端口时使用了随机端口 + 1000 &#x3D; 1000+，这个端口可能被其他进程占用或被防火墙封禁</li>
+</ol>
+</li>
+<li><strong>修复</strong>：<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 显式指定 Nacos gRPC 端口偏移</span></span><br><span class="line"><span class="string">spring.cloud.nacos.discovery.server-addr=192.168.1.100:8848</span></span><br><span class="line"><span class="string">spring.cloud.nacos.discovery.grpc-port-offset=0</span></span><br><span class="line"><span class="comment"># 强制固定应用端口</span></span><br><span class="line"><span class="string">server.port=8080</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>版本选择决策树</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">需要 Spring Boot 3.x？ → Yes → SCA ≥ 2022.0.0.0-RC2</span><br><span class="line">    ↓                          ↓</span><br><span class="line">需要 Boot 3.3+ Virtual Thread？→ Yes → SCA 2023.0.x + Boot 3.3.x</span><br><span class="line">    ↓                          ↓</span><br><span class="line">需要 Dubbo 3.x Triple 协议？→ Yes → Dubbo 3.x（需要 2023.x）</span><br><span class="line">    ↓</span><br><span class="line">需要 RocketMQ 5.x 特性？→ Yes → SCA 2023.x + RocketMQ 5.3+</span><br></pre></td></tr></table></figure></li>
+<li><strong>生产建议</strong>：不要在一个项目中混用不同小版本的 SCA 组件。SCA 的 BOM（Bill of Materials）已经协调好组件版本，直接引入 <code>spring-cloud-alibaba-dependencies</code> BOM 即可，<strong>不要单独指定</strong>各个组件的版本——否则会引入未测试的版本组合，导致难以排查的兼容性 bug</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E">Spring Cloud Alibaba 版本说明</a> | <a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/compatibility.html">Nacos 兼容性列表</a> | <a target="_blank" rel="noopener" href="https://seata.apache.org/zh-cn/docs/v2.x/ops/version-compatibility">Seata 版本兼容矩阵</a></p>
+<hr>
 <blockquote>
-<p>本文将持续更新。有新的面试题或 Bug 案例会追加到对应章节，保持「一个技术大类一篇文章」。</p>
+<p>本文将持续更新。本次更新：2026-06-11 — 新增 Nacos JRaft 一致性协议、RocketMQ 5.x 轻量队列、Seata 全局锁热点分析、SCA 版本兼容性矩阵选型指南（Work Hermes）。</p>
 </blockquote>
 
     </div>
