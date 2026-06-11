@@ -29,7 +29,7 @@
 <meta property="og:description" content="Spark 高级面试全解，覆盖 Shuffle 原理、内存管理、Spark SQL 优化和流处理。面向高级研发。  0x00 核心架构1. Spark 的 Job、Stage、Task 是怎么划分的？123456Action → Job → 宽依赖切分 Stage → Stage 内 Task（并行度）       map    reduceByKey   map   collectRDD ──">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T09:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-11T02:03:56.167Z">
+<meta property="article:modified_time" content="2026-06-11T02:07:30.493Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="DataFrame">
 <meta property="article:tag" content="Shuffle">
@@ -168,7 +168,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-text">0x00 核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Spark-%E7%9A%84-Job%E3%80%81Stage%E3%80%81Task-%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%92%E5%88%86%E7%9A%84%EF%BC%9F"><span class="nav-text">1. Spark 的 Job、Stage、Task 是怎么划分的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Spark-Shuffle-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E5%8F%8A%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">2. Spark Shuffle 的三种实现及演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x02 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spark-%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">3. Spark 统一内存模型是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spark-SQL-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03 Spark SQL 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-DataFrame-%E6%AF%94-RDD-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">4. DataFrame 比 RDD 为什么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-text">5. 数据倾斜怎么解决？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%B5%81%E5%A4%84%E7%90%86"><span class="nav-text">0x04 流处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Structured-Streaming-%E7%9A%84-Exactly-Once-%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%EF%BC%9F"><span class="nav-text">6. Structured Streaming 的 Exactly-Once 怎么保证？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x05 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F%E6%A0%87%E7%AD%BE%E8%AE%A1%E7%AE%97%EF%BC%88%E6%89%B9%E6%B5%81%E4%B8%80%E4%BD%93%EF%BC%89"><span class="nav-text">用户画像标签计算（批流一体）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E8%BF%9B%E9%98%B6"><span class="nav-text">0x06 内存管理进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spark-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9E%8B"><span class="nav-text">7. Spark 内存管理模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E6%B5%81%E5%A4%84%E7%90%86%E5%AF%B9%E6%AF%94%E4%B8%8E%E6%BC%94%E8%BF%9B"><span class="nav-text">0x07 流处理对比与演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Spark-Streaming-%E4%B8%8E-Structured-Streaming"><span class="nav-text">8. Spark Streaming 与 Structured Streaming</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Spark-4-x-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-Spark-Connect"><span class="nav-text">9. Spark 4.x 新特性与 Spark Connect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Spark-Structured-Streaming-3%EF%BC%88%E6%B5%81%E5%BC%8F%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E%E5%BC%82%E6%AD%A5%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%89%E2%80%94%E2%80%94Spark-4-x-%E6%B5%81%E5%A4%84%E7%90%86%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90"><span class="nav-text">10. Spark Structured Streaming 3（流式物化视图与异步状态管理）——Spark 4.x 流处理深度剖析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-Spark-4-0-%E6%96%B0%E7%89%B9%E6%80%A7%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90"><span class="nav-text">0x08 Spark 4.0 新特性深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Spark-4-0-VARIANT-%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-text">11. Spark 4.0 VARIANT 类型与半结构化数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Spark-4-0-SQL-Scripting-%E4%B8%8E-Session-Variables"><span class="nav-text">12. Spark 4.0 SQL Scripting 与 Session Variables</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Spark-4-0-ANSI-SQL-%E6%A8%A1%E5%BC%8F%E9%BB%98%E8%AE%A4%E5%BC%80%E5%90%AF"><span class="nav-text">13. Spark 4.0 ANSI SQL 模式默认开启</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Spark-4-0-Structured-Streaming-transformWithState-API"><span class="nav-text">14. Spark 4.0 Structured Streaming transformWithState API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Spark-4-0-RocksDB-Shuffle-%E4%B8%8E%E7%8A%B6%E6%80%81%E5%AD%98%E5%82%A8"><span class="nav-text">15. Spark 4.0 RocksDB Shuffle 与状态存储</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-%E7%94%9F%E4%BA%A7%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E4%B8%8E%E8%BF%90%E7%BB%B4"><span class="nav-text">0x09 生产故障排查与运维</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Spark-Structured-Streaming-%E7%94%9F%E4%BA%A7%E6%95%85%E9%9A%9C%EF%BC%9AWatermark-%E8%80%97%E5%B0%BD-State-Store-%E8%86%A8%E8%83%80"><span class="nav-text">15. Spark Structured Streaming 生产故障：Watermark 耗尽 + State Store 膨胀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Spark-Shuffle-%E6%B7%B1%E5%BA%A6%E8%B0%83%E4%BC%98%EF%BC%9AExchange-Reuse-%E4%B8%8E-AQE-Skew-Join-%E8%BE%B9%E7%95%8C%E5%9C%BA%E6%99%AF"><span class="nav-text">16. Spark Shuffle 深度调优：Exchange Reuse 与 AQE Skew Join 边界场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Spark-on-K8s-%E5%8A%A8%E6%80%81%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E4%B8%8E-Pod-%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5"><span class="nav-text">17. Spark on K8s 动态资源分配与 Pod 调度策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-Spark-4-0-%E8%BF%9B%E9%98%B6%E4%B8%8E%E7%A4%BE%E5%8C%BA%E5%89%8D%E6%B2%BF"><span class="nav-text">0x0A Spark 4.0 进阶与社区前沿</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#20-Spark-Connect%EF%BC%9A%E8%A7%A3%E8%80%A6%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%B8%8E%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%9E%B6%E6%9E%84"><span class="nav-text">20. Spark Connect：解耦客户端与服务端架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-Spark-4-0-VARIANT-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-text">21. Spark 4.0 VARIANT 数据类型与半结构化数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-Spark-4-0-AQE-v2%EF%BC%9A%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BC%98%E5%8C%96%E5%A2%9E%E5%BC%BA"><span class="nav-text">22. Spark 4.0 AQE v2：统计信息收集与动态优化增强</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84"><span class="nav-text">0x00 核心架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Spark-%E7%9A%84-Job%E3%80%81Stage%E3%80%81Task-%E6%98%AF%E6%80%8E%E4%B9%88%E5%88%92%E5%88%86%E7%9A%84%EF%BC%9F"><span class="nav-text">1. Spark 的 Job、Stage、Task 是怎么划分的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Spark-Shuffle-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E5%8F%8A%E6%BC%94%E8%BF%9B%EF%BC%9F"><span class="nav-text">2. Spark Shuffle 的三种实现及演进？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x02 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Spark-%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-text">3. Spark 统一内存模型是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Spark-SQL-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03 Spark SQL 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-DataFrame-%E6%AF%94-RDD-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">4. DataFrame 比 RDD 为什么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-text">5. 数据倾斜怎么解决？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E6%B5%81%E5%A4%84%E7%90%86"><span class="nav-text">0x04 流处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Structured-Streaming-%E7%9A%84-Exactly-Once-%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%EF%BC%9F"><span class="nav-text">6. Structured Streaming 的 Exactly-Once 怎么保证？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x05 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%94%BB%E5%83%8F%E6%A0%87%E7%AD%BE%E8%AE%A1%E7%AE%97%EF%BC%88%E6%89%B9%E6%B5%81%E4%B8%80%E4%BD%93%EF%BC%89"><span class="nav-text">用户画像标签计算（批流一体）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E8%BF%9B%E9%98%B6"><span class="nav-text">0x06 内存管理进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Spark-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9E%8B"><span class="nav-text">7. Spark 内存管理模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E6%B5%81%E5%A4%84%E7%90%86%E5%AF%B9%E6%AF%94%E4%B8%8E%E6%BC%94%E8%BF%9B"><span class="nav-text">0x07 流处理对比与演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Spark-Streaming-%E4%B8%8E-Structured-Streaming"><span class="nav-text">8. Spark Streaming 与 Structured Streaming</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Spark-4-x-%E6%96%B0%E7%89%B9%E6%80%A7%E4%B8%8E-Spark-Connect"><span class="nav-text">9. Spark 4.x 新特性与 Spark Connect</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Spark-Structured-Streaming-3%EF%BC%88%E6%B5%81%E5%BC%8F%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E%E5%BC%82%E6%AD%A5%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%89%E2%80%94%E2%80%94Spark-4-x-%E6%B5%81%E5%A4%84%E7%90%86%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90"><span class="nav-text">10. Spark Structured Streaming 3（流式物化视图与异步状态管理）——Spark 4.x 流处理深度剖析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-Spark-4-0-%E6%96%B0%E7%89%B9%E6%80%A7%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90"><span class="nav-text">0x08 Spark 4.0 新特性深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Spark-4-0-VARIANT-%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-text">11. Spark 4.0 VARIANT 类型与半结构化数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Spark-4-0-SQL-Scripting-%E4%B8%8E-Session-Variables"><span class="nav-text">12. Spark 4.0 SQL Scripting 与 Session Variables</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Spark-4-0-ANSI-SQL-%E6%A8%A1%E5%BC%8F%E9%BB%98%E8%AE%A4%E5%BC%80%E5%90%AF"><span class="nav-text">13. Spark 4.0 ANSI SQL 模式默认开启</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Spark-4-0-Structured-Streaming-transformWithState-API"><span class="nav-text">14. Spark 4.0 Structured Streaming transformWithState API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Spark-4-0-RocksDB-Shuffle-%E4%B8%8E%E7%8A%B6%E6%80%81%E5%AD%98%E5%82%A8"><span class="nav-text">15. Spark 4.0 RocksDB Shuffle 与状态存储</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-%E7%94%9F%E4%BA%A7%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E4%B8%8E%E8%BF%90%E7%BB%B4"><span class="nav-text">0x09 生产故障排查与运维</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Spark-Structured-Streaming-%E7%94%9F%E4%BA%A7%E6%95%85%E9%9A%9C%EF%BC%9AWatermark-%E8%80%97%E5%B0%BD-State-Store-%E8%86%A8%E8%83%80"><span class="nav-text">15. Spark Structured Streaming 生产故障：Watermark 耗尽 + State Store 膨胀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Spark-Shuffle-%E6%B7%B1%E5%BA%A6%E8%B0%83%E4%BC%98%EF%BC%9AExchange-Reuse-%E4%B8%8E-AQE-Skew-Join-%E8%BE%B9%E7%95%8C%E5%9C%BA%E6%99%AF"><span class="nav-text">16. Spark Shuffle 深度调优：Exchange Reuse 与 AQE Skew Join 边界场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Spark-on-K8s-%E5%8A%A8%E6%80%81%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E4%B8%8E-Pod-%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5"><span class="nav-text">17. Spark on K8s 动态资源分配与 Pod 调度策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-Spark-4-0-%E8%BF%9B%E9%98%B6%E4%B8%8E%E7%A4%BE%E5%8C%BA%E5%89%8D%E6%B2%BF"><span class="nav-text">0x0A Spark 4.0 进阶与社区前沿</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#20-Spark-Connect%EF%BC%9A%E8%A7%A3%E8%80%A6%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%B8%8E%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%9E%B6%E6%9E%84"><span class="nav-text">20. Spark Connect：解耦客户端与服务端架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-Spark-4-0-VARIANT-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-text">21. Spark 4.0 VARIANT 数据类型与半结构化数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-Spark-4-0-AQE-v2%EF%BC%9A%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BC%98%E5%8C%96%E5%A2%9E%E5%BC%BA"><span class="nav-text">22. Spark 4.0 AQE v2：统计信息收集与动态优化增强</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Spark-4-x-%E4%B8%8E%E7%94%9F%E4%BA%A7%E8%BF%9B%E9%98%B6"><span class="nav-text">0x04 Spark 4.x 与生产进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#48-Spark-4-x-%E7%9A%84%E5%85%B3%E9%94%AE%E6%96%B0%E7%89%B9%E6%80%A7%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F%E4%B8%8E-3-x-%E7%9A%84%E8%BF%81%E7%A7%BB%E8%A6%81%E7%82%B9%EF%BC%9F"><span class="nav-text">48. Spark 4.x 的关键新特性有哪些？与 3.x 的迁移要点？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#49-AQE-%E6%B7%B1%E5%BA%A6%E8%B0%83%E4%BC%98%E2%80%94%E2%80%94%E5%BD%93%E8%87%AA%E9%80%82%E5%BA%94%E6%89%A7%E8%A1%8C%E5%B8%AE%E5%80%92%E5%BF%99%E6%97%B6"><span class="nav-text">49. AQE 深度调优——当自适应执行帮倒忙时</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -255,7 +255,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-11 10:03:56" itemprop="dateModified" datetime="2026-06-11T10:03:56+08:00">2026-06-11</time>
+      <time title="修改时间：2026-06-11 10:07:30" itemprop="dateModified" datetime="2026-06-11T10:07:30+08:00">2026-06-11</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1126,8 +1126,117 @@
 <li>Databricks AQE Deep Dive: <a target="_blank" rel="noopener" href="https://www.databricks.com/blog/adaptive-query-execution-speed">https://www.databricks.com/blog/adaptive-query-execution-speed</a></li>
 </ul>
 <hr>
+<h2 id="0x04-Spark-4-x-与生产进阶"><a href="#0x04-Spark-4-x-与生产进阶" class="headerlink" title="0x04 Spark 4.x 与生产进阶"></a>0x04 Spark 4.x 与生产进阶</h2><h3 id="48-Spark-4-x-的关键新特性有哪些？与-3-x-的迁移要点？"><a href="#48-Spark-4-x-的关键新特性有哪些？与-3-x-的迁移要点？" class="headerlink" title="48. Spark 4.x 的关键新特性有哪些？与 3.x 的迁移要点？"></a>48. Spark 4.x 的关键新特性有哪些？与 3.x 的迁移要点？</h3><p><strong>难度</strong>：⭐⭐⭐⭐（专家）</p>
+<p><strong>问题</strong>：Spark 4.x（2025 年发布）引入了大量架构改进。从 Spark 3.x 迁移到 4.x 有什么关键注意事项？</p>
+<p><strong>核心原理</strong>：</p>
+<p>Spark 4.x 六大关键变化：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Spark 3.x</th>
+<th>Spark 4.x</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>连接器 V3</strong></td>
+<td>V2 连接器</td>
+<td>V3 连接器（原生 Iceberg&#x2F;Deltalake）</td>
+<td>列裁剪、谓词下推更高效</td>
+</tr>
+<tr>
+<td><strong>Structured Streaming V3</strong></td>
+<td>基于 V2 连接器</td>
+<td>统一的流批一体 API</td>
+<td>流式 SQL 功能增强</td>
+</tr>
+<tr>
+<td><strong>SQL 扩展</strong></td>
+<td>标准 SQL</td>
+<td>物化视图 + DDL API + SQL Catalog</td>
+<td>简化数仓开发</td>
+</tr>
+<tr>
+<td><strong>R 语言支持</strong></td>
+<td>SparkR</td>
+<td>SparkR 标记为废弃</td>
+<td>迁移到 PySpark</td>
+</tr>
+<tr>
+<td><strong>资源调度</strong></td>
+<td>粗粒度 YARN&#x2F;K8s</td>
+<td>细粒度 GPU 调度支持</td>
+<td>AI&#x2F;ML 工作负载</td>
+</tr>
+<tr>
+<td><strong>Python 支持</strong></td>
+<td>PySpark 依赖 GIL</td>
+<td>可选 Free-Threaded Python 构建</td>
+<td>多线程 UDF 性能提升</td>
+</tr>
+</tbody></table>
+<p><strong>迁移要点</strong>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- build.sbt 或 pom.xml 升级 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.spark<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spark-sql_2.13<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span> <span class="comment">&lt;!-- Spark 4.x 支持 Scala 2.13 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spark 4.x: 连接器 V3 测试代码</span></span><br><span class="line">spark.read.format(<span class="string">&quot;iceberg&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;v3&quot;</span>) <span class="comment">// V3 连接器</span></span><br><span class="line">  .load(<span class="string">&quot;db.table&quot;</span>)</span><br><span class="line">  .filter(<span class="string">&quot;date &gt; &#x27;2025-01-01&#x27;&quot;</span>)</span><br><span class="line">  .select(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>)</span><br><span class="line">  .show()</span><br></pre></td></tr></table></figure>
+
+<p><strong>🔥 踩坑案例：连接器 V3 启用后谓词下推失效（某数据分析平台）</strong></p>
+<ul>
+<li><strong>场景</strong>：将 Spark 3.5 升级到 4.1，使用 Iceberg 表（V3 连接器）</li>
+<li><strong>症状</strong>：查询计划显示 <code>Scan parquet</code> 扫描了全表，谓词下推未生效</li>
+<li><strong>排查</strong>：<code>EXPLAIN COST</code> 发现优化器选择了 V2 连接器的执行路径而非 V3</li>
+<li><strong>根因</strong>：<code>spark.sql.sources.v2.bucketing.pushPartValues.enabled=false</code> 默认值导致 V3 连接器无法获得分区裁剪信息</li>
+<li><strong>修复</strong>：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> spark.sql.sources.v2.bucketing.pushPartValues.enabled<span class="operator">=</span><span class="literal">true</span>;</span><br></pre></td></tr></table></figure></li>
+<li><strong>效果</strong>：谓词下推恢复，扫描量从 1TB 降到 50GB</li>
+</ul>
+<p><strong>面试金句</strong>：</p>
 <blockquote>
-<p>本文将持续更新。</p>
+<p>“Spark 4.x 最大的架构变化是连接器 V3——它让 Iceberg&#x2F;Delta 的列裁剪和谓词下推效果提升了一个数量级。但迁移后一定要用 <code>EXPLAIN</code> 检查谓词是否真的下推了。”</p>
+</blockquote>
+<p><strong>参考</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://spark.apache.org/releases/spark-release-4-0-0.html">Spark 4.0.0 Release Notes</a></li>
+<li><a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/SPARK-39811">Spark 连接器 V3 设计文档</a></li>
+</ul>
+<h3 id="49-AQE-深度调优——当自适应执行帮倒忙时"><a href="#49-AQE-深度调优——当自适应执行帮倒忙时" class="headerlink" title="49. AQE 深度调优——当自适应执行帮倒忙时"></a>49. AQE 深度调优——当自适应执行帮倒忙时</h3><p><strong>难度</strong>：⭐⭐⭐⭐（专家）</p>
+<p><strong>问题</strong>：开启 AQE（Adaptive Query Execution）后，某些场景下性能反而下降。如何诊断和修复？</p>
+<p><strong>核心原理</strong>：</p>
+<p>AQE 三大优化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">    A[AQE开启] --&gt; B[动态合并Shuffle分区]</span><br><span class="line">    A --&gt; C[动态切换Join策略]</span><br><span class="line">    A --&gt; D[动态优化数据倾斜]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- AQE 核心参数</span></span><br><span class="line"><span class="keyword">SET</span> spark.sql.adaptive.enabled<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> spark.sql.adaptive.coalescePartitions.parallelismFirst<span class="operator">=</span><span class="literal">true</span>; <span class="comment">-- 4.x 新增</span></span><br><span class="line"><span class="keyword">SET</span> spark.sql.adaptive.coalescePartitions.minPartitionSize<span class="operator">=</span><span class="number">64</span>MB;</span><br><span class="line"><span class="keyword">SET</span> spark.sql.adaptive.advisoryPartitionSizeInBytes<span class="operator">=</span><span class="number">128</span>MB;</span><br></pre></td></tr></table></figure>
+
+<p><strong>🔥 踩坑案例 1：AQE 过度合并导致并行度不足（某广告公司）</strong></p>
+<ul>
+<li><strong>场景</strong>：每小时 50 亿条点击日志的聚合查询（Spark 3.5, 200 个 executor）</li>
+<li><strong>症状</strong>：开启 AQE 后，Stage 2 的 task 数从 200 个降到 4 个，最后 4 个 task 各需要处理 12GB 数据，导致 OOM</li>
+<li><strong>根因</strong>：<code>spark.sql.adaptive.coalescePartitions.minPartitionSize</code> 默认 64MB，但中间数据经过了压缩。AQE 看到的 shuffle 大小是 1GB，合并后只产生约 16 个分区。但最终分区实际数据量远大于预估</li>
+<li><strong>修复</strong>：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> spark.sql.adaptive.advisoryPartitionSizeInBytes<span class="operator">=</span><span class="number">64</span>MB;</span><br><span class="line"><span class="keyword">SET</span> spark.sql.adaptive.coalescePartitions.minPartitionSize<span class="operator">=</span><span class="number">8</span>MB;</span><br></pre></td></tr></table></figure></li>
+<li><strong>效果</strong>：Stage 2 的 Task 数从 4 恢复到 120 个</li>
+</ul>
+<p><strong>🔥 踩坑案例 2：SMJ 被 AQE 错误切换为 BHJ（某电商大促）</strong>  </p>
+<ul>
+<li><strong>场景</strong>：Join 大表（订单表 500GB）和小表（sku 表 2GB）</li>
+<li><strong>症状</strong>：广播 2GB 表时 Driver OOM</li>
+<li><strong>排查</strong>：<code>spark.sql.adaptive.localShuffleReader.enabled=true</code> 情况下，AQE 尝试 BHJ，但 2GB 超过了 <code>spark.sql.autoBroadcastJoinThreshold</code>（默认 10MB）</li>
+<li><strong>根因</strong>：Not all broadcasts use Spark’s built-in threshold check… 实际上是多个小表广播的总和超过 Driver 内存</li>
+<li><strong>修复</strong>：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> spark.sql.adaptive.maxShuffledHashJoinLocalMapThreshold<span class="operator">=</span><span class="number">10</span>MB;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>决策树</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">    A[AQE开启] --&gt; B&#123;Shuffle数据量?&#125;</span><br><span class="line">    B --&gt;|&gt;1TB| C[增大minPartitionSize&lt;br/&gt;到 128MB-256MB]</span><br><span class="line">    B --&gt;|100MB-1TB| D[保持默认&lt;br/&gt;64MB]</span><br><span class="line">    B --&gt;|&lt;100MB| E[减小minPartitionSize&lt;br/&gt;到 16MB-32MB]</span><br><span class="line">    C --&gt; F[开启parallelismFirst&lt;br/&gt;4.x新增参数]</span><br><span class="line">    D --&gt; G[监控Task倾斜度]</span><br><span class="line">    E --&gt; H[注意Driver广播内存]</span><br></pre></td></tr></table></figure>
+
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>“AQE 不是银弹。当你的表太大、数据分布不均匀时，AQE 的自动合并反而可能合并出 OOM 级别的 task。需要按数据规模手动调 <code>advisoryPartitionSizeInBytes</code>。”</p>
+</blockquote>
+<p><strong>参考</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/sql-performance-tuning.html#adaptive-query-execution">Spark AQE 官方文档</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>本文将持续更新。本次更新：2026-06-11 — 新增 Spark 4.x 连接器 V3 迁移踩坑、AQE 深度调优（过度合并与 BHJ 异常）（Work Hermes）。</p>
 </blockquote>
 
     </div>
