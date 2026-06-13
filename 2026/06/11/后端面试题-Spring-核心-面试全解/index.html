@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Spring 核心面试全解，覆盖 IoC 容器、DI 与注解、AOP 代理、事务管理、Spring Boot 自动配置、生产实战六大模块。面向高级研发，侧重源码分析和生产踩坑，每道题含标准答案+深入思考+生产踩坑。   目录 0x00 IoC 容器 0x01 DI 与注解 0x02 AOP 0x03 事务管理 0x04 Spring Boot 自动配置 0x05 生产实战   0x00 IoC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="后端面试题：Spring 核心面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-%E6%A0%B8%E5%BF%83-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="Spring 核心面试全解，覆盖 IoC 容器、DI 与注解、AOP 代理、事务管理、Spring Boot 自动配置、生产实战六大模块。面向高级研发，侧重源码分析和生产踩坑，每道题含标准答案+深入思考+生产踩坑。   目录 0x00 IoC 容器 0x01 DI 与注解 0x02 AOP 0x03 事务管理 0x04 Spring Boot 自动配置 0x05 生产实战   0x00 IoC">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-11T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-13T06:35:47.020Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="AOP">
+<meta property="article:tag" content="IoC">
+<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="事务">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-%E6%A0%B8%E5%BF%83-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-%E6%A0%B8%E5%BF%83-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/11/后端面试题-Spring-核心-面试全解/","title":"后端面试题：Spring 核心面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>后端面试题：Spring 核心面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-IoC-%E5%AE%B9%E5%99%A8"><span class="nav-text">0x00 IoC 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-01-BeanFactory-%E5%92%8C-ApplicationContext-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">0x00-01. BeanFactory 和 ApplicationContext 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-02-%E8%AF%B7%E8%AF%A6%E7%BB%86%E6%8F%8F%E8%BF%B0-Spring-Bean-%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%EF%BC%88%E4%BA%94%E5%A4%A7%E6%8E%A5%E5%8F%A3%E5%9B%9E%E8%B0%83%EF%BC%89"><span class="nav-text">0x00-02. 请详细描述 Spring Bean 的生命周期（五大接口回调）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-03-Configuration-%E7%9A%84%E6%BA%90%E7%A0%81%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%92%8C-Component-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">0x00-03. @Configuration 的源码原理是什么？和 @Component 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-04-Spring-%E5%AE%B9%E5%99%A8%E7%9A%84-refresh-%E6%96%B9%E6%B3%95%E7%9A%84%E6%A0%B8%E5%BF%83%E6%AD%A5%E9%AA%A4%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x00-04. Spring 容器的 refresh() 方法的核心步骤是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-DI-%E4%B8%8E%E6%B3%A8%E8%A7%A3"><span class="nav-text">0x01 DI 与注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-01-Autowired%E3%80%81-Resource%E3%80%81-Inject-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">0x01-01. @Autowired、@Resource、@Inject 有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-02-Spring-%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%EF%BC%9F%E4%B8%89%E7%BA%A7%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3"><span class="nav-text">0x01-02. Spring 如何解决循环依赖？三级缓存机制详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-03-Lazy%E3%80%81-Scope%E3%80%81-Profile-%E7%9A%84%E4%BD%9C%E7%94%A8%E5%92%8C%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x01-03. @Lazy、@Scope、@Profile 的作用和原理是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-04-%E4%BB%80%E4%B9%88%E6%98%AF-Setter-%E6%B3%A8%E5%85%A5-vs-%E6%9E%84%E9%80%A0%E5%99%A8%E6%B3%A8%E5%85%A5%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88-Spring-%E5%AE%98%E6%96%B9%E6%8E%A8%E8%8D%90%E6%9E%84%E9%80%A0%E5%99%A8%E6%B3%A8%E5%85%A5%EF%BC%9F"><span class="nav-text">0x01-04. 什么是 Setter 注入 vs 构造器注入？为什么 Spring 官方推荐构造器注入？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-AOP"><span class="nav-text">0x02 AOP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-01-JDK-%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%92%8C-CGLIB-%E4%BB%A3%E7%90%86%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9FSpring-%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%EF%BC%9F"><span class="nav-text">0x02-01. JDK 动态代理和 CGLIB 代理有什么区别？Spring 如何选择？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-02-Transactional-%E5%A4%B1%E6%95%88%E7%9A%84%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F%E8%AF%B7%E5%88%97%E5%87%BA%E8%87%B3%E5%B0%91-5-%E7%A7%8D"><span class="nav-text">0x02-02. @Transactional 失效的常见场景有哪些？请列出至少 5 种</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-03-AOP-%E7%9A%84-Order-%E6%B3%A8%E8%A7%A3%E5%A6%82%E4%BD%95%E6%8E%A7%E5%88%B6%E5%88%87%E9%9D%A2%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F%EF%BC%9F"><span class="nav-text">0x02-03. AOP 的 @Order 注解如何控制切面执行顺序？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-04-%E4%BB%80%E4%B9%88%E6%98%AF-ProxyFactoryBean-%E5%92%8C-AspectJ-%E7%9A%84%E5%BC%82%E5%90%8C%EF%BC%9F"><span class="nav-text">0x02-04. 什么是 ProxyFactoryBean 和 AspectJ 的异同？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-text">0x03 事务管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-01-%E8%AF%B7%E8%AF%A6%E7%BB%86%E8%A7%A3%E9%87%8A-Transactional-%E7%9A%84%E4%BC%A0%E6%92%AD%E8%A1%8C%E4%B8%BA%EF%BC%88REQUIRES-NEW-vs-NESTED-%E7%9A%84%E9%99%B7%E9%98%B1%EF%BC%89"><span class="nav-text">0x03-01. 请详细解释 @Transactional 的传播行为（REQUIRES_NEW vs NESTED 的陷阱）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-02-%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1-vs-%E7%BC%96%E7%A8%8B%E5%BC%8F%E4%BA%8B%E5%8A%A1%EF%BC%8C%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%EF%BC%9F"><span class="nav-text">0x03-02. 声明式事务 vs 编程式事务，如何选择？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-03-%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%EF%BC%9F-Transactional-%E4%B8%AD%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%EF%BC%9FMySQL-%E9%BB%98%E8%AE%A4%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x03-03. 什么是事务的隔离级别？@Transactional 中如何配置？MySQL 默认的隔离级别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-04-%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1%E8%B6%85%E6%97%B6%E5%92%8C%E5%8F%AA%E8%AF%BB%E4%BA%8B%E5%8A%A1%EF%BC%9F-Transactional-readOnly-true-%E7%9C%9F%E7%9A%84%E5%8F%AA%E6%98%AF%E8%AF%BB%E5%90%97%EF%BC%9F"><span class="nav-text">0x03-04. 什么是事务超时和只读事务？@Transactional(readOnly&#x3D;true) 真的只是读吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Spring-Boot-%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE"><span class="nav-text">0x04 Spring Boot 自动配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-01-SpringBootApplication-%E6%98%AF%E4%B8%80%E4%B8%AA%E7%BB%84%E5%90%88%E6%B3%A8%E8%A7%A3%EF%BC%8C%E8%AF%B7%E4%BB%8E%E6%BA%90%E7%A0%81%E8%A7%92%E5%BA%A6%E6%8B%86%E8%A7%A3"><span class="nav-text">0x04-01. @SpringBootApplication 是一个组合注解，请从源码角度拆解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-02-Spring-Boot-%E7%9A%84-Conditional-%E7%B3%BB%E5%88%97%E6%B3%A8%E8%A7%A3%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x04-02. Spring Boot 的 Conditional 系列注解有哪些？底层原理是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-03-AutoConfigurationImportSelector-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x04-03. AutoConfigurationImportSelector 的工作原理是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-04-%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA-Spring-Boot-Starter%EF%BC%9F"><span class="nav-text">0x04-04. 如何自定义一个 Spring Boot Starter？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x05 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-01-Spring-Boot-%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E6%85%A2%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5%E5%92%8C%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">0x05-01. Spring Boot 应用启动慢如何排查和优化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-02-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E5%8F%91%E7%8E%B0%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%EF%BC%8C%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%8D%E9%87%8D%E6%9E%84%E4%BB%A3%E7%A0%81%E7%9A%84%E5%89%8D%E6%8F%90%E4%B8%8B%E8%A7%A3%E5%86%B3%EF%BC%9F"><span class="nav-text">0x05-02. 生产环境中发现循环依赖，如何在不重构代码的前提下解决？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-03-%E4%BA%8B%E5%8A%A1%E4%B8%8D%E5%9B%9E%E6%BB%9A%E7%9A%84%E7%94%9F%E4%BA%A7%E6%A1%88%E4%BE%8B%EF%BC%9A%E4%BB%8E%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E5%88%B0%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="nav-text">0x05-03. 事务不回滚的生产案例：从异常捕获到数据不一致</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-04-Spring-%E5%BA%94%E7%94%A8%E7%9A%84%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-text">0x05-04. Spring 应用的内存泄漏常见场景有哪些？</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">112</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-%E6%A0%B8%E5%BF%83-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="后端面试题：Spring 核心面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          后端面试题：Spring 核心面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-11 12:00:00" itemprop="dateCreated datePublished" datetime="2026-06-11T12:00:00+08:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-13 14:35:47" itemprop="dateModified" datetime="2026-06-13T14:35:47+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">后端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>Spring 核心面试全解，覆盖 IoC 容器、DI 与注解、AOP 代理、事务管理、Spring Boot 自动配置、生产实战六大模块。面向高级研发，侧重源码分析和生产踩坑，每道题含标准答案+深入思考+生产踩坑。</p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>0x00 IoC 容器</li>
+<li>0x01 DI 与注解</li>
+<li>0x02 AOP</li>
+<li>0x03 事务管理</li>
+<li>0x04 Spring Boot 自动配置</li>
+<li>0x05 生产实战</li>
+</ul>
+<hr>
+<h2 id="0x00-IoC-容器"><a href="#0x00-IoC-容器" class="headerlink" title="0x00 IoC 容器"></a>0x00 IoC 容器</h2><h3 id="0x00-01-BeanFactory-和-ApplicationContext-有什么区别？"><a href="#0x00-01-BeanFactory-和-ApplicationContext-有什么区别？" class="headerlink" title="0x00-01. BeanFactory 和 ApplicationContext 有什么区别？"></a>0x00-01. BeanFactory 和 ApplicationContext 有什么区别？</h3><p><strong>标准答案</strong>：<br>BeanFactory 是 Spring IoC 容器的顶层接口，定义了 IoC 容器的基本功能（获取 Bean、判断是否单例等）。ApplicationContext 是它的子接口，增加了企业级功能：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>BeanFactory</th>
+<th>ApplicationContext</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>延迟加载</td>
+<td>默认懒加载（getBean 时创建）</td>
+<td>默认预加载（容器启动时创建所有单例 Bean）</td>
+</tr>
+<tr>
+<td>国际化</td>
+<td>不支持</td>
+<td>支持（MessageSource）</td>
+</tr>
+<tr>
+<td>事件发布</td>
+<td>不支持</td>
+<td>支持（ApplicationEventPublisher）</td>
+</tr>
+<tr>
+<td>AOP 整合</td>
+<td>需手动配置</td>
+<td>自动整合</td>
+</tr>
+<tr>
+<td>BeanPostProcessor 注册</td>
+<td>需手动注册</td>
+<td>自动注册</td>
+</tr>
+<tr>
+<td>环境抽象</td>
+<td>不支持</td>
+<td>支持（EnvironmentCapable）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码层面</strong>：<code>DefaultListableBeanFactory</code> 是核心实现，<code>getBean()</code> 方法经过 <code>AbstractBeanFactory.doGetBean()</code> → 检查缓存（单例池）→ 不存在则创建 → 递归处理依赖 → 返回实例。<code>ApplicationContext</code> 的 <code>refresh()</code> 方法内部调用 <code>obtainFreshBeanFactory()</code> 创建 BeanFactory，然后在 <code>finishBeanFactoryInitialization()</code> 中预实例化所有单例。</li>
+<li><strong>实际架构</strong>：Spring Boot 内部用的就是 <code>AnnotationConfigApplicationContext</code>（继承自 <code>ApplicationContext</code>），但底层操作的 BeanFactory 仍然是 <code>DefaultListableBeanFactory</code>。BeanFactory 是”骨架”，ApplicationContext 是”完整肉身”。</li>
+<li><strong>性能差异</strong>：大量 Bean（&gt;5000）启动时，ApplicationContext 的预加载策略会导致启动时间显著增加。可用 <code>@Lazy</code> 或设置 <code>spring.main.lazy-initialization=true</code> 改为懒加载，但可能影响首次请求响应时间。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某微服务整合了 300+ 个 Starter，启动耗时 90 秒。排查发现大量 Bean 在启动时被预加载，但其实很多只在特定场景使用。解决：对非核心组件（如某些 Report 类、定时任务客户端）加 <code>@Lazy</code>，启动时间降至 25 秒。注意：<code>@Lazy</code> 使用时如果存在循环依赖，可能引发 <code>BeanCurrentlyInCreationException</code>。</p>
+<h3 id="0x00-02-请详细描述-Spring-Bean-的生命周期（五大接口回调）"><a href="#0x00-02-请详细描述-Spring-Bean-的生命周期（五大接口回调）" class="headerlink" title="0x00-02. 请详细描述 Spring Bean 的生命周期（五大接口回调）"></a>0x00-02. 请详细描述 Spring Bean 的生命周期（五大接口回调）</h3><p><strong>标准答案</strong>：<br>Spring Bean 生命周期从创建到销毁，核心流程如下（以 Singleton Bean 为例）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">实例化（Instantiation）</span><br><span class="line">  ↓</span><br><span class="line">属性赋值（Populate Properties）</span><br><span class="line">  ↓  ── BeanNameAware.setBeanName()</span><br><span class="line">  ↓  ── BeanClassLoaderAware.setBeanClassLoader()</span><br><span class="line">  ↓  ── BeanFactoryAware.setBeanFactory()</span><br><span class="line">  ↓  ── ApplicationContextAware.setApplicationContext()（如果容器是 ApplicationContext）</span><br><span class="line">  ↓  ── BeanPostProcessor.postProcessBeforeInitialization()</span><br><span class="line">  ↓</span><br><span class="line">初始化（Initialization）</span><br><span class="line">  ↓  ── @PostConstruct</span><br><span class="line">  ↓  ── InitializingBean.afterPropertiesSet()</span><br><span class="line">  ↓  ── @Bean(initMethod) 自定义 init 方法</span><br><span class="line">  ↓  ── BeanPostProcessor.postProcessAfterInitialization()</span><br><span class="line">  ↓</span><br><span class="line">就绪（Ready to Use）</span><br><span class="line">  ↓</span><br><span class="line">销毁（Destruction）</span><br><span class="line">  ↓  ── @PreDestroy</span><br><span class="line">  ↓  ── DisposableBean.destroy()</span><br><span class="line">  ↓  ── @Bean(destroyMethod) 自定义 destroy 方法</span><br></pre></td></tr></table></figure>
+
+<p><strong>五大接口回调重点</strong>：</p>
+<ol>
+<li><strong>Aware 接口族</strong>（BeanNameAware, BeanFactoryAware, ApplicationContextAware）：注入容器信息</li>
+<li><strong>BeanPostProcessor</strong>（前置&#x2F;后置处理器）：AOP 在此处生成代理对象</li>
+<li><strong>InitializingBean</strong> &#x2F; <strong>@PostConstruct</strong>：自定义初始化逻辑</li>
+<li><strong>DisposableBean</strong> &#x2F; <strong>@PreDestroy</strong>：自定义销毁逻辑</li>
+<li><strong>FactoryBean</strong> 接口：通过 <code>getObject()</code> 决定返回的实际对象类型</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码路径</strong>：<code>AbstractAutowireCapableBeanFactory.doCreateBean()</code> → <code>populateBean()</code> 属性填充 → <code>initializeBean()</code> 初始化。<code>initializeBean</code> 内部依次调用 <code>invokeAwareMethods()</code> → <code>applyBeanPostProcessorsBeforeInitialization()</code> → <code>invokeInitMethods()</code>（含 InitializingBean + 自定义 init）→ <code>applyBeanPostProcessorsAfterInitialization()</code>。</li>
+<li><strong>AOP 代理时机</strong>：AOP 通过 <code>AnnotationAwareAspectJAutoProxyCreator</code>（是个 <code>BeanPostProcessor</code>）在 <code>postProcessAfterInitialization()</code> 阶段判断是否需要代理。如果 Bean 有 <code>@Transactional</code> 或 <code>@Aspect</code> 切面，返回的是代理对象，不是原始 Bean。</li>
+<li><strong>循环依赖与生命周期</strong>：三级缓存机制的介入点就在 <code>doCreateBean()</code> 的<code>提前暴露</code>环节——<code>addSingletonFactory()</code> 在属性填充前就暴露了 <code>ObjectFactory</code>，打破循环。</li>
+<li><strong>@PostConstruct vs initMethod</strong>：@PostConstruct 由 CommonAnnotationBeanPostProcessor 处理，先于 <code>afterPropertiesSet()</code> 执行。推荐使用 @PostConstruct（JDK 标准），但注意 Java 9+ 移除了 javax.annotation → 需引入 jakarta.annotation-api。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：一个支付系统中，在 @PostConstruct 中调用远程配置中心获取加密密钥。测试环境正常，生产环境频繁启动失败——原因是 @PostConstruct 执行时 BeanFactory 尚未完成依赖注入，远程调用需要的 RestTemplate 还是 null。解决：用 ApplicationListener<ApplicationReadyEvent> 替代 @PostConstruct，确保所有 Bean 初始化完成后再执行远程调用。</p>
+<h3 id="0x00-03-Configuration-的源码原理是什么？和-Component-有什么区别？"><a href="#0x00-03-Configuration-的源码原理是什么？和-Component-有什么区别？" class="headerlink" title="0x00-03. @Configuration 的源码原理是什么？和 @Component 有什么区别？"></a>0x00-03. @Configuration 的源码原理是什么？和 @Component 有什么区别？</h3><p><strong>标准答案</strong>：<br><code>@Configuration</code> 标注的类会被 CGLIB 增强，生成代理子类。Spring 通过 <code>ConfigurationClassPostProcessor</code>（BeanFactoryPostProcessor）处理 @Configuration 类，使其内部的 @Bean 方法变成单例管理——同一个 @Bean 方法被多次调用，每次返回的都是同一个实例（因为被 CGLIB 代理拦截了）。</p>
+<p><code>@Component</code> 不会产生 CGLIB 代理，只是将类注册为普通 Bean。</p>
+<p>区别核心：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>@Configuration</th>
+<th>@Component</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CGLIB 代理</td>
+<td>是（full 模式）</td>
+<td>否（lite 模式）</td>
+</tr>
+<tr>
+<td>@Bean 方法调用</td>
+<td>单例拦截，返回容器中的同一个实例</td>
+<td>每次调用都 new 一个新对象</td>
+</tr>
+<tr>
+<td>内部 @Bean 方法间引用</td>
+<td>Bean 间引用被代理拦截</td>
+<td>Bean 间引用直接 new 对象，不是容器中的 Bean</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>启动稍慢（CGLIB 生成子类）</td>
+<td>启动快，无代理开销</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>声明配置类</td>
+<td>声明普通组件</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码层面</strong>：<code>ConfigurationClassPostProcessor.postProcessBeanFactory()</code> → 遍历所有候选类 → 检查是否有 @Configuration → 使用 <code>ClassPathBeanDefinitionScanner</code> 扫描 → 对 @Configuration 类创建 <code>EnhancedConfigurationBeanDefinition</code>，设置 <code>CONFIGURATION_CLASS_ATTRIBUTE</code> 为 <code>full</code>（对应 @Configuration）或 <code>lite</code>（对应 @Component&#x2F;@Bean 组合）。</li>
+<li><strong>CGLIB 增强细节</strong>：Spring 使用 <code>ConfigurationClassEnhancer</code> 生成代理子类。增强后调用 @Bean 方法时先查 BeanFactory 缓存，如果存在直接返回，不存在才调用父类方法创建。这就是为什么 full 模式下 @Bean 方法可以无压力互相调用。</li>
+<li><strong>lite 模式陷阱</strong>：如果 @Component 内声明了 @Bean 方法，方法间调用如 <code>dataSource()</code> → <code>transactionManager(dataSource())</code> 会导致每次 new 一个 DataSource，事务管理器连接的 DataSource 和注入到其它 Bean 的 DataSource 不是同一个对象。</li>
+<li><strong>Spring Boot 3.x 变化</strong>：Spring 6 &#x2F; Boot 3 引入了 <code>proxyBeanMethods</code> 属性——<code>@Configuration(proxyBeanMethods=false)</code> 可以关闭 CGLIB 代理，适用于不需要 @Bean 方法间调用的场景，启动速度更快（减少了 CGLIB 生成开销）。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某项目中在 @Configuration 类上用了 @Component 注解而非 @Configuration，导致数据库中插入了重复数据。原因是用 Spring Data JPA 时，多个地方调用了同一个 @Bean 方法，每次 new 了一个新 Repository Bean 出来，连接不同的 DataSource 实例写入。排查两天，最终对比 Bean 的 hashCode 发现不是同一个对象。修复：改为 @Configuration 即可。</p>
+<h3 id="0x00-04-Spring-容器的-refresh-方法的核心步骤是什么？"><a href="#0x00-04-Spring-容器的-refresh-方法的核心步骤是什么？" class="headerlink" title="0x00-04. Spring 容器的 refresh() 方法的核心步骤是什么？"></a>0x00-04. Spring 容器的 refresh() 方法的核心步骤是什么？</h3><p><strong>标准答案</strong>：<br><code>AbstractApplicationContext.refresh()</code> 是 Spring IoC 容器初始化的核心入口，包含 12+ 个步骤：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException &#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="built_in">this</span>.startupShutdownMonitor) &#123;</span><br><span class="line">        <span class="comment">// 1. 准备工作：记录启动时间、验证必备属性</span></span><br><span class="line">        prepareRefresh();</span><br><span class="line">        <span class="comment">// 2. 获取 BeanFactory（默认是 DefaultListableBeanFactory）</span></span><br><span class="line">        <span class="type">ConfigurableListableBeanFactory</span> <span class="variable">beanFactory</span> <span class="operator">=</span> obtainFreshBeanFactory();</span><br><span class="line">        <span class="comment">// 3. 配置 BeanFactory：设置 ClassLoader、添加 beanPostProcessor</span></span><br><span class="line">        prepareBeanFactory(beanFactory);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 4. 子类处理 BeanFactory 后置操作（如注册 Web 相关 scope）</span></span><br><span class="line">            postProcessBeanFactory(beanFactory);</span><br><span class="line">            <span class="comment">// 5. 执行 BeanFactoryPostProcessor（如 @Configuration 处理）</span></span><br><span class="line">            invokeBeanFactoryPostProcessors(beanFactory);</span><br><span class="line">            <span class="comment">// 6. 注册 BeanPostProcessor</span></span><br><span class="line">            registerBeanPostProcessors(beanFactory);</span><br><span class="line">            <span class="comment">// 7. 初始化 MessageSource（国际化）</span></span><br><span class="line">            initMessageSource();</span><br><span class="line">            <span class="comment">// 8. 初始化事件广播器</span></span><br><span class="line">            initApplicationEventMulticaster();</span><br><span class="line">            <span class="comment">// 9. 子类模板方法（如 Web 容器创建）</span></span><br><span class="line">            onRefresh();</span><br><span class="line">            <span class="comment">// 10. 注册监听器</span></span><br><span class="line">            registerListeners();</span><br><span class="line">            <span class="comment">// 11. 实例化所有非懒加载的单例 Bean</span></span><br><span class="line">            finishBeanFactoryInitialization(beanFactory);</span><br><span class="line">            <span class="comment">// 12. 完成刷新：发布事件</span></span><br><span class="line">            finishRefresh();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">            <span class="comment">// 失败则销毁已创建的单例</span></span><br><span class="line">            destroyBeans();</span><br><span class="line">            cancelRefresh(ex);</span><br><span class="line">            <span class="keyword">throw</span> ex;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>关键步骤</strong>：第 5 步 <code>invokeBeanFactoryPostProcessors</code> 处理 @Configuration → 解析 @Bean，第 11 步 <code>finishBeanFactoryInitialization</code> 预创建所有单例 Bean（触发 Bean 生命周期全流程），第 12 步发布 <code>ContextRefreshedEvent</code>。</li>
+<li><strong>多次 refresh 风险</strong>：<code>refresh()</code> 是幂等的吗？不是——如果调多次会异常，因为 <code>obtainFreshBeanFactory()</code> 会关闭旧的 BeanFactory。Spring 内部通过 <code>startupShutdownMonitor</code> 同步锁防止并发 refresh。</li>
+<li><strong>嵌入式容器</strong>：Spring Boot 的 <code>onRefresh()</code> 步骤会启动内嵌 Tomcat&#x2F;Jetty&#x2F;Undertow Web 服务器。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：自定义 BeanFactoryPostProcessor 中尝试注入 @Autowired 字段导致 NPE——BeanFactoryPostProcessor 在 BeanPostProcessor 注册之前执行，此时 @Autowired&#x2F;@Value 等注解尚未被处理。如需要访问其他 Bean，只能使用 <code>BeanFactory.getBean()</code> 手动获取，且要注意被获取的 Bean 可能尚未初始化。</p>
+<hr>
+<h2 id="0x01-DI-与注解"><a href="#0x01-DI-与注解" class="headerlink" title="0x01 DI 与注解"></a>0x01 DI 与注解</h2><h3 id="0x01-01-Autowired、-Resource、-Inject-有什么区别？"><a href="#0x01-01-Autowired、-Resource、-Inject-有什么区别？" class="headerlink" title="0x01-01. @Autowired、@Resource、@Inject 有什么区别？"></a>0x01-01. @Autowired、@Resource、@Inject 有什么区别？</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>@Autowired</th>
+<th>@Resource</th>
+<th>@Inject</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>所属</td>
+<td>Spring 原生</td>
+<td>JSR-250 标准</td>
+<td>JSR-330 标准</td>
+</tr>
+<tr>
+<td>默认匹配方式</td>
+<td>byType（按类型）</td>
+<td>byName（按名称）</td>
+<td>byType（按类型）</td>
+</tr>
+<tr>
+<td>支持 @Qualifier</td>
+<td>是</td>
+<td>是（通过 name 属性）</td>
+<td>是（通过 @Named）</td>
+</tr>
+<tr>
+<td>required 属性</td>
+<td>支持（required&#x3D;false）</td>
+<td>不支持</td>
+<td>不支持（可用 Optional）</td>
+</tr>
+<tr>
+<td>支持 @Primary</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>构造器注入</td>
+<td>支持（推荐方式）</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>推荐度</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody></table>
+<p><strong>源码层面</strong>：</p>
+<ul>
+<li><strong>@Autowired</strong>：由 <code>AutowiredAnnotationBeanPostProcessor</code> 处理。先 byType 匹配，如果找到多个候选，再通过 @Qualifier&#x2F;byName&#x2F;@Primary 降级筛选。若仍无法唯一确定则抛 <code>NoUniqueBeanDefinitionException</code>。</li>
+<li><strong>@Resource</strong>：由 <code>CommonAnnotationBeanPostProcessor</code> 处理。默认按 name 查找，name 可以指定（如 <code>@Resource(name=&quot;xxx&quot;)</code>），如果未指定 name 则以字段名作为 name 查找；按 name 找不到时回退到 byType。</li>
+<li><strong>@Inject</strong>：由 <code>AutowiredAnnotationBeanPostProcessor</code> 同一套机制处理（Spring 5.x 起内置支持）。行为与 @Autowired 几乎一致，区别在于没有 required 属性。</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>字段注入 vs 构造器注入</strong>：字段注入使 Bean 在构造完成后才能注入，导致与 final 关键字不兼容、无法实现不可变对象、测试时需要反射。<strong>Spring 官方推荐构造器注入</strong>（不仅是最佳实践，更是防止未来循环依赖的手段——构造器注入在初始化时就会暴露循环依赖，不会等到运行时才报错）。Spring 4.3+ 如果类只有一个构造器，可以省略 @Autowired。</li>
+<li><strong>@Resource 的 byName 回退陷阱</strong>：当 bean name 和字段名不一致时，@Resource 先按字段名找 name，找不到再按类型匹配。如果同类型有多个 Bean，可能注入到错误的对象。</li>
+<li><strong>@Inject + @Named 组合</strong>：等价于 @Autowired + @Qualifier，但 @Inject 是 Jakarta EE 标准，在不同 DI 容器（如 Guice）间可移植——如果团队有跨容器需求，优先用 @Inject。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：老项目从 XML 配置迁移到注解时，某 Service 注入两个同类型 DataSource Bean。原来用 @Resource(name&#x3D;”primaryDataSource”) 工作的很好，有人改成 @Autowired 后应用启动失败——@Autowired 默认 byType，两个 DataSource 导致冲突。修复：加 @Qualifier(“primaryDataSource”) 或保留 @Resource 不变。关键教训：<strong>不要用自动化重构工具批量替换 @Resource → @Autowired</strong> 而不仔细检查多候选场景。</p>
+<h3 id="0x01-02-Spring-如何解决循环依赖？三级缓存机制详解"><a href="#0x01-02-Spring-如何解决循环依赖？三级缓存机制详解" class="headerlink" title="0x01-02. Spring 如何解决循环依赖？三级缓存机制详解"></a>0x01-02. Spring 如何解决循环依赖？三级缓存机制详解</h3><p><strong>标准答案</strong>：<br>Spring 通过 <strong>三级缓存</strong>（Three-Level Cache）解决单例 Bean 的 Setter 注入循环依赖（构造器注入无法解决，会直接抛异常）。</p>
+<p>三级缓存定义在 <code>DefaultSingletonBeanRegistry</code> 中：</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>名称</th>
+<th>类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一级</td>
+<td><code>singletonObjects</code></td>
+<td><code>Map&lt;String, Object&gt;</code></td>
+<td>完全创建好的 Bean 实例（成品池）</td>
+</tr>
+<tr>
+<td>二级</td>
+<td><code>earlySingletonObjects</code></td>
+<td><code>Map&lt;String, Object&gt;</code></td>
+<td>提前曝光的半成品 Bean（半成品池，已实例化但未属性填充）</td>
+</tr>
+<tr>
+<td>三级</td>
+<td><code>singletonFactories</code></td>
+<td><code>Map&lt;String, ObjectFactory&lt;?&gt;&gt;</code></td>
+<td>获取提前暴露 Bean 的工厂（工厂池，可生成代理）</td>
+</tr>
+</tbody></table>
+<p><strong>解决流程</strong>（A 依赖 B，B 依赖 A）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1. getBean(A) → A 不存在 → 开始创建 A</span><br><span class="line">2. A 实例化（构造器）→ 半成品放入三级缓存：singletonFactories.put(A, () -&gt; getEarlyBeanReference(A))</span><br><span class="line">3. 属性填充 A → 发现依赖 B → getBean(B)</span><br><span class="line">4. getBean(B) → B 不存在 → 开始创建 B</span><br><span class="line">5. B 实例化（构造器）→ 半成品放入三级缓存：singletonFactories.put(B, ...)</span><br><span class="line">6. 属性填充 B → 发现依赖 A → getBean(A)</span><br><span class="line">7. getSingleton(A) → 三级缓存找到 A 的工厂 → 调用 getEarlyBeanReference(A)（如果 AOP 需要则创建代理）→ 放入二级缓存 → 返回 A 的引用（半成品）</span><br><span class="line">8. B 拿到 A 的引用 → 完成属性填充 → 初始化 → 放入一级缓存</span><br><span class="line">9. A 继续创建 → 拿到 B 完成属性填充 → 初始化 → 放入一级缓存</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>为什么需要三级缓存，两级不够？</strong>：两级（singletonObjects + earlySingletonObjects）理论上可以解决 Setter 注入的循环依赖。但三级缓存引入 <code>ObjectFactory</code> 是为了<strong>延迟 AOP 代理的创建时机</strong>——如果 Bean 被 AOP 代理，需要提前创建代理对象暴露给依赖方。三级缓存在 <code>getEarlyBeanReference()</code> 中调用 <code>SmartInstantiationAwareBeanPostProcessor.getEarlyBeanReference()</code> 来实现。如果只有两级，每次都要在实例化后立即判断是否需代理，性能浪费。</li>
+<li><strong>什么情况下循环依赖无法解决？</strong>：① 构造器注入（<code>constructor injection</code>），实例化时就需要依赖，此时三级缓存还没放数据；② <code>prototype</code> 作用域的 Bean——Spring 不缓存 prototype，每次都是新实例；③ <code>@Async</code> 注解——异步会在后置处理器中额外生成代理，与循环依赖机制冲突；④ 开启了 <code>allowCircularReferences = false</code>。</li>
+<li><strong>Spring Boot 2.6+ 默认禁止循环依赖</strong>：<code>spring.main.allow-circular-references=false</code>（新项目默认）。如果你的项目有大量循环依赖，建议重构而不是依赖三级缓存——循环依赖本质是设计缺陷。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某团队写了一个非常复杂的 Service 层，A → B → C → A 的三方循环依赖。Spring Boot 2.6 升级后启动报错。由于业务逻辑深度耦合，重构代价极大。临时方案：设置 <code>spring.main.allow-circular-references=true</code>。长期方案：抽取出公共依赖层，用 Event&#x2F;Listener 解耦 A → C 的调用关系。教训：<strong>循环依赖是设计警钟，不是容器的 Bug</strong>。</p>
+<h3 id="0x01-03-Lazy、-Scope、-Profile-的作用和原理是什么？"><a href="#0x01-03-Lazy、-Scope、-Profile-的作用和原理是什么？" class="headerlink" title="0x01-03. @Lazy、@Scope、@Profile 的作用和原理是什么？"></a>0x01-03. @Lazy、@Scope、@Profile 的作用和原理是什么？</h3><p><strong>标准答案</strong>：</p>
+<p><strong>@Lazy</strong>：延迟初始化。单例 Bean 默认在容器启动时创建，加上 @Lazy 后推迟到第一次 getBean() 时才创建。可用于 @Configuration、@Bean、@Component 上。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Lazy</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HeavyService</span> &#123;</span><br><span class="line">    <span class="comment">// 第一次使用时才创建</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>@Scope</strong>：定义 Bean 的作用域。Spring 支持的作用域：</p>
+<table>
+<thead>
+<tr>
+<th>作用域</th>
+<th>说明</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>singleton</td>
+<td>默认，容器中只有一个实例</td>
+<td>无状态 Service、DAO</td>
+</tr>
+<tr>
+<td>prototype</td>
+<td>每次 getBean() 创建新实例</td>
+<td>有状态的组件、非线程安全的对象</td>
+</tr>
+<tr>
+<td>request</td>
+<td>单次 HTTP 请求共享一个实例</td>
+<td>Web 应用中的请求上下文数据</td>
+</tr>
+<tr>
+<td>session</td>
+<td>单次 HTTP 会话共享一个实例</td>
+<td>用户登录信息</td>
+</tr>
+<tr>
+<td>application</td>
+<td>ServletContext 级别共享</td>
+<td>全局配置缓存</td>
+</tr>
+<tr>
+<td>websocket</td>
+<td>WebSocket 会话范围</td>
+<td>WebSocket 应用</td>
+</tr>
+</tbody></table>
+<p><strong>@Profile</strong>：根据运行环境条件加载 Bean。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@Profile(&quot;dev&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DevConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> DataSource <span class="title function_">dataSource</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EmbeddedDatabaseBuilder</span>().build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@Profile(&quot;prod&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProdConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> DataSource <span class="title function_">dataSource</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">HikariDataSource</span>(prodConfig);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>@Lazy 与 @Bean 的关系</strong>：@Bean 默认是 Eager（急加载），加上 @Lazy 后延迟加载。但注意：如果其他非懒加载的 Bean 依赖了这个懒加载 Bean，依赖注入时会立即创建它，@Lazy 失效。</li>
+<li><strong>@Lazy 解决循环依赖</strong>：构造器注入的循环依赖可以用 @Lazy 打断——在其中一个依赖上 @Lazy，Spring 会生成一个代理对象注入，真正的创建延迟到实际调用时。</li>
+<li><strong>@Scope 的代理模式</strong>：request&#x2F;session 等 Web 作用域 Bean 注入到 singleton Bean 时，需要设置 <code>proxyMode</code>（如 <code>@Scope(value=&quot;request&quot;, proxyMode=ScopedProxyMode.TARGET_CLASS)</code>），否则 singleton Bean 启动时就会尝试注入 HTTP 请求上下文（此时请求不存在）。Spring 注入一个代理对象，实际调用时每次委托给当前请求的上下文。</li>
+<li><strong>@Profile 的底层</strong>：基于 <code>Condition</code> 接口实现——<code>ProfileCondition</code> 检查 <code>Environment.getActiveProfiles()</code> 中是否匹配。Spring Boot 通过 <code>spring.profiles.active</code> 激活配置，也支持 <code>spring.profiles.include</code> 无条件包含某些 profile。</li>
+<li><strong>Spring Boot 的 profile 层叠优先级</strong>：<code>application-default.yml</code>（默认）→ <code>application-dev.yml</code>（profile 激活时）→ <code>application.yml</code> 中定义的值被 <code>application-dev.yml</code> 覆盖。同优先级下最后加载的生效（<code>spring.config.additional-location</code> 可以改变加载顺序）。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某团队在 @Configuration 上用了 @Lazy，期望整个配置类延迟加载。但是另一个 @Component 通过 @Import 导入了这个配置类中的 Bean，导致 @Lazy 完全失效。原因是 @Import 导入的 Bean 会在容器启动时就处理。解决：在具体 @Bean 方法上加 @Lazy 而不是类级别。另一个踩坑：@Profile(“!prod”) 用于测试隔离，但有人拼写错误写成了 @Profile(“!pro”)（少了个 d），导致生产环境也加载了测试 Bean，关闭了安全校验——排查了整整一天。</p>
+<h3 id="0x01-04-什么是-Setter-注入-vs-构造器注入？为什么-Spring-官方推荐构造器注入？"><a href="#0x01-04-什么是-Setter-注入-vs-构造器注入？为什么-Spring-官方推荐构造器注入？" class="headerlink" title="0x01-04. 什么是 Setter 注入 vs 构造器注入？为什么 Spring 官方推荐构造器注入？"></a>0x01-04. 什么是 Setter 注入 vs 构造器注入？为什么 Spring 官方推荐构造器注入？</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>构造器注入</th>
+<th>Setter 注入</th>
+<th>字段注入</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>写法</td>
+<td><code>public class A { private final B b; public A(B b) { this.b = b; } }</code></td>
+<td><code>public class A { private B b; @Autowired public void setB(B b) { this.b = b; } }</code></td>
+<td><code>@Autowired private B b;</code></td>
+</tr>
+<tr>
+<td>不可变性</td>
+<td>✅ 支持 final</td>
+<td>❌ 不支持 final</td>
+<td>❌ 不支持 final</td>
+</tr>
+<tr>
+<td>循环依赖检测</td>
+<td>✅ 启动时就检测到</td>
+<td>❌ 运行时才知道</td>
+<td>❌ 运行时才知道</td>
+</tr>
+<tr>
+<td>测试便利性</td>
+<td>✅ 直接 new 传参</td>
+<td>✅ setter 设置 mock</td>
+<td>❌ 需要用反射&#x2F;Spring 容器</td>
+</tr>
+<tr>
+<td>必要依赖说明</td>
+<td>✅ 显式声明必需依赖</td>
+<td>❌ 可选依赖的意味</td>
+<td>❌ 隐式依赖</td>
+</tr>
+<tr>
+<td>Spring 推荐</td>
+<td>✅ <strong>最推荐</strong></td>
+<td>⚠️ 可选依赖时使用</td>
+<td>❌ 不推荐（IDE 也会警告）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Spring 官方在 Spring 4.x 起就推荐构造器注入</strong>，关键原因是：构造器注入确保 Bean 在创建时所有依赖都已就位，不存在 NullPointerException 隐患；final 字段保证了不可变性和线程安全；更容易测试（不需要启动 Spring 容器）。</li>
+<li><strong>Spring 4.3+ 的隐式构造器注入</strong>：如果一个类只有一个构造器，可以省略 @Autowired，Spring 会自动选择这个构造器注入依赖。这让代码更简洁。</li>
+<li><strong>循环依赖与构造器注入</strong>：构造器注入的循环依赖无法用三级缓存解决——因为实例化阶段就需要依赖，此时三级缓存还未放置 Bean 的工厂。解决方案：用 @Lazy 打断循环（但会引入代理），或重构代码消除循环。</li>
+<li><strong>Lombok 配合</strong>：<code>@RequiredArgsConstructor</code> 为 final 字段生成构造器，配合 Spring 的隐式构造器注入非常优雅。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：有团队统一使用了字段注入，后来添加了新的依赖关系产生循环依赖，应用在测试环境跑了一周才在特定路径下出现 StackOverflowError。如果用构造器注入，这个问题在启动时就能发现。后来加了一条 Sonar 规则：禁止字段注入，强制构造器注入。</p>
+<hr>
+<h2 id="0x02-AOP"><a href="#0x02-AOP" class="headerlink" title="0x02 AOP"></a>0x02 AOP</h2><h3 id="0x02-01-JDK-动态代理和-CGLIB-代理有什么区别？Spring-如何选择？"><a href="#0x02-01-JDK-动态代理和-CGLIB-代理有什么区别？Spring-如何选择？" class="headerlink" title="0x02-01. JDK 动态代理和 CGLIB 代理有什么区别？Spring 如何选择？"></a>0x02-01. JDK 动态代理和 CGLIB 代理有什么区别？Spring 如何选择？</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>JDK 动态代理</th>
+<th>CGLIB 代理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原理</td>
+<td>基于接口生成代理类（<code>Proxy.newProxyInstance</code>）</td>
+<td>基于继承，生成目标类的子类</td>
+</tr>
+<tr>
+<td>要求</td>
+<td>目标类必须实现至少一个接口</td>
+<td>目标类不能是 final 的，方法不能是 final</td>
+</tr>
+<tr>
+<td>代理对象</td>
+<td>实现目标类的所有接口</td>
+<td>继承目标类</td>
+</tr>
+<tr>
+<td>性能（创建）</td>
+<td>较快（字节码生成简单）</td>
+<td>较慢（需生成子类字节码）</td>
+</tr>
+<tr>
+<td>性能（调用）</td>
+<td>较慢（通过 InvocationHandler 反射调用）</td>
+<td>较快（直接调用父类方法，无需反射，但 Spring 5+ 两者差距缩小）</td>
+</tr>
+<tr>
+<td>目标类要求</td>
+<td>需有接口</td>
+<td>需非 final 类 + 非 final 方法</td>
+</tr>
+</tbody></table>
+<p><strong>Spring 选择策略</strong>：</p>
+<ol>
+<li>如果目标类实现了接口 → <strong>JDK 动态代理</strong></li>
+<li>如果目标类未实现接口 → <strong>CGLIB 代理</strong></li>
+<li>如果显式配置 <code>proxy-target-class=true</code> → 强制 CGLIB</li>
+<li>Spring Boot 2.0+ 默认 <code>spring.aop.proxy-target-class=true</code>（强制 CGLIB，即使有接口）</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码层面</strong>：<code>DefaultAopProxyFactory.createAopProxy(AdvisedSupport config)</code> 判断：如果 <code>config.isOptimize()</code> 或 <code>config.isProxyTargetClass()</code> 或<strong>目标类没有接口</strong> → 用 CglibAopProxy；否则用 JdkDynamicAopProxy。</li>
+<li><strong>Spring Boot 为何默认 CGLIB</strong>：因为几乎所有 Service 都加了 @Transactional，而 @Transactional 本身不需要接口。如果默认 JDK 代理，未实现接口的类就必须手动配置 <code>proxy-target-class=true</code>。Spring Boot 为了”开箱即用”索性默认 CGLIB。</li>
+<li><strong>性能 benchmark</strong>：JDK 动态代理调用耗时 ≈ 35ns，CGLIB 耗时 ≈ 25ns（Spring 5.3 + JDK 17）。CGLIB 在方法调用链特别深时有优势，但在大多数业务场景下可以忽略不计。</li>
+<li><strong>自调用问题</strong>：无论是 JDK 还是 CGLIB，同一个类内部的方法调用（<code>this.methodB()</code>）都不会触发 AOP——因为代理对象拦截的是外部调用，内部 <code>this</code> 引用的是原始对象。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某团队升级 Spring Boot 2.x 后，发现部分 Bean 注入失败，错误信息 <code>@Autowired failed: no qualifying bean</code>。排查发现某个 Service 类没有任何接口，但在另一个模块中被注入时用了接口类型声明。Spring Boot 2.0 默认开启了 CGLIB，注入时按实际类名匹配不成功。解决：要么加接口，要么统一用按类型注入。另一个踩坑：CGLIB 代理无法代理 final 方法，导致某些使用 final 的 <code>@Transactional</code> 方法事务失效，且没有任何警告日志。排查极其困难。</p>
+<h3 id="0x02-02-Transactional-失效的常见场景有哪些？请列出至少-5-种"><a href="#0x02-02-Transactional-失效的常见场景有哪些？请列出至少-5-种" class="headerlink" title="0x02-02. @Transactional 失效的常见场景有哪些？请列出至少 5 种"></a>0x02-02. @Transactional 失效的常见场景有哪些？请列出至少 5 种</h3><p><strong>标准答案</strong>：<br>@Transactional 基于 Spring AOP 实现，本质是通过代理对象拦截方法调用。以下场景会导致事务失效：</p>
+<p><strong>1. 自调用（Self-Invocation）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">saveBatch</span><span class="params">(List&lt;User&gt; users)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (User u : users) &#123;</span><br><span class="line">            <span class="built_in">this</span>.save(u);  <span class="comment">// ❌ this 是原始对象，非代理对象</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">(User user)</span> &#123;</span><br><span class="line">        userDao.insert(user);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 私有方法</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">(User user)</span> &#123;  <span class="comment">// ❌ 私有方法不会被子类覆盖</span></span><br><span class="line">    userDao.insert(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CGLIB 是基于继承的，私有方法不可见无法被覆盖；JDK 代理基于接口，私有方法不在接口中。</p>
+<p><strong>3. 异常类型不匹配</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">()</span> &#123;</span><br><span class="line">    userDao.insert(user);</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;test&quot;</span>);  <span class="comment">// ✅ 默认回滚</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">save2</span><span class="params">()</span> &#123;</span><br><span class="line">    userDao.insert(user);</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;test&quot;</span>);  <span class="comment">// ❌ 不回滚！IOException 不是 RuntimeException</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 异常被捕获</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        userDao.insert(user);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;error&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// ❌ 异常被吃了，事务不感知</span></span><br><span class="line">        log.error(<span class="string">&quot;error&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 不同 Propagation 类型的影响</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">parent</span><span class="params">()</span> &#123;</span><br><span class="line">    child();  <span class="comment">// 同一个代理 ✅ 事务传播生效</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRES_NEW)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">child</span><span class="params">()</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>6. 数据库引擎不支持事务</strong><br>MySQL MyISAM 引擎不支持事务，即使在 Service 上加了 @Transactional 也不生效。InnoDB 才支持。</p>
+<p><strong>7. 多数据源没有正确配置 TransactionManager</strong><br>多个 DataSource 时，@Transactional 默认用主事务管理器，如果方法操作的数据库是另一个 DataSource，事务不会在该数据源上开启。</p>
+<p><strong>8. final 方法</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">(User user)</span> &#123;  <span class="comment">// ❌ final 方法不能被子类覆盖</span></span><br><span class="line">    userDao.insert(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>自调用的根本原因</strong>：Spring AOP 是代理模式，只有在调用<strong>代理对象</strong>的方法时才触发拦截逻辑。内部方法调用 <code>this.save()</code> 中的 <code>this</code> 指向原始 Bean 对象，不是代理对象。解决方案：① 注入自身代理（<code>@Autowired private UserService self;</code> 然后调用 <code>self.save()</code>）；② 拆到另一个 Service 类（推荐）；③ 用 <code>AopContext.currentProxy()</code>（需配置 exposeProxy）。</li>
+<li><strong>Spring 5.x+ 事务异常回滚策略</strong>：默认只回滚 <code>RuntimeException</code> 和 <code>Error</code>，不回滚 checked exception。可以通过 <code>rollbackFor</code> 属性指定：<code>@Transactional(rollbackFor = Exception.class)</code>。</li>
+<li><strong>源码验证</strong>：<code>TransactionInterceptor.invoke()</code> → 调用 <code>TransactionAspectSupport.invokeWithinTransaction()</code> → 判断 <code>txAttr.rollbackOn(exception)</code> → 默认委托给 <code>DefaultTransactionAttribute.rollbackOn()</code> → 返回 <code>ex instanceof RuntimeException || ex instanceof Error</code>。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：一个支付回调接口中，方法内调用 <code>this.updateOrderStatus()</code>（@Transactional），外部方法包裹 try-catch 捕获了所有异常返回成功给支付网关。导致：内部事务异常被捕获不回滚，但支付回调以为成功了。后果：订单状态不一致，用户未扣款但订单显示已支付。排查结果：自调用 + 异常捕获双重踩坑。修复：拆出事务方法到独立 Service 类 + 不吞异常。</p>
+<h3 id="0x02-03-AOP-的-Order-注解如何控制切面执行顺序？"><a href="#0x02-03-AOP-的-Order-注解如何控制切面执行顺序？" class="headerlink" title="0x02-03. AOP 的 @Order 注解如何控制切面执行顺序？"></a>0x02-03. AOP 的 @Order 注解如何控制切面执行顺序？</h3><p><strong>标准答案</strong>：<br><code>@Order</code> 或 <code>Ordered</code> 接口控制多个切面（Aspect）的执行顺序。数值越小优先级越高：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Order(1)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LogAspect</span> &#123;</span><br><span class="line">    <span class="meta">@Around(&quot;@annotation(Loggable)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">log</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="comment">// 先执行 LogAspect 的 before</span></span><br><span class="line">        <span class="keyword">return</span> pjp.proceed();</span><br><span class="line">        <span class="comment">// 后执行 LogAspect 的 after</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Order(2)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TransactionAspect</span> &#123;</span><br><span class="line">    <span class="meta">@Around(&quot;@annotation(Transactional)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">tx</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="comment">// 后执行 TransactionAspect 的 before（因为值大）</span></span><br><span class="line">        <span class="keyword">return</span> pjp.proceed();</span><br><span class="line">        <span class="comment">// 先执行 TransactionAspect 的 after</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>多个切面叠加时执行顺序形成<strong>洋葱模型</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">LogAspect@Before</span><br><span class="line">  └── TransactionAspect@Before</span><br><span class="line">        └── 目标方法</span><br><span class="line">        └── TransactionAspect@AfterReturning/AfterThrowing</span><br><span class="line">  └── LogAspect@AfterReturning/AfterThrowing</span><br></pre></td></tr></table></figure>
+
+<p><code>@Order</code> 值小 → 外层的 @Before 次执行，@After 后执行（像洋葱最外层）。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码路径</strong>：<code>ReflectiveAspectJAdvisorFactory.getAdvisor()</code> 解析 @Order 或 @Priority（Jakarta 标准）→ <code>AnnotationAwareAspectJAutoProxyCreator</code> 在 <code>findCandidateAdvisors()</code> 中收集所有切面 → <code>sortAdvisors()</code> 排序 → 最终在 <code>JdkDynamicAopProxy.invoke()</code> &#x2F; <code>CglibAopProxy.intercept()</code> 中形成拦截器链。</li>
+<li><strong>@Order 默认值</strong>：<code>Ordered.LOWEST_PRECEDENCE = Integer.MAX_VALUE</code>。如果有的切面有 @Order 有的没有，没有的会排在最后（作为兜底）。</li>
+<li><strong>多个相同 @Order 值</strong>：如果多个切面 @Order 值相同，执行顺序不确定（依赖 Spring 容器初始化的顺序，不可依赖）。建议明确指定不同的 Order。</li>
+<li><strong>@Order vs @Priority</strong>：@Priority 是 Jakarta 标准，Spring 也兼容。在 Spring 中两者等价，但 @Priority 不能指定具体 values 参数名略有不同，推荐用 Spring 的 @Order。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某项目有 SecurityAspect（@Order(1)）和 MetricsAspect（@Order(2)）。SecurityAspect 前置检查失败时抛 SecurityException，但 MetricsAspect 的 @AfterReturning 总是不执行——这是正常的，不过 MetricsAspect 的 @AfterThrowing 也没触发，因为 SecurityException 在 SecurityAspect 中被 catch 处理了（没有向外抛）。修复：SecurityAspect 中不 catch SecurityException，让异常沿着拦截器链传播。<strong>关键教训：切面顺序决定了异常传播路径，需要结合异常处理策略一起设计。</strong></p>
+<h3 id="0x02-04-什么是-ProxyFactoryBean-和-AspectJ-的异同？"><a href="#0x02-04-什么是-ProxyFactoryBean-和-AspectJ-的异同？" class="headerlink" title="0x02-04. 什么是 ProxyFactoryBean 和 AspectJ 的异同？"></a>0x02-04. 什么是 ProxyFactoryBean 和 AspectJ 的异同？</h3><p><strong>标准答案</strong>：<br><code>ProxyFactoryBean</code> 是 Spring 1.x 时代的 AOP 实现方式，需要 XML 配置指定 Target、拦截器和接口。AspectJ 是更现代的切面表达方式。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- ProxyFactoryBean 方式（Spring 1.x 风格） --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userServiceTarget&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.UserServiceImpl&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;logAdvice&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.LogAroundAdvice&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;userService&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.aop.framework.ProxyFactoryBean&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;target&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;userServiceTarget&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;interceptorNames&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">list</span>&gt;</span><span class="tag">&lt;<span class="name">value</span>&gt;</span>logAdvice<span class="tag">&lt;/<span class="name">value</span>&gt;</span><span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AspectJ 方式（更现代）</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LogAspect</span> &#123;</span><br><span class="line">    <span class="meta">@Around(&quot;execution(* com.example.UserService.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">log</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable &#123; ... &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ProxyFactoryBean</th>
+<th>AspectJ 注解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>配置方式</td>
+<td>XML 或手动代码</td>
+<td>注解（@Aspect）</td>
+</tr>
+<tr>
+<td>切入点表达</td>
+<td>名称匹配简单</td>
+<td>Pointcut 表达式语言强大</td>
+</tr>
+<tr>
+<td>可读性</td>
+<td>差（配置冗长）</td>
+<td>好（声明式）</td>
+</tr>
+<tr>
+<td>Spring 集成</td>
+<td>原生</td>
+<td>由 @EnableAspectJAutoProxy 自动注入</td>
+</tr>
+<tr>
+<td>扩展性</td>
+<td>复杂（多切面配置麻烦）</td>
+<td>强（@Around&#x2F;@Before&#x2F;@After）</td>
+</tr>
+</tbody></table>
+<p>深入思考：</p>
+<ul>
+<li><strong>AspectJ 编译时织入 vs 运行时织入</strong>：Spring AOP 默认是<strong>运行时织入</strong>（通过代理），AspectJ 支持<strong>编译时织入</strong>（ajc compiler）和<strong>类加载时织入</strong>（Load-Time Weaving, LTW）。编译时织入不需要代理，性能最强，也不需要接口。但配置复杂（需修改 Maven&#x2F;Gradle 构建插件）。</li>
+<li><strong>什么时候需要 AspectJ 编译时织入？</strong>：当需要切面应用到 final 类&#x2F;方法、需要内部方法调用触发切面（自调用问题）、或对性能有极致要求（零反射开销）时。</li>
+<li><strong>@EnableAspectJAutoProxy</strong> 的 proxyTargetClass 和 exposeProxy 属性。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：一个高并发系统使用 Spring AOP 记录方法耗时，发现性能监控本身带来了 15% 的性能损耗——代理 + 反射调用在高频方法下很可观。最终对核心热点方法（每秒调用 10 万+）切换到 AspectJ 编译时织入。但迁移过程中发现构建流程改造成本极大，最终选择只对最热门的 5 个方法做了手动字节码增强（Javassist），保持其他方法用 Spring AOP。</p>
+<hr>
+<h2 id="0x03-事务管理"><a href="#0x03-事务管理" class="headerlink" title="0x03 事务管理"></a>0x03 事务管理</h2><h3 id="0x03-01-请详细解释-Transactional-的传播行为（REQUIRES-NEW-vs-NESTED-的陷阱）"><a href="#0x03-01-请详细解释-Transactional-的传播行为（REQUIRES-NEW-vs-NESTED-的陷阱）" class="headerlink" title="0x03-01. 请详细解释 @Transactional 的传播行为（REQUIRES_NEW vs NESTED 的陷阱）"></a>0x03-01. 请详细解释 @Transactional 的传播行为（REQUIRES_NEW vs NESTED 的陷阱）</h3><p><strong>标准答案</strong>：<br>Spring 定义了 7 种事务传播行为：</p>
+<table>
+<thead>
+<tr>
+<th>传播行为</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>REQUIRED（默认）</td>
+<td>支持当前事务，不存在则新建</td>
+</tr>
+<tr>
+<td>SUPPORTS</td>
+<td>支持当前事务，不存在则不开启事务</td>
+</tr>
+<tr>
+<td>MANDATORY</td>
+<td>必须已有事务，否则抛异常</td>
+</tr>
+<tr>
+<td>REQUIRES_NEW</td>
+<td>挂起当前事务，新启一个独立事务</td>
+</tr>
+<tr>
+<td>NOT_SUPPORTED</td>
+<td>挂起当前事务，非事务执行</td>
+</tr>
+<tr>
+<td>NEVER</td>
+<td>非事务执行，有事务则抛异常</td>
+</tr>
+<tr>
+<td>NESTED</td>
+<td>嵌套事务，如果有事务则在 Savepoint 内执行</td>
+</tr>
+</tbody></table>
+<p><strong>REQUIRES_NEW 详解</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">parent</span><span class="params">()</span> &#123;</span><br><span class="line">    userDao.insertParent();        <span class="comment">// 事务 T1</span></span><br><span class="line">    child();                        <span class="comment">// 事务 T1 被挂起</span></span><br><span class="line">    userDao.insertParentAgain();   <span class="comment">// 事务 T1 恢复</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRES_NEW)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">child</span><span class="params">()</span> &#123;</span><br><span class="line">    userDao.insertChild();          <span class="comment">// 新事务 T2</span></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;child error&quot;</span>);  <span class="comment">// T2 回滚</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果：T2 回滚（child 插入回滚），T1 不受影响（parent 插入不受影响，继续执行至完成并提交）。但 <strong>T1 中调用 child 之后的代码会继续执行</strong>，因为异常从 child 抛到 T1，是否回滚取决于 T1 的异常处理。</p>
+<p><strong>陷阱</strong>：如果 child 抛异常且 T1 不 catch，T1 也会回滚。这不是 REQUIRES_NEW 的失效，而是异常传播到 T1 的后果。</p>
+<p><strong>NESTED 详解</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">parent</span><span class="params">()</span> &#123;</span><br><span class="line">    userDao.insertParent();         <span class="comment">// 事务 T1</span></span><br><span class="line">    child();                         <span class="comment">// 创建 Savepoint SP1</span></span><br><span class="line">    userDao.insertParentAgain();    <span class="comment">// 事务 T1 继续</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.NESTED)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">child</span><span class="params">()</span> &#123;</span><br><span class="line">    userDao.insertChild();           <span class="comment">// 在 SP1 内执行</span></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;child error&quot;</span>);  <span class="comment">// 回滚到 SP1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果：child 回滚到 Savepoint（不影响 T1 已执行的 <code>insertParent</code>），T1 继续执行。<strong>关键区别</strong>：REQUIRES_NEW 是挂起 T1 开启独立物理事务（两阶段提交开销大），NESTED 是使用同一个数据库连接的 Savepoint（无独立事务开销，但 JDBC Savepoint 只在支持嵌套事务的数据库上有效）。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>JDBC 驱动限制</strong>：REQUIRES_NEW 要求底层支持事务挂起&#x2F;恢复（大部分连接池都支持），而 NESTED 依赖 JDBC 3.0 的 Savepoint 机制。<strong>MySQL InnoDB 支持 Savepoint，但 Oracle 的 JDBC 驱动可能行为不一致</strong>。</li>
+<li><strong>NESTED 的”不是真正嵌套事务”</strong>：NESTED 回滚到 Savepoint 后，T1 仍然可以继续提交，但子事务的修改被回滚。但 NESTED 不支持两个事务独立提交——如果 T1 最终回滚，子事务的修改（即使没抛异常）也会一起回滚。</li>
+<li><strong>事务挂起开销</strong>：REQUIRES_NEW 每次切换要 suspend&#x2F;resume 事务上下文（TransactionSynchronization 列表的保存和恢复），频繁使用会导致性能下降。<strong>建议只在真正需要独立事务的场景使用 REQUIRES_NEW</strong>。</li>
+<li><strong>自调用与传播行为</strong>：同一个类中 parent → child（REQUIRES_NEW）不会触发传播行为切换——因为自调用不走代理。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：一个批量订单处理任务中，外层事务逐条处理订单，每条调用 REQUIRES_NEW 子事务。开发预期是某条失败不影响其他订单。上线后发现数据库连接很快被耗尽（每条订单都需要一个新连接，旧事务被挂起但连接不释放）。排查发现：REQUIRES_NEW 在新事务开启时，原连接不能归还到连接池。如果连接池最大 20 个，同时处理 10 条订单就可能耗尽连接。解决方案：要么用 NESTED（同一个连接，Savepoint 回滚），要么改用编程式事务逐条控制。另一个大坑：有人把 NESTED 理解为”两个独立事务可以部分提交”，测试时发现子事务回滚后父事务提交，但子事务的修改还在——实际上 NESTED 回滚到 Savepoint，子事务插入的数据确实不存在了，但父事务其他修改仍在。这和独立事务的概念不同。</p>
+<h3 id="0x03-02-声明式事务-vs-编程式事务，如何选择？"><a href="#0x03-02-声明式事务-vs-编程式事务，如何选择？" class="headerlink" title="0x03-02. 声明式事务 vs 编程式事务，如何选择？"></a>0x03-02. 声明式事务 vs 编程式事务，如何选择？</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>声明式事务（@Transactional）</th>
+<th>编程式事务（TransactionTemplate）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实现方式</td>
+<td>AOP 拦截 + 声明注解</td>
+<td>手动 TransactionTemplate.execute()</td>
+</tr>
+<tr>
+<td>代码量</td>
+<td>少（一行注解）</td>
+<td>多（需要模板代码）</td>
+</tr>
+<tr>
+<td>细粒度控制</td>
+<td>粗（方法级别）</td>
+<td>细（代码块级别，可以部分回滚）</td>
+</tr>
+<tr>
+<td>事务边界</td>
+<td>默认整个方法</td>
+<td>可以控制到 try 块内</td>
+</tr>
+<tr>
+<td>异常处理</td>
+<td>自动回滚策略</td>
+<td>精确控制回滚时机</td>
+</tr>
+<tr>
+<td>调试难度</td>
+<td>低（声明式清晰）</td>
+<td>中（代码分散）</td>
+</tr>
+<tr>
+<td>可测试性</td>
+<td>需代理</td>
+<td>好（直接传 TransactionTemplate mock）</td>
+</tr>
+<tr>
+<td>多事务组合</td>
+<td>单一方法只能一种传播行为</td>
+<td>一个方法内可以开多个独立事务</td>
+</tr>
+</tbody></table>
+<p><strong>编程式事务示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> TransactionTemplate txTemplate;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">complexBusiness</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 非事务操作</span></span><br><span class="line">        auditLog();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 事务 1：保存用户</span></span><br><span class="line">        <span class="type">Long</span> <span class="variable">userId</span> <span class="operator">=</span> txTemplate.execute(status -&gt; &#123;</span><br><span class="line">            <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> userDao.save(newUser);</span><br><span class="line">            <span class="keyword">return</span> user.getId();</span><br><span class="line">        &#125;);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 非事务操作被回滚？不会，它在事务外</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 事务 2：保存订单（独立事务）</span></span><br><span class="line">        txTemplate.execute(status -&gt; &#123;</span><br><span class="line">            orderDao.save(<span class="keyword">new</span> <span class="title class_">Order</span>(userId));</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>选择策略</strong>：</p>
+<ul>
+<li><strong>80% 场景用声明式事务</strong>：简单 CRUD、单个操作、不需要精确回滚控制</li>
+<li><strong>20% 场景用编程式事务</strong>：① 一个方法内需要多个独立事务（如批量处理各条独立回滚）；② 需要根据运行时条件决定回滚；③ 事务代码块中混合了缓存操作&#x2F;消息发送等非事务资源；④ 精细控制事务超时&#x2F;只读属性</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>声明式事务的 AOP 原理</strong>：@Transactional 由 <code>TransactionInterceptor</code> 处理，运行时判断是否有事务注解，然后调用 <code>TransactionAspectSupport.invokeWithinTransaction()</code>。该方法创建 TransactionInfo（绑定当前线程的事务上下文），执行目标方法，然后 commit&#x2F;rollback。</li>
+<li><strong>编程式事务的内部逻辑</strong>：<code>TransactionTemplate.execute()</code> 内部调用 <code>TransactionCallback</code> → 成功则 <code>commitTransactionAfterReturning()</code> → 异常触发 <code>completeTransactionAfterThrowing()</code> → 判断 <code>rollbackOn</code> 决定是否回滚。</li>
+<li><strong>TransactionTemplate 的隔离级别</strong>：可设置 <code>txTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_REPEATABLE_READ)</code>，可每次调用动态修改。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：一个数据同步服务，每次同步 1 万条记录。用声明式事务在方法级别加 @Transactional，一条失败全部回滚，不但浪费了之前处理成功的记录，还因长事务锁表导致线上查询堵塞。解决：改为编程式事务，每条记录独立事务提交。性能：从”全成功 60 秒 &#x2F; 一条失败 0 秒”变为”1 万条 65 秒，每条独立回滚”。<strong>教训：批量操作慎用声明式事务。</strong></p>
+<h3 id="0x03-03-什么是事务的隔离级别？-Transactional-中如何配置？MySQL-默认的隔离级别是什么？"><a href="#0x03-03-什么是事务的隔离级别？-Transactional-中如何配置？MySQL-默认的隔离级别是什么？" class="headerlink" title="0x03-03. 什么是事务的隔离级别？@Transactional 中如何配置？MySQL 默认的隔离级别是什么？"></a>0x03-03. 什么是事务的隔离级别？@Transactional 中如何配置？MySQL 默认的隔离级别是什么？</h3><p><strong>标准答案</strong>：<br>事务的四种隔离级别（从低到高）：</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>READ_UNCOMMITTED</td>
+<td>✅ 可能</td>
+<td>✅ 可能</td>
+<td>✅ 可能</td>
+<td>可读未提交数据，几乎不用</td>
+</tr>
+<tr>
+<td>READ_COMMITTED</td>
+<td>❌ 避免</td>
+<td>✅ 可能</td>
+<td>✅ 可能</td>
+<td>Oracle 默认，多数场景够用</td>
+</tr>
+<tr>
+<td>REPEATABLE_READ</td>
+<td>❌ 避免</td>
+<td>❌ 避免</td>
+<td>✅ 可能（InnoDB 通过 MVCC+间隙锁避免了）</td>
+<td>MySQL InnoDB 默认</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>❌ 避免</td>
+<td>❌ 避免</td>
+<td>❌ 避免</td>
+<td>完全串行化，性能极差</td>
+</tr>
+</tbody></table>
+<p>MySQL InnoDB 默认隔离级别是 <code>REPEATABLE_READ</code>，但通过 <strong>MVCC（多版本并发控制）+ Next-Key Lock（间隙锁）</strong> 实际上避免了幻读。</p>
+<p>在 @Transactional 中配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(isolation = Isolation.REPEATABLE_READ)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">readData</span><span class="params">()</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>MySQL 的 REPEATABLE_READ 如何避免幻读？</strong>：InnoDB 通过 Next-Key Lock（记录锁 + 间隙锁的组合）锁定索引记录之间的间隙，防止其他事务插入新记录。同时 MVCC 的 Read View 机制确保同一事务内的多次查询看到的是同一个快照。所以 MySQL 的 REPEATABLE_READ 实际上达到了 SERIALIZABLE 的”无幻读”效果，但并发性能好得多。</li>
+<li><strong>隔离级别与锁的关系</strong>：隔离级别越高，锁范围越大，并发性能越差。READ_COMMITTED 使用行锁（Record Lock），REPEATABLE_READ 使用 Next-Key Lock（行锁 + 间隙锁）。</li>
+<li><strong>分布式事务的隔离级别</strong>：XA 分布式事务、Seata AT 模式等分布式事务框架的隔离级别与数据库级别不同，它们有自己的隔离机制（如 Seata 的写隔离 + 读隔离通过全局锁实现）。</li>
+<li><strong>isolation 在 @Transactional 中的配置</strong>：Spring 枚举 <code>Isolation.DEFAULT</code>（使用数据库默认）、<code>READ_COMMITTED</code>、<code>REPEATABLE_READ</code>、<code>SERIALIZABLE</code>。注意：<code>Isolation.DEFAULT</code> 表示使用数据源的默认级别，不是 Spring 的默认。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某金融系统中对账户余额做 UPDATE 操作，用了默认的 REPEATABLE_READ 隔离级别。高并发下发生死锁（两个事务互相等待对方释放间隙锁）。通过 <code>SHOW ENGINE INNODB STATUS</code> 分析死锁日志，发现 REPEATABLE_READ 的 Next-Key Lock 导致非主键索引上的间隙锁冲突。解决方案：① 降低隔离级别到 READ_COMMITTED（大多数金融场景够用，因为用了乐观锁 version）；② 确保 UPDATE 走唯一索引，减少间隙锁范围。③ 加 <code>@Transactional(isolation = Isolation.READ_COMMITTED)</code> 替换默认。”降级”不可怕，”死锁”才可怕。</p>
+<h3 id="0x03-04-什么是事务超时和只读事务？-Transactional-readOnly-true-真的只是读吗？"><a href="#0x03-04-什么是事务超时和只读事务？-Transactional-readOnly-true-真的只是读吗？" class="headerlink" title="0x03-04. 什么是事务超时和只读事务？@Transactional(readOnly&#x3D;true) 真的只是读吗？"></a>0x03-04. 什么是事务超时和只读事务？@Transactional(readOnly&#x3D;true) 真的只是读吗？</h3><p><strong>标准答案</strong>：<br><strong>事务超时</strong>（timeout）：指定事务允许执行的最大时间（秒），超时则自动回滚。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(timeout = 10)</span>  <span class="comment">// 10 秒超时</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>只读事务</strong>（readOnly）：提示数据库当前事务只进行读取操作，可以进行一些优化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(readOnly = true)</span></span><br><span class="line"><span class="keyword">public</span> List&lt;User&gt; <span class="title function_">findAll</span><span class="params">()</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>readOnly&#x3D;true 的实际作用</strong>：</p>
+<ol>
+<li><strong>MySQL（InnoDB）</strong>：<code>readOnly=true</code> 会设置 <code>SET TRANSACTION READ ONLY</code>，允许数据库跳过写操作相关的锁（如 undo log 记录），减少内部开销。但<strong>不会阻止你执行 INSERT&#x2F;UPDATE&#x2F;DELETE</strong>（数据库层面不会报错，只是性能上”不优化写路径”）。</li>
+<li><strong>SQL Server</strong>：会设置 <code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED</code> 或 <code>SNAPSHOT</code> 类似物。</li>
+<li><strong>Oracle</strong>：实际上会<strong>禁止写操作</strong>——如果尝试写入会抛异常。</li>
+<li><strong>JPA&#x2F;Hibernate</strong>：<code>readOnly=true</code> 还会禁用脏检查（flush mode 设为 MANUAL），对未修改的实体不会执行 SELECT FOR UPDATE。</li>
+<li><strong>Spring Data JPA</strong> + <code>readOnly=true</code>：Spring 会设置 FlushMode.MANUAL，延迟加载的懒属性在事务外访问会抛 LazyInitializationException（因为 Session 关闭了）。</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>readOnly 的真正价值</strong>：不是”阻止写操作”，而是向底层基础设施传达”这是一个读操作”的信号，让数据库&#x2F;ORM 层去做优化。真正阻止写操作需要数据库权限层面限制。</li>
+<li><strong>性能优化</strong>：在 MySQL 中 readOnly 事务可以减少 <code>trx_sys</code> 的锁竞争，因为只读事务不需要分配事务 ID（trx_id），直到第一次写操作才会分配。在高并发读场景下（每秒数万次读），readOnly&#x3D;true 可以降低 5-15% 的事务元数据开销。</li>
+<li><strong>@Transactional(readOnly&#x3D;true) 放在 Service 类上</strong>：如果类上标了 @Transactional(readOnly&#x3D;true)，其内部有写操作的方法需要单独覆盖：<code>@Transactional(readOnly = false)</code>。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某报表查询接口加了 @Transactional(readOnly&#x3D;true)，使用了懒加载的关联实体集合。返回 JSON 时 Jackson 序列化触发了懒加载，但因为事务已提交，Session 已关闭 → LazyInitializationException。解决：要么用 JOIN FETCH 提前加载，要么配置 <code>spring.jpa.open-in-view=true</code>（不推荐——会导致事务时间过长）。另一个踩坑：测试环境 readOnly&#x3D;true 的方法居然成功插入了数据（MySQL 不禁止），但某天为 Oracle 做兼容性测试时炸了。<strong>教训：readOnly 的语义在不同数据库间不可移植。</strong></p>
+<hr>
+<h2 id="0x04-Spring-Boot-自动配置"><a href="#0x04-Spring-Boot-自动配置" class="headerlink" title="0x04 Spring Boot 自动配置"></a>0x04 Spring Boot 自动配置</h2><h3 id="0x04-01-SpringBootApplication-是一个组合注解，请从源码角度拆解"><a href="#0x04-01-SpringBootApplication-是一个组合注解，请从源码角度拆解" class="headerlink" title="0x04-01. @SpringBootApplication 是一个组合注解，请从源码角度拆解"></a>0x04-01. @SpringBootApplication 是一个组合注解，请从源码角度拆解</h3><p><strong>标准答案</strong>：<br>@SpringBootApplication 是 Spring Boot 中最核心的注解，定义在 <code>spring-boot-autoconfigure</code> 中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.TYPE)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span>  <span class="comment">// 可继承</span></span><br><span class="line"><span class="meta">@SpringBootConfiguration</span>   <span class="comment">// 等价于 @Configuration</span></span><br><span class="line"><span class="meta">@EnableAutoConfiguration</span>   <span class="comment">// 开启自动配置</span></span><br><span class="line"><span class="meta">@ComponentScan(excludeFilters = &#123; ... &#125;)</span>  <span class="comment">// 组件扫描</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> SpringBootApplication &#123;</span><br><span class="line">    <span class="comment">// 可排除自动配置的类</span></span><br><span class="line">    <span class="meta">@AliasFor(annotation = EnableAutoConfiguration.class)</span></span><br><span class="line">    Class&lt;?&gt;[] exclude() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    <span class="comment">// 可排除自动配置的类名</span></span><br><span class="line">    <span class="meta">@AliasFor(annotation = EnableAutoConfiguration.class)</span></span><br><span class="line">    String[] excludeName() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    <span class="comment">// 指定扫描的基础包</span></span><br><span class="line">    <span class="meta">@AliasFor(annotation = ComponentScan.class)</span></span><br><span class="line">    String[] scanBasePackages() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    <span class="comment">// 指定扫描的基础类（用类所在的包作为扫描起点）</span></span><br><span class="line">    <span class="meta">@AliasFor(annotation = ComponentScan.class)</span></span><br><span class="line">    Class&lt;?&gt;[] scanBasePackageClasses() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个核心子注解的作用：</p>
+<ol>
+<li><strong>@SpringBootConfiguration</strong> → 标记当前类为配置类，底层就是 @Configuration，唯一区别是这个注解 Spring Boot 特有的标志性注解（用于内部识别）。</li>
+<li><strong>@EnableAutoConfiguration</strong> → 核心中的核心，开启自动配置机制。</li>
+<li><strong>@ComponentScan</strong> → 默认扫描当前类所在包及其子包下的所有 @Component 及其派生注解（@Service、@Repository、@Controller 等）。</li>
+</ol>
+<p><strong>@EnableAutoConfiguration 源码分析</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.TYPE)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Import(AutoConfigurationImportSelector.class)</span>  <span class="comment">// 核心！</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableAutoConfiguration &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">ENABLED_OVERRIDE_PROPERTY</span> <span class="operator">=</span> <span class="string">&quot;spring.boot.enableautoconfiguration&quot;</span>;</span><br><span class="line">    Class&lt;?&gt;[] exclude() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    String[] excludeName() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>@Inherited 的作用</strong>：@SpringBootApplication 标记了 @Inherited，意味着子类可以继承父类的 @SpringBootApplication 配置。但在实践中，只有 Spring Boot 的 main 类才会用这个注解，子类场景很少。</li>
+<li><strong>@AliasFor 的使用</strong>：@AliasFor 是 Spring 5.1 引入的注解属性别名机制。比如 <code>exclude</code> 这个属性在 @SpringBootApplication 上定义，但实际指向 @EnableAutoConfiguration 的 exclude 属性。编译期间两个属性被视为等价，设置任何一个都会更新另一个。</li>
+<li><strong>Spring Boot 3.x 的改进</strong>：@SpringBootApplication 的 scanBasePackages 现在支持 SPEL 表达式吗？不支持，但可以通过 <code>@ComponentScan(basePackages = &quot;${app.scan.base-packages}&quot;)</code> 自定义实现。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：团队将业务代码全部放在 <code>com.business.user</code> 包下，但 main 类在 <code>com.infra.Bootstrap</code> 包下，结果 @SpringBootApplication 默认只扫描 <code>com.infra</code> 包，业务 Service 全部注入失败。排查了两小时才意识到 @ComponentScan 默认以 main 类所在包为根。修复：显式指定 <code>@SpringBootApplication(scanBasePackages = &quot;com.business&quot;)</code>。<strong>常见错误：main 类放在单独的包而不是根包。</strong></p>
+<h3 id="0x04-02-Spring-Boot-的-Conditional-系列注解有哪些？底层原理是什么？"><a href="#0x04-02-Spring-Boot-的-Conditional-系列注解有哪些？底层原理是什么？" class="headerlink" title="0x04-02. Spring Boot 的 Conditional 系列注解有哪些？底层原理是什么？"></a>0x04-02. Spring Boot 的 Conditional 系列注解有哪些？底层原理是什么？</h3><p><strong>标准答案</strong>：<br>Spring Boot 提供了丰富的条件注解来控制 Bean 的注册时机，全部以 <code>@ConditionalOnXxx</code> 命名：</p>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>类路径条件</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@ConditionalOnClass</td>
+<td>类存在时加载</td>
+<td>DataSourceAutoConfiguration 判断 javax.sql.DataSource 存在</td>
+</tr>
+<tr>
+<td>@ConditionalOnMissingClass</td>
+<td>类不存在时加载</td>
+<td>兜底配置</td>
+</tr>
+<tr>
+<td>@ConditionalOnBean</td>
+<td>Spring 容器中存在某 Bean</td>
+<td>依赖某个组件时加载</td>
+</tr>
+<tr>
+<td>@ConditionalOnMissingBean</td>
+<td>容器中不存在某 Bean</td>
+<td>用户自定义覆盖自动配置</td>
+</tr>
+<tr>
+<td>@ConditionalOnProperty</td>
+<td>配置属性满足条件</td>
+<td>开关控制（如 server.port）</td>
+</tr>
+<tr>
+<td>@ConditionalOnResource</td>
+<td>资源文件存在</td>
+<td>判断配置文件</td>
+</tr>
+<tr>
+<td>@ConditionalOnWebApplication</td>
+<td>当前是 Web 应用</td>
+<td>加载 Web 相关配置</td>
+</tr>
+<tr>
+<td>@ConditionalOnNotWebApplication</td>
+<td>当前不是 Web 应用</td>
+<td>非 Web 场景加载</td>
+</tr>
+<tr>
+<td>@ConditionalOnExpression</td>
+<td>SpEL 表达式为 true</td>
+<td>复杂条件</td>
+</tr>
+<tr>
+<td>@ConditionalOnJava</td>
+<td>JDK 版本满足要求</td>
+<td>版本兼容性判断</td>
+</tr>
+<tr>
+<td>@ConditionalOnJndi</td>
+<td>JNDI 资源存在</td>
+<td>传统 Java EE 容器部署</td>
+</tr>
+<tr>
+<td>@ConditionalOnCloudPlatform</td>
+<td>特定云平台</td>
+<td>云原生适配</td>
+</tr>
+</tbody></table>
+<p><strong>底层原理</strong>：<br>所有 @ConditionalOnXxx 都基于 Spring 4.0 引入的 <code>Condition</code> 接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Condition</span> &#123;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">matches</span><span class="params">(ConditionContext context, AnnotatedTypeMetadata metadata)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Spring Boot 实现了各自的 Condition 类，如 <code>OnClassCondition</code>、<code>OnBeanCondition</code>、<code>OnPropertyCondition</code>。核心流程：</p>
+<ol>
+<li>AutoConfigurationImportSelector 加载所有自动配置类</li>
+<li>遍历每个配置类上的 @Conditional 条件</li>
+<li>调用 ConditionEvaluator.shouldSkip() 判断是否满足</li>
+<li>不满足的配置类直接跳过，不加载其 @Bean 方法</li>
+<li>满足的配置类正常注册 Bean</li>
+</ol>
+<p><strong>OnClassCondition 源码核心</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">matches</span><span class="params">(ConditionContext context, AnnotatedTypeMetadata metadata)</span> &#123;</span><br><span class="line">    <span class="comment">// 从 @ConditionalOnClass 注解中提取 classes 属性</span></span><br><span class="line">    <span class="comment">// 对每个类名尝试 Class.forName() 或 ClassUtils.forName()</span></span><br><span class="line">    <span class="comment">// 全部存在 → return true</span></span><br><span class="line">    <span class="comment">// 任何一个不存在 → return false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>@ConditionalOnClass 的类名为什么用 String 而不是 Class 字面量？</strong>：因为自动配置类所在的 Spring Boot jar 被打包时，很多条件类（如 <code>javax.sql.DataSource</code>）可能不在 classpath 上。如果直接使用 <code>DataSource.class</code> 字面量，编译期就必须引入该依赖（就算运行时可以没有）。用 String 可以通过反射动态判断，<strong>即使类不存在也不影响自动配置类加载</strong>。</li>
+<li><strong>条件注解顺序的重要性</strong>：Spring Boot 内部通过自动配置类的 <code>@AutoConfigureAfter</code> &#x2F; <code>@AutoConfigureBefore</code> &#x2F; <code>@AutoConfigureOrder</code> 控制加载顺序。如果 A 配置类的条件依赖 B 配置类创建的 Bean，但 B 在 A 之后加载，@ConditionalOnBean 会返回 false。</li>
+<li><strong>自定义条件注解</strong>：可以实现 <code>Condition</code> 接口创建自己的条件，然后用 <code>@Conditional(MyCondition.class)</code> 引用。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某微服务依赖的 jar 中自定义了一个 <code>AutoConfiguration</code> 类，加了 <code>@ConditionalOnClass(name = &quot;com.old.LegacyService&quot;)</code>，条件满足时注册 Bean A。某次升级移除了 LegacyService 依赖，但没移除自动配置类。结果：@ConditionalOnClass 检查到 LegacyService 不存在，跳过配置，导致依赖 Bean A 的其他组件全部注入失败。排查过程：看 <code>autoconfigure</code> 日志发现 Spring Boot 启动了但没注册 Bean A。<strong>教训：自动配置类的条件注解要和依赖的实际版本保持一致，移除旧依赖时清理对应的自动配置。</strong></p>
+<h3 id="0x04-03-AutoConfigurationImportSelector-的工作原理是什么？"><a href="#0x04-03-AutoConfigurationImportSelector-的工作原理是什么？" class="headerlink" title="0x04-03. AutoConfigurationImportSelector 的工作原理是什么？"></a>0x04-03. AutoConfigurationImportSelector 的工作原理是什么？</h3><p><strong>标准答案</strong>：<br><code>AutoConfigurationImportSelector</code> 是 <code>@EnableAutoConfiguration</code> 的核心实现，是一个 <code>DeferredImportSelector</code>。它的工作流程：</p>
+<p><strong>1. META-INF 文件加载</strong>：</p>
+<ul>
+<li>Spring Boot 3.x：读取 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code></li>
+<li>Spring Boot 2.x：读取 <code>META-INF/spring.factories</code> 中 <code>org.springframework.boot.autoconfigure.EnableAutoConfiguration</code> 的值</li>
+</ul>
+<p><strong>2. 核心执行流程</strong>（<code>AutoConfigurationImportSelector.selectImports()</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. 获取所有候选自动配置类（从 AutoConfiguration.imports 文件中读取）</span><br><span class="line">2. 通过 ConfigurationClassParser 解析</span><br><span class="line">3. 应用 @Conditional 条件过滤</span><br><span class="line">4. 按 @AutoConfigureOrder / @AutoConfigureBefore / @AutoConfigureAfter 排序</span><br><span class="line">5. 移除被排除的配置（exclude/excludeName）</span><br><span class="line">6. 返回最终的配置类全限定名数组</span><br><span class="line">7. Spring 将这些类作为普通 @Configuration 处理</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 去重与排序策略</strong>：</p>
+<ul>
+<li>使用 <code>LinkedHashSet</code> 保证顺序和唯一性</li>
+<li>通过 <code>AutoConfigurationSorter</code> 进行拓扑排序——处理依赖关系（A 在 B 之前、A 在 B 之后）</li>
+<li>检测环形依赖？如果出现循环排序引用，会降低优先级顺序报告 WARN 日志但不阻断启动</li>
+</ul>
+<p><strong>4. 条件评估的惰性</strong>：<br>Spring Boot 3.0+ 引入了 <code>AutoConfigurationImportSelector</code> 的惰性条件评估——<strong>默认在解析到配置类的 @Conditional 时，只读取条件注解中的类名字符串，不立即加载类</strong>。这种”不提前加载类”的策略避免了类的过早初始化，减少了启动时的类加载开销。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>@AutoConfigureAfter 的实现原理</strong>：<code>AutoConfigurationSorter.byOrder()</code> 中会分析配置上的 <code>@AutoConfigureAfter</code> &#x2F; <code>@AutoConfigureBefore</code> 注解，构建一个依赖有向图，然后用拓扑排序得出最终顺序。如果图中有环？排序会按尽量满足约束的顺序排列，<strong>不抛出异常</strong>，可能导致条件判断失效。</li>
+<li><strong>Spring Boot 3.x 的 AutoConfiguration.imports 格式</strong>：每行一个自动配置类的全限定名，按顺序排列。这个文件在 <code>spring-boot-autoconfigure</code> 包中，第三方 Starter 也需要提供自己的 <code>AutoConfiguration.imports</code>。</li>
+<li><strong>排除自动配置的方式</strong>：① <code>@SpringBootApplication(exclude = XxxAutoConfiguration.class)</code>；② <code>application.yml</code> 中 <code>spring.autoconfigure.exclude=com.example.XxxAutoConfiguration</code>；③ 使用 <code>@EnableAutoConfiguration(exclude=...)</code>；④ 通过 <code>AutoConfigurationImportFilter</code> SPI 过滤。</li>
+<li><strong>AutoConfigurationImportFilter</strong>：这是一个 SPI 接口，可以在自动配置类被加载之前过滤掉不符合条件的类。Spring Boot 提供了 <code>OnClassCondition</code>、<code>OnWebApplicationCondition</code>、<code>OnBeanCondition</code> 三个内置 Filter。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某微服务集成了 50+ 自定义 Starter，每个起步依赖都声明了自动配置类。启动日志中出现了 <code>Spring could not find a auto-configuration class</code> 的警告——因为某个 Starter 的 AutoConfiguration.imports 文件格式错误（多了一个空格）。另一个踩坑：两个 Starter 都声明了 <code>@AutoConfigureAfter(DataSourceAutoConfiguration.class)</code>，导致启动时 Spring 无法决定顺序，DataJpaAutoConfiguration 在两个都加载后才评估 Condition，结果 @ConditionalOnBean(DataSource.class) 返回 false（因为 DataSource 还没被创建）。<strong>教训：自动配置的排序机制在大数量 Starter 时容易出现不可预测的顺序依赖。</strong></p>
+<h3 id="0x04-04-如何自定义一个-Spring-Boot-Starter？"><a href="#0x04-04-如何自定义一个-Spring-Boot-Starter？" class="headerlink" title="0x04-04. 如何自定义一个 Spring Boot Starter？"></a>0x04-04. 如何自定义一个 Spring Boot Starter？</h3><p><strong>标准答案</strong>：<br>开发一个生产级的 Spring Boot Starter 需要以下步骤：</p>
+<p><strong>1. 项目结构</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">my-starter/</span><br><span class="line">├── pom.xml</span><br><span class="line">├── src/main/java/com/example/mystarter/</span><br><span class="line">│   ├── MyService.java                        // 核心功能类</span><br><span class="line">│   ├── MyProperties.java                      // 配置属性类（@ConfigurationProperties）</span><br><span class="line">│   └── MyAutoConfiguration.java               // 自动配置类</span><br><span class="line">└── src/main/resources/</span><br><span class="line">    └── META-INF/</span><br><span class="line">        └── spring/</span><br><span class="line">            └── org.springframework.boot.autoconfigure.AutoConfiguration.imports</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 核心代码</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MyProperties.java</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;my.starter&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">host</span> <span class="operator">=</span> <span class="string">&quot;localhost&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> <span class="number">8080</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">enabled</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// getters &amp; setters</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MyAutoConfiguration.java</span></span><br><span class="line"><span class="meta">@AutoConfiguration</span>  <span class="comment">// Spring Boot 3.x 推荐 @AutoConfiguration，等价于 @Configuration</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(MyProperties.class)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(MyService.class)</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = &quot;my.starter&quot;, name = &quot;enabled&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyAutoConfiguration</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@ConditionalOnMissingBean</span></span><br><span class="line">    <span class="keyword">public</span> MyService <span class="title function_">myService</span><span class="params">(MyProperties properties)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">MyService</span>(properties.getHost(), properties.getPort());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 自动配置文件</strong>（<code>META-INF/spring/...AutoConfiguration.imports</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">com.example.mystarter.MyAutoConfiguration</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. spring-autoconfigure-metadata.properties</strong>（可选，加速启动）：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 告诉 Spring Boot 优先级 Evaluate 条件，而不需要加载配置类</span></span><br><span class="line"><span class="attr">com.example.mystarter.MyAutoConfiguration.ConditionalOnClass</span>=<span class="string">com.example.mystarter.MyService</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>@AutoConfiguration vs @Configuration</strong>：Spring Boot 3.0 引入的 <code>@AutoConfiguration</code>，语义上更明确表示这是一个自动配置类，且默认 <code>proxyBeanMethods=false</code>（不生成 CGLIB 代理），提升启动性能。</li>
+<li><strong>@ConditionalOnMissingBean 的重要性</strong>：自动配置类中的 @Bean 方法一定要加 <code>@ConditionalOnMissingBean</code>，让用户可以覆盖默认配置。用户在自己 @Bean 方法中配置的 Bean 会”打败”自动配置。</li>
+<li><strong>自动配置元数据</strong>：<code>spring-autoconfigure-metadata.properties</code> 文件可以为 IDE 提供自动配置支持，还可以指定一些拒绝条件（ConditionalOnClass 等）来跳过不必要的类加载。</li>
+<li><strong>生产级 Starter 的附加能力</strong>：① 提供 <code>actuator</code> 端点暴露运行时状态；② 提供自动配置的日志输出（启动时打印关键配置值）；③ 考虑 <code>@AutoConfigureAfter</code> &#x2F; <code>@AutoConfigureBefore</code> 的依赖顺序；④ 编写自动配置的测试（<code>@SpringBootTest</code> + <code>ApplicationContextRunner</code>）。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：团队自研的 Redis 操作 Starter，自动配置类没有加 <code>@ConditionalOnMissingBean</code>，导致用户 Spring 配置中显式声明了一个 RedisTemplate Bean 时，容器同时注册了两个同类型 Bean，自动装配时随机选择一个——有时用用户的，有时用 Starter 的。用户发现配置了序列化方式但有时生效有时不生效，排查了两天才发现是 Bean 冲突。修复：<code>@ConditionalOnMissingBean(RedisTemplate.class)</code>。另一个踩坑：@AutoConfiguration 的排序——Starter 的自动配置应该在 @Import 配置之后执行，但没配置 @AutoConfigureAfter，导致导入的自定义 Bean 还没注册，<code>@ConditionalOnMissingBean</code> 为 true，Starter 覆盖了用户配置。</p>
+<hr>
+<h2 id="0x05-生产实战"><a href="#0x05-生产实战" class="headerlink" title="0x05 生产实战"></a>0x05 生产实战</h2><h3 id="0x05-01-Spring-Boot-应用启动慢如何排查和优化？"><a href="#0x05-01-Spring-Boot-应用启动慢如何排查和优化？" class="headerlink" title="0x05-01. Spring Boot 应用启动慢如何排查和优化？"></a>0x05-01. Spring Boot 应用启动慢如何排查和优化？</h3><p><strong>标准答案</strong>：<br>Spring Boot 应用启动慢的常见原因和排查方法：</p>
+<p><strong>1. 常见原因分析</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>典型特征</th>
+<th>优化方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bean 加载过多</td>
+<td>启动日志大量 <code>Registered bean</code></td>
+<td>按需加载、延迟加载非核心 Bean</td>
+</tr>
+<tr>
+<td>Classpath 扫描范围过大</td>
+<td>启动扫描了数十万个类</td>
+<td>缩小 @ComponentScan 扫描范围</td>
+</tr>
+<tr>
+<td>自动配置类检查过多</td>
+<td><code>Condition evaluation</code> 日志显示大量跳过</td>
+<td>排除不必要的 AutoConfiguration</td>
+</tr>
+<tr>
+<td>数据源连接池初始化慢</td>
+<td>DataSource 初始化耗时 &gt; 5s</td>
+<td>配置短超时、懒加载 DataSource</td>
+</tr>
+<tr>
+<td>JPA&#x2F;Hibernate 元数据扫描</td>
+<td><code>HHH000101: SessionFactoryImpl</code> 后等待</td>
+<td>减少实体类扫描、优化 ddl-auto</td>
+</tr>
+<tr>
+<td>启动过程中远程调用</td>
+<td>@PostConstruct 中调用远程 API</td>
+<td>改为异步或 ApplicationReadyEvent</td>
+</tr>
+<tr>
+<td>类加载器死锁（少见）</td>
+<td>启动卡住无日志</td>
+<td>排查自定义 ClassLoader</td>
+</tr>
+<tr>
+<td>日志框架加载冲突</td>
+<td>控制台输出 <code>SLF4J: Class path contains multiple SLF4J bindings</code></td>
+<td>统一日志依赖</td>
+</tr>
+</tbody></table>
+<p><strong>2. 排查工具和方法</strong>：</p>
+<p><strong>方式一：Actuator 端点</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /actuator/health</span><br><span class="line">GET /actuator/info</span><br></pre></td></tr></table></figure>
+
+<p><strong>方式二：Spring Boot 启动报告</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># application.yml</span></span><br><span class="line"><span class="attr">logging:</span></span><br><span class="line">  <span class="attr">level:</span></span><br><span class="line">    <span class="attr">org.springframework.boot.autoconfigure:</span> <span class="string">DEBUG</span></span><br></pre></td></tr></table></figure>
+<p>启动时输出 ConditionEvaluationReport，展示哪些自动配置被加载&#x2F;跳过，逐一排查。</p>
+<p><strong>方式三：启动时间分段监控</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 启动时手动打点</span></span><br><span class="line"><span class="type">long</span> <span class="variable">t0</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line"><span class="keyword">new</span> <span class="title class_">SpringApplicationBuilder</span>(Application.class)</span><br><span class="line">    .listeners(<span class="keyword">new</span> <span class="title class_">ApplicationListener</span>&lt;ApplicationReadyEvent&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onApplicationEvent</span><span class="params">(ApplicationReadyEvent event)</span> &#123;</span><br><span class="line">            <span class="type">long</span> <span class="variable">elapsed</span> <span class="operator">=</span> System.currentTimeMillis() - t0;</span><br><span class="line">            log.info(<span class="string">&quot;🚀 Application started in &#123;&#125; ms&quot;</span>, elapsed);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    .run(args);</span><br></pre></td></tr></table></figure>
+
+<p><strong>方式四：JDK Flight Recorder（JFR）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动时开启 JFR 录制</span></span><br><span class="line">java -XX:StartFlightRecording=duration=60s,filename=startup.jfr \</span><br><span class="line">     -jar myapp.jar</span><br><span class="line"><span class="comment"># 用 JDK Mission Control 分析</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 优化方案清单</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 1. 延迟加载非核心 Bean</span><br><span class="line">spring.main.lazy-initialization=true  # 全局懒加载（激进）</span><br><span class="line"># 谨慎：首次请求会变慢</span><br><span class="line"></span><br><span class="line"># 2. 排除不必要的自动配置</span><br><span class="line">spring.autoconfigure.exclude=org.springframework.boot.autoconfigure...</span><br><span class="line"># 如无 JMX 需求排除 JmxAutoConfiguration</span><br><span class="line"># 无数据源需求排除 DataSourceAutoConfiguration</span><br><span class="line"></span><br><span class="line"># 3. 禁用 StartupInfoLogger（减少日志输出）</span><br><span class="line">spring.main.log-startup-info=false</span><br><span class="line"></span><br><span class="line"># 4. 缩小扫描包范围</span><br><span class="line">@ComponentScan(basePackages = &#123;&quot;com.myapp.core&quot;, &quot;com.myapp.service&quot;&#125;)</span><br><span class="line"></span><br><span class="line"># 5. JPA 优化</span><br><span class="line">spring.jpa.open-in-view=false  # 关闭 OSIV</span><br><span class="line">spring.jpa.mapping-resources=classpath:myapp-orm.xml  # 显式指定映射文件</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Spring Boot 3.x 启动优化</strong>：GraalVM Native Image 可以实现毫秒级启动，但需要解决反射、动态代理、资源文件等编译时确定性问题。Spring 6 提供了 <code>@Configuration(proxyBeanMethods=false)</code> + AOT 编译支持，启动时间从 5s 降到 100ms 以内。</li>
+<li><strong>Spring Boot 指标（Micrometer）</strong>：启动时注册 Micrometer 的启动耗时指标（<code>spring.application.started.time</code>、<code>spring.application.ready.time</code>），通过 Prometheus 监控趋势。</li>
+<li><strong>分层 JAR 部署</strong>：Spring Boot Maven Plugin 的 <code>layers</code> 特性可以将应用 jar 按依赖层拆分，Docker 构建时利用缓存减少镜像构建时间。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：一个微服务从 5 秒启动退化到 45 秒，排查发现：Spring Data JPA 的 <code>ddl-auto: update</code> 每次启动都会扫描 200+ 实体类并对比数据表结构，且每个实体类都会 <code>SELECT * FROM information_schema</code>。200 个实体类 × 3 条查询 × 20ms &#x3D; 12 秒。再加上 HikariCP 初始化时默认测试连接超时 30 秒（连接不可达时）。双重叠加 &#x3D; 45 秒。解决方案：<code>ddl-auto: none</code>（生产环境不需要 DDL 更新）+ 修复网络连通性。</p>
+<h3 id="0x05-02-生产环境中发现循环依赖，如何在不重构代码的前提下解决？"><a href="#0x05-02-生产环境中发现循环依赖，如何在不重构代码的前提下解决？" class="headerlink" title="0x05-02. 生产环境中发现循环依赖，如何在不重构代码的前提下解决？"></a>0x05-02. 生产环境中发现循环依赖，如何在不重构代码的前提下解决？</h3><p><strong>标准答案</strong>：<br>循环依赖是设计缺陷，但生产环境下有时来不及大面积重构。以下是在不重构代码的前提下解决循环依赖的方法：</p>
+<p><strong>1. 使用 @Lazy 打破循环（最快速）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AService</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="meta">@Lazy</span>  <span class="comment">// 注入代理，真正使用时才初始化</span></span><br><span class="line">    <span class="keyword">private</span> BService bService;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理：注入的是一个懒加载代理对象（CGLIB 生成），<code>bService.method()</code> 被调用时才去容器获取真实 Bean。适用于构造器注入和 Setter 注入的循环依赖。</p>
+<p><strong>2. 使用 ApplicationContext.getBean() 手动查找</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AService</span> <span class="keyword">implements</span> <span class="title class_">ApplicationContextAware</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext ctx;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">methodA</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">BService</span> <span class="variable">b</span> <span class="operator">=</span> ctx.getBean(BService.class);</span><br><span class="line">        b.methodB();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setApplicationContext</span><span class="params">(ApplicationContext ctx)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.ctx = ctx;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 使用 ObjectProvider 延迟获取</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AService</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ObjectProvider&lt;BService&gt; bProvider;  <span class="comment">// 延迟获取</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">methodA</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">BService</span> <span class="variable">b</span> <span class="operator">=</span> bProvider.getIfAvailable();  <span class="comment">// 真正使用时获取</span></span><br><span class="line">        <span class="keyword">if</span> (b != <span class="literal">null</span>) &#123;</span><br><span class="line">            b.methodB();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 使用 @PostConstruct + 延迟初始化</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CircularDependencyResolver</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ApplicationContext ctx;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 在容器初始化完成后手动解决依赖</span></span><br><span class="line">        <span class="type">AService</span> <span class="variable">a</span> <span class="operator">=</span> ctx.getBean(AService.class);</span><br><span class="line">        <span class="type">BService</span> <span class="variable">b</span> <span class="operator">=</span> ctx.getBean(BService.class);</span><br><span class="line">        a.setB(b);</span><br><span class="line">        b.setA(a);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. 提取公共依赖到中间接口或事件</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 用事件解耦 A → B → C → A</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AService</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ApplicationEventPublisher publisher;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 不直接调用 B</span></span><br><span class="line">        publisher.publishEvent(<span class="keyword">new</span> <span class="title class_">ACompletedEvent</span>(<span class="built_in">this</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BService</span> &#123;</span><br><span class="line">    <span class="meta">@EventListener</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onACompleted</span><span class="params">(ACompletedEvent event)</span> &#123;</span><br><span class="line">        <span class="comment">// 异步处理 A 完成后的逻辑</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>@Lazy 的局限</strong>：@Lazy 引入的是代理对象，不是真实 Bean。如果调用者试图获取代理对象的真实类型信息（如 instanceof 检查），可能得到预期之外的结果。代理对象在序列化时也需要注意。</li>
+<li><strong>ObjectProvider 的优势</strong>：不需要手动注入 ApplicationContext（耦合更高），ObjectProvider 是 Spring 4.3 引入的注入感知工具，支持 <code>getIfAvailable()</code>、<code>getIfUnique()</code>、<code>stream()</code> 等丰富 API。</li>
+<li><strong>根本原因分析</strong>：循环依赖通常意味着 A 和 B 的职责划分不清晰。典型模式：A 负责业务逻辑，B 负责通知&#x2F;日志等横切关注点，但 A 又需要 B 的结果作为输入。建议方案：① 引入中间层 C 持有双向引用；② 改为事件驱动；③ 用 Optional 依赖（B 可以为 null）。</li>
+<li><strong>Spring Boot 2.6+ 默认不允许循环依赖</strong>：如果必须存在，设置 <code>spring.main.allow-circular-references=true</code>。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：一个使用了 @Lazy 的项目，线上出现 Bug：A 调用 B 方法时，B 中通过 ThreadLocal 读取当前登录用户信息。由于 B 是 @Lazy 代理，第一次访问时才初始化，线程上下文已经变化，ThreadLocal 被其他请求污染。排查：@Lazy 代理对象的”真正初始化”发生在第一次访问时，如果第一次访问是某个请求的线程初始化的，ThreadLocal 绑定在该线程上，后续请求可能误用。<strong>教训：@Lazy 打破循环依赖后，务必验证是否有线程上下文依赖。</strong></p>
+<h3 id="0x05-03-事务不回滚的生产案例：从异常捕获到数据不一致"><a href="#0x05-03-事务不回滚的生产案例：从异常捕获到数据不一致" class="headerlink" title="0x05-03. 事务不回滚的生产案例：从异常捕获到数据不一致"></a>0x05-03. 事务不回滚的生产案例：从异常捕获到数据不一致</h3><p><strong>标准答案</strong>：</p>
+<p><strong>案例背景</strong>：<br>一个资金转账服务，A 账户扣款、B 账户加款应该在一个事务中完成。生产环境发现偶发”扣款成功但加款失败”的数据不一致。</p>
+<p><strong>现象</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用户 A 扣款 100 元 → 成功</span><br><span class="line">用户 B 加款 100 元 → 失败（数据库写入异常）</span><br><span class="line">最终余额：A-100, B 不变 → 100 元不翼而飞</span><br></pre></td></tr></table></figure>
+
+<p><strong>问题代码</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TransferService</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Long fromId, Long toId, BigDecimal amount)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            accountDao.debit(fromId, amount);  <span class="comment">// 扣款</span></span><br><span class="line">            accountDao.credit(toId, amount);    <span class="comment">// 加款</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;转账失败&quot;</span>, e);</span><br><span class="line">            <span class="comment">// ❌ 异常被捕获，事务管理器不知道出错了！</span></span><br><span class="line">            <span class="comment">// 代码继续执行，事务正常提交</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>根本原因</strong>：<br>经典的 <strong>异常被捕获导致事务不回滚</strong> 问题。@Transactional 通过 <code>TransactionInterceptor</code> 拦截，在方法正常返回时提交，异常抛出时回滚。但 try-catch 将异常吞掉了，方法返回正常状态，AOP 拦截器认为”一切正常”→ 提交事务。</p>
+<p><strong>解决方案</strong>：</p>
+<p><strong>方案一：不要吞异常（最推荐）</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Long fromId, Long toId, BigDecimal amount)</span> &#123;</span><br><span class="line">    accountDao.debit(fromId, amount);   <span class="comment">// 扣款</span></span><br><span class="line">    accountDao.credit(toId, amount);     <span class="comment">// 加款</span></span><br><span class="line">    <span class="comment">// 不要 try-catch，让异常自然抛出</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案二：手动标记回滚</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Long fromId, Long toId, BigDecimal amount)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        accountDao.debit(fromId, amount);</span><br><span class="line">        accountDao.credit(toId, amount);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;转账失败&quot;</span>, e);</span><br><span class="line">        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();</span><br><span class="line">        <span class="comment">// 手动标记当前事务需要回滚</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案三：使用编程式事务精确控制</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> TransactionTemplate txTemplate;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Long fromId, Long toId, BigDecimal amount)</span> &#123;</span><br><span class="line">    txTemplate.execute(status -&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            accountDao.debit(fromId, amount);</span><br><span class="line">            accountDao.credit(toId, amount);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">&quot;转账失败&quot;</span>, e);</span><br><span class="line">            status.setRollbackOnly();  <span class="comment">// 显式回滚</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案四：Spring 的 @Transactional(rollbackFor) 结合特定异常</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果必须 catch，确保重新抛出回滚异常</span></span><br><span class="line"><span class="meta">@Transactional(rollbackFor = Exception.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Long fromId, Long toId, BigDecimal amount)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        accountDao.debit(fromId, amount);</span><br><span class="line">        accountDao.credit(toId, amount);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;转账失败&quot;</span>, e);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;Transaction rolled back due to error&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>@Transactional 回滚逻辑</strong>：<code>TransactionAspectSupport.completeTransactionAfterThrowing()</code> 内部调用 <code>txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus())</code>，但没有 catch 异常——所以异常会继续向上传播。这就是为什么事务方法要抛异常。</li>
+<li><strong>checked exception 默认不回滚</strong>：如 IOException。即使方法抛出 checked exception，事务默认也会提交。必须加 <code>@Transactional(rollbackFor = IOException.class)</code>。</li>
+<li><strong>TransactionTemplate.execute() 的内部逻辑</strong>：如果 TransactionCallback 正常返回 → commit；如果回调抛出异常 → rollback。它等价于声明式事务的”异常自动回滚”。</li>
+<li><strong>分布式事务下的此问题更严重</strong>：如果用的是 Seata AT 或 TCC，服务 A 扣款成功（全局事务分支已注册），服务 B 加款异常但被 catch——全局事务协调器不知道失败，最终 A 无法回滚（TM 认为全局事务成功）。</li>
+</ul>
+<p>🔥 <strong>生产踩坑扩展——另一个真实案例</strong>：<br>某团队在事务方法中调用了另一个 Service 的方法（此 Service 内部使用了 <code>@Transactional(propagation = REQUIRES_NEW)</code>），子事务异常但被 try-catch 吞掉。结果：子事务（加了 REQUIRES_NEW）的执行结果被正常提交（因为它的异常没有抛出到父事务），但父事务的 @Transactional 认为子方法正常完成了。最终：子事务部分工作已提交（不可回滚），一个比单个事务不回滚更难排查的问题。<strong>教训：不要在事务代码中随便 try-catch，尤其是涉及传播行为切换时。</strong></p>
+<h3 id="0x05-04-Spring-应用的内存泄漏常见场景有哪些？"><a href="#0x05-04-Spring-应用的内存泄漏常见场景有哪些？" class="headerlink" title="0x05-04. Spring 应用的内存泄漏常见场景有哪些？"></a>0x05-04. Spring 应用的内存泄漏常见场景有哪些？</h3><p><strong>标准答案</strong>：<br>Spring 应用中常见的内存泄漏场景：</p>
+<p><strong>1. 不正确的 Scope 使用</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Scope(&quot;request&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RequestScopedBean</span> &#123;</span><br><span class="line">    <span class="comment">// ⚠️ 如果注入到 singleton Bean 中，可能会保留请求上下文引用</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决：<code>@Scope(value=&quot;request&quot;, proxyMode=ScopedProxyMode.TARGET_CLASS)</code></p>
+<p><strong>2. ThreadLocal 未清理</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RequestContextHolder</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;UserInfo&gt; userHolder = <span class="keyword">new</span> <span class="title class_">ThreadLocal</span>&lt;&gt;();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setUser</span><span class="params">(UserInfo user)</span> &#123;</span><br><span class="line">        userHolder.set(user);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ❌ 没有 remove() 方法，线程池复用线程导致内存泄漏</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决：在 <code>finally</code> 块中调用 <code>ThreadLocal.remove()</code>，或使用 <code>ManagedThreadLocal</code>。</p>
+<p><strong>3. 事件监听器泄漏</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每次某个操作都注册一个新的监听器，但从不注销</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LeakyService</span> &#123;</span><br><span class="line">    <span class="meta">@EventListener</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleEvent</span><span class="params">(MyEvent event)</span> &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果是手动添加的监听器，需在不再需要时手动移除。</p>
+<p><strong>4. CGLIB 代理类过多</strong><br>Spring AOP 对每个 @Aspect 类生成代理时，CGLIB 会为每个被代理的类生成新的增强类（Enhancer）。如果有 1000 个不同类被代理，PermGen&#x2F;Metaspace 中会存在 1000 个代理类 + 各自的 FastClass 类（用于直接方法调用）。</p>
+<p><strong>5. Spring 缓存扩展</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableCaching</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CacheConfig</span> &#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> CacheManager <span class="title function_">cacheManager</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ConcurrentMapCacheManager</span>(<span class="string">&quot;orders&quot;</span>);</span><br><span class="line">        <span class="comment">// ❌ 没有设置过期时间，缓存无限增长</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解决：使用 Caffeine 或 Redis 缓存并配置最大容量和过期时间。</p>
+<p><strong>6. ApplicationContext 泄漏</strong><br>在非 Web 应用或测试中，每次创建新的 <code>AnnotationConfigApplicationContext</code> 后没有调用 <code>close()</code> 方法，会导致大量 Class 元数据堆积在 Metaspace。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Metaspace 泄漏</strong>：Spring 的动态代理为每个目标类生成新的类定义（Class 元数据），如果不断创建新的代理类（如频繁热部署），Metaspace 会持续增长。调优：<code>-XX:MaxMetaspaceSize=256m</code> 限制元空间上限。</li>
+<li><strong>ClassLoader 泄漏</strong>：应用重部署（如 Tomcat 热部署）时，如果旧的 Spring 容器没有被完全 GC，旧的 ClassLoader 无法卸载——这是 Java Web 应用中最经典的内存泄漏来源。排查方式：使用 Eclipse Memory Analyzer (MAT) 分析 heap dump，查看 <code>java.lang.ClassLoader</code> 实例的数量。</li>
+<li><strong>Lambda 表达式泄漏</strong>：Spring 中大量使用 Lambda（如 <code>ThreadLocal.withInitial(() -&gt; ... )</code>），Lambda 内部持有外部类的引用（如果 Lambda 是匿名内部类）。可通过 <code>javap -c</code> 查看 Lambda 的调用栈确认。</li>
+</ul>
+<p>🔥 <strong>生产踩坑</strong>：某微服务上线后 Metaspace 持续增长至 1.2GB，每 3 天触发 Full GC（STW 时间 15 秒）。分析 heap dump 发现大量 <code>net.sf.cglib.proxy.Enhancer</code> 实例。排查发现：一个配置类中用了 <code>@Configuration @Scope(&quot;prototype&quot;)</code>，每次调用 <code>getBean()</code> 时 Spring 都会为 prototype 作用域的配置类生成一个新的 CGLIB 代理类。而业务代码每秒创建了数千个此类实例。解决：移除配置类的 @Configuration（改成 @Component），避免不必要的代理。</p>
+<hr>
+<blockquote>
+<p>本文覆盖 Spring 核心框架的 IoC、DI、AOP、事务、自动配置、生产实战六大模块，共 24 道高级面试题。每道题包含标准答案、源码级深入思考和生产踩坑案例，适合高级研发岗位面试准备。</p>
+<p><strong>参考来源</strong>：Spring Framework 6.x 官方文档、Spring Boot 3.x 官方文档、Spring 源码解析（github.com&#x2F;spring-projects&#x2F;spring-framework）、作者自身生产经验。</p>
+<p><strong>来源说明</strong>：本文基于自身知识整理，结合 Spring 官方源码、生产运维经验及常见面试题汇编。搜索工具：自身知识 + Spring 官方文档。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag"># 事务</a>
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+              <a href="/tags/IoC/" rel="tag"># IoC</a>
+              <a href="/tags/AOP/" rel="tag"># AOP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/10/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8-Agent-%E5%8A%A8%E6%80%81-%E7%AC%AC1%E6%9C%9F/" rel="prev" title="网络安全 Agent 动态 第1期（2026-06-10）">
+                  <i class="fa fa-angle-left"></i> 网络安全 Agent 动态 第1期（2026-06-10）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-MySQL-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="MySQL 高级面试全解">
+                  MySQL 高级面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

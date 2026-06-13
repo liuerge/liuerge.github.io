@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="数据库面试题：MySQL 面试全解 面向全栈高级&#x2F;资深研发的 MySQL 深度全解。覆盖 InnoDB 引擎、MVCC、锁机制、SQL 优化、主从高可用、分库分表、分布式数据库对比与生产实战。每道题包含：标准答案 + 深入思考 + 生产踩坑案例 + 参考链接。   0x00 InnoDB 存储引擎0x00-01 B+ 树数据结构（高度&#x2F;扇出&#x2F;为什么选 B+ 树而非 L">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库面试题：MySQL 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-MySQL-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="数据库面试题：MySQL 面试全解 面向全栈高级&#x2F;资深研发的 MySQL 深度全解。覆盖 InnoDB 引擎、MVCC、锁机制、SQL 优化、主从高可用、分库分表、分布式数据库对比与生产实战。每道题包含：标准答案 + 深入思考 + 生产踩坑案例 + 参考链接。   0x00 InnoDB 存储引擎0x00-01 B+ 树数据结构（高度&#x2F;扇出&#x2F;为什么选 B+ 树而非 L">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-13T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-13T06:35:47.071Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="InnoDB">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-MySQL-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-MySQL-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/13/数据库面试题-MySQL-面试全解/","title":"数据库面试题：MySQL 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数据库面试题：MySQL 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9AMySQL-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3"><span class="nav-text">数据库面试题：MySQL 面试全解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-InnoDB-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="nav-text">0x00 InnoDB 存储引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-01-B-%E6%A0%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%88%E9%AB%98%E5%BA%A6-%E6%89%87%E5%87%BA-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89-B-%E6%A0%91%E8%80%8C%E9%9D%9E-LSM-B-%E6%A0%91-%E7%BA%A2%E9%BB%91%E6%A0%91%EF%BC%89"><span class="nav-text">0x00-01 B+ 树数据结构（高度&#x2F;扇出&#x2F;为什么选 B+ 树而非 LSM&#x2F;B 树&#x2F;红黑树）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-02-%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E4%B8%8E%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95"><span class="nav-text">0x00-02 聚簇索引与二级索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-03-Change-Buffer-Adaptive-Hash-Index-Doublewrite-Buffer"><span class="nav-text">0x00-03 Change Buffer &#x2F; Adaptive Hash Index &#x2F; Doublewrite Buffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-04-%E8%A1%8C%E6%A0%BC%E5%BC%8F%EF%BC%88Compact-Redundant-Dynamic-Compressed%EF%BC%89"><span class="nav-text">0x00-04 行格式（Compact&#x2F;Redundant&#x2F;Dynamic&#x2F;Compressed）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-MVCC-%E4%B8%8E%E4%BA%8B%E5%8A%A1"><span class="nav-text">0x01 MVCC 与事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-01-MVCC-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%EF%BC%88Undo-Log-Read-View-%E5%8F%AF%E8%A7%81%E6%80%A7%E7%AE%97%E6%B3%95%EF%BC%89"><span class="nav-text">0x01-01 MVCC 实现原理（Undo Log + Read View + 可见性算法）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-02-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%EF%BC%88RR-RC-%E4%B8%8B-MVCC-%E5%B7%AE%E5%BC%82-%E5%B9%BB%E8%AF%BB%E8%A7%A3%E5%86%B3-vs-%E6%9C%AA%E8%A7%A3%E5%86%B3%EF%BC%89"><span class="nav-text">0x01-02 事务隔离级别（RR&#x2F;RC 下 MVCC 差异 + 幻读解决 vs 未解决）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-03-MVCC-%E4%B8%8E%E9%94%81%E7%9A%84%E9%85%8D%E5%90%88"><span class="nav-text">0x01-03 MVCC 与锁的配合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-04-%E9%95%BF%E4%BA%8B%E5%8A%A1%E9%97%AE%E9%A2%98%EF%BC%88undo-%E8%86%A8%E8%83%80-%E6%AD%BB%E9%94%81-%E4%B8%BB%E4%BB%8E%E5%BB%B6%E8%BF%9F%EF%BC%89"><span class="nav-text">0x01-04 长事务问题（undo 膨胀&#x2F;死锁&#x2F;主从延迟）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E9%94%81%E6%9C%BA%E5%88%B6"><span class="nav-text">0x02 锁机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-01-%E8%A1%8C%E9%94%81-%E9%97%B4%E9%9A%99%E9%94%81-%E4%B8%B4%E9%94%AE%E9%94%81-%E6%8F%92%E5%85%A5%E6%84%8F%E5%90%91%E9%94%81"><span class="nav-text">0x02-01 行锁&#x2F;间隙锁&#x2F;临键锁&#x2F;插入意向锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-02-%E6%AD%BB%E9%94%81%E5%88%86%E6%9E%90%EF%BC%88show-engine-innodb-status-%E9%94%81%E7%AD%89%E5%BE%85%E4%BF%A1%E6%81%AF-%E6%A1%88%E4%BE%8B%EF%BC%89"><span class="nav-text">0x02-02 死锁分析（show engine innodb status &#x2F; 锁等待信息 &#x2F; 案例）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-03-DDL-Online%EF%BC%88Online-DDL-gh-ost-PT-OSC%EF%BC%89"><span class="nav-text">0x02-03 DDL Online（Online DDL&#x2F;gh-ost&#x2F;PT-OSC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-04-%E4%B9%90%E8%A7%82%E9%94%81-vs-%E6%82%B2%E8%A7%82%E9%94%81%E5%AE%9E%E6%88%98"><span class="nav-text">0x02-04 乐观锁 vs 悲观锁实战</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-SQL-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03 SQL 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-01-EXPLAIN%EF%BC%88type-Extra-rows-%E7%AD%89%E5%85%B3%E9%94%AE%E5%AD%97%E6%AE%B5%E5%AE%9E%E6%88%98%E8%A7%A3%E8%AF%BB%EF%BC%89"><span class="nav-text">0x03-01 EXPLAIN（type&#x2F;Extra&#x2F;rows 等关键字段实战解读）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-02-%E6%85%A2-SQL-%E5%AE%9A%E4%BD%8D%E4%B8%8E%E4%BC%98%E5%8C%96%EF%BC%88Optimizer-Trace-Profiling%EF%BC%89"><span class="nav-text">0x03-02 慢 SQL 定位与优化（Optimizer Trace &#x2F; Profiling）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-03-%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%9C%BA%E6%99%AF%E5%A4%A7%E5%85%A8"><span class="nav-text">0x03-03 索引失效场景大全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-04-%E5%A4%A7%E5%88%86%E9%A1%B5%E4%BC%98%E5%8C%96-Join-%E4%BC%98%E5%8C%96-Order-By-%E4%BC%98%E5%8C%96"><span class="nav-text">0x03-04 大分页优化 &#x2F; Join 优化 &#x2F; Order By 优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%A7%E5%88%86%E9%A1%B5%E4%BC%98%E5%8C%96"><span class="nav-text">大分页优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JOIN-%E4%BC%98%E5%8C%96"><span class="nav-text">JOIN 优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ORDER-BY-%E4%BC%98%E5%8C%96"><span class="nav-text">ORDER BY 优化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E4%B8%BB%E4%BB%8E%E4%B8%8E%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="nav-text">0x04 主从与高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-01-%E5%BC%82%E6%AD%A5-%E5%8D%8A%E5%90%8C%E6%AD%A5-%E7%BB%84%E5%A4%8D%E5%88%B6"><span class="nav-text">0x04-01 异步&#x2F;半同步&#x2F;组复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-02-GTID-%E5%8E%9F%E7%90%86%E4%B8%8E%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D"><span class="nav-text">0x04-02 GTID 原理与故障恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-03-%E4%B8%BB%E4%BB%8E%E5%BB%B6%E8%BF%9F%E5%88%86%E6%9E%90%E4%B8%8E%E7%BC%93%E8%A7%A3"><span class="nav-text">0x04-03 主从延迟分析与缓解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-04-MHA-Orchestrator-ProxySQL"><span class="nav-text">0x04-04 MHA &#x2F; Orchestrator &#x2F; ProxySQL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8"><span class="nav-text">0x05 分库分表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-01-%E6%B0%B4%E5%B9%B3%E5%88%86%E7%89%87%E7%AD%96%E7%95%A5%EF%BC%88%E8%8C%83%E5%9B%B4-%E5%93%88%E5%B8%8C-%E6%97%B6%E9%97%B4-%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%EF%BC%89"><span class="nav-text">0x05-01 水平分片策略（范围&#x2F;哈希&#x2F;时间&#x2F;一致性哈希）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-02-%E8%B7%A8%E5%88%86%E7%89%87%E6%9F%A5%E8%AF%A2-%E5%85%A8%E5%B1%80%E8%A1%A8-%E5%B9%BF%E6%92%AD%E8%A1%A8-ER-%E5%88%86%E7%89%87"><span class="nav-text">0x05-02 跨分片查询&#x2F;全局表&#x2F;广播表&#x2F;ER 分片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-03-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1-%E5%88%86%E5%B8%83%E5%BC%8F-ID-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E5%90%8E%E7%9A%84%E6%8E%92%E5%BA%8F%E5%88%86%E9%A1%B5"><span class="nav-text">0x05-03 分布式事务&#x2F;分布式 ID&#x2F;分库分表后的排序分页</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-04-ShardingSphere-%E6%BA%90%E7%A0%81%E7%BA%A7"><span class="nav-text">0x05-04 ShardingSphere 源码级</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%B9%E6%AF%94"><span class="nav-text">0x06 分布式数据库对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-01-TiDB%EF%BC%88Raft-LSM-tree-HTAP%EF%BC%89"><span class="nav-text">0x06-01 TiDB（Raft + LSM-tree + HTAP）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-02-OceanBase%EF%BC%88Paxos-LSM-Tree-%E5%A4%9A%E7%A7%9F%E6%88%B7%EF%BC%89"><span class="nav-text">0x06-02 OceanBase（Paxos + LSM-Tree + 多租户）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-03-MySQL-vs-TiDB-vs-OB-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%A0%91"><span class="nav-text">0x06-03 MySQL vs TiDB vs OB 选型决策树</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x07 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x07-01-%E7%99%BE%E4%B8%87%E7%BA%A7%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB%E4%B8%8D%E5%81%9C%E6%9C%BA%E6%96%B9%E6%A1%88"><span class="nav-text">0x07-01 百万级数据迁移不停机方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x07-02-%E5%A4%A7%E8%A1%A8-DDL-%E8%B8%A9%E5%9D%91%EF%BC%885-%E4%BA%BF%E8%A1%8C%E8%A1%A8%E6%94%B9%E5%AD%97%E6%AE%B5%EF%BC%89"><span class="nav-text">0x07-02 大表 DDL 踩坑（5 亿行表改字段）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x07-03-%E8%BF%9E%E6%8E%A5%E6%B1%A0%E7%88%86%E6%BB%A1%E6%95%91%E6%8F%B4%E5%85%A8%E8%BF%87%E7%A8%8B"><span class="nav-text">0x07-03 连接池爆满救援全过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%EF%BC%9A%E5%A4%8D%E4%B9%A0%E8%B7%AF%E7%BA%BF%E5%9B%BE"><span class="nav-text">附：复习路线图</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">112</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-MySQL-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数据库面试题：MySQL 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数据库面试题：MySQL 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-13 12:00:00 / 修改时间：14:35:47" itemprop="dateCreated datePublished" datetime="2026-06-13T12:00:00+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="数据库面试题：MySQL-面试全解"><a href="#数据库面试题：MySQL-面试全解" class="headerlink" title="数据库面试题：MySQL 面试全解"></a>数据库面试题：MySQL 面试全解</h1><blockquote>
+<p>面向全栈高级&#x2F;资深研发的 MySQL 深度全解。覆盖 InnoDB 引擎、MVCC、锁机制、SQL 优化、主从高可用、分库分表、分布式数据库对比与生产实战。<br>每道题包含：标准答案 + 深入思考 + 生产踩坑案例 + 参考链接。</p>
+</blockquote>
+<hr>
+<h2 id="0x00-InnoDB-存储引擎"><a href="#0x00-InnoDB-存储引擎" class="headerlink" title="0x00 InnoDB 存储引擎"></a>0x00 InnoDB 存储引擎</h2><h3 id="0x00-01-B-树数据结构（高度-扇出-为什么选-B-树而非-LSM-B-树-红黑树）"><a href="#0x00-01-B-树数据结构（高度-扇出-为什么选-B-树而非-LSM-B-树-红黑树）" class="headerlink" title="0x00-01 B+ 树数据结构（高度&#x2F;扇出&#x2F;为什么选 B+ 树而非 LSM&#x2F;B 树&#x2F;红黑树）"></a>0x00-01 B+ 树数据结构（高度&#x2F;扇出&#x2F;为什么选 B+ 树而非 LSM&#x2F;B 树&#x2F;红黑树）</h3><p><strong>标准答案：</strong></p>
+<p>MySQL InnoDB 存储引擎使用 <strong>B+ 树</strong>作为索引的底层数据结构。B+ 树是 B 树的一种变体，所有数据仅存储在叶子节点，内部节点只存储键值和指针（路由信息）。叶子节点之间通过双向链表连接，形成有序的数据集合。</p>
+<ul>
+<li><strong>高度</strong>：对于 16KB 的默认页大小，假设主键为 BIGINT（8 字节）加指针（6 字节），一个内部节点可存放约 <code>16KB / 14B ≈ 1170 个键值对</code>。三层 B+ 树即可存储 <code>1170 × 1170 × 16 ≈ 2190 万</code> 条记录。四层可支撑约 256 亿条记录。实际中三层高度即可覆盖绝大多数生产场景，从根节点到叶子节点仅需 <strong>3~4 次磁盘 I&#x2F;O</strong>。</li>
+<li><strong>扇出（Fanout）</strong>：B+ 树的扇出系数远高于二叉搜索树（如红黑树）。16KB 页的扇出约 1000+，二叉搜索树的扇出为 2。在相同数据量下，B+ 树高度为 log_{1170}(N)，红黑树高度为 log_2(N)。对于 10 亿条数据，B+ 树需要 3 层，红黑树需要 30 层——磁盘 I&#x2F;O 差距悬殊。</li>
+</ul>
+<p><strong>为什么 MySQL 选 B+ 树而非其他结构？</strong></p>
+<table>
+<thead>
+<tr>
+<th>数据结构</th>
+<th>不选的原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>红黑树</strong></td>
+<td>高度随数据量线性增长，每个节点 2 个子节点。千万级数据需 20+ 次 I&#x2F;O，磁盘寻道时间不可接受。仅适合内存场景（如 TreeMap）。</td>
+</tr>
+<tr>
+<td><strong>B 树</strong></td>
+<td>内部节点也存数据，同样大小的页能容纳的键值对更少，扇出系数低。范围查询需中序遍历多次回溯，不如 B+ 树叶子链表高效。</td>
+</tr>
+<tr>
+<td><strong>LSM-Tree</strong></td>
+<td>写放大严重（Level-0 到 Level-n 的 Compaction），读放大明显（需检查多层级）。引擎实现复杂，读写放大不可同时优化。更适合写多读少场景（如 RocksDB、HBase）。</td>
+</tr>
+<tr>
+<td><strong>哈希表</strong></td>
+<td>不支持范围查询、前缀匹配、排序。仅适合等值查询场景（如 NoSQL 的 key-value 存储）。</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考：</strong></p>
+<p>B+ 树的真正优势在于<strong>磁盘 I&#x2F;O 局部性</strong>和<strong>空间利用率</strong>的平衡：</p>
+<ol>
+<li><strong>磁盘预读</strong>：操作系统按页（4KB）读取磁盘，B+ 树的页大小（16KB）与之匹配，一次 I&#x2F;O 可获取整个节点。顺序叶子链表使范围扫描变为顺序 I&#x2F;O。</li>
+<li><strong>缓存效率</strong>：内部节点可常驻 Buffer Pool，实际查询仅叶子节点产生磁盘 I&#x2F;O。热点中间节点被频繁命中，缓存友好。</li>
+<li><strong>B+ 树 vs LSM-Tree 的取舍</strong>：在 OLTP 场景下，B+ 树的点查和范围查均优于 LSM-Tree。LSM-Tree 在写入吞吐上有优势（顺序写），但读路径需逐层查找 Bloom Filter 和 SSTable。这就是为什么 InnoDB 用 B+ 树做主存储，而 TiKV（TiDB 的存储层）用 RocksDB（LSM-Tree）做分布式 KV 存储——场景不同。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>Uber 的 B+ 树页分裂灾难</strong>：某金融系统使用 UUID 作为主键，在亿级数据插入时频繁触发 B+ 树页分裂（随机插入导致节点 50% 利用率时即触发分裂），产生大量碎片和 IO 写入。最终导致 Buffer Pool 脏页刷盘压力过载，查询延迟从 5ms 飙升至 3s。解决方案是将主键改为自增 BIGINT，页分裂频率降低 90%，写入吞吐提升 5 倍。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/index-btree-hash.html">MySQL 官方文档 - InnoDB B+ Tree 索引</a></li>
+<li><a target="_blank" rel="noopener" href="https://tianpan.co/notes/2018-07-22-b-tree-vs-b-plus-tree">B-Tree vs B+Tree comparison</a></li>
+<li><a target="_blank" rel="noopener" href="https://ristret.com/s/g1ukbq/lsm_tree_vs_b_tree_performance_tradeoffs">LSM-Tree vs B-Tree: Performance Trade-offs</a></li>
+</ul>
+<hr>
+<h3 id="0x00-02-聚簇索引与二级索引"><a href="#0x00-02-聚簇索引与二级索引" class="headerlink" title="0x00-02 聚簇索引与二级索引"></a>0x00-02 聚簇索引与二级索引</h3><p><strong>标准答案：</strong></p>
+<p>InnoDB 使用<strong>聚簇索引（Clustered Index）<strong>作为主键索引。表数据本身就是 B+ 树，叶子节点存储完整的行数据。每个表</strong>有且仅有一个</strong>聚簇索引。如果表没有定义主键，InnoDB 会选择一个唯一非空索引代替，否则隐式生成一个 6 字节的 ROWID。</p>
+<p><strong>二级索引（Secondary Index）<strong>的叶子节点存储的是</strong>主键值</strong>而非行数据地址。这带来了几个关键概念：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>回表（Bookmark Lookup）</strong></td>
+<td>通过二级索引找到主键后，再通过聚簇索引查找完整行数据。每次回表 ≈ 一次磁盘 I&#x2F;O。</td>
+</tr>
+<tr>
+<td><strong>索引覆盖（Covering Index）</strong></td>
+<td>查询所需字段全部包含在二级索引中时，无需回表。Extra 列显示 <code>Using index</code>。</td>
+</tr>
+<tr>
+<td><strong>ICP（Index Condition Pushdown）</strong></td>
+<td>MySQL 5.6+ 将 WHERE 条件中可以用索引列判断的部分下推到存储引擎层。减少回表次数。</td>
+</tr>
+<tr>
+<td><strong>MRR（Multi-Range Read）</strong></td>
+<td>MySQL 5.6+ 将二级索引扫描得到的多个主键排序后再回表，将随机 I&#x2F;O 转为顺序 I&#x2F;O。</td>
+</tr>
+<tr>
+<td><strong>Index Merge</strong></td>
+<td>对同一条查询使用多个索引取交集&#x2F;并集。Extra 显示 <code>Using intersect</code>&#x2F;<code>Using union</code>。</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>为什么二级索引存主键值而不是行指针？</strong> 避免数据移动时的索引更新。如果使用行指针，当 B+ 树页分裂或行迁移时，所有二级索引都需更新。主键值”逻辑地址”使得二级索引与物理存储解耦。</li>
+<li><strong>聚簇索引的隐含代价</strong>：插入主键不连续时（如 UUID），会产生”页分裂风暴”。二级索引的主键字段也会膨胀——二级索引叶子节点存的是主键，主键越大，每个二级索引占用空间越大。</li>
+<li><strong>ICP 生效条件</strong>：仅适用于 <code>range</code>&#x2F;<code>ref</code>&#x2F;<code>eq_ref</code>&#x2F;<code>ref_or_null</code> 的索引访问方式。Extra 列显示 <code>Using index condition</code>。ICP 对于复合索引的”中间列”过滤特别有效。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>电商订单系统的索引覆盖优化</strong>：某电商订单表 1.2 亿行，查询 <code>SELECT order_id, status, amount FROM orders WHERE status = 1 ORDER BY create_time DESC LIMIT 20</code>，status 和 create_time 各有独立索引。MySQL 选择 status 索引 + 回表 + filesort，耗时 3.2s。优化方案：创建复合索引 <code>idx_status_create_time (status, create_time, order_id, amount)</code> 实现索引覆盖，Extra 变为 <code>Using where; Using index</code>，耗时降至 8ms。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.4/en/index-condition-pushdown-optimization.html">MySQL ICP 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/mrr-optimization.html">MySQL MRR 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/index-merge-optimization.html">Index Merge Optimization</a></li>
+</ul>
+<hr>
+<h3 id="0x00-03-Change-Buffer-Adaptive-Hash-Index-Doublewrite-Buffer"><a href="#0x00-03-Change-Buffer-Adaptive-Hash-Index-Doublewrite-Buffer" class="headerlink" title="0x00-03 Change Buffer &#x2F; Adaptive Hash Index &#x2F; Doublewrite Buffer"></a>0x00-03 Change Buffer &#x2F; Adaptive Hash Index &#x2F; Doublewrite Buffer</h3><p><strong>标准答案：</strong></p>
+<p><strong>Change Buffer（变更缓冲）</strong>：<br>InnoDB 用于缓冲对<strong>二级索引页</strong>的变更操作（INSERT&#x2F;UPDATE&#x2F;DELETE）。当目标页不在 Buffer Pool 中时，不立即从磁盘读取该页，而是将变更记录在 Change Buffer 中。后续当该页被读入 Buffer Pool 时，再将缓冲的变更合并（Merge）。Change Buffer 只针对<strong>唯一性索引以外的二级索引</strong>。</p>
+<p><strong>Adaptive Hash Index（自适应哈希索引，AHI）</strong>：<br>InnoDB 根据访问模式自动为 B+ 树索引的热点页面建立哈希索引。当检测到某个索引页被频繁通过等值条件访问时，会在内存中创建哈希索引。仅对等值查询加速，范围查询仍走 B+ 树。完全自管理、不可干预。</p>
+<p><strong>Doublewrite Buffer（双写缓冲）</strong>：<br>InnoDB 的<strong>数据页完整性</strong>保护机制。在写入数据文件前，先将 1MB 的数据（128 个页，每个 16KB）连续写入双写缓冲区的共享表空间，再写入实际数据文件。解决”部分页写入（Partial Page Write）”问题——数据库因断电&#x2F;崩溃导致一个页只写了一半的损坏。</p>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>Change Buffer 的配置陷阱</strong>：参数 <code>innodb_change_buffer_max_size</code>（默认 25%）控制 Change Buffer 占用 Buffer Pool 的最大比例。在写密集且二级索引多的场景下可以调大（如 50%），但会挤压 Buffer Pool 的缓存空间，导致读命中率下降。在 SSD 环境下，Change Buffer 的收益下降——因为 SSD 随机读性能远高于 HDD。</li>
+<li><strong>AHI 的 Hash 冲突问题</strong>：AHI 使用部分主键的哈希值，在高并发对同一锁争用热行时，AHI 的锁竞争反而可能成为瓶颈。在极端场景（如秒杀扣减库存），建议关闭 AHI（<code>innodb_adaptive_hash_index=OFF</code>）。</li>
+<li><strong>Doublewrite Buffer 与文件系统</strong>：如果底层文件系统支持原子写（如 ZFS、使用 Fusion-io 直写），可以关闭 Doublewrite Buffer 以节省 2x 写放大。但在常规的 ext4&#x2F;xfs 上绝对不可以关闭。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>微博推送系统的 Change Buffer 耗尽问题</strong>：某社交平台的”关注关系”表有 5 个二级索引，每秒 2 万 INSERT，Change Buffer 设置为 25%。因二级索引页频繁不在 Buffer Pool 中，Change Buffer 快速膨胀至上限，触发批量 Merge。Merge 时大量随机 I&#x2F;O 导致磁盘利用率 100%，写入延迟从 1ms 飙升至 500ms。最终调整 <code>innodb_change_buffer_max_size=10%</code>，并将在内存热点高的二级索引改为唯一索引（跳出 Change Buffer），问题解决。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-change-buffer.html">MySQL 8.0 InnoDB Change Buffer</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-adaptive-hash.html">MySQL 8.0 Adaptive Hash Index</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-doublewrite-buffer.html">MySQL 8.0 Doublewrite Buffer</a></li>
+</ul>
+<hr>
+<h3 id="0x00-04-行格式（Compact-Redundant-Dynamic-Compressed）"><a href="#0x00-04-行格式（Compact-Redundant-Dynamic-Compressed）" class="headerlink" title="0x00-04 行格式（Compact&#x2F;Redundant&#x2F;Dynamic&#x2F;Compressed）"></a>0x00-04 行格式（Compact&#x2F;Redundant&#x2F;Dynamic&#x2F;Compressed）</h3><p><strong>标准答案：</strong></p>
+<p>InnoDB 支持四种行格式，分属两个文件格式世代：</p>
+<table>
+<thead>
+<tr>
+<th>行格式</th>
+<th>文件格式</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Redundant</strong></td>
+<td>Antelope</td>
+<td>最早的格式，数据字典兼容</td>
+<td>仅 MySQL 5.0 以下兼容需求</td>
+</tr>
+<tr>
+<td><strong>Compact</strong></td>
+<td>Antelope</td>
+<td>Redundant 的改进版，约减少 20% 存储</td>
+<td>MySQL 5.5&#x2F;5.6 默认格式</td>
+</tr>
+<tr>
+<td><strong>Dynamic</strong></td>
+<td>Barracuda</td>
+<td>LONG 列完全存储在溢出页，不浪费主数据页空间</td>
+<td><strong>MySQL 5.7+ 默认格式，推荐</strong></td>
+</tr>
+<tr>
+<td><strong>Compressed</strong></td>
+<td>Barracuda</td>
+<td>Dynamic 基础上增加页级别压缩（zlib）</td>
+<td>存储成本敏感的只读&#x2F;低频场景</td>
+</tr>
+</tbody></table>
+<p><strong>关键区别：</strong></p>
+<ul>
+<li>Compact&#x2F;Redundant 对于 VARCHAR&#x2F;VARBINARY&#x2F;BLOB&#x2F;TEXT 等长字段，在页内存放 768 字节的前缀 + 20 字节指针指向溢出页。这导致即使只存小数据也浪费空间。</li>
+<li>Dynamic 不在主数据页预分配 768 字节，仅当整行能放入页内时才全量存储，否则整列放入溢出页。大幅提高 B+ 树叶子节点可容纳行数。</li>
+</ul>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>Compressed 的代价</strong>：页压缩（Page Compression）会在每次页面修改时进行压缩&#x2F;解压缩，显著增加 CPU 消耗。在 OLTP 高并发下不推荐。但在分析型查询和数据归档场景，压缩比可达 3~5x，显著减少存储成本和 I&#x2F;O。</li>
+<li><strong>MySQL 8.0 的透明页压缩</strong>：MySQL 8.0 引入基于文件系统的透明页压缩（Transparent Page Compression），在上层实现，数据写入前通过 <code>Punch Hole</code> 释放空闲空间。与 InnoDB 的 Compressed 行格式无关，且兼容 Dynamic 格式。推荐用透明页压缩代替 Compressed 行格式。</li>
+<li><strong>巨型 TEXT&#x2F;BLOB 字段</strong>：即使使用 Dynamic 格式，频繁访问包含巨量 TEXT&#x2F;BLOB 的表依然会导致严重的 Buffer Pool 污染和性能抖动。建议将大字段独立成关联表—这是一种经典的”宽表拆窄表”优化。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/innodb-row-format.html">MySQL 5.7 InnoDB Row Formats</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-page-compression.html">MySQL 8.0 Transparent Page Compression</a></li>
+</ul>
+<hr>
+<h2 id="0x01-MVCC-与事务"><a href="#0x01-MVCC-与事务" class="headerlink" title="0x01 MVCC 与事务"></a>0x01 MVCC 与事务</h2><h3 id="0x01-01-MVCC-实现原理（Undo-Log-Read-View-可见性算法）"><a href="#0x01-01-MVCC-实现原理（Undo-Log-Read-View-可见性算法）" class="headerlink" title="0x01-01 MVCC 实现原理（Undo Log + Read View + 可见性算法）"></a>0x01-01 MVCC 实现原理（Undo Log + Read View + 可见性算法）</h3><p><strong>标准答案：</strong></p>
+<p>InnoDB 的 MVCC（Multi-Version Concurrency Control）是一种<strong>乐观并发控制</strong>机制，允许读写互相不阻塞。核心组成：</p>
+<p><strong>1. Undo Log（回滚日志）版本链</strong></p>
+<ul>
+<li>聚簇索引行记录包含三个隐藏字段：<code>DB_TRX_ID</code>（最近修改的事务 ID）、<code>DB_ROLL_PTR</code>（回滚指针，指向 Undo Log 中的上一个版本）、<code>DB_ROW_ID</code>（隐式行 ID）。</li>
+<li>每次 UPDATE&#x2F;DELETE 时，InnoDB 将被修改前的行快照写入 Undo Log，形成一条<strong>版本链</strong>，按事务修改顺序链接。</li>
+<li>INSERT 也会生成 Undo Log 但仅在事务回滚时需要，事务提交后可立即清理。</li>
+</ul>
+<p><strong>2. Read View（读视图）</strong><br>Read View 是在事务执行<strong>一致性读</strong>时创建的快照，包含：</p>
+<ul>
+<li><code>m_ids</code>：当前所有<strong>活跃事务</strong>的事务 ID 列表（未提交的写事务）。</li>
+<li><code>min_trx_id</code>：<code>m_ids</code> 中的最小值。</li>
+<li><code>max_trx_id</code>：全局下一个将要分配的事务 ID。</li>
+<li><code>creator_trx_id</code>：创建该 Read View 的事务 ID。</li>
+</ul>
+<p><strong>3. 可见性算法</strong><br>判断一行数据（其 <code>DB_TRX_ID = trx_id</code>）是否对当前 Read View 可见：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if trx_id == creator_trx_id:</span><br><span class="line">    return VISIBLE  # 当前事务自己的修改可见</span><br><span class="line">elif trx_id &lt; min_trx_id:</span><br><span class="line">    return VISIBLE  # 在快照创建前已提交</span><br><span class="line">elif trx_id &gt;= max_trx_id:</span><br><span class="line">    return INVISIBLE  # 快照创建后才开始的事务</span><br><span class="line">elif trx_id in m_ids:</span><br><span class="line">    return INVISIBLE  # 快照创建时该事务尚未提交</span><br><span class="line">else:</span><br><span class="line">    return VISIBLE  # 快照创建时已提交</span><br></pre></td></tr></table></figure>
+
+<p>如果当前版本不可见，通过 <code>DB_ROLL_PTR</code> 沿版本链回溯，直到找到可见版本或全部搜索完。</p>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>一致性非锁定读（Consistent Nonlocking Read）</strong>：<code>SELECT ... FOR UPDATE</code> 和 <code>SELECT ... LOCK IN SHARE MODE</code> 是锁定读，会阻塞。普通的 <code>SELECT</code> 是快照读，不加任何锁，通过 MVCC 保证一致性。这是 InnoDB 高并发的核心保障。</li>
+<li><strong>RR 与 RC 下 Read View 创建时机</strong>：在 RR 下，第一个 <code>SELECT</code> 语句开始整个事务期间复用一个 Read View。在 RC 下，每条 <code>SELECT</code> 语句都重新创建新的 Read View。这是两者行为差异的核心原因。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-multi-versioning.html">MySQL 8.0 InnoDB Multi-Versioning</a></li>
+<li><a target="_blank" rel="noopener" href="https://betterprogramming.pub/in-depth-analysis-of-the-mvcc-principle-of-mysql-c4a5529e4f5">InnoDB MVCC Principle Deep Analysis</a></li>
+</ul>
+<hr>
+<h3 id="0x01-02-事务隔离级别（RR-RC-下-MVCC-差异-幻读解决-vs-未解决）"><a href="#0x01-02-事务隔离级别（RR-RC-下-MVCC-差异-幻读解决-vs-未解决）" class="headerlink" title="0x01-02 事务隔离级别（RR&#x2F;RC 下 MVCC 差异 + 幻读解决 vs 未解决）"></a>0x01-02 事务隔离级别（RR&#x2F;RC 下 MVCC 差异 + 幻读解决 vs 未解决）</h3><p><strong>标准答案：</strong></p>
+<p>MySQL InnoDB 支持 SQL 标准定义的四个隔离级别，默认为 <strong>REPEATABLE READ（RR）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th align="center">脏读</th>
+<th align="center">不可重复读</th>
+<th align="center">幻读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>READ UNCOMMITTED</td>
+<td align="center">可能</td>
+<td align="center">可能</td>
+<td align="center">可能</td>
+</tr>
+<tr>
+<td>READ COMMITTED（RC）</td>
+<td align="center">-</td>
+<td align="center">可能</td>
+<td align="center">可能</td>
+</tr>
+<tr>
+<td>REPEATABLE READ（RR）</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center"><strong>InnoDB 下解决</strong></td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+</tr>
+</tbody></table>
+<p><strong>RR 下 MVCC 的差异：</strong></p>
+<ul>
+<li>Read View 在第一个一致性读时创建并<strong>整个事务期间复用</strong>。</li>
+<li>同一事务中重复执行 <code>SELECT * FROM t WHERE id &gt; 100</code>，由于 Read View 不变，始终看到事务开始时的数据快照——因此 RR 下<strong>普通的快照读不存在不可重复读和幻读</strong>。</li>
+</ul>
+<p><strong>幻读的解决 vs 未解决：</strong></p>
+<ul>
+<li><strong>快照读（Snapshot Read）</strong>：RR 级别下普通 SELECT 不存在幻读（一直在事务开始的快照中），这是通过 MVCC Read View 解决的。</li>
+<li><strong>当前读（Current Read）</strong>：<code>SELECT ... FOR UPDATE</code>&#x2F;<code>UPDATE</code>&#x2F;<code>DELETE</code> 等在 RR 级别下通过 <strong>Next-Key Lock（临键锁）</strong> 解决幻读。如果查询条件没有唯一索引，Next-Key Lock 会锁定扫描范围的所有记录和间隙，阻止其他事务插入新行。</li>
+</ul>
+<p>因此严格说，<strong>MySQL RR 级别通过 MVCC + 间隙锁完全解决了幻读</strong>。这是 MySQL 对 SQL 标准的扩展。</p>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>为什么 RC 在 MySQL 中也有广泛实践？</strong> RC 级别下 Read View 每个语句重新创建，锁竞争更少，是 MySQL 的<strong>最佳实践级别</strong>（不会出现 RR 下间隙锁引起的死锁扩大化）。许多互联网公司（美团、头条等）线上使用 RC 级别配合 Binlog Row 模式。</li>
+<li><strong>Gap Lock 与主从一致性问题</strong>：RC + Row-Based 模式 下 Gap Lock 被禁用（唯一索引和外键约束除外），不会有 RR 下的间隙锁死锁问题，但 Binlog 需要设置为 ROW 格式以保证一致性。Statement 模式在 RC 下会产生主从不一致。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html">MySQL 8.0 Isolation Levels</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-next-key-locking.html">MySQL Gap Locks and Phantom Rows</a></li>
+</ul>
+<hr>
+<h3 id="0x01-03-MVCC-与锁的配合"><a href="#0x01-03-MVCC-与锁的配合" class="headerlink" title="0x01-03 MVCC 与锁的配合"></a>0x01-03 MVCC 与锁的配合</h3><p><strong>标准答案：</strong></p>
+<p>MVCC 和锁在 InnoDB 中是<strong>并行不悖</strong>的两个维度，共同支撑事务的 ACID：</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>一致性读（快照读）</strong></td>
+<td>MVCC + Undo Log，完全不使用锁</td>
+</tr>
+<tr>
+<td><strong>锁定读&#x2F;修改</strong></td>
+<td>行锁 + 间隙锁 + 临键锁</td>
+</tr>
+<tr>
+<td><strong>写写冲突</strong></td>
+<td>行锁互斥</td>
+</tr>
+<tr>
+<td><strong>读写冲突</strong></td>
+<td>MVCC 让读不阻塞写，写不阻塞读</td>
+</tr>
+</tbody></table>
+<p><strong>配合流程：</strong></p>
+<ol>
+<li>事务 A 执行 <code>UPDATE</code>：获取行上的 X 锁，同时将旧版本写入 Undo Log，更新 <code>DB_TRX_ID</code>。</li>
+<li>事务 B 执行 <code>SELECT</code>（快照读）：MVCC 通过 Read View 判断版本可见性，自动读取 Undo Log 中的旧版本。<strong>不加锁，不等待</strong>。</li>
+<li>事务 B 执行 <code>SELECT ... FOR UPDATE</code>（当前读）：需要获取行上的 X 锁，如果事务 A 未提交则等待，直到超时或提交。</li>
+<li>在 RR 级别下，<code>SELECT ... FOR UPDATE</code> 不仅加行锁，还加间隙锁防止幻读。</li>
+</ol>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>SERIALIZABLE 本质上退化为纯锁</strong>：在该级别下，普通 SELECT 也会被升级为 <code>LOCK IN SHARE MODE</code>，MVCC 的快照读优势完全丧失。</li>
+<li><strong>插入意向锁与 MVCC 的交互</strong>：插入操作（INSERT）需要插入意向锁，与已有间隙锁不冲突，但与已存在的排他 Next-Key Lock 冲突。MVCC 会帮助 INSERT 前的快照读避免阻塞，但写入行为还是必须等待锁释放。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html">InnoDB Locking &amp; MVCC</a></li>
+</ul>
+<hr>
+<h3 id="0x01-04-长事务问题（undo-膨胀-死锁-主从延迟）"><a href="#0x01-04-长事务问题（undo-膨胀-死锁-主从延迟）" class="headerlink" title="0x01-04 长事务问题（undo 膨胀&#x2F;死锁&#x2F;主从延迟）"></a>0x01-04 长事务问题（undo 膨胀&#x2F;死锁&#x2F;主从延迟）</h3><p><strong>标准答案：</strong></p>
+<p>长事务是 MySQL 生产环境最常见的性能杀手之一，主要带来三大问题：</p>
+<p><strong>1. Undo 膨胀（Undo Tablespace Explosion）</strong></p>
+<ul>
+<li>长事务持续运行时，Undo Log 中的旧版本无法被 purge 线程清理（因为有事务还需要看到这些旧版本）。</li>
+<li>Undo tablespace 持续增长，最终可能导致磁盘爆满。</li>
+<li>查看长事务：<code>SELECT * FROM information_schema.INNODB_TRX WHERE TIME_TO_SEC(TIMEDIFF(NOW(), trx_started)) &gt; 60;</code></li>
+<li>定位活跃事务的 Undo 页数：<code>SELECT * FROM performance_schema.data_lock_waits;</code></li>
+</ul>
+<p><strong>2. 死锁概率升高</strong></p>
+<ul>
+<li>长事务持有大量锁资源不释放，与其他事务的锁等待构成环状依赖的概率增大。</li>
+<li>MySQL 会自动检测死锁并使用<strong>事务回滚代价最小</strong>的策略——回滚锁资源最少的事务。</li>
+</ul>
+<p><strong>3. 主从延迟加剧</strong></p>
+<ul>
+<li>长事务对应的 Binlog 事件在提交后才写入 Binlog，从库需要拉取并重放。</li>
+<li>大事务（如 <code>DELETE FROM big_table</code>）产生巨量 Binlog，从库单线程回放造成长时间延迟。</li>
+<li>缓解：<code>binlog_group_commit_sync_delay</code>、并行复制（slave_parallel_workers）。</li>
+</ul>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>undo 收缩的最佳实践</strong>：MySQL 8.0 支持 <code>ALTER UNDO TABLESPACE tablespace_name SET INACTIVE;</code> 后 truncate 回缩。不要依赖 MySQL 5.7 及之前的自动收缩（经常失败）。</li>
+<li><strong>应用层预防</strong>：ORM层（如 MyBatis&#x2F;MyBatis-Plus、Hibernate）的 <code>@Transactional</code> 若不指定 timeout 会默认无限等待。生产环境强制设置 <code>@Transactional(timeout=30)</code> 可在应用层防止长事务。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>金融账户系统的 Undo 撑爆磁盘</strong>：某银行系统因报表导出时开启了一个 2 小时长事务，期间对账户表执行了大量 UPDATE。Undo Tablespace 在 2 小时内从 1GB 膨胀至 600GB，导致数据盘满，MySQL 实例进入”Read Only”模式。回溯发现是 Java 应用中一个 <code>@Transactional</code> 注解包裹了全量导出逻辑，未设置超时。修复：1) 添加 <code>@Transactional(timeout=30)</code>；2) 拆分导出为批处理；3) 使用 <code>information_schema.INNODB_TRX</code> 建立监控告警。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-undo-tablespace.html">MySQL 8.0 Long Transaction Reclaim</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/information-schema-innodb-trx-table.html">Monitor InnoDB Transaction Age</a></li>
+</ul>
+<hr>
+<h2 id="0x02-锁机制"><a href="#0x02-锁机制" class="headerlink" title="0x02 锁机制"></a>0x02 锁机制</h2><h3 id="0x02-01-行锁-间隙锁-临键锁-插入意向锁"><a href="#0x02-01-行锁-间隙锁-临键锁-插入意向锁" class="headerlink" title="0x02-01 行锁&#x2F;间隙锁&#x2F;临键锁&#x2F;插入意向锁"></a>0x02-01 行锁&#x2F;间隙锁&#x2F;临键锁&#x2F;插入意向锁</h3><p><strong>标准答案：</strong></p>
+<p>InnoDB 的锁机制远比表面复杂。按照锁定的粒度维度：</p>
+<p><strong>按类型：</strong></p>
+<table>
+<thead>
+<tr>
+<th>锁类型</th>
+<th>说明</th>
+<th>SQL 示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Record Lock（行锁）</strong></td>
+<td>锁定索引记录本身</td>
+<td><code>SELECT * FROM t WHERE id=1 FOR UPDATE</code></td>
+</tr>
+<tr>
+<td><strong>Gap Lock（间隙锁）</strong></td>
+<td>锁定记录之间的间隙，阻止插入</td>
+<td><code>SELECT * FROM t WHERE id&gt;10 AND id&lt;20 FOR UPDATE</code></td>
+</tr>
+<tr>
+<td><strong>Next-Key Lock（临键锁）</strong></td>
+<td>Record Lock + Gap Lock 的组合，左开右闭区间</td>
+<td>InnoDB RR 级别的默认锁策略</td>
+</tr>
+<tr>
+<td><strong>Insert Intention Lock（插入意向锁）</strong></td>
+<td>INSERT 操作的轻量级”排队令牌”</td>
+<td>自动在 INSERT 时获取</td>
+</tr>
+<tr>
+<td><strong>Intention Lock（意向锁）</strong></td>
+<td>表级别的信号机制：IS&#x2F;IX 表示事务将要执行行级读&#x2F;写锁</td>
+<td>自动管理</td>
+</tr>
+</tbody></table>
+<p><strong>Next-Key Lock 的核心规律：</strong></p>
+<blockquote>
+<p>InnoDB RR 级别下，对于当前读（SELECT…FOR UPDATE&#x2F;UPDATE&#x2F;DELETE）：</p>
+<ul>
+<li><strong>唯一索引等值查询</strong>且记录存在：退化为 Record Lock</li>
+<li><strong>唯一索引等值查询</strong>且记录不存在：退化为 Gap Lock</li>
+<li><strong>非唯一索引等值查询</strong>：Next-Key Lock（多重间隙）</li>
+<li><strong>范围查询</strong>：整个扫描范围加 Next-Key Lock</li>
+</ul>
+</blockquote>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>间隙锁仅在 RR 级别启用</strong>，RC 级别下间隙锁会被禁用（唯一索引和外键约束除外）。这就是为什么很多互联网公司选择 RC 级别——减少锁冲突和死锁。</li>
+<li><strong>插入意向锁（Insert Intention Lock）不是锁等待的终点</strong>。多个事务可以在同一个 Gap 上持有插入意向锁，只要它们插入的位置<strong>不存在冲突</strong>。只有当其他事务持有该 Gap 的 Gap Lock 或 Next-Key Lock 时，插入意向锁才会等待。这是一种轻量级的”排队”机制。</li>
+<li><strong>加锁原理的 SQL 实验</strong>：通过 <code>SELECT * FROM performance_schema.data_locks;</code>（MySQL 8.0）可直观查看当前所有锁信息，包括 <code>LOCK_TYPE</code>、<code>LOCK_MODE</code>、<code>LOCK_DATA</code> 等字段。强烈建议面试时提到这点以展示你的实战深度。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-next-key-locking.html">InnoDB Next-Key Locking</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/performance-schema-data-locks-table.html">Performance Schema data_locks Table</a></li>
+</ul>
+<hr>
+<h3 id="0x02-02-死锁分析（show-engine-innodb-status-锁等待信息-案例）"><a href="#0x02-02-死锁分析（show-engine-innodb-status-锁等待信息-案例）" class="headerlink" title="0x02-02 死锁分析（show engine innodb status &#x2F; 锁等待信息 &#x2F; 案例）"></a>0x02-02 死锁分析（show engine innodb status &#x2F; 锁等待信息 &#x2F; 案例）</h3><p><strong>标准答案：</strong></p>
+<p>MySQL 提供两种主要工具排查死锁和锁等待。</p>
+<p><strong>1. SHOW ENGINE INNODB STATUS</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOW ENGINE INNODB STATUS\G</span><br></pre></td></tr></table></figure>
+<p>重点看 <code>LATEST DETECTED DEADLOCK</code> 部分：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">------------------------</span><br><span class="line">LATEST DETECTED DEADLOCK</span><br><span class="line">------------------------</span><br><span class="line">2024-01-15 14:23:45 0x7f1234</span><br><span class="line">*** (1) TRANSACTION:</span><br><span class="line">TRANSACTION 316521, ACTIVE 2 sec updating or deleting</span><br><span class="line">mysql tables in use 1, locked 1</span><br><span class="line">LOCK WAIT 2 lock struct(s), heap size 1136, 1 row lock(s)</span><br><span class="line">MySQL thread id 89, OS thread handle 13984, query id 1234 localhost root updating</span><br><span class="line">UPDATE account SET balance = balance - 100 WHERE id = 1</span><br><span class="line">*** (1) HOLDS THE LOCK(S):  -- 持有 id=2 的锁</span><br><span class="line">*** (1) WAITING FOR THIS LOCK TO BE GRANTED:  -- 等待 id=1 的锁</span><br><span class="line">*** (2) TRANSACTION:</span><br><span class="line">UPDATE account SET balance = balance - 100 WHERE id = 2</span><br><span class="line">*** (2) HOLDS THE LOCK(S): -- 持有 id=1 的锁</span><br><span class="line">*** (2) WAITING FOR THIS LOCK TO BE GRANTED: -- 等待 id=2 的锁</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. Performance Schema 锁等待查询</strong>（MySQL 8.0 推荐）：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> performance_schema.data_lock_waits;</span><br><span class="line"><span class="comment">-- 查看谁在等谁、等了多久</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>经典死锁场景分析：</strong></p>
+<p><strong>场景 A：双向转账（经典交叉锁）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">事务1: UPDATE account SET balance=balance-100 WHERE id=1;</span><br><span class="line">事务1: UPDATE account SET balance=balance+100 WHERE id=2;</span><br><span class="line">事务2: UPDATE account SET balance=balance-100 WHERE id=2;</span><br><span class="line">事务2: UPDATE account SET balance=balance+100 WHERE id=1;</span><br></pre></td></tr></table></figure>
+<p>如果事务1锁定 id&#x3D;1，事务2锁定 id&#x3D;2，双方等待对方释放锁，产生死锁。<br><strong>解决方案</strong>：所有涉及多行的操作按<strong>主键排序</strong>统一获取锁。</p>
+<p><strong>场景 B：INSERT … ON DUPLICATE KEY UPDATE 死锁</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">事务1: INSERT INTO t VALUES (1,&#x27;a&#x27;) ON DUPLICATE KEY UPDATE val=&#x27;a&#x27;;</span><br><span class="line">事务2: INSERT INTO t VALUES (1,&#x27;b&#x27;) ON DUPLICATE KEY UPDATE val=&#x27;b&#x27;;</span><br><span class="line">-- 同一主键的并发 INSERT ... ON DUPLICATE KEY 极易死锁</span><br></pre></td></tr></table></figure>
+<p>原因：事务1获取 S 锁（检测唯一性），事务2获取 S 锁，双方都想升级为 X 锁但互相等待。<br><strong>解决方案</strong>：预判冲突，使用 SELECT…FOR UPDATE 加锁后更新。</p>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>死锁自动检测的代价</strong>：MySQL 死锁检测（Deadlock Detection）需要遍历等待图，在大量事务（&gt;200 活跃线程）时，遍历本身可能成为性能瓶颈。极端情况下可关闭死锁检测（<code>innodb_deadlock_detect=OFF</code>），此时超时由 <code>innodb_lock_wait_timeout</code> 决定——但这意味着请求会等待更久。</li>
+<li><strong>减少死锁的设计原则</strong>：保持事务短小、按固定顺序访问资源、使用较低的隔离级别（RC）、避免大事务 + 循环。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-deadlock-detection.html">MySQL 8.0 Deadlock Detection</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/performance-schema-data-locks-table.html">Performance Schema data_lock_waits</a></li>
+</ul>
+<hr>
+<h3 id="0x02-03-DDL-Online（Online-DDL-gh-ost-PT-OSC）"><a href="#0x02-03-DDL-Online（Online-DDL-gh-ost-PT-OSC）" class="headerlink" title="0x02-03 DDL Online（Online DDL&#x2F;gh-ost&#x2F;PT-OSC）"></a>0x02-03 DDL Online（Online DDL&#x2F;gh-ost&#x2F;PT-OSC）</h3><p><strong>标准答案：</strong></p>
+<p>在生产环境中对大表执行 DDL（ALTER TABLE）的三种方案：</p>
+<p><strong>1. MySQL 8.0 Online DDL（原生）</strong></p>
+<ul>
+<li><code>INSTANT</code>：仅修改元数据，不涉及数据复制（如 <code>ALTER TABLE ... ALTER SET DEFAULT</code>）。MySQL 8.0.12+ 支持 ADD COLUMN 的 INSTANT 模式。</li>
+<li><code>INPLACE</code>：不复制表数据，在引擎层直接重建索引或修改。允许并发 DML。例如 <code>CREATE INDEX</code>、<code>ADD COLUMN</code>（非 INSTANT 时）。</li>
+<li><code>COPY TABLE</code>：创建临时表并复制数据，阻塞 DML。几乎所有 DDL 在 5.6 之前都走此路径。</li>
+</ul>
+<p><code>ALTER TABLE t ALGORITHM=INPLACE, LOCK=NONE, ADD INDEX idx_name(col);</code></p>
+<p><strong>2. gh-ost（GitHub Online Schema Migration）</strong></p>
+<ul>
+<li>GitHub 出品，免触发器。通过 <strong>Binlog 同步</strong>的方式追踪变更，读取主库&#x2F;从库的 Binlog 流来捕获 DML 变更。</li>
+<li>创建影子表 → 逐片拷贝数据 → Binlog 追踪增量写入 → 切换表名（原子性 RENAME）。</li>
+<li>优点：对主库负载极低（读 Binlog 时从库可选）、暂停&#x2F;恢复灵活。</li>
+<li>缺点：需要 Binlog Row 格式、需要额外存储空间。</li>
+</ul>
+<p><strong>3. pt-online-schema-change（Percona Toolkit，PT-OSC）</strong></p>
+<ul>
+<li>Percona 出品，基于触发器。在原表上创建三个触发器（INSERT&#x2F;UPDATE&#x2F;DELETE）捕获增量变更。</li>
+<li>创建影子表 → 拷贝数据 + 触发器同步增量 → 原子切换。</li>
+<li>优点：不依赖 Binlog Row 模式。</li>
+<li>缺点：触发器增加主库负载、不支持有触发器的主从场景、大表触发器影响写入性能。</li>
+</ul>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>为什么需要 Online DDL？</strong> 5 亿行表直接 <code>ALTER TABLE</code> 会产生 MDL 写锁，阻塞所有查询。在千万级 QPS 的业务上，一个 SHOW TABLES 被阻塞都可能引发边缘雪崩。</li>
+<li><strong>MySQL 8.0 原生 DDL 的问题</strong>：<code>PRIMARY KEY</code> 变更仍不可用 <code>INPLACE</code>。<code>MODIFY COLUMN</code> 更改数据类型在 8.0 中仍为 COPY 模式。Online DDL 在执行过程中若遇到 MDL 等待超时（<code>lock_wait_timeout</code>），会回滚整个操作。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>阿里某 5 亿行大表 ALTER TABLE 完崩 15 分钟</strong>：某电商订单中心使用 MySQL 5.7，对 5 亿行大表执行 <code>ALTER TABLE order ADD INDEX idx_create_time(create_time)</code>。未使用 Online DDL，直接执行导致 MDL 写锁获取后阻塞所有读写查询 150秒，30 个应用节点连接池爆满，服务不可用 15 分钟。复盘：使用 gh-ost 增加索引只需极短暂的切换锁（毫秒级）。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html">MySQL 8.0 Online DDL Operations</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/github/gh-ost">gh-ost: GitHub Online Schema Migrations</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.percona.com/doc/percona-toolkit/LATEST/pt-online-schema-change.html">pt-online-schema-change Percona Toolkit</a></li>
+</ul>
+<hr>
+<h3 id="0x02-04-乐观锁-vs-悲观锁实战"><a href="#0x02-04-乐观锁-vs-悲观锁实战" class="headerlink" title="0x02-04 乐观锁 vs 悲观锁实战"></a>0x02-04 乐观锁 vs 悲观锁实战</h3><p><strong>标准答案：</strong></p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>MySQL 实现</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>悲观锁</strong></td>
+<td>操作前加锁，认为一定会有冲突</td>
+<td><code>SELECT ... FOR UPDATE</code>、行锁</td>
+<td>写冲突高的场景（秒杀扣库存）</td>
+</tr>
+<tr>
+<td><strong>乐观锁</strong></td>
+<td>操作时检测冲突，认为冲突很少</td>
+<td><code>UPDATE ... WHERE version=:old_version AND version+1</code></td>
+<td>写冲突低的场景（用户资料更新）</td>
+</tr>
+</tbody></table>
+<p><strong>悲观锁实战要点：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 加锁后更新，保证原子性</span></span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line"><span class="keyword">SELECT</span> stock <span class="keyword">FROM</span> inventory <span class="keyword">WHERE</span> product_id <span class="operator">=</span> <span class="number">100</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line"><span class="comment">-- 应用层校验库存</span></span><br><span class="line"><span class="keyword">UPDATE</span> inventory <span class="keyword">SET</span> stock <span class="operator">=</span> stock <span class="operator">-</span> <span class="number">1</span> <span class="keyword">WHERE</span> product_id <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="comment">-- 缺点：锁会阻塞其他事务，长时间不提交会引发大量锁等待</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>乐观锁实战要点：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 使用 version 字段</span></span><br><span class="line"><span class="keyword">UPDATE</span> inventory <span class="keyword">SET</span> stock <span class="operator">=</span> stock <span class="operator">-</span> <span class="number">1</span>, version <span class="operator">=</span> version <span class="operator">+</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">WHERE</span> product_id <span class="operator">=</span> <span class="number">100</span> <span class="keyword">AND</span> version <span class="operator">=</span> <span class="number">5</span> <span class="keyword">AND</span> stock <span class="operator">&gt;</span> <span class="number">0</span>;</span><br><span class="line"><span class="comment">-- 如果 affected_rows = 0，说明版本冲突或库存不足，重试或报错</span></span><br><span class="line"><span class="comment">-- 缺点：在写冲突高时（如秒杀），version 更新失败率极高，大量回滚和重试</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>CAS（Compare and Swap）思路</strong>：乐观锁本质上就是数据库层面的 CAS。在高并发下，大量线程同时执行 UPDATE 只有一条能成功，其他都失败，造成”死重试”。</li>
+<li><strong>MySQL 行锁与排队</strong>：对于高并发扣库存场景，悲观锁 + 短事务的自然排队效果优于乐观锁的重试风暴。库存场景一定要用 <code>WHERE stock &gt; 0</code> 作为判断条件，否则即使是悲观锁也会扣到负数。</li>
+<li><strong>分布式锁的权衡</strong>：在微服务场景下，MySQL 的行锁只能在同一个数据库实例内有效。跨 JVM 的互斥需要引入 Redis 分布式锁&#x2F;ZooKeeper 分布式锁。但分布式锁的开销比 MySQL 行锁高 1-2 个数量级。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>拼多多某大促的乐观锁重试风暴</strong>：2023 年某大促，秒杀系统使用乐观锁扣库存（version 字段），并发 10 万 QPS 写入，version 冲突率高达 97%。大量 UPDATE 执行失败 + 应用层重试，单行记录被并发更新 300 次&#x2F;s，DB CPU 耗尽。优化为悲观锁 <code>SELECT ... FOR UPDATE</code> + 内存队列削峰，单行更新降至 1 次&#x2F;s，DB CPU 从 98% 降至 15%。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html#innodb-intention-locks">InnoDB Locking Modes</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html">Optimistic vs Pessimistic Locking</a></li>
+</ul>
+<hr>
+<h2 id="0x03-SQL-优化"><a href="#0x03-SQL-优化" class="headerlink" title="0x03 SQL 优化"></a>0x03 SQL 优化</h2><h3 id="0x03-01-EXPLAIN（type-Extra-rows-等关键字段实战解读）"><a href="#0x03-01-EXPLAIN（type-Extra-rows-等关键字段实战解读）" class="headerlink" title="0x03-01 EXPLAIN（type&#x2F;Extra&#x2F;rows 等关键字段实战解读）"></a>0x03-01 EXPLAIN（type&#x2F;Extra&#x2F;rows 等关键字段实战解读）</h3><p><strong>标准答案：</strong></p>
+<p><code>EXPLAIN</code> 是 SQL 优化最重要的工具。输出结构中的关键字段：</p>
+<p><strong>type（访问类型，从好到差排序）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>含义</th>
+<th>何时出现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>system</td>
+<td>系统表，只有一行</td>
+<td>极少见</td>
+</tr>
+<tr>
+<td>const</td>
+<td>主键&#x2F;唯一索引常量等值匹配</td>
+<td><code>WHERE id=1</code></td>
+</tr>
+<tr>
+<td>eq_ref</td>
+<td>唯一索引扫描，每行只匹配一条</td>
+<td>JOIN 中主键关联</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>非唯一索引或前缀匹配</td>
+<td><code>WHERE name=&#39;xxx&#39;</code></td>
+</tr>
+<tr>
+<td>range</td>
+<td>索引范围扫描</td>
+<td><code>WHERE id&gt;100 AND id&lt;200</code></td>
+</tr>
+<tr>
+<td>index</td>
+<td>全索引扫描</td>
+<td><code>SELECT COUNT(id)</code></td>
+</tr>
+<tr>
+<td>ALL</td>
+<td><strong>全表扫描（灾难）</strong></td>
+<td>无索引覆盖的查询</td>
+</tr>
+</tbody></table>
+<p><strong>Extra（关键提示）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>Extra</th>
+<th>说明</th>
+<th align="center">严重性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Using index</td>
+<td>索引覆盖，无需回表</td>
+<td align="center">✅ 好</td>
+</tr>
+<tr>
+<td>Using index condition</td>
+<td>ICP 优化生效</td>
+<td align="center">✅ 好</td>
+</tr>
+<tr>
+<td>Using where</td>
+<td>使用了 WHERE 过滤</td>
+<td align="center">✅ 正常</td>
+</tr>
+<tr>
+<td>Using MRR</td>
+<td>MRR 优化生效</td>
+<td align="center">✅ 好</td>
+</tr>
+<tr>
+<td>Using filesort</td>
+<td>需要额外排序（可能需要优化）</td>
+<td align="center">⚠️</td>
+</tr>
+<tr>
+<td>Using temporary</td>
+<td>使用了临时表（分页&#x2F;去重&#x2F;分组）</td>
+<td align="center">⚠️</td>
+</tr>
+<tr>
+<td>Using index for group-by</td>
+<td>松散索引扫描分组</td>
+<td align="center">✅ 好</td>
+</tr>
+<tr>
+<td>Using where; Using index</td>
+<td>索引覆盖 + 过滤</td>
+<td align="center">✅ 好</td>
+</tr>
+<tr>
+<td><strong>Using filesort; Using temporary</strong></td>
+<td><strong>最差</strong></td>
+<td align="center">❌</td>
+</tr>
+</tbody></table>
+<p><strong>rows（估算扫描行数）：</strong></p>
+<ul>
+<li>预估需要读取的行数，越少越好</li>
+<li>注意：这是<strong>基于索引统计的估算值</strong>，可能与实际情况偏差（尤其是多条件跨索引时）</li>
+</ul>
+<p><strong>Key（实际使用的索引）：</strong></p>
+<ul>
+<li>如果 <code>key</code> 为 NULL 但 <code>possible_keys</code> 有值，说明索引未被使用（可能使用了隐式转换或函数）</li>
+<li><code>key_len</code> 表示索引使用的字节数，可用此判断复合索引是否充分使用全部前缀</li>
+</ul>
+<p><strong>实战案例解读：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> o.order_id, o.amount, u.name</span><br><span class="line"><span class="keyword">FROM</span> orders o <span class="keyword">JOIN</span> users u <span class="keyword">ON</span> o.user_id <span class="operator">=</span> u.id</span><br><span class="line"><span class="keyword">WHERE</span> o.status <span class="operator">=</span> <span class="number">1</span> <span class="keyword">AND</span> o.create_time <span class="operator">&gt;</span> <span class="string">&#x27;2024-01-01&#x27;</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> o.create_time <span class="keyword">DESC</span> LIMIT <span class="number">20</span>;</span><br><span class="line"><span class="comment">-- type: o.ref, u.eq_ref</span></span><br><span class="line"><span class="comment">-- Extra orders: Using where; Using index; Using filesort</span></span><br><span class="line"><span class="comment">-- Extra users: NULL</span></span><br><span class="line"><span class="comment">-- 分析：orders 表使用了 status 索引做 ref 访问，但仍需 filesort。建议创建联合索引 (status, create_time) 消除 filesort。</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>EXPLAIN 的局限性</strong>：EXPLAIN 是估算值，不是真实执行。MySQL 8.0.18+ 提供 <code>EXPLAIN ANALYZE</code> 输出真实执行计划和代价，是更精确的工具。</li>
+<li><strong>filtered 字段</strong>：表示经过表条件过滤后的行占比。如果 type 为 ALL 且 filtered 为 10%，说明扫描了 100% 的行但只返回了 10%，应考虑索引优化。</li>
+<li><strong>坑：索引前缀选择不当</strong>：<code>WHERE a = 1 AND b = 2 ORDER BY c</code> 如果索引是 <code>(a, c)</code>，b 的过滤无法走索引。要么把 b 加入索引做成 <code>(a, b, c)</code>。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/explain-output.html">MySQL 8.0 EXPLAIN Output Format</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/explain.html#explain-analyze">EXPLAIN ANALYZE</a></li>
+</ul>
+<hr>
+<h3 id="0x03-02-慢-SQL-定位与优化（Optimizer-Trace-Profiling）"><a href="#0x03-02-慢-SQL-定位与优化（Optimizer-Trace-Profiling）" class="headerlink" title="0x03-02 慢 SQL 定位与优化（Optimizer Trace &#x2F; Profiling）"></a>0x03-02 慢 SQL 定位与优化（Optimizer Trace &#x2F; Profiling）</h3><p><strong>标准答案：</strong></p>
+<p><strong>1. 慢查询日志（Slow Query Log）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 开启慢查询日志</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> slow_query_log <span class="operator">=</span> <span class="keyword">ON</span>;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> long_query_time <span class="operator">=</span> <span class="number">1</span>;  <span class="comment">-- 超过 1 秒记录</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> log_queries_not_using_indexes <span class="operator">=</span> <span class="keyword">ON</span>;</span><br></pre></td></tr></table></figure>
+<p>查看：<code>mysqldumpslow -s t -t 10 /var/lib/mysql/slow.log</code></p>
+<p><strong>2. EXPLAIN &#x2F; EXPLAIN ANALYZE</strong></p>
+<ul>
+<li>EXPLAIN ANALYZE（MySQL 8.0.18+）给出每个操作符的实际耗时、行数、循环次数：精确到微秒，秒杀猜谜式的 EXPLAIN。</li>
+</ul>
+<p><strong>3. Optimizer Trace（优化器追踪）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> optimizer_trace<span class="operator">=</span><span class="string">&#x27;enabled=on&#x27;</span>;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/* your SQL */</span>;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> information_schema.OPTIMIZER_TRACE\G</span><br><span class="line"><span class="keyword">SET</span> optimizer_trace<span class="operator">=</span><span class="string">&#x27;enabled=off&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p>输出分析：</p>
+<ul>
+<li><code>join_preparation</code>：解析阶段</li>
+<li><code>join_optimization</code>：<strong>核心</strong>，展示所有可能的执行计划和代价计算，包括是否考虑使用每个索引</li>
+<li><code>condition_processing</code>：WHERE 条件的等价变换、下推优化</li>
+<li><code>table_scan</code>：全表扫描的代价对比</li>
+</ul>
+<p><strong>4. Performance Schema &#x2F; sys schema</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看按总延迟排序的 Top SQL</span></span><br><span class="line"><span class="keyword">SELECT</span> digest_text, count_star, avg_timer_wait</span><br><span class="line"><span class="keyword">FROM</span> performance_schema.events_statements_summary_by_digest</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> sum_timer_wait <span class="keyword">DESC</span> LIMIT <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 使用 sys schema 的便捷视图</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.statement_analysis <span class="keyword">ORDER</span> <span class="keyword">BY</span> total_latency <span class="keyword">DESC</span> LIMIT <span class="number">10</span>;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.unused_indexes;  <span class="comment">-- 未使用过的索引</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.schema_index_statistics;  <span class="comment">-- 索引使用统计</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>Optimizer Trace 的局限</strong>：trace 在 5.7+ 默认可用，但在复杂查询中输出过于冗长。建议配合 <code>grep -E &#39;index|table_scan|cost|rows_estimation&#39;</code> 提取关键信息。</li>
+<li><strong>profiling 的替代</strong>：MySQL 5.7 之前使用 <code>SET profiling=1; SHOW PROFILES;</code>。在 MySQL 8.0 中 profiling 已废弃，使用 Performance Schema 代替。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>美团 MySQL 慢查救援——全表扫描拖垮整个实例</strong>：一张 5000 万行订单表，某个业务 SQL <code>SELECT * FROM orders WHERE DATE(create_time) = CURDATE()</code> 因 <code>DATE()</code> 函数导致 create_time 索引失效，走 FULL TABLE SCAN（5000 万行）。3个并发就吃满 32 核 CPU，其他业务的慢查询全部堆积最终实例 OOM。救援：1) KILL 慢查询线程；2) 改写为 <code>create_time &gt;= CURDATE() AND create_time &lt; CURDATE() + INTERVAL 1 DAY</code> 利用索引范围扫描。查询时间 35s -&gt; 3ms。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/information-schema-optimizer-trace-table.html">MySQL 8.0 Optimizer Trace</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/sys-statement-analysis.html">sys schema statement_analysis</a></li>
+</ul>
+<hr>
+<h3 id="0x03-03-索引失效场景大全"><a href="#0x03-03-索引失效场景大全" class="headerlink" title="0x03-03 索引失效场景大全"></a>0x03-03 索引失效场景大全</h3><p><strong>标准答案：</strong></p>
+<p>以下是资深研发必须背烂的索引失效场景（每一个都是面试必考题和线上事故易发点）：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>场景</th>
+<th>示例</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>列上使用函数</strong></td>
+<td><code>WHERE DATE(create_time) = &#39;2024-01-01&#39;</code></td>
+<td>索引存的是原始值，计算后不匹配</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>隐式类型转换</strong></td>
+<td><code>WHERE phone = 13800138000</code>（phone 为 VARCHAR）</td>
+<td>字符串转数字比较，索引失效</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>复合索引未用最左前缀</strong></td>
+<td>索引 (a,b,c)，WHERE <code>b=1</code></td>
+<td>跳过了第一列</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>LIKE 以 % 开头</strong></td>
+<td><code>WHERE name LIKE &#39;%abc&#39;</code></td>
+<td>无法从根节点定位</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>OR 条件未全索引覆盖</strong></td>
+<td><code>WHERE a=1 OR b=2</code>，b 无索引</td>
+<td>OR 需同时检二维条件</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>NOT IN &#x2F; &lt;&gt; &#x2F; NOT EXISTS</strong></td>
+<td><code>WHERE status &lt;&gt; 1</code></td>
+<td>不等值条件索引不可用</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>IS NOT NULL（部分场景）</strong></td>
+<td><code>WHERE name IS NOT NULL</code></td>
+<td>选择性低时为全表扫描</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>ORDER BY 未用索引</strong></td>
+<td>索引 (a,b)，<code>ORDER BY b</code></td>
+<td>最左前缀不满足</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>索引列参与运算</strong></td>
+<td><code>WHERE salary*2 &gt; 10000</code></td>
+<td>索引列参与算术运算</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Join 字符集不一致</strong></td>
+<td>utf8 &#x3D; utf8mb4 或排序规则不同</td>
+<td>隐式字符集转换</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>最左前缀的例外</strong>：如果复合索引为 <code>(a,b,c)</code>，查询 <code>WHERE a=1 AND c=2</code> 时，a 走索引，但 c 不能走索引（跳过了 b）。此时 ICP（索引条件下推）可以将 <code>c=2</code> 下推到存储引擎层过滤，减少回表次数。Extra 显示 <code>Using index condition</code>。</li>
+<li><strong>函数索引（MySQL 8.0.13+）</strong>：可通过 <code>CREATE INDEX idx_func ON t ((DATE(create_time)));</code> 的方式创建函数索引，彻底解决 DATE 函数导致的索引失效问题。</li>
+<li><strong>OR 的替代方案</strong>：使用 <code>UNION ALL</code> 分别走两个索引，或使用 <code>IN</code> 替代。MySQL 5.0+ 的 Index Merge 可以在某些 OR 场景下利用多个索引取并集，但性能通常不如单索引。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/create-index.html#create-index-functional-key-parts">MySQL 8.0 Function Index</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/index-merge-optimization.html">MySQL 8.0 Index Merge</a></li>
+</ul>
+<hr>
+<h3 id="0x03-04-大分页优化-Join-优化-Order-By-优化"><a href="#0x03-04-大分页优化-Join-优化-Order-By-优化" class="headerlink" title="0x03-04 大分页优化 &#x2F; Join 优化 &#x2F; Order By 优化"></a>0x03-04 大分页优化 &#x2F; Join 优化 &#x2F; Order By 优化</h3><p><strong>标准答案：</strong></p>
+<h4 id="大分页优化"><a href="#大分页优化" class="headerlink" title="大分页优化"></a>大分页优化</h4><p><code>LIMIT 1000000, 20</code> 极其低效，因为 MySQL 需要扫描并丢弃前 100 万行。</p>
+<p><strong>方案 1：游标分页（Cursor-based Pagination &#x2F; Seek Pagination）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 传统分页（差）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> articles <span class="keyword">ORDER</span> <span class="keyword">BY</span> id LIMIT <span class="number">1000000</span>, <span class="number">20</span>; <span class="comment">-- 扫描 1000020 行</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 游标分页（优）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> articles <span class="keyword">WHERE</span> id <span class="operator">&gt;</span> <span class="number">1000000</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> id LIMIT <span class="number">20</span>; <span class="comment">-- 扫描 20 行</span></span><br><span class="line"><span class="comment">-- 配合唯一有序的字段（主键），直接定位起始位置</span></span><br></pre></td></tr></table></figure>
+<p>要求：排序字段唯一且有索引。适用于前后翻页（非跳页）的场景。</p>
+<p><strong>方案 2：子查询延迟关联</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 差：SELECT * FROM articles ORDER BY create_time LIMIT 1000000, 20;</span></span><br><span class="line"><span class="comment">-- 优：先在索引上完成排序和分页，再关联回主表</span></span><br><span class="line"><span class="keyword">SELECT</span> a.<span class="operator">*</span> <span class="keyword">FROM</span> articles a</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> id <span class="keyword">FROM</span> articles <span class="keyword">ORDER</span> <span class="keyword">BY</span> create_time LIMIT <span class="number">1000000</span>, <span class="number">20</span></span><br><span class="line">) tmp <span class="keyword">ON</span> a.id <span class="operator">=</span> tmp.id;</span><br><span class="line"><span class="comment">-- 子查询在索引上只扫描 id，避免了大量表数据的传输</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="JOIN-优化"><a href="#JOIN-优化" class="headerlink" title="JOIN 优化"></a>JOIN 优化</h4><p><strong>基本原则：</strong></p>
+<ol>
+<li><strong>小表驱动大表</strong>：MySQL 的 Nested-Loop Join 会对外表扫描的每一行去探测内表。将小的结果集作为驱动表，减少循环次数。</li>
+<li><strong>Join 字段必须有索引</strong>：内表的 Join 字段必须加索引，否则内表每次循环都做全表扫描。</li>
+<li><strong>避免超过 3 表 Join</strong>：多表 Join 的优化空间极其有限，超过 3 表复杂的关联通常需要改写 SQL 或在应用层完成。</li>
+</ol>
+<p><strong>Block Nested-Loop Join（BNL） vs Hash Join：</strong></p>
+<ul>
+<li>MySQL 5.7 及之前：JOIN 无索引时使用 BNL，将驱动表的行缓冲在 Join Buffer 中批量探测内表。</li>
+<li><strong>MySQL 8.0.18+</strong>：引入 <strong>Hash Join</strong>，对等值 JOIN 在无索引时自动使用 Hash Join 代替 BNL。性能提升 2-10 倍。</li>
+</ul>
+<h4 id="ORDER-BY-优化"><a href="#ORDER-BY-优化" class="headerlink" title="ORDER BY 优化"></a>ORDER BY 优化</h4><ol>
+<li><strong>使用索引消除 filesort</strong>：<code>ORDER BY create_time</code> 且 create_time 上有一个作为前缀的索引，MySQL 可以直接利用 B+ 树已经排好序的特性。</li>
+<li><strong>混合排序方向需一致</strong>：索引列默认 ASC，ORDER BY a ASC, b ASC 可走索引排序；ORDER BY a ASC, b DESC 需要 filesort（MySQL 8.0 引入了”降序索引”解决此问题）。</li>
+<li><strong>排序缓冲区调优</strong>：<code>sort_buffer_size</code> 如果太小，排序需要使用磁盘临时文件（<code>SHOW SESSION STATUS LIKE &#39;Sort_merge_passes&#39;</code> 看是否有 disk sort）。</li>
+</ol>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>游标分页的局限</strong>：不支持随机跳页（用户说”跳到第 50 页”就无法用游标了）。且如果 WHERE 条件中的过滤字段变化（状态筛选），需要复合索引支持才能继续使用游标方式。</li>
+<li><strong>Hash Join vs Index Nested-Loop Join</strong>：Hash Join 对于大表 JOIN 无索引时的性能远好于 BNL，属于”分批读入、内存建哈希表、批量探测”的思路。但在索引完备的情况下，Index Nested-Loop Join 仍是更快的选择（每次只有点查）。</li>
+</ol>
+<p><strong>生产踩坑案例：</strong></p>
+<blockquote>
+<p><strong>字节跳动某信息流系统的 ORDER BY LIMIT 大翻页</strong>：埋点表 10 亿行，前端支持跳页到 1000 页（每页 50 条）。<code>ORDER BY create_time LIMIT 49500, 50</code> 耗时 12s。优化：后端限制最大分页深度（<code>max_page_depth=100</code>），超过 100 页不再提供跳页，改用游标 + 模糊搜索。对极少数的强需求用户，提供导出功能离线处理。</p>
+</blockquote>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/hash-joins.html">MySQL 8.0 Hash Join</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/order-by-optimization.html">MySQL ORDER BY Optimization</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/descending-indexes.html">Descending Indexes</a></li>
+</ul>
+<hr>
+<h2 id="0x04-主从与高可用"><a href="#0x04-主从与高可用" class="headerlink" title="0x04 主从与高可用"></a>0x04 主从与高可用</h2><h3 id="0x04-01-异步-半同步-组复制"><a href="#0x04-01-异步-半同步-组复制" class="headerlink" title="0x04-01 异步&#x2F;半同步&#x2F;组复制"></a>0x04-01 异步&#x2F;半同步&#x2F;组复制</h3><p><strong>标准答案：</strong></p>
+<p>MySQL 复制按同步程度分为三个层次：</p>
+<p><strong>1. 异步复制（Async Replication）</strong></p>
+<ul>
+<li>MySQL 默认模式。主库将 Binlog 写入本地文件后立即返回客户端成功，不等待从库确认。</li>
+<li>优势：对主库性能影响最小。</li>
+<li>风险：主库崩溃时，已提交的数据可能尚未同步到从库，<strong>数据丢失窗口</strong>存在。</li>
+</ul>
+<p><strong>2. 半同步复制（Semi-Sync Replication）</strong></p>
+<ul>
+<li>MySQL 5.5+（通过插件实现），MySQL 5.7+ 原生支持。主库提交事务时需要等待<strong>至少一个从库</strong>确认收到并写入 Relay Log。</li>
+<li>当半同步超时（<code>rpl_semi_sync_master_timeout</code>）则降级为异步复制。</li>
+<li>优势：减少数据丢失风险（RPO 降低至一个从库确认时间）。</li>
+<li>代价：主库写入延迟 ≈ 网络 RTT 到从库。跨机房部署时延迟明显。</li>
+</ul>
+<p><strong>3. 组复制（Group Replication &#x2F; MGR）</strong></p>
+<ul>
+<li>MySQL 5.7.17+ 引入。基于 <strong>Paxos</strong> 分布式共识协议的强一致性复制。</li>
+<li>Multi-Primary 模式：所有节点可写。</li>
+<li>Single-Primary 模式：只有一个主节点写入，其他为从。</li>
+<li>优势：<strong>强一致性</strong>、自动化成员管理、故障自动切换。</li>
+<li>代价：写入延迟至少需要多数派（N&#x2F;2+1）确认，网络延迟敏感；只支持 InnoDB；复杂 DDL 限制多；高频大事务场景下性能不及异步复制。</li>
+</ul>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>半同步的 AFTER_SYNC vs AFTER_COMMIT</strong>（MySQL 5.7+）：<code>AFTER_SYNC</code> 模式在 Binlog 写入磁盘后即等待从库确认，确认后再提交。这种模式下如果主库在确认后崩溃，数据已写入 Binlog，不会丢失。推荐使用。</li>
+<li><strong>MGR 的适用场景</strong>：MGR 不适合跨城市部署（50ms+ 延迟下性能急剧下降），也不适合大量并发写入的 Pay-as-you-grow 场景。MGR 的踢出机制（节点慢于阈值时被驱逐）容易导致集群抖动。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/group-replication.html">MySQL 8.0 Group Replication</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/replication-semisync.html">Semi-Synchronous Replication</a></li>
+</ul>
+<hr>
+<h3 id="0x04-02-GTID-原理与故障恢复"><a href="#0x04-02-GTID-原理与故障恢复" class="headerlink" title="0x04-02 GTID 原理与故障恢复"></a>0x04-02 GTID 原理与故障恢复</h3><p><strong>标准答案：</strong></p>
+<p>**GTID（Global Transaction Identifier）**是 MySQL 5.6.5+ 引入的全局事务标识符。</p>
+<p><strong>格式：</strong> <code>UUID:sequence_number</code></p>
+<ul>
+<li><code>UUID</code>：服务器的全局唯一标识（<code>server_uuid</code>）。</li>
+<li><code>sequence_number</code>：事务在该服务器上分配的递增序号。</li>
+</ul>
+<p>每个在服务器上提交的事务都有一个唯一的 GTID，整个复制拓扑中<strong>全局唯一</strong>。</p>
+<p><strong>GTID 的核心原理：</strong></p>
+<ol>
+<li>主库为每个事务生成 GTID，并写入 Binlog。</li>
+<li>从库重放事务时记录 Executed_Gtid_Set，不会重放已执行的事务（天然的<strong>自动去重</strong>）。</li>
+<li>主从切换时，新主库收集所有从库的 Executed_Gtid_Set，找到差额（Gap）事务，从老主库拉取缺失的事务。</li>
+</ol>
+<p><strong>故障恢复步骤（GTID 模式）：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 查看各节点状态</span></span><br><span class="line"><span class="keyword">SHOW</span> MASTER STATUS\G</span><br><span class="line"><span class="keyword">SHOW</span> SLAVE STATUS\G</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 在从库执行</span></span><br><span class="line">STOP SLAVE;</span><br><span class="line">RESET MASTER;  <span class="comment">-- 清空旧的 Binlog，使 GTID 从新位置开始</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 设置从库追上新主（跳过已执行的事务）</span></span><br><span class="line"><span class="keyword">SET</span> @<span class="variable">@GLOBAL</span>.GTID_PURGED <span class="operator">=</span> <span class="string">&#x27;已执行 GTID 集合&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 配置新的复制链路</span></span><br><span class="line">CHANGE MASTER <span class="keyword">TO</span></span><br><span class="line">  MASTER_HOST<span class="operator">=</span><span class="string">&#x27;new_master_host&#x27;</span>,</span><br><span class="line">  MASTER_PORT<span class="operator">=</span><span class="number">3306</span>,</span><br><span class="line">  MASTER_USER<span class="operator">=</span><span class="string">&#x27;repl&#x27;</span>,</span><br><span class="line">  MASTER_PASSWORD<span class="operator">=</span><span class="string">&#x27;xxx&#x27;</span>,</span><br><span class="line">  MASTER_AUTO_POSITION<span class="operator">=</span><span class="number">1</span>;</span><br><span class="line"><span class="keyword">START</span> SLAVE;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>GTID 与 Binlog 格式</strong>：GTID 模式下<strong>必须使用 ROW 格式</strong>的 Binlog（<code>binlog_format=ROW</code>）。原因：GTID 的原子性依赖 Binlog 格式，statement 模式下的非确定 SQL 会导致主从数据不一致，打破 GTID 的 “同一个事务全局唯一执行一次” 的语义。</li>
+<li><strong>GTID 跳过一个事务</strong>：在 GTID 模式下 <code>SET GLOBAL sql_slave_skip_counter</code> 不可用。需通过注入空事务跳过：<code>SET GTID_NEXT=&#39;uuid:N&#39;; BEGIN; COMMIT; SET GTID_NEXT=&#39;AUTOMATIC&#39;;</code>。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/replication-gtids-concepts.html">MySQL 8.0 GTID Format and Storage</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/replication-gtids-failover.html">GTID Failover Steps</a></li>
+</ul>
+<hr>
+<h3 id="0x04-03-主从延迟分析与缓解"><a href="#0x04-03-主从延迟分析与缓解" class="headerlink" title="0x04-03 主从延迟分析与缓解"></a>0x04-03 主从延迟分析与缓解</h3><p><strong>标准答案：</strong></p>
+<p>衡量主从延迟的核心指标：<code>Seconds_Behind_Master</code>（SHOW SLAVE STATUS 输出）。</p>
+<p><strong>主从延迟的六大根源：</strong></p>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>说明</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>单线程 SQL 线程瓶颈</strong></td>
+<td>从库 SQL_Thread 单线程重放 Binlog 跟不上主库</td>
+<td>开启并行复制</td>
+</tr>
+<tr>
+<td><strong>大事务</strong></td>
+<td>单条 DELETE&#x2F;UPDATE 影响百万行</td>
+<td>拆分为小批次事务</td>
+</tr>
+<tr>
+<td><strong>从库执行查询负载高</strong></td>
+<td>从库同时提供读服务，资源争抢</td>
+<td>专用从库、添加更多从库</td>
+</tr>
+<tr>
+<td><strong>DDL 造成 MDL 锁等待</strong></td>
+<td>从库的 DDL 阻塞了 SQL 线程</td>
+<td>错峰执行、使用 PT-OSC&#x2F;gh-ost</td>
+</tr>
+<tr>
+<td><strong>磁盘 I&#x2F;O 瓶颈</strong></td>
+<td>从库写磁盘跟不上主库</td>
+<td>升级 SSD、调整刷盘策略</td>
+</tr>
+<tr>
+<td><strong>网络带宽瓶颈</strong></td>
+<td>Binlog 传输超过网络上限</td>
+<td>压缩 Binlog、升级带宽</td>
+</tr>
+</tbody></table>
+<p><strong>并行复制（MySQL 5.7&#x2F;8.0）：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 5.7: slave_parallel_workers &gt; 0（基于 DATABASE 并行）</span></span><br><span class="line"><span class="comment">-- MySQL 8.0: 推荐 LOGICAL_CLOCK 并行策略</span></span><br><span class="line">STOP SLAVE SQL_THREAD;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> slave_parallel_type <span class="operator">=</span> <span class="string">&#x27;LOGICAL_CLOCK&#x27;</span>;</span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> slave_parallel_workers <span class="operator">=</span> <span class="number">8</span>;</span><br><span class="line"><span class="keyword">START</span> SLAVE SQL_THREAD;</span><br></pre></td></tr></table></figure>
+
+<p><strong>WriteSet 并行复制（MySQL 8.0.1+ 最强方案）：</strong><br>MySQL 8.0 在 <code>binlog_transaction_dependency_tracking</code> 参数中引入 WriteSet 机制。通过提取事务修改的行的行标识（WriteSet），如果两个事务修改不同的行，则在从库可并行回放，不再受数据库级别限制。写入密集场景下并行度提升 10 倍以上。</p>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>大事务拆解实战</strong>：<code>DELETE FROM t WHERE create_time &lt; &#39;2023-01-01&#39;</code> 影响 1000 万行。拆为 <code>DELETE FROM t WHERE id BETWEEN 1 AND 10000 AND create_time &lt; &#39;2023-01-01&#39; LIMIT 1000</code> 循环执行，每 1000 行 COMMIT 一次。既避免了主库 Binlog 暴增，也避免从库因大事务重放而显著延迟。</li>
+<li><strong>延迟监控的缺陷</strong>：<code>Seconds_Behind_Master</code> 是基于时间戳的推算，在以下场景中不准确：网络抖动时、MTS（多线程并行复制）下、慢查询导致的伪延迟。推荐配合 <code>SHOW SLAVE STATUS</code> 中的 <code>Retrieved_Gtid_Set</code> vs <code>Executed_Gtid_Set</code> 的差值做精确判断。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/replication-options-replica.html">MySQL 8.0 Replication Lag Solutions</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/airtable-eng/optimizing-mysql-replication-lag-with-parallel-replication-and-writeset-based-dependency-tracking-1fc405cf023c">Airtable: Optimizing MySQL Replication Lag with WriteSet</a></li>
+</ul>
+<hr>
+<h3 id="0x04-04-MHA-Orchestrator-ProxySQL"><a href="#0x04-04-MHA-Orchestrator-ProxySQL" class="headerlink" title="0x04-04 MHA &#x2F; Orchestrator &#x2F; ProxySQL"></a>0x04-04 MHA &#x2F; Orchestrator &#x2F; ProxySQL</h3><p><strong>标准答案：</strong></p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>定位</th>
+<th>原理</th>
+<th>优缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>MHA</strong></td>
+<td>MySQL 主从故障切换</td>
+<td>监控主库、选举新主、修补数据、通知</td>
+<td>优点：成熟稳定。缺点：不再维护、不支持 GTID</td>
+</tr>
+<tr>
+<td><strong>Orchestrator</strong></td>
+<td>MySQL 复制拓扑管理</td>
+<td>Raft 一致性 + 自动切换</td>
+<td>优点：GTID 原生支持、Web UI、幂等切换。缺点：学习成本高</td>
+</tr>
+<tr>
+<td><strong>ProxySQL</strong></td>
+<td>MySQL 中间件代理</td>
+<td>SQL 协议透传、读写分离、连接池</td>
+<td>优点：高性能、动态配置、连接复用。缺点：运维复杂、需要 Keepalived 做高可用</td>
+</tr>
+</tbody></table>
+<p><strong>Orchestrator 生产部署要点：</strong></p>
+<ul>
+<li>需要至少 3 个节点保证 Raft 多数派</li>
+<li>MySQL 主节点、Orchestrator 元数据可复用现有 MySQL 集群</li>
+<li>切换过程消耗：探测主库故障的延迟 + 投票时间 + Promoted Slave 追 Relay Log + 通知应用</li>
+<li>典型场景：5s 内完成从主库挂掉到新主就绪</li>
+</ul>
+<p><strong>ProxySQL 核心用法：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看当前查询路由规则</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> mysql_query_rules;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 添加读写分离：SELECT 走从库，其他走主库</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)</span><br><span class="line"><span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="number">1</span>, <span class="string">&#x27;^SELECT&#x27;</span>, <span class="number">1</span>, <span class="number">1</span>);  <span class="comment">-- hostgroup 1 为从库</span></span><br><span class="line"><span class="keyword">INSERT INTO</span> mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)</span><br><span class="line"><span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="number">1</span>, <span class="string">&#x27;^.*&#x27;</span>, <span class="number">0</span>, <span class="number">1</span>);     <span class="comment">-- hostgroup 0 为主库</span></span><br><span class="line"><span class="comment">-- 应用配置</span></span><br><span class="line">LOAD MYSQL QUERY RULES <span class="keyword">TO</span> RUN;</span><br><span class="line">SAVE MYSQL QUERY RULES <span class="keyword">TO</span> DISK;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>MHA 到 Orchestrator 的迁移</strong>：很多公司在 2023 年前后从 MHA 迁移到 Orchestrator，核心驱动是 GTID 支持和 Raft 强一致性。Orchestrator 的”智能选举”可以自动判断哪个 Slave 数据最新、延迟最小。</li>
+<li><strong>ProxySQL 的 Cache 与 Query 路由</strong>：ProxySQL 支持将常用查询缓存到本地内存（<code>mysql_query_rules.cache_ttl</code>），缓存命中时完全绕过 MySQL，显著降低读负载。适合读缓存未命中时才会打穿到 MySQL 的查询。</li>
+<li><strong>负载均衡选型</strong>：中型公司：ProxySQL + Orchestrator；大型公司：自制代理层或使用数据库云服务（AWS RDS&#x2F;Aurora&#x2F;TiDB）。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/openark/orchestrator">Orchestrator GitHub</a></li>
+<li><a target="_blank" rel="noopener" href="https://proxysql.com/documentation/">ProxySQL Documentation</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/yoshinorim/mha4mysql-manager">MHA (Master High Availability)</a></li>
+</ul>
+<hr>
+<h2 id="0x05-分库分表"><a href="#0x05-分库分表" class="headerlink" title="0x05 分库分表"></a>0x05 分库分表</h2><h3 id="0x05-01-水平分片策略（范围-哈希-时间-一致性哈希）"><a href="#0x05-01-水平分片策略（范围-哈希-时间-一致性哈希）" class="headerlink" title="0x05-01 水平分片策略（范围&#x2F;哈希&#x2F;时间&#x2F;一致性哈希）"></a>0x05-01 水平分片策略（范围&#x2F;哈希&#x2F;时间&#x2F;一致性哈希）</h3><p><strong>标准答案：</strong></p>
+<p>水平分片（Horizontal Sharding）是将同一张表的数据按一定规则分布到多个数据库实例中。</p>
+<p><strong>四种核心分片策略：</strong></p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>描述</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>范围分片</strong></td>
+<td>按 ID 范围分片（1-1 千万在 shard0，1 千万-2 千万在 shard1…）</td>
+<td>扩展简单、范围查询天然支持、分片键可读</td>
+<td>数据倾斜（尾部热点）、扩容需迁移</td>
+<td>订单表按时间分片</td>
+</tr>
+<tr>
+<td><strong>哈希分片</strong></td>
+<td><code>shard = hash(shard_key) % N</code></td>
+<td>数据均匀分布、避免热点</td>
+<td>扩容需重新计算（”模 N”变成”模 2N”），范围查询跨多分片</td>
+<td>用户表、高并发写入</td>
+</tr>
+<tr>
+<td><strong>时间分片</strong></td>
+<td>按年&#x2F;月&#x2F;日分片</td>
+<td>符合业务冷热分离，冷数据可压缩归档</td>
+<td>非时间维度查询需广播</td>
+<td>日志表、埋点数据</td>
+</tr>
+<tr>
+<td><strong>一致性哈希</strong></td>
+<td><code>shard = binary_search(hash(shard_key), ring)</code></td>
+<td>扩容仅影响相邻节点（K&#x2F;N 的键需迁移），平滑扩缩容</td>
+<td>实现复杂、虚拟节点管理开销</td>
+<td>动态扩缩容场景</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>Range + Hash 混合策略</strong>：大厂典型实践是两层分片。第一层按时间范围（月&#x2F;季度）分区，第二层在时间分区内按用户 ID 哈希。兼顾时间维度的查询剪枝和数据均匀分布。</li>
+<li><strong>一致性哈希的”虚拟节点”</strong>：为了避免节点分布不均导致的倾斜，一致性哈希会在环上为每个物理节点分配 150~200 个虚拟节点（虚拟节点越多，负载越均匀）。实际工程中一致性哈希的存储和管理开销较高，时序场景下不如 range 分片直观。</li>
+<li><strong>分片的度数（Fanout）</strong>：分片数不是越大越好。每个分片有自己的连接池、内存、后台线程。经验值：每个 MySQL 实例 8~16 个分片。分片过多会增大连接数开销和跨分片协调复杂度。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/document/current/en/features/sharding/concept/sharding/">Apache ShardingSphere Sharding Strategies</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.toptal.com/big-data/consistent-hashing">Consistent Hashing Explained</a></li>
+</ul>
+<hr>
+<h3 id="0x05-02-跨分片查询-全局表-广播表-ER-分片"><a href="#0x05-02-跨分片查询-全局表-广播表-ER-分片" class="headerlink" title="0x05-02 跨分片查询&#x2F;全局表&#x2F;广播表&#x2F;ER 分片"></a>0x05-02 跨分片查询&#x2F;全局表&#x2F;广播表&#x2F;ER 分片</h3><p><strong>标准答案：</strong></p>
+<p><strong>跨分片查询的三大难题：</strong></p>
+<ol>
+<li><strong>跨分片 Join</strong>：分属不同分片的数据无法在单库层面 Join，需要在中间件层做”合并+关联”。</li>
+<li><strong>跨分片聚合</strong>：COUNT&#x2F;SUM&#x2F;AVG 需要在每个分片执行后汇总（AVG 必须拆解为 SUM&#x2F;COUNT 两步）。</li>
+<li><strong>跨分片排序分页</strong>：<code>ORDER BY create_time LIMIT 0, 10</code> 需要在每个分片取前 10 条，在中间件层合并排序后取前 10 条——随着页码增大，每个分片拉取的量线性增长。</li>
+</ol>
+<p><strong>三种表策略：</strong></p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>描述</th>
+<th>示例</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>全局表</strong></td>
+<td>不拆分，每张表在每个分片有完整副本</td>
+<td>配置表、字典表</td>
+<td>Join 可直接在分片本地完成</td>
+<td>维护一致性、更新需广播</td>
+</tr>
+<tr>
+<td><strong>广播表</strong></td>
+<td>类似全局表，但由中间件自动管理</td>
+<td>小数据量的基础数据表</td>
+<td>对应用透明</td>
+<td>数据一致性确保复杂</td>
+</tr>
+<tr>
+<td><strong>ER 分片</strong></td>
+<td>将有关联关系的表按同一分片键分片</td>
+<td>订单表和订单明细表按 order_id 分片</td>
+<td>分片内 Join 本地执行，避免跨分片</td>
+<td>设计需提前规划分片键</td>
+</tr>
+</tbody></table>
+<p><strong>ShardingSphere 的绑定表机制：</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置 ER 关联的分片表</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line"><span class="bullet">-</span> <span class="type">!SHARDING</span></span><br><span class="line">  <span class="attr">bindingTables:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">logicTable:</span> <span class="string">t_order</span></span><br><span class="line">      <span class="attr">actualDataNodes:</span> <span class="string">ds_$&#123;0..1&#125;.t_order_$&#123;0..15&#125;</span></span><br><span class="line">      <span class="attr">tableStrategy:</span></span><br><span class="line">        <span class="attr">standard:</span></span><br><span class="line">          <span class="attr">shardingColumn:</span> <span class="string">order_id</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">logicTable:</span> <span class="string">t_order_item</span></span><br><span class="line">      <span class="attr">actualDataNodes:</span> <span class="string">ds_$&#123;0..1&#125;.t_order_item_$&#123;0..15&#125;</span></span><br><span class="line">      <span class="attr">tableStrategy:</span></span><br><span class="line">        <span class="attr">standard:</span></span><br><span class="line">          <span class="attr">shardingColumn:</span> <span class="string">order_id</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>跨分片聚合的”流式”优化</strong>：<code>SELECT COUNT(*) FROM orders WHERE status=1</code> 在每个分片上并行执行，中间件收集各分片的 COUNT 值后求和。性能瓶颈在中间件的”扇入”阶段（Fan-In）。若分片数过多，需要流式聚合（结果边收边累加，而非等全部返回再处理）。</li>
+<li><strong>分库分表后的 JOIN 替代方案</strong>：绝大多数互联网公司会在分库分表后限制单表 JOIN 的使用，通过<strong>反范式化（Denormalization）<strong>将冗余字段写入分片表中，或使用</strong>应用层组装</strong>（先查主表，再批量查子表）。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/document/current/en/features/sharding/concept/binding-table/">ShardingSphere Binding Tables</a></li>
+<li><a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/document/current/en/features/sharding/concept/broadcast-table/">ShardingSphere Broadcast Tables</a></li>
+</ul>
+<hr>
+<h3 id="0x05-03-分布式事务-分布式-ID-分库分表后的排序分页"><a href="#0x05-03-分布式事务-分布式-ID-分库分表后的排序分页" class="headerlink" title="0x05-03 分布式事务&#x2F;分布式 ID&#x2F;分库分表后的排序分页"></a>0x05-03 分布式事务&#x2F;分布式 ID&#x2F;分库分表后的排序分页</h3><p><strong>标准答案：</strong></p>
+<p><strong>分布式事务的三个主流方案：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>原理</th>
+<th>优缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>2PC（两阶段提交）</strong></td>
+<td>协调者先 prepare 所有分片，全部成功后 commit</td>
+<td>强一致性但性能差（2 轮 RTT），协调者单点</td>
+</tr>
+<tr>
+<td><strong>TCC（Try-Confirm-Cancel）</strong></td>
+<td>业务层面 try 预留资源，confirm 实际扣减，cancel 回滚</td>
+<td>无锁高性能，但侵入性强，需实现补偿逻辑</td>
+</tr>
+<tr>
+<td><strong>Seata AT 模式</strong></td>
+<td>代理数据源，自动解析 SQL 生成回滚 SQL（Undo Log）</td>
+<td>对业务代码零侵入，但性能有一定开销</td>
+</tr>
+</tbody></table>
+<p>ShardingSphere 集成了 Seata 和 Narayana 的分布式事务支持。</p>
+<p><strong>分布式 ID 生成策略：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>ID 示例</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>UUID</strong></td>
+<td><code>550e8400-e29b-...</code></td>
+<td>全局唯一，但无序、过长（36 字符）、影响 B+ 树效率</td>
+</tr>
+<tr>
+<td><strong>雪花算法（Snowflake）</strong></td>
+<td><code>1位符号 + 41位时间戳 + 10位机器ID + 12位序列号</code></td>
+<td>有序递增、高性能、无中心化。但依赖机器时钟</td>
+</tr>
+<tr>
+<td><strong>Redis INCR</strong></td>
+<td>自增值</td>
+<td>全局递增，但 Redis 是单点（即使 Redis Cluster 也需额外处理）</td>
+</tr>
+<tr>
+<td><strong>Leaf（美团）</strong></td>
+<td>号段模式（号段缓存 + 异步拉取）</td>
+<td>高可用、低延迟、全局有序、弱依赖 DB</td>
+</tr>
+</tbody></table>
+<p><strong>分库分表后排序分页：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询第 3 页（每页 10 条），共 4 个分片</span></span><br><span class="line"><span class="comment">-- 错误做法：每个分片 LIMIT 20,10</span></span><br><span class="line"><span class="comment">-- 因为各分片的前 20 条在全量数据可能是 80-30=50 名开外</span></span><br><span class="line"><span class="comment">-- 正确做法：每个分片取 LIMIT 30,10，然后中间件全量排序取 21-30 条</span></span><br><span class="line"><span class="comment">-- 但随着 offset 增大，中间件排序压力线性增长（&quot;深分页问题&quot;）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 优化方案 1：游标分片分页（前后翻页）</span></span><br><span class="line"><span class="comment">-- 记录上一页最后一条的排序字段值，下一页用 WHERE sort_field &gt; last_value LIMIT 10</span></span><br><span class="line"><span class="comment">-- 每个分片查询上一页最后值之后的前 10 条，合并排序后取前 10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 优化方案 2：禁用跳页，只允许&quot;加载更多&quot;</span></span><br><span class="line"><span class="comment">-- 这是大部分 C 端产品的实际选择</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>Snowflake 时钟回拨问题</strong>：机器 NTP 时间回拨会导致 ID 冲突。解决思路：1) 等待时钟追上再提供服务；2) 使用最后的序列号自增跳过冲突时间；3) 百度 UID 生成器解决的方案。</li>
+<li><strong>号段模式（美团 Leaf）</strong>：每次从数据库拿一批 ID（如 1000 个）缓存到本地内存，用完了再取一批。性能高（本地分配），可靠性好（DB 只是号段存储），Leaf 的 “Leaf-segment” 方案兼顾了强有序和弱依赖 DB。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/document/current/en/features/transaction/">Apache ShardingSphere Distributed Transaction</a></li>
+<li><a target="_blank" rel="noopener" href="https://tech.meituan.com/2019/03/07/open-source-project-leaf.html">Leaf: Meituan Distributed ID Generation</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake">Snowflake ID at Twitter</a></li>
+</ul>
+<hr>
+<h3 id="0x05-04-ShardingSphere-源码级"><a href="#0x05-04-ShardingSphere-源码级" class="headerlink" title="0x05-04 ShardingSphere 源码级"></a>0x05-04 ShardingSphere 源码级</h3><p><strong>标准答案：</strong></p>
+<p>Apache ShardingSphere 是一套开源的分布式数据库中间件生态，由 <strong>ShardingSphere-JDBC</strong>（轻量级 Java 驱动层）和 <strong>ShardingSphere-Proxy</strong>（网络代理层）组成。</p>
+<p><strong>核心执行流程（源码级）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SQL 输入</span><br><span class="line">  → SQL 解析（Parser）：使用 ANTLR 生成 AST（抽象语法树），解析出表名、列名、条件表达式</span><br><span class="line">  → SQL 路由（Router）：根据分片键解析，判断是否走单库（Single）、多库（Broadcast）、Hint（强制路由）</span><br><span class="line">  → SQL 改写（Rewriter）：将逻辑表名替换为物理表名，处理 ORDER BY、LIMIT、GROUP BY 等</span><br><span class="line">  → SQL 执行（Executor）：多线程并行分派到各分片</span><br><span class="line">  → 结果归并（Merger）：排序/聚合/分页归并（Merge）</span><br></pre></td></tr></table></figure>
+
+<p><strong>分片算法的核心接口（Java）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ShardingAlgorithm</span> &#123;</span><br><span class="line">    String <span class="title function_">getType</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">StandardShardingAlgorithm</span>&lt;T <span class="keyword">extends</span> <span class="title class_">Comparable</span>&lt;?&gt;&gt;</span><br><span class="line">        <span class="keyword">extends</span> <span class="title class_">ShardingAlgorithm</span> &#123;</span><br><span class="line">    <span class="comment">// 等价查询：返回目标分片</span></span><br><span class="line">    String <span class="title function_">doSharding</span><span class="params">(Collection&lt;String&gt; availableTargetNames,</span></span><br><span class="line"><span class="params">                      PreciseShardingValue&lt;T&gt; shardingValue)</span>;</span><br><span class="line">    <span class="comment">// 范围查询：返回符合条件的分片集合</span></span><br><span class="line">    Collection&lt;String&gt; <span class="title function_">doSharding</span><span class="params">(Collection&lt;String&gt; availableTargetNames,</span></span><br><span class="line"><span class="params">                                   RangeShardingValue&lt;T&gt; shardingValue)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>ShardingSphere-JDBC vs Proxy 的选型</strong>：<ul>
+<li>JDBC：轻量级，零网络开销，适合 Java 应用。缺点：Java 版本绑定、Spring 版本绑定。</li>
+<li>Proxy：通用（任何语言都可连接），无代码侵入。缺点：多一层网络转发（延迟增加 1~3ms）、运维成本高。</li>
+</ul>
+</li>
+<li><strong>ShardingSphere 的 SQL 兼容性</strong>：不支持 <code>HAVING</code>、<code>UNION ALL</code> 后的复杂排序、<code>SELECT INTO</code> 等。如果你的 SQL 复杂度过高，需要评估兼容性。</li>
+<li><strong>5.x vs 4.x</strong>：ShardingSphere 5.x 使用可插拔内核架构（SPI），性能比 4.x 提升 30%+。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/blog/en/material/shardingsphere-source-code-analyze/">ShardingSphere Source Code Analysis</a></li>
+<li><a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/document/current/en/overview/">ShardingSphere Architecture</a></li>
+</ul>
+<hr>
+<h2 id="0x06-分布式数据库对比"><a href="#0x06-分布式数据库对比" class="headerlink" title="0x06 分布式数据库对比"></a>0x06 分布式数据库对比</h2><h3 id="0x06-01-TiDB（Raft-LSM-tree-HTAP）"><a href="#0x06-01-TiDB（Raft-LSM-tree-HTAP）" class="headerlink" title="0x06-01 TiDB（Raft + LSM-tree + HTAP）"></a>0x06-01 TiDB（Raft + LSM-tree + HTAP）</h3><p><strong>标准答案：</strong></p>
+<p>TiDB 是由 PingCAP 开发的<strong>开源分布式 NewSQL 数据库</strong>，兼容 MySQL 协议。</p>
+<p><strong>核心架构：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">TiDB Server (SQL Layer, Stateless)</span><br><span class="line">    ↓</span><br><span class="line">PD (Placement Driver) — 元数据管理 + 全局时间戳 (TSO)</span><br><span class="line">    ↓</span><br><span class="line">TiKV (Storage Engine, Key-Value, RocksDB)</span><br><span class="line">    ↕</span><br><span class="line">TiFlash (Columnar Storage Engine, Raft Learner)</span><br></pre></td></tr></table></figure>
+
+<p><strong>TiDB 的关键技术：</strong></p>
+<ol>
+<li><strong>Raft 一致性</strong>：TiKV 使用 Raft 共识协议进行数据复制。每个 Region（默认 96MB 数据范围）是一个 Raft Group，多副本（默认 3 副本）。Raft Leader 负责写入，Followers 只读。</li>
+<li><strong>LSM-Tree（RocksDB）</strong>：TiKV 使用 RocksDB（Facebook 优化的 LSM-Tree 引擎）作为底层存储。写入先在 MemTable 中缓冲，定期刷到 SSTable。读路径需逐层查找 Bloom Filter 过滤不存在的键。</li>
+<li><strong>HTAP 能力</strong>：TiFlash 以 Raft Learner 角色的方式从 TiKV 异步复制数据，并转换为列存格式。分析型查询自动路由到 TiFlash，事务型查询走 TiKV。同一份数据，两份引擎，用户无感。</li>
+<li><strong>自动分片（Region Auto-Split）</strong>：Region 达到 144MB（默认 soft limit）时自动拆分。数据倾斜时会自动调度 Region 到负载低的 TiKV 节点。</li>
+</ol>
+<p><strong>TiDB 的 MySQL 兼容性：</strong></p>
+<ul>
+<li>兼容 95%+ 的 MySQL 语法</li>
+<li>不支持：存储过程、自定义函数、触发器、外键（5.6 之前不支持）、全文索引</li>
+</ul>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>TiDB 的写放大问题</strong>：由于 LSM-Tree 的本质特征，TiKV 的写放大系数在 5<del>20 倍之间（取决于 Level 数量和 Compaction 策略）。而 InnoDB 的写放大在 2</del>5 倍（Doublewrite Buffer + Page Flush）。这意味着 TiDB 对 SSD 寿命的消耗是 MySQL 的 2~4 倍，大企业部署时需考虑 TBW（Total Bytes Written）。</li>
+<li><strong>TiDB 的 TSO（Timestamps Oracle）</strong>：PD 以单点方式全局分配递增时间戳，保证分布式 MVCC 的总序。如果 PD 挂掉（即使部署 3 节点 Raft 副本），新写入阻塞到 PD 选举完毕。但也导致 TiDB 的写入延迟依赖 PD 的网络 RTT。</li>
+<li><strong>大事务限制</strong>：TiDB 大事务限制为 100MB（单事务总变更量），超过则报错。这是 LSM-Tree 引擎的内在限制（超大事务会导致大量 PUT 操作在 Compaction 中产生严重延迟）。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dl.acm.org/doi/pdf/10.14778/3415478.3415535">TiDB: A Raft-based HTAP Database (VLDB 2020)</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/architecture">TiDB Architecture Overview</a></li>
+</ul>
+<hr>
+<h3 id="0x06-02-OceanBase（Paxos-LSM-Tree-多租户）"><a href="#0x06-02-OceanBase（Paxos-LSM-Tree-多租户）" class="headerlink" title="0x06-02 OceanBase（Paxos + LSM-Tree + 多租户）"></a>0x06-02 OceanBase（Paxos + LSM-Tree + 多租户）</h3><p><strong>标准答案：</strong></p>
+<p>OceanBase 是蚂蚁集团自主研发的分布式关系型数据库，已在蚂蚁集团核心账务系统运行超过 10 年。</p>
+<p><strong>核心关键技术：</strong></p>
+<ol>
+<li><strong>Paxos 协议</strong>：OceanBase 使用自研的 Multi-Paxos 协议实现数据强一致性。与 Raft 不同，OceanBase 的 Paxos 优化了选举效率和日志复制性能。</li>
+<li><strong>LSM-Tree 存储引擎</strong>：自研存储引擎，与 TiKV 不同，OB 的 LSM-Tree 实现了”增量写 + 基线读”的能力——写入增量内存表（MemTable），读取时合并基线 SSTable 和内存增量。</li>
+<li><strong>多租户（Multi-Tenant）</strong>：一个 OceanBase 集群可以划分多个”租户”，每个租户相当于一个独立的数据库实例，资源隔离（CPU&#x2F;内存），互不干扰。</li>
+<li><strong>分区表与自动分区</strong>：OB 支持分区表（Hash&#x2F;Range&#x2F;List），大表自动分区后分布在不同节点。租户的分区可透明地跨多台机器。</li>
+<li><strong>Oracle 兼容性</strong>：OB 兼容 Oracle 和 MySQL 两种模式，在 Oracle 模式下支持存储过程（PL&#x2F;SQL）、触发器、Sequence、Dblink。</li>
+</ol>
+<p><strong>宏观架构：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">OBProxy (网络代理，类似 ProxySQL)</span><br><span class="line">    ↓</span><br><span class="line">RootServer → 元数据 + 负载均衡 + 分区管理</span><br><span class="line">    ↓</span><br><span class="line">OBServer (多节点，每个节点是计算+存储一体化)</span><br><span class="line">    ├── SQL Engine</span><br><span class="line">    ├── Transaction Engine</span><br><span class="line">    └── Storage Engine (MemTable + SSTable)</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><p><strong>OceanBase vs TiDB 关键差异</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>TiDB</th>
+<th>OceanBase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一致性协议</td>
+<td>Raft</td>
+<td>Multi-Paxos（自研）</td>
+</tr>
+<tr>
+<td>SQL 兼容</td>
+<td>MySQL</td>
+<td>MySQL + Oracle</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>计算存储分离</td>
+<td>计算存储一体化</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>RocksDB（LSM-Tree）</td>
+<td>自研 LSM-Tree</td>
+</tr>
+<tr>
+<td>多租户</td>
+<td>无（按集群隔离）</td>
+<td>原生多租户</td>
+</tr>
+<tr>
+<td>开源</td>
+<td>完全开源</td>
+<td>核心功能开源</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>金融级可靠性</strong>：OB 在蚂蚁集团承载着支付宝的所有核心账务数据，单集群节点数可达数百台，数据量 PB 级。其 TPC-C 测试（7.07 亿 tpmC，2021 年）仍是世界纪录保持者。</p>
+</li>
+<li><p><strong>OB 的短板</strong>：社区版功能受限（部分企业版特性如备库只读、物理备份恢复不具备）；OBProxy 的 SQL 兼容性在某些复杂窗口函数上存在问题；运维工具体系不如 MySQL 生态成熟。</p>
+</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs">OceanBase Documentation</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/news/oceanbase-tpcc-record">OceanBase TPC-C Record</a></li>
+</ul>
+<hr>
+<h3 id="0x06-03-MySQL-vs-TiDB-vs-OB-选型决策树"><a href="#0x06-03-MySQL-vs-TiDB-vs-OB-选型决策树" class="headerlink" title="0x06-03 MySQL vs TiDB vs OB 选型决策树"></a>0x06-03 MySQL vs TiDB vs OB 选型决策树</h3><p><strong>标准答案：</strong></p>
+<p>选型决策需要从<strong>数据量、一致性要求、SQL 复杂度、运维能力、成本</strong>五个维度综合判断。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">业务是否需要分布式 SQL 数据库？</span><br><span class="line">│</span><br><span class="line">├── 否：单机 MySQL 可支撑</span><br><span class="line">│   ├── 数据量 &lt; 10TB</span><br><span class="line">│   ├── QPS &lt; 1 万写入 / &lt; 10 万读</span><br><span class="line">│   ├── 不需要强一致跨库事务</span><br><span class="line">│   └── → 选择 MySQL 集群（主从 + 分库分表）</span><br><span class="line">│</span><br><span class="line">└── 是：需要分布式数据库</span><br><span class="line">    │</span><br><span class="line">    ├── 需要 MySQL 兼容且 HTAP（混合负载）</span><br><span class="line">    │   ├── 业务具有 OLTP + OLAP 混合场景</span><br><span class="line">    │   ├── 需要自动分片、最小化运维</span><br><span class="line">    │   ├── 熟悉 Kubernetes 和云原生部署</span><br><span class="line">    │   └── → 选择 TiDB</span><br><span class="line">    │</span><br><span class="line">    ├── 需要 Oracle 兼容或金融级强一致性</span><br><span class="line">    │   ├── 从 Oracle 迁移</span><br><span class="line">    │   ├── 需要存储过程、PL/SQL</span><br><span class="line">    │   ├── 多租户资源隔离</span><br><span class="line">    │   ├── 金融机构 / 核心账务</span><br><span class="line">    │   └── → 选择 OceanBase</span><br><span class="line">    │</span><br><span class="line">    ├── 数据量在 10TB-100TB 且 SQL 复杂度高</span><br><span class="line">    │   ├── 复杂 JOIN、子查询、存储过程</span><br><span class="line">    │   ├── 需要渐进式迁移（部分表分片）</span><br><span class="line">    │   ├── 运维团队成熟</span><br><span class="line">    │   └── → 选择 MySQL 分库分表（ShardingSphere/MyCAT）</span><br><span class="line">    │</span><br><span class="line">    └── 需要云托管服务</span><br><span class="line">        ├── AWS Aurora → 兼容 MySQL、存储分离、高可用</span><br><span class="line">        ├── AWS RDS → 标准 MySQL 托管</span><br><span class="line">        ├── GCP Cloud Spanner → 强一致、全球部署</span><br><span class="line">        ├── TiDB Cloud → 托管 TiDB</span><br><span class="line">        └── 阿里云 PolarDB → 存储计算分离，兼容 MySQL</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>不要因为”看起来酷”就上分布式</strong>：很多业务场景单机 MySQL 完全能支撑。单机 MySQL（32 核、256GB、NVMe SSD）在合理优化下可以支撑 5000 万行表、5000 QPS 的混合负载。引入分布式数据库意味着<strong>运维复杂度大幅提升</strong>。</li>
+<li><strong>渐进式迁移策略</strong>：最稳妥的做法是”MySQL + ShardingSphere”起步，业务体量增长到 MySQL 天花板后，再迁移到 TiDB&#x2F;OceanBase。TiDB 提供 <strong>TiDB Data Migration（DM）</strong> 工具，支持从 MySQL 到 TiDB 的在线不停机迁移。</li>
+<li><strong>混合部署</strong>：很多大厂的实践是核心交易链路用 MySQL（或 TiDB），日志&#x2F;监控用 Elasticsearch，分析场景用 ClickHouse，缓存用 Redis。**单一数据库打天下”在复杂业务中不现实。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.pingcap.com/compare/tidb-vs-oceanbase">TiDB vs OceanBase Comparison 2026</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html">AWS Aurora vs RDS vs TiDB Cloud</a></li>
+</ul>
+<hr>
+<h2 id="0x07-生产实战"><a href="#0x07-生产实战" class="headerlink" title="0x07 生产实战"></a>0x07 生产实战</h2><h3 id="0x07-01-百万级数据迁移不停机方案"><a href="#0x07-01-百万级数据迁移不停机方案" class="headerlink" title="0x07-01 百万级数据迁移不停机方案"></a>0x07-01 百万级数据迁移不停机方案</h3><p><strong>标准答案：</strong></p>
+<p>100TB 级数据的零停机迁移是 DBA 领域的天花板级挑战。下面是一个经过多个大厂验证的通用方案：</p>
+<p><strong>方案：双写 + 全量 + 增量 + 校验 + 切换</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">阶段 0：评估与准备</span><br><span class="line">  └── 评估源库负载、网络带宽、数据量、表结构差异</span><br><span class="line">  └── 选择流量低谷窗口，准备回滚方案</span><br><span class="line"></span><br><span class="line">阶段 1：搭建目标库</span><br><span class="line">  └── 创建目标数据库（MySQL/TiDB/OB）</span><br><span class="line">  └── 建立表结构（自动同步工具或手动 DDL）</span><br><span class="line">  └── 确认字符集、排序规则、时区一致</span><br><span class="line"></span><br><span class="line">阶段 2：开启双写（Dual Write）</span><br><span class="line">  └── 应用层改造：所有写入操作同时写源库和目标库</span><br><span class="line">  └── 写入失败处理：目标库写入失败仅记录日志，不影响主流程</span><br><span class="line">  └── 监控：双写的成功率、延迟差异</span><br><span class="line"></span><br><span class="line">阶段 3：全量数据迁移</span><br><span class="line">  └── 使用 mysqldump / mydumper / TiDB DM / DataX</span><br><span class="line">  └── 注意：大表分批导出（按主键范围），避免锁长时间持有</span><br><span class="line">  └── 传输层：压缩传输（gzip 压缩率 70%+）</span><br><span class="line">  └── 导入目标库前：关闭检查约束和外键，导入完成后重建</span><br><span class="line"></span><br><span class="line">阶段 4：增量数据同步</span><br><span class="line">  └── 方案 A：MySQL Binlog → Canal/Kafka → 目标库</span><br><span class="line">  └── 方案 B：TiDB DM / OB OMS 内置的增量同步</span><br><span class="line">  └── 验证：延迟监控（从 Binlog 观察到目标库的写入延迟）</span><br><span class="line">  └── 持续运行：增量同步运行 24-48 小时确保数据一致</span><br><span class="line"></span><br><span class="line">阶段 5：数据校验（关键步骤）</span><br><span class="line">  └── 全量校验：逐行对比源和目标的主键 + 校验和（checksum）</span><br><span class="line">  └── 抽样校验：对分片/分区随机抽样对比完整行数据</span><br><span class="line">  └── 工具：pt-table-checksum（Percona Toolkit）</span><br><span class="line">  └── 修复：不一致的数据定位后，从源库重新同步该行</span><br><span class="line"></span><br><span class="line">阶段 6：切换（Cut-over）</span><br><span class="line">  └── 停止应用写入（维护窗口 5-10 分钟）</span><br><span class="line">  └── 等待增量同步追上（延迟 = 0）</span><br><span class="line">  └── 修改 DNS/ProxySQL/连接池指向目标库</span><br><span class="line">  └── 验证应用连接正常、数据正确</span><br><span class="line">  └── 开放应用写入 → 迁移完成</span><br><span class="line"></span><br><span class="line">阶段 7：灰度回退方案</span><br><span class="line">  └── 新库运行 48 小时内，保留源库只读</span><br><span class="line">  └── 出现严重问题，立即回退 DNS 指向源库</span><br><span class="line">  └── 恢复双写方向（写回源库）</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>数据校验的核心难题</strong>：逐行对比 100TB 数据需要巨大的计算量和时间。工业界常用<strong>分层抽样 + 哈希校验</strong>的混合策略——先对每个表做 COUNT(*) 和 CHECKSUM，不一致的表再逐行对比。</li>
+<li><strong>迁移中的性能影响</strong>：全量导出会增加源库的磁盘 I&#x2F;O 和 CPU 负载。建议从<strong>从库</strong>导数据，或使用 <code>--single-transaction</code> + <code>--quick</code> 模式，对主库影响最小化。</li>
+<li><strong>双写时期的”大事务”</strong>：如果源库的某个事务修改了 100 万行数据，应用层的双写会将 100 万行数据分别发给源库和目标库。这可能导致目标库 OOM 或网络带宽打满。需要配置应用层的”事务行数限制”。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.percona.com/doc/percona-toolkit/LATEST/pt-table-checksum.html">pt-table-checksum Official Doc</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/tidb-binlog-overview">TiDB DM Overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/canal">Canal: MySQL Binlog to Kafka</a></li>
+</ul>
+<hr>
+<h3 id="0x07-02-大表-DDL-踩坑（5-亿行表改字段）"><a href="#0x07-02-大表-DDL-踩坑（5-亿行表改字段）" class="headerlink" title="0x07-02 大表 DDL 踩坑（5 亿行表改字段）"></a>0x07-02 大表 DDL 踩坑（5 亿行表改字段）</h3><p><strong>标准答案：</strong></p>
+<p><strong>真实案例：某 5 亿行订单表将 <code>status</code> 字段从 INT(11) 改为 VARCHAR(10)。</strong></p>
+<p><strong>坑点一：直接 ALTER TABLE 引发的 MDL 写锁洪灾</strong></p>
+<ul>
+<li>执行 <code>ALTER TABLE orders MODIFY status VARCHAR(10);</code></li>
+<li>MySQL 5.7 自动判断该操作无法 INPLACE（改变数据类型需要 COPY），进入 COPY TABLE 模式</li>
+<li>COPY TABLE 需要 MDL 写锁，而 MDL 写锁需要等待所有之前的 MDL 读锁释放</li>
+<li>正在执行的长时间查询（如报表统计 SUM）持有 MDL 读锁不释放</li>
+<li>ALTER 排队等待时，后续的所有查询（读 + 写）都在等待 MDL</li>
+<li>最终：<strong>SELECT 也全部阻塞，整个实例的请求排队堆积</strong></li>
+<li>数据库不到 2 分钟就连接数满</li>
+</ul>
+<p><strong>坑点二：Ghost Table 占满磁盘</strong></p>
+<ul>
+<li>使用 gh-ost 执行：先创建影子表，将原表的 5 亿行通过 INSERT…SELECT 边读取边写入</li>
+<li>影子表的大小与原表接近（5 亿行 × 行大小），额外需要约 50GB 存储空间</li>
+<li>如果未评估磁盘余量，影子表在拷贝过程中<strong>磁盘写满</strong>，gh-ost 进程直接崩溃</li>
+<li>影子表不会自动清理，需要手动 <code>DROP TABLE _orders_gho</code></li>
+</ul>
+<p><strong>坑点三：Binlog 爆炸</strong></p>
+<ul>
+<li>即使使用 gh-ost，Binlog 格式为 ROW 的情况下，每一行变更（INSERT + DELETE）都写入 Binlog</li>
+<li>5 亿行 INSERT + 5 亿行 DELETE &#x3D; 10 亿条 Binlog 事件</li>
+<li>主从从库同步这 10 亿个 Binlog 事件需要数小时甚至一天</li>
+<li>从库延迟飙升、磁盘爆满（Binlog 没设置 expire_logs_days）</li>
+</ul>
+<p><strong>总结出的 DDL 最佳实践清单：</strong></p>
+<ol>
+<li><strong>评估先行</strong>：<code>INFORMATION_SCHEMA.TABLES</code> 查表大小、行数、碎片率。</li>
+<li><strong>从库先行</strong>：先在从库上执行 DDL 验证兼容性和耗时，确认无问题后再在主库执行。</li>
+<li><strong>使用 Online 工具</strong>：5 亿行以上优先使用 gh-ost，其次 PT-OSC，最后 ALTER TABLE。</li>
+<li><strong>关注磁盘空间</strong>：确保有足够空间放影子表（原表 1.5 倍大小）。</li>
+<li><strong>设置超时保护</strong>：<code>lock_wait_timeout = 5</code>（MDL 等待超时），防止 DDL 阻塞一切查询。</li>
+<li><strong>流量窗口选择</strong>：业务低峰期（凌晨 2-5 点）执行。预留回滚时间。</li>
+<li><strong>监控关键指标</strong>：数据库 QPS&#x2F;TPS、主从延迟、磁盘空间、锁等待。</li>
+<li><strong>分片分批</strong>：如果表本身有分片，可以逐个分片执行 DDL，降低风险。</li>
+</ol>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>MySQL 8.0 INSTANT DDL</strong>：MySQL 8.0.12+ 对 <code>ADD COLUMN</code> 支持 INSTANT 算法（仅改元数据，毫秒级完成），但 <code>MODIFY COLUMN</code> 改变数据类型仍然需要 COPY 模式。对 5 亿行表，添加新列几乎是瞬时的，但修改已有列还是坑。</li>
+<li><strong>夜间 DDL 的”隐蔽风险”</strong>：即使凌晨执行，凌晨的批处理任务（数据备份、ETL）可能因 DDL 阻塞而失败，这些任务失败后第二天才会发现——发现时已经是一个”被阻塞的 DDL + 失败的数据任务”的死锁。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html">MySQL Online DDL Operations</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/github/gh-ost">gh-ost GitHub</a></li>
+</ul>
+<hr>
+<h3 id="0x07-03-连接池爆满救援全过程"><a href="#0x07-03-连接池爆满救援全过程" class="headerlink" title="0x07-03 连接池爆满救援全过程"></a>0x07-03 连接池爆满救援全过程</h3><p><strong>标准答案：</strong></p>
+<p><strong>真实案例：某电商平台大促日连接池爆满，全站瘫痪 8 分钟。</strong></p>
+<p><strong>事件时间线：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">10:00:00 — 大促开始，流量涌入</span><br><span class="line">10:02:30 — 数据库连接数从 200 飙升至 1800</span><br><span class="line">10:03:00 — max_connections=2000 已接近上限</span><br><span class="line">10:03:30 — 应用开始报错 &quot;Too many connections&quot;</span><br><span class="line">10:04:00 — 连接池耗尽 → 应用请求排队 → 请求堆积 → 应用线程 OOM</span><br><span class="line">10:04:30 — 新的请求无法建立连接 → 前端（Nginx）返回 502</span><br><span class="line">10:05:00 — 全站瘫痪</span><br></pre></td></tr></table></figure>
+
+<p><strong>根本原因分析：</strong></p>
+<ol>
+<li>某查询 SQL 因数据量暴增 + 索引缺失，执行时间从 10ms 升至 5s</li>
+<li>慢查询长时间占用连接不释放</li>
+<li>新请求来了创建新连接，但旧连接不释放</li>
+<li>连接池被占满，即使原来与 MySQL 已建立的连接也因等待慢查询而”假死”</li>
+</ol>
+<p><strong>救援三步走（按现场情况优先级）：</strong></p>
+<p><strong>第一步：即刻止血（0-30秒）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 查看当前连接状态</span></span><br><span class="line"><span class="keyword">SHOW</span> PROCESSLIST;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. KILL 慢查询（优先 kill 耗时最长的，避免影响关键事务）</span></span><br><span class="line"><span class="comment">-- 关注 State 为 &#x27;Sending data&#x27; / &#x27;Creating sort index&#x27; 的线程</span></span><br><span class="line">KILL <span class="number">12345</span>;  <span class="comment">-- 根据 processlist 中的 ID</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 降低 max_connections（防止短时间内再次爆满）</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> max_connections <span class="operator">=</span> <span class="number">1500</span>;  <span class="comment">-- 从 2000 降至 1500</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 缩小连接超时</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> wait_timeout <span class="operator">=</span> <span class="number">60</span>;       <span class="comment">-- 从 28800 降至 60 秒</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">GLOBAL</span> interactive_timeout <span class="operator">=</span> <span class="number">60</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 5. 查看仍被阻塞的连接</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> information_schema.INNODB_TRX <span class="keyword">WHERE</span> TIME_TO_SEC(TIMEDIFF(NOW(), trx_started)) <span class="operator">&gt;</span> <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步：定位与隔离（30秒-3分钟）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 统计按 User/Host 的连接分布</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">user</span>, host, <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> information_schema.PROCESSLIST <span class="keyword">GROUP</span> <span class="keyword">BY</span> <span class="keyword">user</span>, host;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 定位具体慢 SQL（Performance Schema）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.statement_analysis <span class="keyword">ORDER</span> <span class="keyword">BY</span> avg_latency <span class="keyword">DESC</span> LIMIT <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 如果是线上问题，Performance Schema 可能未开启，使用 SHOW FULL PROCESSLIST 看 Info 列</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 查看是否有大事务阻塞</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> sys.innodb_lock_waits;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步：恢复与加固（3分钟-60分钟）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 添加缺失索引</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> orders <span class="keyword">ADD</span> INDEX idx_create_time(create_time) ALGORITHM<span class="operator">=</span>INPLACE, LOCK<span class="operator">=</span><span class="keyword">NONE</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 调整连接池配置（应用层）</span></span><br><span class="line"><span class="comment">-- HikariCP: maximumPoolSize=20 → 10（更保守，优先保证稳定性）</span></span><br><span class="line"><span class="comment">--         connectionTimeout=30000 → 5000（快速失败，不要无限等待）</span></span><br><span class="line"><span class="comment">--         idleTimeout=600000 → 60000</span></span><br><span class="line"><span class="comment">--         maxLifetime=1800000 → 600000</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 添加数据库连接池监控告警</span></span><br><span class="line"><span class="comment">-- 连接数 &gt; max_connections * 0.7 触发告警</span></span><br><span class="line"><span class="comment">-- 慢查询持续时间 &gt; 1s 触发告警</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>预防措施（事后复盘必做）：</strong></p>
+<ol>
+<li><strong>慢查询自动 KILL</strong>：通过脚本监控 <code>INFORMATION_SCHEMA.PROCESSLIST</code>，自动 KILL 超过阈值的慢查询。</li>
+<li><strong>连接池治理</strong>：每个微服务实例按业务重要性分配连接池大小，不要所有服务共用同一个 MySQL 用户上限。总连接数 &#x3D; Σ(服务实例数 × 每个实例的连接池大小) &lt; max_connections × 0.7。</li>
+<li><strong>熔断降级</strong>：应用层加入数据库访问熔断（如 Sentinel&#x2F;Hystrix），当错误率达到阈值（如 50%）时自动降级——先保证缓存的读可用，不重要的写允许失败返回友好提示。</li>
+<li><strong>ProxySQL 队列保护</strong>：在 ProxySQL 中设置 <code>mysql-max_connections</code>，对超过阈值的请求排队，避免 MySQL 直接拒绝连接。</li>
+</ol>
+<p><strong>深入思考：</strong></p>
+<ol>
+<li><strong>max_connections 不是越大越好</strong>：max_connections&#x3D;2000 不是好事。每个连接在 InnoDB 中占一个线程，线程过多导致操作系统上下文切换开销暴增。正常建议 <strong>max_connections &#x3D; 200~500</strong>，配合连接池使用。超过 500 的连接数往往说明应用层连接池配置有问题。</li>
+<li><strong>连接池泄漏排查</strong>：如果连接数持续上升但不下降，很大概率是应用层有一个 <code>Connection</code> 被获取后没有 <code>close()</code>——也就是连接泄漏。常见于使用了 <code>@Transactional</code> 但未正确配置 <code>rollbackFor</code> 的场景：异常未触发回滚时连接未能正常归还连接池。</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/connection-management.html">MySQL Connection Handling</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby">HikariCP Configuration</a></li>
+<li><a target="_blank" rel="noopener" href="https://sentinelguard.io/zh-cn/docs/open-source-framework-integrations.html">Sentinel Database Circuit Breaking</a></li>
+</ul>
+<hr>
+<h2 id="附：复习路线图"><a href="#附：复习路线图" class="headerlink" title="附：复习路线图"></a>附：复习路线图</h2><p>对于资深研发面试，建议按以下优先级复习：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">第一梯队（面试必问）：</span><br><span class="line">  1. B+ 树原理 + 聚簇索引 vs 二级索引</span><br><span class="line">  2. MVCC + 事务隔离级别（RR vs RC）</span><br><span class="line">  3. EXPLAIN 关键字段解读</span><br><span class="line">  4. 索引失效场景（能列举 6 个以上）</span><br><span class="line">  5. 行锁/间隙锁/临键锁</span><br><span class="line"></span><br><span class="line">第二梯队（高频问题）：</span><br><span class="line">  6. 主从延迟原因 + 并行复制</span><br><span class="line">  7. 分库分表策略 + 跨分片查询</span><br><span class="line">  8. Online DDL（gh-ost 原理）</span><br><span class="line">  9. 死锁分析与预防</span><br><span class="line">  10. 慢查询定位工具链</span><br><span class="line"></span><br><span class="line">第三梯队（加分项）：</span><br><span class="line">  11. Change Buffer / AHI / Doublewrite</span><br><span class="line">  12. GTID 原理与故障恢复</span><br><span class="line">  13. TiDB vs OceanBase 架构对比</span><br><span class="line">  14. ShardingSphere 源码级执行流程</span><br><span class="line">  15. 百万级数据迁移方案</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+              <a href="/tags/SQL/" rel="tag"># SQL</a>
+              <a href="/tags/InnoDB/" rel="tag"># InnoDB</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="架构面试题：架构与工程实践面试全解">
+                  <i class="fa fa-angle-left"></i> 架构面试题：架构与工程实践面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="数据库面试题：Redis 面试全解">
+                  数据库面试题：Redis 面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

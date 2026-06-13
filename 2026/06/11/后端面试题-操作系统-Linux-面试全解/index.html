@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文覆盖操作系统与 Linux 核心面试知识点：进程线程模型、内存管理、IO 模型、生产环境排障、容器底层原理。面向高级研发面试，每道题附带深入思考与生产踩坑视角。   目录 0x00 进程与线程 0x01 内存管理 0x02 IO 模型 0x03 Linux 生产排障 0x04 容器与 Linux 底层   0x00 进程与线程0. 进程有哪几种状态？Linux 内核中如何表示？标准答案：三态">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统 &amp; Linux 高级面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="本文覆盖操作系统与 Linux 核心面试知识点：进程线程模型、内存管理、IO 模型、生产环境排障、容器底层原理。面向高级研发面试，每道题附带深入思考与生产踩坑视角。   目录 0x00 进程与线程 0x01 内存管理 0x02 IO 模型 0x03 Linux 生产排障 0x04 容器与 Linux 底层   0x00 进程与线程0. 进程有哪几种状态？Linux 内核中如何表示？标准答案：三态">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-11T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-13T06:35:47.020Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/11/后端面试题-操作系统-Linux-面试全解/","title":"操作系统 & Linux 高级面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>操作系统 & Linux 高级面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-text">0x00 进程与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-%E8%BF%9B%E7%A8%8B%E6%9C%89%E5%93%AA%E5%87%A0%E7%A7%8D%E7%8A%B6%E6%80%81%EF%BC%9FLinux-%E5%86%85%E6%A0%B8%E4%B8%AD%E5%A6%82%E4%BD%95%E8%A1%A8%E7%A4%BA%EF%BC%9F"><span class="nav-text">0. 进程有哪几种状态？Linux 内核中如何表示？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2-Context-Switch-%E7%9A%84%E5%BC%80%E9%94%80%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">1. 上下文切换(Context Switch)的开销到底有多大？如何优化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Linux-%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%EF%BC%88NPTL%EF%BC%89%E8%AF%A6%E8%A7%A3-%E2%80%94%E2%80%94-%E7%94%A8%E6%88%B7%E7%BA%A7-vs-%E5%86%85%E6%A0%B8%E7%BA%A7%E5%AE%9E%E7%8E%B0"><span class="nav-text">2. Linux 线程模型（NPTL）详解 —— 用户级 vs 内核级实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8D%8F%E7%A8%8B%E6%AF%94%E7%BA%BF%E7%A8%8B%E5%A5%BD%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9Fgoroutine-%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B-%E7%BA%A4%E7%A8%8B%E7%9A%84%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="nav-text">3. 协程比线程好在哪里？goroutine &#x2F; 虚拟线程 &#x2F; 纤程的底层原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%AD%BB%E9%94%81%E7%9A%84%E5%9B%9B%E4%B8%AA%E5%BF%85%E8%A6%81%E6%9D%A1%E4%BB%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E5%92%8C%E9%A2%84%E9%98%B2%EF%BC%9F"><span class="nav-text">4. 死锁的四个必要条件是什么？如何检测和预防？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x01 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81%E5%88%86%E9%A1%B5%E4%B8%8E%E5%88%86%E6%AE%B5%E2%80%94%E2%80%94%E7%8E%B0%E4%BB%A3-OS-%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E5%86%85%E5%AD%98%EF%BC%9F"><span class="nav-text">5. 虚拟内存、分页与分段——现代 OS 如何管理内存？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9FLRU-%E5%9C%A8%E7%94%9F%E4%BA%A7%E4%B8%AD%E7%9A%84%E7%BC%BA%E9%99%B7%E5%92%8C%E6%94%B9%E8%BF%9B"><span class="nav-text">6. 页面置换算法有哪些？LRU 在生产中的缺陷和改进</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-OOM-Killer-%E6%98%AF%E6%80%8E%E4%B9%88%E9%80%89%E6%8B%A9%E6%9D%80%E6%AD%BB%E5%93%AA%E4%B8%AA%E8%BF%9B%E7%A8%8B%E7%9A%84%EF%BC%9F%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E8%A2%AB%E8%AF%AF%E6%9D%80%EF%BC%9F"><span class="nav-text">7. OOM Killer 是怎么选择杀死哪个进程的？如何避免被误杀？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-mmap-%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3%E2%80%94%E2%80%94%E9%9B%B6%E6%8B%B7%E8%B4%9D%E5%92%8C%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%E7%9A%84%E5%9F%BA%E7%9F%B3"><span class="nav-text">8. mmap 原理详解——零拷贝和共享内存的基石</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-IO-%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x02 IO 模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-BIO-NIO-AIO-IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E2%80%94%E2%80%94%E4%BA%94%E7%A7%8D-IO-%E6%A8%A1%E5%9E%8B%E8%AF%A6%E8%A7%A3"><span class="nav-text">9. BIO&#x2F;NIO&#x2F;AIO&#x2F;IO 多路复用——五种 IO 模型详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-epoll-poll-select-%E5%AF%B9%E6%AF%94%E2%80%94%E2%80%94%E7%99%BE%E4%B8%87%E5%B9%B6%E5%8F%91%E8%83%8C%E5%90%8E%E7%9A%84%E5%8A%9F%E8%87%A3"><span class="nav-text">10. epoll&#x2F;poll&#x2F;select 对比——百万并发背后的功臣</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%EF%BC%88Zero-Copy%EF%BC%89%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94Kafka-%E6%AF%8F%E7%A7%92%E5%86%99%E7%99%BE%E4%B8%87%E6%9D%A1%E6%B6%88%E6%81%AF%E7%9A%84%E7%A7%98%E5%AF%86"><span class="nav-text">11. 零拷贝（Zero-Copy）技术原理——Kafka 每秒写百万条消息的秘密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8-Reactor-Proactor-%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E9%AB%98%E6%80%A7%E8%83%BD%E7%BD%91%E7%BB%9C%E6%A1%86%E6%9E%B6%E7%9A%84%E6%A0%B8%E5%BF%83"><span class="nav-text">12. IO 多路复用 + Reactor&#x2F;Proactor 模式——高性能网络框架的核心</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Linux-%E7%94%9F%E4%BA%A7%E6%8E%92%E9%9A%9C"><span class="nav-text">0x03 Linux 生产排障</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-CPU-%E7%88%86%E6%BB%A1%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94%E4%BB%8E-top-%E5%88%B0-perf-%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%8C%87%E5%8D%97"><span class="nav-text">13. CPU 爆满如何排查——从 top 到 perf 的全链路指南</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94valgrind%E3%80%81pmap%E3%80%81asan-%E5%AE%9E%E6%88%98"><span class="nav-text">14. 内存泄漏排查——valgrind、pmap、asan 实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-IO-%E9%AB%98%EF%BC%88iowait%EF%BC%89%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94iostat-iotop-%E5%AE%9E%E6%88%98"><span class="nav-text">15. IO 高（iowait）排查——iostat&#x2F;iotop 实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-%E7%BD%91%E7%BB%9C%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94tcpdump-ss-%E5%AE%9E%E6%88%98"><span class="nav-text">16. 网络排查——tcpdump + ss 实战</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%AE%B9%E5%99%A8%E4%B8%8E-Linux-%E5%BA%95%E5%B1%82"><span class="nav-text">0x04 容器与 Linux 底层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Cgroup%EF%BC%88Control-Group%EF%BC%89%E8%AF%A6%E8%A7%A3%E2%80%94%E2%80%94%E5%AE%B9%E5%99%A8%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E7%9A%84%E5%9F%BA%E7%9F%B3"><span class="nav-text">17. Cgroup（Control Group）详解——容器资源隔离的基石</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-Linux-Namespace%E2%80%94%E2%80%94%E5%AE%B9%E5%99%A8%E3%80%8C%E7%8B%AC%E7%AB%8B%E6%B2%99%E7%AE%B1%E3%80%8D%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-text">18. Linux Namespace——容器「独立沙箱」的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Docker-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%85%A8%E6%99%AF%E2%80%94%E2%80%94%E4%BB%8E%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E5%88%B0%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="nav-text">19. Docker 底层原理全景——从容器创建到网络通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-cgroup-v1-vs-v2-%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%88%98%E2%80%94%E2%80%94%E4%BD%A0%E5%BA%94%E8%AF%A5%E6%B3%A8%E6%84%8F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">20. cgroup v1 vs v2 迁移实战——你应该注意什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-%E5%AE%B9%E5%99%A8-CPU-%E9%99%90%E5%88%B6%E7%9A%84%E7%9C%9F%E7%9B%B8%E2%80%94%E2%80%94CFS-%E9%85%8D%E9%A2%9D-vs-%E6%A0%B8%E5%BF%83%E7%BB%91%E5%AE%9A"><span class="nav-text">21. 容器 CPU 限制的真相——CFS 配额 vs 核心绑定</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">112</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="操作系统 &amp; Linux 高级面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          操作系统 & Linux 高级面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-11 18:00:00" itemprop="dateCreated datePublished" datetime="2026-06-11T18:00:00+08:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-13 14:35:47" itemprop="dateModified" datetime="2026-06-13T14:35:47+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">后端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本文覆盖操作系统与 Linux 核心面试知识点：进程线程模型、内存管理、IO 模型、生产环境排障、容器底层原理。面向高级研发面试，每道题附带深入思考与生产踩坑视角。</p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>0x00 进程与线程</li>
+<li>0x01 内存管理</li>
+<li>0x02 IO 模型</li>
+<li>0x03 Linux 生产排障</li>
+<li>0x04 容器与 Linux 底层</li>
+</ul>
+<hr>
+<h2 id="0x00-进程与线程"><a href="#0x00-进程与线程" class="headerlink" title="0x00 进程与线程"></a>0x00 进程与线程</h2><h3 id="0-进程有哪几种状态？Linux-内核中如何表示？"><a href="#0-进程有哪几种状态？Linux-内核中如何表示？" class="headerlink" title="0. 进程有哪几种状态？Linux 内核中如何表示？"></a>0. 进程有哪几种状态？Linux 内核中如何表示？</h3><p><strong>标准答案</strong>：<br>三态模型：<strong>就绪（Ready）→ 运行（Running）→ 阻塞（Blocked&#x2F;Waiting）</strong>。Linux 内核中进程状态更加细分：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>内核符号</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TASK_RUNNING</td>
+<td>R</td>
+<td>正在运行或就绪队列中等待调度</td>
+</tr>
+<tr>
+<td>TASK_INTERRUPTIBLE</td>
+<td>S</td>
+<td>可中断睡眠，等待资源（如 socket 数据），收到信号可唤醒</td>
+</tr>
+<tr>
+<td>TASK_UNINTERRUPTIBLE</td>
+<td>D</td>
+<td>不可中断睡眠，通常等待 IO 完成，信号无法唤醒（经典 D 状态问题）</td>
+</tr>
+<tr>
+<td>TASK_STOPPED</td>
+<td>T</td>
+<td>被信号暂停（SIGSTOP）</td>
+</tr>
+<tr>
+<td>TASK_TRACED</td>
+<td>t</td>
+<td>被 ptrace 跟踪（如 gdb 断点）</td>
+</tr>
+<tr>
+<td>EXIT_ZOMBIE</td>
+<td>Z</td>
+<td>僵尸进程，子进程已结束但父进程未调用 wait() 回收</td>
+</tr>
+<tr>
+<td>EXIT_DEAD</td>
+<td>X</td>
+<td>死亡状态，正在被回收</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>D 状态（Uninterruptible Sleep）</strong>：这是生产环境最常见的「假死」原因。D 状态进程不可被 kill -9 杀死，因为内核认为它在执行不可被打断的操作（如 NFS 挂起、磁盘 IO 阻塞）。排查方法：<code>cat /proc/进程ID/stack</code> 看内核调用栈。</li>
+<li><strong>Z 状态（Zombie）</strong>：少量僵尸进程无害，但大量堆积会占满进程表（<code>pid_max</code> 默认 32768），导致 <code>Cannot fork</code> 错误。根治方法是修复父进程逻辑，或使用 <code>SIGCHLD</code> 信号处理。临时清理只能杀父进程（<code>kill -9 PPID</code>），让 init（systemd）收养子进程并回收。</li>
+<li><strong>生产踩坑</strong>：某次线上 NFS 挂载点不可达，导致所有读写该目录的进程卡在 D 状态，<code>umount -f</code> 都解不了，最终重启机器。监控系统应该加上 D 状态进程数量告警。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/signal.7.html">https://man7.org/linux/man-pages/man7/signal.7.html</a></p>
+<hr>
+<h3 id="1-上下文切换-Context-Switch-的开销到底有多大？如何优化？"><a href="#1-上下文切换-Context-Switch-的开销到底有多大？如何优化？" class="headerlink" title="1. 上下文切换(Context Switch)的开销到底有多大？如何优化？"></a>1. 上下文切换(Context Switch)的开销到底有多大？如何优化？</h3><p><strong>标准答案</strong>：<br>上下文切换分为两类：</p>
+<p><strong>1. 进程上下文切换</strong>：</p>
+<ul>
+<li>切换页表（TLB 失效）</li>
+<li>保存&#x2F;恢复 CPU 寄存器（通用寄存器、PC、栈指针）</li>
+<li>切换内核栈</li>
+<li>调用调度器算法选择下一个进程</li>
+<li>开销：微秒级（2-10μs），但 TLB 失效后的缓存缺失影响可能持续上百微秒</li>
+</ul>
+<p><strong>2. 线程上下文切换</strong>：</p>
+<ul>
+<li>同一进程的线程共享虚拟地址空间，<strong>不切换页表</strong></li>
+<li>只需保存线程私有数据（栈指针、寄存器），TLB 不掉</li>
+<li>开销比进程切换小约 50%-80%</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>量化测试</strong>：Intel Xeon 2.4GHz 上，进程切换约 <strong>3-5μs</strong>，线程切换约 <strong>1-2μs</strong>。关键是切换后的缓存暖机（cache warm-up）时间：L1 cache miss 成本 ~10ns，L2 ~50ns，LLC ~100ns。</li>
+<li><strong>如何检查上下文切换频率</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vmstat 1   <span class="comment"># 看 cs（context switches）列</span></span><br><span class="line">pidstat -w 1  <span class="comment"># 看每个进程的 voluntary/involuntary 切换</span></span><br><span class="line">perf <span class="built_in">stat</span> -e context-switches -p PID</span><br></pre></td></tr></table></figure></li>
+<li><strong>优化手段（生产经验）</strong>：<ul>
+<li>减少线程数：不是线程越多越好，推荐 <code>2 * CPU核数</code>（CPU 密集型）或稍多（IO 密集型）</li>
+<li>使用协程替代线程：协程是用户态切换，0.1-1μs 量级</li>
+<li>绑定 CPU <code>taskset</code>：减少进程在核间漂移造成的 cache miss</li>
+<li>使用 epoll&#x2F;io_uring 替代每个连接一个线程的模型</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：某 Java 应用 32 核机器上开 200 个线程池，commit 峰值的 <code>vmstat</code> 显示 cs 列 500k+&#x2F;s，sys 列 CPU 使用率飙到 40%（正常应 &lt;10%），优化线程数到 64 后恢复正常。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://www.brendangregg.com/blog/2021-05-19/perf-workload-triage.html">https://www.brendangregg.com/blog/2021-05-19/perf-workload-triage.html</a></p>
+<hr>
+<h3 id="2-Linux-线程模型（NPTL）详解-——-用户级-vs-内核级实现"><a href="#2-Linux-线程模型（NPTL）详解-——-用户级-vs-内核级实现" class="headerlink" title="2. Linux 线程模型（NPTL）详解 —— 用户级 vs 内核级实现"></a>2. Linux 线程模型（NPTL）详解 —— 用户级 vs 内核级实现</h3><p><strong>标准答案</strong>：<br>Linux 目前使用的线程实现是 <strong>NPTL（Native POSIX Thread Library）</strong>，2003 年引入，替代了早期的 LinuxThreads。</p>
+<p><strong>核心模型：1:1 模型</strong>：</p>
+<ul>
+<li>每个用户态线程（pthread）对应一个内核调度实体（task_struct）</li>
+<li>clone() 系统调用创建线程，共享虚拟地址空间、文件描述符等</li>
+<li>线程调度由内核完成，可以利用多核</li>
+</ul>
+<p><strong>对比三种模型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th align="center">用户态:内核态</th>
+<th>代表</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多对一（M:1）</td>
+<td align="center">多用户线程 → 1 内核线程</td>
+<td>早期 Green Threads</td>
+<td>切换快，用户态完成</td>
+<td>无法利用多核，一个阻塞全组挂</td>
+</tr>
+<tr>
+<td>一对一（1:1）</td>
+<td align="center">1 用户线程 → 1 内核线程</td>
+<td>NPTL &#x2F; Windows</td>
+<td>真并行，一个阻塞不影响其他</td>
+<td>切换需要陷入内核，开销大</td>
+</tr>
+<tr>
+<td>多对多（M:N）</td>
+<td align="center">多用户线程 ⇔ 多内核线程</td>
+<td>某些 Solaris 实现</td>
+<td>两全其美</td>
+<td>实现复杂，调度难，已边缘化</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>clone() 系统调用</strong>：创建线程实际调用 <code>clone(CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | ...)</code>，与 fork() 的区别就在这些 flag：<ul>
+<li><code>CLONE_VM</code>：共享地址空间（不共享则 &#x3D; 进程）</li>
+<li><code>CLONE_FILES</code>：共享文件描述符表</li>
+<li>不加 <code>CLONE_VM</code> 且设新 PID &#x3D; fork() 创建进程</li>
+</ul>
+</li>
+<li><strong>线程与进程的 top 区别</strong>：<code>top -H</code> 可以看到线程级视图，<code>ps -T</code> 也行。默认 top 在 Linux 下显示的是进程（不一定是线程 ID）。</li>
+<li><strong>生产踩坑</strong>：<code>pthread_create</code> 失败通常不是内存不足，而是 <strong>pid_max 限制</strong>（32768）或 <strong>ulimit -u</strong>（用户最大进程数）。检查 <code>cat /proc/sys/kernel/pid_max</code> 和 <code>ulimit -u</code>。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/pthreads.7.html">https://man7.org/linux/man-pages/man7/pthreads.7.html</a></p>
+<hr>
+<h3 id="3-协程比线程好在哪里？goroutine-虚拟线程-纤程的底层原理"><a href="#3-协程比线程好在哪里？goroutine-虚拟线程-纤程的底层原理" class="headerlink" title="3. 协程比线程好在哪里？goroutine &#x2F; 虚拟线程 &#x2F; 纤程的底层原理"></a>3. 协程比线程好在哪里？goroutine &#x2F; 虚拟线程 &#x2F; 纤程的底层原理</h3><p><strong>标准答案</strong>：<br>协程（Coroutine）是<strong>用户态轻量级线程</strong>，由运行时而非内核调度。</p>
+<p><strong>核心优势对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>内核线程（OS Thread）</th>
+<th>协程（Goroutine &#x2F; Virtual Thread）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>创建成本</td>
+<td>~1MB 栈空间预分配</td>
+<td>~2KB-4KB 初始栈，可动态扩缩</td>
+</tr>
+<tr>
+<td>切换成本</td>
+<td>~1-2μs（内核态）</td>
+<td>~0.1-0.5μs（用户态）</td>
+</tr>
+<tr>
+<td>数量上限</td>
+<td>几千 ~ 几万（受进程表限制）</td>
+<td>百万级别（仅受内存限制）</td>
+</tr>
+<tr>
+<td>调度器</td>
+<td>内核 CFS 调度器</td>
+<td>用户态 M:N 调度</td>
+</tr>
+<tr>
+<td>blocking 操作</td>
+<td>阻塞整个内核线程</td>
+<td>可以挂起当前协程，复用线程</td>
+</tr>
+</tbody></table>
+<p><strong>三种主流实现</strong>：</p>
+<ol>
+<li><p><strong>Goroutine（Go）</strong>：</p>
+<ul>
+<li>M:N 模型：M 个 goroutine 运行在 N 个 OS 线程上</li>
+<li>GMP 调度器：G（goroutine）、M（machine&#x3D;OS 线程）、P（processor&#x3D;本地队列）</li>
+<li>栈初始 2KB，按需增长（分段栈方案，后改为栈复制）</li>
+<li><code>go func()</code> 编译后变成 <code>runtime.newproc()</code> 调用</li>
+</ul>
+</li>
+<li><p><strong>虚拟线程（Java Project Loom，JDK 21+）</strong>：</p>
+<ul>
+<li>M:N 模型，携程由 JVM 管理</li>
+<li>当虚拟线程执行阻塞操作（socket IO、锁）时，yield 回载体线程</li>
+<li>不能使用 synchronized 阻塞虚拟线程（会 pin 住载体线程）</li>
+<li>栈存储在堆上，可以 GC</li>
+</ul>
+</li>
+<li><p><strong>纤程&#x2F;协程（C++ Boost.Fiber &#x2F; libco）</strong>：</p>
+<ul>
+<li>纯用户态切换，不依赖运行时</li>
+<li>使用 <code>swapcontext()</code> 或 <code>makecontext()</code> 或汇编手动保存寄存器</li>
+<li>腾讯 libco 被大量用于 C++ 后端服务</li>
+</ul>
+</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>协程不是银弹</strong>：CPU 密集型任务中协程没优势（内核线程分时已经够了），协程主要解决 IO 密集型场景下的线程资源浪费</li>
+<li><strong>协程的「伪阻塞」陷阱</strong>：如果协程内部调用了一个真实阻塞的系统调用（如文件 IO），整个 OS 线程都被阻塞，该线程上的所有协程都会暂停。Go 的 runtime 用 <code>netpoller</code> 处理网络 IO，但对文件 IO 仍会阻塞线程，所以 Go 用独立的 <code>os/exec</code> 协程池处理文件操作</li>
+<li><strong>Java 虚拟线程的坑</strong>：<code>synchronized</code> 会 pin 载体线程，<code>ThreadLocal</code> 的内存泄露风险远超平台线程。生产建议：搭配 <code>ReentrantLock</code> 和结构化并发使用</li>
+<li><strong>生产踩坑</strong>：某 Go 服务 goroutine 数飙到 200 万，OOM 了。排查发现一个无缓冲 channel 的发送者没有接收者，goroutine 永久阻塞。协程虽轻，但无限创建一样会死。加一个 goroutine 泄漏检测工具（<code>pprof goroutine</code>）很重要。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://go.dev/src/runtime/proc.go">https://go.dev/src/runtime/proc.go</a></p>
+<hr>
+<h3 id="4-死锁的四个必要条件是什么？如何检测和预防？"><a href="#4-死锁的四个必要条件是什么？如何检测和预防？" class="headerlink" title="4. 死锁的四个必要条件是什么？如何检测和预防？"></a>4. 死锁的四个必要条件是什么？如何检测和预防？</h3><p><strong>标准答案</strong>：<br><strong>四个必要条件</strong>（Coffman 条件），缺一不可：</p>
+<ol>
+<li><strong>互斥（Mutual Exclusion）</strong>：资源一次只能被一个进程使用</li>
+<li><strong>持有并等待（Hold and Wait）</strong>：进程持有资源时，还在等待其他资源</li>
+<li><strong>不可剥夺（No Preemption）</strong>：资源不能被强制剥夺，只能由持有者主动释放</li>
+<li><strong>循环等待（Circular Wait）</strong>：存在一个进程-资源的循环等待链</li>
+</ol>
+<p><strong>预防策略</strong>（破坏上述任意一个条件）：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>预防方法</th>
+<th>实际代价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>互斥</td>
+<td>使用无锁编程（Lock-Free CAS）</td>
+<td>不一定适用所有场景</td>
+</tr>
+<tr>
+<td>持有并等待</td>
+<td>一次性申请所有资源</td>
+<td>资源利用率低，可能饥饿</td>
+</tr>
+<tr>
+<td>不可剥夺</td>
+<td>申请失败时释放已持有的资源</td>
+<td>回滚成本高</td>
+</tr>
+<tr>
+<td>循环等待</td>
+<td>对资源编号，按序申请</td>
+<td>需要全局编号，难以维护</td>
+</tr>
+</tbody></table>
+<p><strong>死锁检测（实战）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Java 死锁检测</span></span><br><span class="line">jstack -l PID | grep -A 30 <span class="string">&quot;deadlock&quot;</span></span><br><span class="line"><span class="comment"># MySQL 死锁检测</span></span><br><span class="line">SHOW ENGINE INNODB STATUS\G</span><br><span class="line"><span class="comment"># 查看是否有死锁检测线程（Linux 内核）</span></span><br><span class="line"><span class="built_in">cat</span> /proc/lock_stat</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>银行家算法</strong>：Dijkstra 提出的避免死锁的经典算法，实际项目中用的极少（需要预先知道最大资源需求量，太理想化）</li>
+<li><strong>Linux 内核的死锁检测</strong>：<code>lockdep</code>（Lock Dependency Validator），内核编译时开启 <code>CONFIG_PROVE_LOCKING</code>，运行时自动检测潜在死锁。驱动开发必备。</li>
+<li><strong>数据库中的死锁</strong>：InnoDB 用等待图（wait-for graph）检测死锁，超时阈值 <code>innodb_lock_wait_timeout</code>（默认 50s）。死锁发生时 MySQL 选择回滚<strong>持锁最少的事务</strong>。</li>
+<li><strong>生产踩坑</strong>：某服务调用了 A → B → C → A 的回环 RPC，3 个服务各自有一个数据库连接池，A 占着连接等 B 的 RPC 响应，B 占着等 C，C 占着等 A。这不是数据库死锁而是应用层的「分布式死锁」。解法：RPC 调用设置全局超时（<code>timeout &lt; 连接池获取超时</code>），并且不要在一个事务中发 RPC 请求。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Coffman_conditions">https://en.wikipedia.org/wiki/Coffman_conditions</a></p>
+<hr>
+<h2 id="0x01-内存管理"><a href="#0x01-内存管理" class="headerlink" title="0x01 内存管理"></a>0x01 内存管理</h2><h3 id="5-虚拟内存、分页与分段——现代-OS-如何管理内存？"><a href="#5-虚拟内存、分页与分段——现代-OS-如何管理内存？" class="headerlink" title="5. 虚拟内存、分页与分段——现代 OS 如何管理内存？"></a>5. 虚拟内存、分页与分段——现代 OS 如何管理内存？</h3><p><strong>标准答案</strong>：</p>
+<p><strong>虚拟内存（Virtual Memory）</strong>：</p>
+<ul>
+<li>每个进程看到独立的线性地址空间（Linux 64 位下 128TB 用户空间）</li>
+<li>通过 MMU（内存管理单元）将虚拟地址映射到物理地址</li>
+<li>好处：隔离保护、简化编程、允许 &gt; 物理内存的虚拟内存（通过 swap）</li>
+</ul>
+<p><strong>分页（Paging）</strong>：</p>
+<ul>
+<li>虚拟内存和物理内存切成固定大小的页（Linux 默认 4KB，Huge Page 2MB&#x2F;1GB）</li>
+<li>页表（Page Table）维护 VA→PA 映射，TLB（Translation Lookaside Buffer）是页表的硬件缓存</li>
+<li>多级页表（x86-64 下 4 级：PML4 → PDPT → PD → PT）节省内存</li>
+</ul>
+<p><strong>分段（Segmentation）</strong>：</p>
+<ul>
+<li>按逻辑单位（代码段、数据段、栈段）划分，每段大小可变</li>
+<li>x86 实模式依赖分段，保护模式下已退化（段寄存器仅用于权限检查）</li>
+<li>Linux 采用<strong>平坦内存模型</strong>：所有段的基地址为 0，段限长为整个地址空间，分段实际失效</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>页表开销</strong>：4KB 页面下，一个进程映射 4GB 虚拟内存，4 级页表需要约 4KB（PML4）+ 512*8B（PDPT）+ …，总约 8-10MB。如果是大页（2MB），只需 3 级页表，总约 8KB，TLB 覆盖范围扩大 512 倍。</li>
+<li><strong>透明大页（THP）</strong>：Linux 内核自动将 4KB 小页合并为 2MB 大页，对 Redis&#x2F;MongoDB 等数据库反而有害（大页导致内存分配延迟不稳定），数据库生产环境建议关闭：<code>echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled</code></li>
+<li><strong>ASLR（地址空间布局随机化）</strong>：内核随机化 mmap 基地址、栈基地址等，增加漏洞利用难度。编译 <code>gcc -no-pie</code> 可以关闭。</li>
+<li><strong>生产踩坑</strong>：某次 Java 应用在容器中频繁 OOM，监控显示物理内存远没到 limit，但进程被 OOM Killer 杀了。原因是容器限制的是 <strong>cgroup 内存</strong>，而 Java 用 <code>cat /proc/meminfo</code>（宿主机视图）计算可用内存，设置 <code>-Xmx</code> 过大。解法：用 <code>-XX:+UseCGroupMemoryLimitForHeap</code>（JDK 8u131+）或 <code>-XX:MaxRAMPercentage=75.0</code>（JDK 10+）。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/admin-guide/mm/index.html">https://www.kernel.org/doc/html/latest/admin-guide/mm/index.html</a></p>
+<hr>
+<h3 id="6-页面置换算法有哪些？LRU-在生产中的缺陷和改进"><a href="#6-页面置换算法有哪些？LRU-在生产中的缺陷和改进" class="headerlink" title="6. 页面置换算法有哪些？LRU 在生产中的缺陷和改进"></a>6. 页面置换算法有哪些？LRU 在生产中的缺陷和改进</h3><p><strong>标准答案</strong>：<br>当发生缺页中断（Page Fault）且物理内存满时，OS 需要选择一页换出。</p>
+<p><strong>经典算法对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>策略</th>
+<th align="center">实现复杂度</th>
+<th align="center">性能</th>
+<th align="center">实际使用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FIFO</td>
+<td>最早进来的先换出</td>
+<td align="center">低</td>
+<td align="center">差（Belady 异常：增加页面数命中率反而下降）</td>
+<td align="center">不用</td>
+</tr>
+<tr>
+<td>Optimal</td>
+<td>未来最久不用的先换出</td>
+<td align="center">不可能实现</td>
+<td align="center">理论最优</td>
+<td align="center">基准对照</td>
+</tr>
+<tr>
+<td>LRU（最近最少使用）</td>
+<td>长时间未访问的先换出</td>
+<td align="center">中</td>
+<td align="center">好</td>
+<td align="center">近似实现</td>
+</tr>
+<tr>
+<td>Clock（二次机会）</td>
+<td>环形扫描，给第二次机会</td>
+<td align="center">低</td>
+<td align="center">接近 LRU</td>
+<td align="center">Linux 内核使用</td>
+</tr>
+<tr>
+<td>LFU（最不经常使用）</td>
+<td>访问次数最少的先换出</td>
+<td align="center">中</td>
+<td align="center">较好，但热点数据难适应</td>
+<td align="center">特殊场景</td>
+</tr>
+<tr>
+<td>ARC</td>
+<td>自适应缓冲区替换</td>
+<td align="center">高</td>
+<td align="center">好，动态平衡</td>
+<td align="center">ZFS、文件系统</td>
+</tr>
+</tbody></table>
+<p><strong>Linux 内核实际使用</strong>：</p>
+<ul>
+<li><strong>LRU 近似算法</strong>：Linux 维护 active_list 和 inactive_list，每个页面有 <code>PG_referenced</code> 和 <code>PG_active</code> 标志位</li>
+<li><strong>双链策略</strong>：页面先在 inactive list 中观察，如果被访问一次则移到 active list；active list 中的页面如果长时间未被访问，降级回 inactive list</li>
+<li><strong>Kswapd</strong>：后台守护进程，当 free 内存低于 <code>watermark[low]</code> 时开始回收，<code>watermark[min]</code> 触发直接回收</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>LRU 的真实缺陷</strong>：<ol>
+<li><strong>扫描开销</strong>：全链表扫描 O(n)，生产环境中百万级页面，LRU 成本太高</li>
+<li><strong>顺序扫描污染</strong>：一次大文件顺序读（如 <code>cp</code>、<code>grep</code> 大文件），会把缓存全刷成自己的数据，挤掉热点数据。Linux 用 <code>inactive list + 临时标记</code> 缓解</li>
+<li><strong>Cache 抖动（Thrashing）</strong>：工作集 &gt; 物理内存时，页面不断换入换出，系统吞吐量骤降</li>
+</ol>
+</li>
+<li><strong>改进方案</strong>：<ul>
+<li><strong>Clock 算法</strong>：环形缓冲区，每个页维护一个 access bit，指针遍历时若 access bit&#x3D;1 则清 0 并跳过，若 access bit&#x3D;0 则换出。时间复杂度 O(1)。</li>
+<li><strong>MySQL Buffer Pool 的 LRU</strong>：InnoDB 使用<strong>改进 LRU</strong>，将链表分为 young（5&#x2F;8）和 old（3&#x2F;8），新页面插入 old 区头部，第二次访问才移入 young 区。防止一次性扫描污染缓存。</li>
+<li><strong>2Q 算法</strong>：维护两个队列（A1in&#x2F;A1out&#x2F;Am），被淘汰页面保留其 key 在 A1out 中，若再次访问则直接入 Am，对周期性访问模式友好。</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：某 Redis 实例启用 <code>allkeys-lru</code> 淘汰策略，业务批量写入 1000 万 key 时热 key 被大量淘汰。原因是 Redis 的 LRU 是<strong>采样近似 LRU</strong>（<code>maxmemory-samples</code>, 默认 5），批量写入时采样的全部是新 key，导致热 key 被误淘汰。增大 samples 到 10-15 缓解，或改用 <code>allkeys-lfu</code>。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/gorman/html/understand/understand013.html">https://www.kernel.org/doc/gorman/html/understand/understand013.html</a></p>
+<hr>
+<h3 id="7-OOM-Killer-是怎么选择杀死哪个进程的？如何避免被误杀？"><a href="#7-OOM-Killer-是怎么选择杀死哪个进程的？如何避免被误杀？" class="headerlink" title="7. OOM Killer 是怎么选择杀死哪个进程的？如何避免被误杀？"></a>7. OOM Killer 是怎么选择杀死哪个进程的？如何避免被误杀？</h3><p><strong>标准答案</strong>：<br>当 Linux 内核内存严重不足时，<code>oom_killer</code> 会调用 <code>oom_badness()</code> 函数给每个进程打分，分数最高的进程被杀。</p>
+<p><strong>评分公式</strong>（简化版）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">badness = (进程使用的内存 / 总内存) × 系数</span><br></pre></td></tr></table></figure>
+<p>系数根据以下因素调整：</p>
+<ul>
+<li>root 用户进程 × 0.8（降低优先级）</li>
+<li>子进程多的进程分数更高</li>
+<li>OOM_SCORE_ADJ 可手动加减分（-1000 表示永不 OOM 杀死）</li>
+</ul>
+<p><strong>查看和调整</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前 OOM 分数</span></span><br><span class="line"><span class="built_in">cat</span> /proc/PID/oom_score</span><br><span class="line"><span class="comment"># 查看可调分值</span></span><br><span class="line"><span class="built_in">cat</span> /proc/PID/oom_score_adj</span><br><span class="line"><span class="comment"># 设置不可被 OOM Killer 杀死（MySQL/Redis 等关键服务）</span></span><br><span class="line"><span class="built_in">echo</span> -1000 &gt; /proc/PID/oom_score_adj</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>OOM Killer ≠ 内存泄漏</strong>：OOM 被触发说明系统内存确实不够了，但原因可能是：<ol>
+<li>应用内存泄漏 → 物理内存持续增长</li>
+<li>内存碎片导致无法分配大块连续内存（虽然总空闲内存够）</li>
+<li>进程「超量申请」+ 同时使用（<code>overcommit_memory=1</code>）</li>
+</ol>
+</li>
+<li><strong>生产防护措施</strong>：<ul>
+<li>设置 <code>vm.overcommit_memory = 2</code>（禁止超额分配），但可能影响 fork()</li>
+<li>关键服务设置 <code>oom_score_adj = -500 ～ -1000</code></li>
+<li>设置 <code>vm.panic_on_oom = 1</code>（直接 panic 重启，比随机杀进程更可控）</li>
+<li>使用 cgroup 内存限制（让 OOM Killer 只杀容器内的进程）</li>
+<li>监控 <code>cat /proc/meminfo | grep &#39;Committed_AS&#39;</code> 观察超额分配总量</li>
+</ul>
+</li>
+<li><strong>Java 应用特别</strong>：JVM 的堆外内存（DirectBuffer、Metaspace、Native Stack）容易被忽略，OOM Killer 看到的 RSS 可能远大于 Xmx。排查：<code>pmap -x PID | grep -i anon</code> 看匿名映射大小。</li>
+<li><strong>生产踩坑</strong>：某次线上 Kafka Broker 频繁 OOM 被杀，<code>oom_score</code> 显示 Java 进程 900+ 最高分。调试发现 Kafka 依赖的 GlobalKTable（RocksDB）在堆外使用了大量内存 + Kafka 的 socket buffer 默认 100MB，加上 Java heap 后 RSS 超过 cgroup limit。解法：调小 <code>server.socket.buffer</code>，设置 RocksDB 的 block cache 大小。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man5/proc.5.html">https://man7.org/linux/man-pages/man5/proc.5.html</a></p>
+<hr>
+<h3 id="8-mmap-原理详解——零拷贝和共享内存的基石"><a href="#8-mmap-原理详解——零拷贝和共享内存的基石" class="headerlink" title="8. mmap 原理详解——零拷贝和共享内存的基石"></a>8. mmap 原理详解——零拷贝和共享内存的基石</h3><p><strong>标准答案</strong>：<br><code>mmap</code>（Memory Map）将文件或设备映射到进程的虚拟地址空间，对内存的读写等于对文件的读写。</p>
+<p><strong>工作流程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">用户态          内核态          磁盘</span><br><span class="line">应用程序        Page Cache      磁盘</span><br><span class="line">  |               |              |</span><br><span class="line">  |-- mmap() --&gt;  |              |</span><br><span class="line">  |               |-- 缺页中断 -&gt;| 读取磁盘块</span><br><span class="line">  |               |&lt;-- 数据加载--|</span><br><span class="line">  |&lt;-- 直接访问 --|</span><br><span class="line">  |  (无 copy)    |              |</span><br><span class="line">  |-- 写数据 --&gt;  |              |</span><br><span class="line">  |               |-- 脏页回写 -&gt;| 写回磁盘</span><br></pre></td></tr></table></figure>
+
+<p><strong>四种使用模式</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>flag</th>
+<th>效果</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>共享映射</td>
+<td>MAP_SHARED</td>
+<td>修改回写文件，多进程共享</td>
+<td>文件 IO、IPC</td>
+</tr>
+<tr>
+<td>私有映射</td>
+<td>MAP_PRIVATE</td>
+<td>写时复制（COW），修改不写回文件</td>
+<td>动态库加载、fork()</td>
+</tr>
+<tr>
+<td>文件映射</td>
+<td>fd !&#x3D; -1</td>
+<td>映射文件到内存</td>
+<td>大文件读取、数据库</td>
+</tr>
+<tr>
+<td>匿名映射</td>
+<td>fd &#x3D; -1, MAP_ANONYMOUS</td>
+<td>分配大块内存，不关联文件</td>
+<td>heap 扩展、跨进程共享内存</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>mmap vs read&#x2F;write</strong>：<ul>
+<li>传统 read&#x2F;write：文件 → Page Cache（DMA）→ 用户缓冲区（CPU copy），至少一次 DMA + 一次 CPU copy</li>
+<li>mmap：文件 → Page Cache（DMA），省掉了一次 CPU copy</li>
+<li>小文件（&lt;64KB）：read&#x2F;write 更快（mmap 有缺页中断开销）</li>
+<li>大文件（&gt;64KB）：mmap 更快，且访问模式更灵活（随机读写优势显著）</li>
+</ul>
+</li>
+<li><strong>MAP_SHARED 的注意事项</strong>：<ul>
+<li>多进程共享内存时需加锁（futex、mutex 放共享内存里）</li>
+<li>文件截断（ftruncate）后继续访问映射区域会收到 SIGBUS 信号</li>
+<li>mmap 文件大小不能为 0（否则 SIGBUS）</li>
+<li>mremap() 可以动态扩展映射区域</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li><strong>mmap 与 OOM</strong>：mmap 映射大文件 + MAP_PRIVATE 时，写操作触发 COW，如果进程 fork() 了，子进程修改映射页会复制，可能消耗大量物理内存。某些 Java 应用使用 mmap 做文件缓存时踩到这个坑。</li>
+<li><strong>tcmalloc&#x2F;jemalloc 与 mmap</strong>：这两个内存分配器在分配大块内存（&gt; 256KB）时会直接用 mmap 匿名映射，而不是用 brk()。如果频繁分配释放，会导致大量 VMA（虚拟内存区域）碎片。</li>
+<li><strong>MongoDB WT 引擎</strong>：WiredTiger 引擎使用 mmap 管理数据文件，如果内存压力大触发大量 page fault，性能会急剧下降。MongoDB 4.0+ 开始减少对 mmap 的依赖，引入 <code>wiredTigerCacheSize</code> 参数控制缓存。</li>
+</ol>
+</li>
+<li><strong>mmap 的限制</strong>：<ul>
+<li><code>vm.max_map_count</code>（默认 65530）限制了 mmap 映射段数量。Elasticsearch 大量使用 mmap 映射索引文件，生产环境要调高：<code>sysctl -w vm.max_map_count=262144</code></li>
+<li>32 位系统下地址空间有限（3GB），mmap 大文件困难</li>
+<li>mmap 的页对齐要求（必须按 PAGE_SIZE 偏移量映射）</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man2/mmap.2.html">https://man7.org/linux/man-pages/man2/mmap.2.html</a></p>
+<hr>
+<h2 id="0x02-IO-模型"><a href="#0x02-IO-模型" class="headerlink" title="0x02 IO 模型"></a>0x02 IO 模型</h2><h3 id="9-BIO-NIO-AIO-IO-多路复用——五种-IO-模型详解"><a href="#9-BIO-NIO-AIO-IO-多路复用——五种-IO-模型详解" class="headerlink" title="9. BIO&#x2F;NIO&#x2F;AIO&#x2F;IO 多路复用——五种 IO 模型详解"></a>9. BIO&#x2F;NIO&#x2F;AIO&#x2F;IO 多路复用——五种 IO 模型详解</h3><p><strong>标准答案</strong>：<br>Unix 下有五种 IO 模型（参考 Stevens《UNP》）：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th align="center">阻塞点</th>
+<th align="center">并发能力</th>
+<th align="center">回调&#x2F;通知方式</th>
+<th>代表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>阻塞 IO（BIO）</td>
+<td align="center">整个 read&#x2F;write 过程阻塞</td>
+<td align="center">低（1 连接 1 线程）</td>
+<td align="center">无</td>
+<td>传统 Socket</td>
+</tr>
+<tr>
+<td>非阻塞 IO（NIO）</td>
+<td align="center">轮询时占用 CPU</td>
+<td align="center">中（需要 busy loop）</td>
+<td align="center">无</td>
+<td>O_NONBLOCK</td>
+</tr>
+<tr>
+<td>IO 多路复用</td>
+<td align="center">select&#x2F;poll&#x2F;epoll_wait 处阻塞</td>
+<td align="center">高（单线程管理千级连接）</td>
+<td align="center">内核通知就绪</td>
+<td>epoll&#x2F;select&#x2F;kqueue</td>
+</tr>
+<tr>
+<td>信号驱动 IO（SIGIO）</td>
+<td align="center">信号到达前不阻塞</td>
+<td align="center">中</td>
+<td align="center">SIGIO 信号</td>
+<td>SIGIO</td>
+</tr>
+<tr>
+<td>异步 IO（AIO）</td>
+<td align="center">完全不阻塞</td>
+<td align="center">高</td>
+<td align="center">完成通知&#x2F;callback</td>
+<td>io_uring&#x2F;IOCP</td>
+</tr>
+</tbody></table>
+<p><strong>BIO（Blocking IO）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每个连接一个线程，阻塞在 accept/read/write</span></span><br><span class="line"><span class="type">ServerSocket</span> <span class="variable">server</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerSocket</span>(<span class="number">8080</span>);</span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> server.accept();  <span class="comment">// 阻塞</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; handle(socket)).start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>缺点：连接数上千时线程过多，上下文切换开销巨大</li>
+<li>适用：连接数少（&lt; 100）、低并发场景</li>
+</ul>
+<p><strong>NIO（Non-blocking IO）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SocketChannel</span> <span class="variable">ch</span> <span class="operator">=</span> SocketChannel.open();</span><br><span class="line">ch.configureBlocking(<span class="literal">false</span>);</span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">read</span> <span class="operator">=</span> ch.read(buffer);  <span class="comment">// 不阻塞，返回 0 表示无数据</span></span><br><span class="line">    <span class="keyword">if</span> (read &gt; <span class="number">0</span>) ...;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>优点：单线程可处理多个连接</li>
+<li>缺点：轮询消耗 CPU，数据就绪时如何感知？不能空闲时阻塞等待</li>
+<li>适用：几乎不用原生的 NIO，而是用 NIO + 多路复用（如 Java NIO Selector）</li>
+</ul>
+<p><strong>AIO（Asynchronous IO）</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AsynchronousServerSocketChannel.open().accept(<span class="literal">null</span>, </span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">CompletionHandler</span>&lt;AsynchronousSocketChannel, Void&gt;() &#123;</span><br><span class="line">        <span class="keyword">void</span> <span class="title function_">completed</span><span class="params">(AsynchronousSocketChannel client, Void att)</span> &#123; ... &#125;</span><br><span class="line">        <span class="keyword">void</span> <span class="title function_">failed</span><span class="params">(Throwable t, Void att)</span> &#123; ... &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>真实异步：read&#x2F;write 调用立即返回，由内核完成操作后通知</li>
+<li>Linux 上：AIO 实现（<code>libaio</code>）需要 O_DIRECT（绕过 Page Cache），不符合大部分场景</li>
+<li><code>io_uring</code>（Linux 5.1+）是真正的高效异步 IO</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>BIO 到 NIO 的演进本质</strong>：从「每个连接一个线程」到「事件驱动模型」的转变，核心是意识到 <strong>线程是昂贵的资源</strong></li>
+<li><strong>select&#x2F;poll 的局限性</strong>：<ul>
+<li>select：FD_SET 上限 1024，每次调用要把 fdset 从用户态拷贝到内核态</li>
+<li>poll：无上限但仍是 O(n) 扫描，大连接数下性能差</li>
+</ul>
+</li>
+<li><strong>epoll 的突破</strong>：O(1) 就绪通知 + 零拷贝 fd 到内核（epoll_create 时建立 epoll 实例，后续只需拷贝变化的 fd）</li>
+<li><strong>生产踩坑</strong>：Java 的 NIO.2（AIO）在 Linux 上用的是 epoll 模拟而非真实 AIO，性能不如 Windows 的 IOCP。直到 JDK 17 的 io_uring 实验性支持才接近真实 AIO。</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/epoll.7.html">https://man7.org/linux/man-pages/man7/epoll.7.html</a></p>
+<hr>
+<h3 id="10-epoll-poll-select-对比——百万并发背后的功臣"><a href="#10-epoll-poll-select-对比——百万并发背后的功臣" class="headerlink" title="10. epoll&#x2F;poll&#x2F;select 对比——百万并发背后的功臣"></a>10. epoll&#x2F;poll&#x2F;select 对比——百万并发背后的功臣</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="center">select</th>
+<th align="center">poll</th>
+<th align="center">epoll</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">时间复杂度</td>
+<td align="center">O(n)</td>
+<td align="center">O(n)</td>
+<td align="center">O(1)（就绪列表）</td>
+</tr>
+<tr>
+<td align="left">最大 fd 数</td>
+<td align="center">1024（FD_SETSIZE）</td>
+<td align="center">无上限（受系统限制）</td>
+<td align="center">无上限</td>
+</tr>
+<tr>
+<td align="left">fd 传递方式</td>
+<td align="center">全量拷贝到内核</td>
+<td align="center">全量拷贝到内核</td>
+<td align="center">内核维护事件表，epoll_ctl 增量更新</td>
+</tr>
+<tr>
+<td align="left">工作模式</td>
+<td align="center">LT（水平触发）</td>
+<td align="center">LT（水平触发）</td>
+<td align="center">LT + ET（边缘触发）</td>
+</tr>
+<tr>
+<td align="left">就绪通知</td>
+<td align="center">全部返回，遍历所有 fd</td>
+<td align="center">全部返回，遍历所有 fd</td>
+<td align="center">只返回就绪的 fd，mmap 共享内存优化</td>
+</tr>
+<tr>
+<td align="left">系统调用</td>
+<td align="center">每次都需要</td>
+<td align="center">每次都需要</td>
+<td align="center">只需 epoll_wait</td>
+</tr>
+<tr>
+<td align="left">适用连接数</td>
+<td align="center">&lt; 1000</td>
+<td align="center">&lt; 10000</td>
+<td align="center">&gt; 10000（百万级）</td>
+</tr>
+</tbody></table>
+<p><strong>epoll 核心数据结构</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">epoll_create() → 创建 epoll 实例（红黑树 + 就绪链表）</span><br><span class="line">                     ↓</span><br><span class="line">epoll_ctl(EPOLL_CTL_ADD) → 添加 fd 到红黑树，注册回调</span><br><span class="line">                     ↓</span><br><span class="line">epoll_wait() → 检查就绪链表，有数据则直接返回</span><br><span class="line">                     ↓</span><br><span class="line">                回调机制：当 fd 有数据时，内核将 fd 加入就绪链表</span><br><span class="line">                不需要轮询所有 fd</span><br></pre></td></tr></table></figure>
+
+<p><strong>边缘触发（ET）vs 水平触发（LT）</strong>：</p>
+<ul>
+<li><strong>LT（默认）</strong>：只要 fd 还有数据可读，epoll_wait 会一直返回<ul>
+<li>编程简单，不易出错</li>
+<li>但效率稍低（数据没读完会重复通知）</li>
+</ul>
+</li>
+<li><strong>ET</strong>：fd 从不可读变成可读时才通知一次<ul>
+<li>必须循环 read 直到 EAGAIN，否则数据读不完</li>
+<li>效率更高（减少 epoll_wait 调用）</li>
+<li>需要搭配非阻塞 IO 使用（防止最后一次 read 阻塞）</li>
+</ul>
+</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>epoll 的瓶颈在哪？</strong><ul>
+<li>单个 epoll 实例可以管理数十万 fd，但 epoll_wait 返回后应用程序需要遍历就绪列表执行回调</li>
+<li><strong>惊群（Thundering Herd）</strong>：多线程&#x2F;多进程同时 epoll_wait 同一个 fd，accept 时多个进程被同时唤醒但只有一个能成功。解法：<code>SO_REUSEPORT</code>（Linux 3.9+）让内核做负载均衡，或 EPOLLEXCLUSIVE（Linux 4.5+）只唤醒一个等待者。</li>
+<li>对于 100 万连接场景，内存占用约：epoll 实例 ~ 每个 fd 约 90 字节，100 万约 90MB</li>
+</ul>
+</li>
+<li><strong>为什么 epoll 比 select&#x2F;poll 快这么多？</strong><ol>
+<li>省去了每次把全部 fd 从用户态拷贝到内核态</li>
+<li>避免了 O(n) 全部扫描（epoll 只返回就绪 fd）</li>
+<li>回调注册机制避免轮询</li>
+</ol>
+</li>
+<li><strong>生产踩坑</strong>：<ul>
+<li><code>epoll_wait</code> 返回 EINTR 表示被信号中断，需要重新调用</li>
+<li>ET 模式下漏读数据（没有循环到 EAGAIN）会导致 fd 永远不再通知</li>
+<li>ngx_epoll_module（Nginx）就是用 ET 模式 + 事件驱动实现 100 万并发的经典范例</li>
+<li>Redis 也用 epoll（Linux）实现单线程管理数万连接</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/epoll.7.html">https://man7.org/linux/man-pages/man7/epoll.7.html</a></p>
+<hr>
+<h3 id="11-零拷贝（Zero-Copy）技术原理——Kafka-每秒写百万条消息的秘密"><a href="#11-零拷贝（Zero-Copy）技术原理——Kafka-每秒写百万条消息的秘密" class="headerlink" title="11. 零拷贝（Zero-Copy）技术原理——Kafka 每秒写百万条消息的秘密"></a>11. 零拷贝（Zero-Copy）技术原理——Kafka 每秒写百万条消息的秘密</h3><p><strong>标准答案</strong>：<br>零拷贝是指数据在从磁盘到网卡的传输过程中，<strong>避免在用户态和内核态之间多次拷贝</strong>。</p>
+<p><strong>传统 IO 路径</strong>（四次拷贝 + 四次上下文切换）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">磁盘 → 内核 Page Cache（DMA 拷贝）</span><br><span class="line">     → 用户态 Buffer（CPU 拷贝）    ← read()</span><br><span class="line">     → Socket Buffer（CPU 拷贝）    ← write()</span><br><span class="line">     → 网卡（DMA 拷贝）</span><br></pre></td></tr></table></figure>
+<p>合计：2 次 CPU 拷贝 + 2 次 DMA 拷贝 + 4 次上下文切换</p>
+<p><strong>零拷贝实现方式</strong>：</p>
+<p><strong>1. mmap + write</strong>（三次拷贝）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">磁盘 → Page Cache（DMA）</span><br><span class="line">     → 用户共享区域（共享内存，无需拷贝！）</span><br><span class="line">     → Socket Buffer（CPU 拷贝）</span><br><span class="line">     → 网卡（DMA）</span><br></pre></td></tr></table></figure>
+<ul>
+<li>仍有一次 CPU 拷贝，但省去了 read() 的第一次用户态拷贝</li>
+<li>Java 中使用：FileChannel.map() → 直接操作 ByteBuffer</li>
+</ul>
+<p><strong>2. sendfile</strong>（两次拷贝）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sendfile(socket_fd, file_fd, offset, count);</span><br><span class="line"><span class="comment">// 如果网卡支持 SG-DMA（Scatter-Gather DMA）：</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">磁盘 → Page Cache（DMA）</span><br><span class="line">     → 协议引擎直接读取（无需 CPU 拷贝）</span><br><span class="line">     → 网卡（DMA）</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>0 次 CPU 拷贝！</strong> 仅在支持 SG-DMA 的硬件上可实现</li>
+<li>如果硬件不支持，退化为 1 次 CPU 拷贝</li>
+</ul>
+<p><strong>3. splice</strong>（两次拷贝，管道实现）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">splice(file_fd, null, pipe_fd, null, len, <span class="number">0</span>);</span><br><span class="line">splice(pipe_fd, null, socket_fd, null, len, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在 Page Cache 和 Socket Buffer 之间通过<strong>管道缓冲区</strong>传输</li>
+<li>无需硬件支持</li>
+</ul>
+<p><strong>4. io_uring</strong>（Linux 5.1+，真正的异步零拷贝）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">应用程序提交 IO 请求（SQ，Submission Queue）</span><br><span class="line">内核完成操作后写入结果（CQ，Completion Queue）</span><br><span class="line">共享内存交互，无需系统调用！</span><br></pre></td></tr></table></figure>
+<ul>
+<li>支持 read&#x2F;write&#x2F;sendfile&#x2F;splice&#x2F;fsync 等几乎所有操作</li>
+<li>通过 <code>IORING_OP_PROVIDE_BUFFERS</code> 实现 buffer 共享</li>
+<li>是 IO 领域的未来方向</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Kafka 如何利用零拷贝</strong>：<ul>
+<li>Kafka 的消息存储是连续追加的 Segment 文件</li>
+<li>消费者拉取消息时，Kafka 使用 <code>FileChannel.transferTo()</code>（底层 sendfile）直接将数据从磁盘发到网卡</li>
+<li>避免了 Page Cache → JVM Heap 的拷贝，也避免了 JVM GC 压力</li>
+<li>Kafka 的 100 万 msg&#x2F;s 很大程度上依赖零拷贝 + 页缓存 + 顺序 IO</li>
+</ul>
+</li>
+<li><strong>Nginx 的零拷贝</strong>：<ul>
+<li><code>sendfile on;</code> 配置启用零拷贝</li>
+<li>静态文件（图片、CSS、JS）都通过 sendfile 发送</li>
+<li>实测静态文件吞吐量提升 2-3 倍</li>
+</ul>
+</li>
+<li><strong>Netty 的零拷贝</strong>：<ul>
+<li>网络传输层面：FileRegion（<code>transferTo</code> 封装）</li>
+<li>内存层面：CompositeByteBuf 合并缓冲区避免拷贝</li>
+<li>序列化层面：直接操作 DirectBuffer，避免堆内拷贝堆外</li>
+</ul>
+</li>
+<li><strong>零拷贝的适用边界</strong>：<ul>
+<li>数据<strong>不需要在用户态处理</strong>（如只是透传）时效果最好</li>
+<li>如果需要修改数据（加 Header、加密、压缩），零拷贝就无法用</li>
+<li>小文件（&lt; 几 KB）零拷贝收益不明显，上下文切换开销摊不掉</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li>sendfile 对 NFS&#x2F;CIFS 等网络文件系统支持不好</li>
+<li>使用 mmap 做零拷贝时，大文件的 page fault 可能引入延迟抖动</li>
+<li>Kafka 2.6+ 支持基于 fetch.max.bytes 的零拷贝，但如果开启 SSL 加密则退化为传统拷贝（加密过程需要用户态介入）</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/filesystems/splice.html">https://www.kernel.org/doc/html/latest/filesystems/splice.html</a></p>
+<hr>
+<h3 id="12-IO-多路复用-Reactor-Proactor-模式——高性能网络框架的核心"><a href="#12-IO-多路复用-Reactor-Proactor-模式——高性能网络框架的核心" class="headerlink" title="12. IO 多路复用 + Reactor&#x2F;Proactor 模式——高性能网络框架的核心"></a>12. IO 多路复用 + Reactor&#x2F;Proactor 模式——高性能网络框架的核心</h3><p><strong>标准答案</strong>：</p>
+<p><strong>Reactor 模式</strong>（同步事件分发）：</p>
+<ul>
+<li>事件多路分离器（demultiplexer）等待事件（epoll_wait&#x2F;select）</li>
+<li>事件就绪后，分发给对应的 Handler（读就绪 → callback 读数据）</li>
+<li><strong>典型架构</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">主线程/Reactor</span><br><span class="line">    ↓ epoll_wait</span><br><span class="line">    ↓ 事件分发</span><br><span class="line">    ├── AcceptHandler  → 处理新连接</span><br><span class="line">    ├── ReadHandler    → 处理读事件</span><br><span class="line">    ├── WriteHandler   → 处理写事件</span><br><span class="line">    └── 线程池          → 处理业务逻辑</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>代表：Redis (单 Reactor)、Netty (主从 Reactor)、Nginx (多 Reactor)</li>
+</ul>
+<p><strong>Proactor 模式</strong>（异步事件分发）：</p>
+<ul>
+<li>应用发起异步操作后，由 OS 完成实际操作后通知应用</li>
+<li>不需要应用手动 read&#x2F;write（OS 已经完成）</li>
+<li>代表：Windows IOCP（真正的 Proactor）、Linux 的 Boost.Asio（模拟 Proactor）</li>
+</ul>
+<p><strong>Reactor 的三种变体</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>结构</th>
+<th>优点</th>
+<th>缺点</th>
+<th>代表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单 Reactor 单线程</td>
+<td>一个 Reactor 做所有事</td>
+<td>简单，无并发问题</td>
+<td>CPU 核利用率低，耗时操作阻塞所有</td>
+<td>Redis</td>
+</tr>
+<tr>
+<td>单 Reactor 多线程</td>
+<td>Reactor 分发，Worker 线程池处理</td>
+<td>CPU 利用率高</td>
+<td>Reactor 单点瓶颈</td>
+<td>Netty 默认配置</td>
+</tr>
+<tr>
+<td>主从 Reactor 多线程</td>
+<td>Main Reactor 负责 accept，Sub Reactor 负责 IO</td>
+<td>分担 Reactor 压力</td>
+<td>实现复杂</td>
+<td>Netty (bossGroup&#x2F;workerGroup)</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>为什么 Redis 6.0 之前坚持单 Reactor 单线程？</strong><ul>
+<li>内存操作本身就是 CPU 密集的「快操作」</li>
+<li>多线程引入的锁竞争、缓存失效可能抵消并发收益</li>
+<li>性能瓶颈不在 CPU 而在网络 IO（epoll 已经高效）</li>
+<li>6.0+ 引入 IO 多线程处理网络读写（仍是 Reactor，只是 IO 阶段多线程）</li>
+</ul>
+</li>
+<li><strong>Netty 的主从 Reactor 设计</strong>：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">EventLoopGroup</span> <span class="variable">bossGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>(<span class="number">1</span>);     <span class="comment">// 处理 accept</span></span><br><span class="line"><span class="type">EventLoopGroup</span> <span class="variable">workerGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>(<span class="number">4</span>);   <span class="comment">// 处理 IO 读写</span></span><br><span class="line"><span class="type">ServerBootstrap</span> <span class="variable">b</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerBootstrap</span>();</span><br><span class="line">b.group(bossGroup, workerGroup)...</span><br></pre></td></tr></table></figure>
+<ul>
+<li>bossGroup 通常 1 个线程（accept 比较轻量）</li>
+<li>workerGroup 线程数通常 &#x3D; CPU 核数的 2 倍</li>
+<li>每个 EventLoop 绑定一个 Selector，负责 N 个 Channel</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li>Netty 默认的 <code>io.netty.leakDetectionLevel</code> 是 SIMPLE，生产环境禁用或改为 ADVANCED 以便检测 DirectBuffer 泄漏</li>
+<li>Reactor 线程中<strong>绝不能做阻塞操作</strong>（如 JDBC 查询、RPC 调用），必须丢给业务线程池。Netty 的 <code>ChannelHandler</code> 中若误用阻塞操作，会导致该 EventLoop 上的所有 Channel 无响应</li>
+<li>epoll 空轮询 bug：某些 JDK 版本的 epoll 实现存在 bug，select 返回 0 但仍会继续循环，CPU 100%。Netty 有专门的 <code>IntervalWakeUp</code> 策略和 <code>DeadConnectionWatcher</code> 应对</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://netty.io/wiki/user-guide-for-4.x.html">https://netty.io/wiki/user-guide-for-4.x.html</a></p>
+<hr>
+<h2 id="0x03-Linux-生产排障"><a href="#0x03-Linux-生产排障" class="headerlink" title="0x03 Linux 生产排障"></a>0x03 Linux 生产排障</h2><h3 id="13-CPU-爆满如何排查——从-top-到-perf-的全链路指南"><a href="#13-CPU-爆满如何排查——从-top-到-perf-的全链路指南" class="headerlink" title="13. CPU 爆满如何排查——从 top 到 perf 的全链路指南"></a>13. CPU 爆满如何排查——从 top 到 perf 的全链路指南</h3><p><strong>标准答案</strong>：<br><strong>五步排查法</strong>：</p>
+<p><strong>第一步：确认 CPU 情况</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">top       <span class="comment"># 看 us/sy/wa/id/st 百分比</span></span><br><span class="line">htop      <span class="comment"># 更直观的颜色显示</span></span><br><span class="line"><span class="built_in">uptime</span>    <span class="comment"># 看 load average（1/5/15 分钟）</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>重点看 <code>us</code>（用户态）vs <code>sy</code>（内核态）比例</li>
+<li><code>sy &gt; 30%</code> 通常是系统调用频繁（上下文切换&#x2F;锁竞争）</li>
+<li><code>wa &gt; 30%</code> 说明 IO 瓶颈导致 CPU 等待</li>
+</ul>
+<p><strong>第二步：找消耗 CPU 的进程&#x2F;线程</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">top -H -p PID   <span class="comment"># 查看进程内各线程的 CPU 占用</span></span><br><span class="line">ps -eo pid,ppid,%cpu,%mem,cmd --<span class="built_in">sort</span>=-%cpu | <span class="built_in">head</span></span><br><span class="line"><span class="comment"># 找到最热线程，记录 THREAD_ID</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步：分析热点代码路径</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># perf 采样（推荐）</span></span><br><span class="line">perf top -p PID                  <span class="comment"># 实时看热点函数</span></span><br><span class="line">perf record -g -p PID -o perf.data  <span class="comment"># 记录调用栈</span></span><br><span class="line">perf report -g graph -i perf.data   <span class="comment"># 生成火焰图数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># strace 跟踪系统调用（慎用，会大幅降低性能）</span></span><br><span class="line">strace -c -p PID                 <span class="comment"># 统计系统调用频率</span></span><br><span class="line">strace -T -p PID                 <span class="comment"># 看每次系统调用耗时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># pmap 看内存映射</span></span><br><span class="line">pmap -x PID | <span class="built_in">sort</span> -k3 -nr | <span class="built_in">head</span> -10</span><br></pre></td></tr></table></figure>
+
+<p><strong>第四步：生成火焰图（Flame Graph）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Brendan Gregg 的经典工具</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/brendangregg/FlameGraph</span><br><span class="line"><span class="built_in">cd</span> FlameGraph</span><br><span class="line">perf script -i /tmp/perf.data &gt; out.perf</span><br><span class="line">./stackcollapse-perf.pl out.perf &gt; out.folded</span><br><span class="line">./flamegraph.pl out.folded &gt; cpu.svg</span><br></pre></td></tr></table></figure>
+<ul>
+<li>火焰图 X 轴是采样频率（宽度 &#x3D; CPU 占用率），Y 轴是调用栈</li>
+<li><strong>平顶（table top）</strong>：函数本身占用 CPU 高（需要优化）</li>
+<li><strong>高层塔（tall tower）</strong>：调用栈深，可能包含锁等待或系统调用</li>
+</ul>
+<p><strong>第五步：针对不同原因的对策</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">CPU 模式</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">us 高</td>
+<td>用户态计算密集</td>
+<td>代码优化、增加并行度、编译优化（-O2&#x2F;-O3）</td>
+</tr>
+<tr>
+<td align="center">sy 高</td>
+<td>系统调用频繁&#x2F;锁竞争</td>
+<td>减少锁粒度、CAS 替代锁、减少系统调用</td>
+</tr>
+<tr>
+<td align="center">wa 高</td>
+<td>IO 等待</td>
+<td>换 SSD、调整 IO 调度器、异步 IO</td>
+</tr>
+<tr>
+<td align="center">hi 高</td>
+<td>硬件中断密集</td>
+<td>网卡多队列（RSS）、中断绑定（irqbalance）</td>
+</tr>
+<tr>
+<td align="center">st 高</td>
+<td>宿主机超分配</td>
+<td>云厂商 sidecar 或同宿竞争</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>CPU load average 误解</strong>：load average &gt; CPU 核数不等于负载高。Linux 下 load 包含 D 状态进程，如果 IO 卡住（D 状态堆积），load 会飙升但 CPU 是空闲的（idle 高）。所以<strong>必须结合 %idle 和 %wait 判断</strong>。</li>
+<li><strong>perf 的采样原理</strong>：基于硬件 PMU（Performance Monitoring Unit）的采样中断，默认 1000Hz。采样并非连续，而是统计概率，采样数不够可能导致函数未被命中。</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li><strong>自旋锁（Spinlock）消耗</strong>：<code>top</code> 显示 sy 高，<code>perf top</code> 看到 <code>_raw_spin_lock</code> 或 <code>futex</code> 在顶位。原因是多线程争用锁时大量时间花在等待上。解法：减少锁竞争或改用读写锁（<code>rwlock</code>）。</li>
+<li><strong>st 模式（Steal Time）高</strong>：云服务器上被 hypervisor（宿主机）偷走了 CPU 时间片。检查是否有同宿大流量虚拟机竞争。KVM&#x2F;Xen 环境下 <code>st &gt; 10%</code> 需要提工单。</li>
+<li><strong>Java 应用 CPU 高但看不出热点</strong>：JIT 编译后的 code 在 perf 中地址是随机化的，需要 Java 的 <code>-XX:+PreserveFramePointer</code> 配合 <code>perf-map-agent</code> 才能解析出 Java 方法名。</li>
+<li><strong>perf 采样过密导致系统变慢</strong>：<code>perf record -F 99</code>（99Hz）一般安全，<code>-F 1000</code> 在某些内核版本会引入可感知的性能开销。</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://www.brendangregg.com/perf.html">https://www.brendangregg.com/perf.html</a></p>
+<hr>
+<h3 id="14-内存泄漏排查——valgrind、pmap、asan-实战"><a href="#14-内存泄漏排查——valgrind、pmap、asan-实战" class="headerlink" title="14. 内存泄漏排查——valgrind、pmap、asan 实战"></a>14. 内存泄漏排查——valgrind、pmap、asan 实战</h3><p><strong>标准答案</strong>：</p>
+<p><strong>排查工具链</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">工具</th>
+<th align="left">定位</th>
+<th align="center">适用场景</th>
+<th align="center">性能影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>top/htop</code></td>
+<td align="left">看 RES&#x2F;VIRT 趋势</td>
+<td align="center">初步确认</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td align="left"><code>ps aux --sort -%mem</code></td>
+<td align="left">排序找占用</td>
+<td align="center">进程级别</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td align="left"><code>/proc/PID/smaps</code></td>
+<td align="left">逐段看内存分布</td>
+<td align="center">详细分析</td>
+<td align="center">低</td>
+</tr>
+<tr>
+<td align="left"><code>pmap -x PID</code></td>
+<td align="left">看每个映射段大小</td>
+<td align="center">C&#x2F;C++ 项目</td>
+<td align="center">低</td>
+</tr>
+<tr>
+<td align="left"><code>valgrind --leak-check=full</code></td>
+<td align="left">检测堆内存泄漏</td>
+<td align="center">C&#x2F;C++ 代码</td>
+<td align="center">10-50x 减速</td>
+</tr>
+<tr>
+<td align="left"><code>AddressSanitizer (ASan)</code></td>
+<td align="left">编译期插桩检测</td>
+<td align="center">C&#x2F;C++ (gcc&#x2F;clang)</td>
+<td align="center">约 2x 减速</td>
+</tr>
+<tr>
+<td align="left"><code>jemalloc --enable-prof</code></td>
+<td align="left">内存分配采样分析</td>
+<td align="center">生产环境</td>
+<td align="center">5-10% 开销</td>
+</tr>
+<tr>
+<td align="left"><code>tcmalloc</code> 的 HEAPCHECK</td>
+<td align="left">堆内存检查</td>
+<td align="center">C&#x2F;C++ 生产环境</td>
+<td align="center">低</td>
+</tr>
+<tr>
+<td align="left"><code>gdb</code> + 脚本</td>
+<td align="left">手动分析</td>
+<td align="center">定位具体泄漏点</td>
+<td align="center">暂停进程</td>
+</tr>
+</tbody></table>
+<p><strong>C&#x2F;C++ 泄漏排查流程</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 确认泄漏</span></span><br><span class="line">watch -n 5 <span class="string">&#x27;ps -p PID -o rss,vsz,%%mem&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. valgrind 分析（测试环境）</span></span><br><span class="line">valgrind --leak-check=full \</span><br><span class="line">         --show-leak-kinds=all \</span><br><span class="line">         --track-origins=<span class="built_in">yes</span> \</span><br><span class="line">         --verbose ./your_binary</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出示例：</span></span><br><span class="line"><span class="comment"># ==12345== 40 bytes in 1 blocks are definitely lost in loss record 1</span></span><br><span class="line"><span class="comment"># ==12345==    by 0x4A1B2C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)</span></span><br><span class="line"><span class="comment"># ==12345==    by 0x4E5F6G: create_user() (user.c:42)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. ASan（编译时加选项）</span></span><br><span class="line">gcc -fsanitize=address -g -O1 your_program.c</span><br><span class="line">./a.out  <span class="comment"># 泄漏时会自动输出调用栈并 crash</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Java&#x2F;Go 内存泄漏排查</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">语言</th>
+<th align="left">工具</th>
+<th align="left">方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Java</td>
+<td align="left"><code>jmap -histo:live PID</code></td>
+<td align="left">看存活对象数量和占用</td>
+</tr>
+<tr>
+<td align="left">Java</td>
+<td align="left"><code>jcmd PID GC.heap_dump dump.hprof</code></td>
+<td align="left">堆转储后用 MAT 分析</td>
+</tr>
+<tr>
+<td align="left">Java</td>
+<td align="left"><code>-XX:+PrintGCDetails -XX:+PrintGCTimeStamps</code></td>
+<td align="left">GC 日志分析</td>
+</tr>
+<tr>
+<td align="left">Go</td>
+<td align="left"><code>pprof</code></td>
+<td align="left"><code>go tool pprof http://localhost:6060/debug/pprof/heap</code></td>
+</tr>
+<tr>
+<td align="left">Go</td>
+<td align="left"><code>pprof allocs</code></td>
+<td align="left">查看对象分配热点</td>
+</tr>
+</tbody></table>
+<p><strong>生产踩坑</strong>：</p>
+<ol>
+<li><strong>「间接」内存泄漏</strong>：C++ 中 <code>shared_ptr</code> 循环引用导致引用计数永远不为 0，valgrind 可能检测不出（指向堆内存的指针还在），用 <code>weak_ptr</code> 打破。</li>
+<li><strong>Java 堆外泄漏</strong>：DirectBuffer、Unsafe.allocateMemory、JNI 调用。<code>pmap -x PID | grep anon</code> 的 RSS 持续增长但 JVM heap 大小稳定，就是堆外泄漏。Netty 的 <code>PlatformDependent.usedDirectMemory()</code> 可以监控。</li>
+<li><strong>Go 协程泄漏</strong>：<code>goroutine</code> 不退出导致栈内存持续占用。pprof 看 <code>goroutine</code> 类型，注意 <code>runtime.chanrecv</code> &#x2F; <code>runtime.semacquire</code> 大量堆积的 goroutine。</li>
+<li><strong>Python 的内存泄漏</strong>：<code>objgraph</code> 库可视化引用关系，<code>gc.get_objects()</code> 列出所有被 GC 跟踪的对象。</li>
+<li><strong>valgrind 的局限</strong>：会使程序慢 10-50 倍，生产环境不能用。生产环境用 <code>jemalloc</code> 的 profiler 或 <code>tcmalloc</code> 的 <code>HeapProfilerStart()</code> 采样分析。</li>
+</ol>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://valgrind.org/docs/manual/quick-start.html">https://valgrind.org/docs/manual/quick-start.html</a></p>
+<hr>
+<h3 id="15-IO-高（iowait）排查——iostat-iotop-实战"><a href="#15-IO-高（iowait）排查——iostat-iotop-实战" class="headerlink" title="15. IO 高（iowait）排查——iostat&#x2F;iotop 实战"></a>15. IO 高（iowait）排查——iostat&#x2F;iotop 实战</h3><p><strong>标准答案</strong>：<br>IO 高通常表现为 <code>top</code> 中的 <code>wa</code>（iowait）列大于 30%，系统吞吐下降，但 CPU 并不繁忙。</p>
+<p><strong>排查步骤</strong>：</p>
+<p><strong>1. iostat 看整体</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iostat -xmt 1  <span class="comment"># 扩展模式 + 毫秒 + 持续刷新</span></span><br></pre></td></tr></table></figure>
+<p>关键指标：</p>
+<table>
+<thead>
+<tr>
+<th align="left">指标</th>
+<th align="left">含义</th>
+<th align="center">临界值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>%util</code></td>
+<td align="left">磁盘繁忙百分比</td>
+<td align="center">&gt; 90% 说明磁盘饱和</td>
+</tr>
+<tr>
+<td align="left"><code>r/s + w/s</code></td>
+<td align="left">每秒 IO 次数（IOPS）</td>
+<td align="center">取决于硬件（SSD 通常数万）</td>
+</tr>
+<tr>
+<td align="left"><code>rkB/s + wkB/s</code></td>
+<td align="left">每秒吞吐量</td>
+<td align="center">取决于带宽</td>
+</tr>
+<tr>
+<td align="left"><code>await</code></td>
+<td align="left">IO 请求平均等待时间（ms）</td>
+<td align="center">&gt; 10ms 需要关注</td>
+</tr>
+<tr>
+<td align="left"><code>svctm</code></td>
+<td align="left">IO 请求服务时间（ms）</td>
+<td align="center">SSD &lt; 1ms</td>
+</tr>
+<tr>
+<td align="left"><code>avgqu-sz</code></td>
+<td align="left">平均 IO 队列长度</td>
+<td align="center">&gt; 1 表示有积压</td>
+</tr>
+</tbody></table>
+<p><strong>2. iotop 找进程</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">iotop -oP  <span class="comment"># 只显示正在 IO 的进程</span></span><br><span class="line">iotop -bk  <span class="comment"># 批量模式，适合脚本统计</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 文件系统级别的分析</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 哪些文件被频繁读写</span></span><br><span class="line">lsof | grep -E <span class="string">&#x27;REG.*(deleted|\d+)&#x27;</span></span><br><span class="line"><span class="comment"># 文件系统缓存状态</span></span><br><span class="line"><span class="built_in">cat</span> /proc/meminfo | grep -E <span class="string">&#x27;^(Dirty|Writeback|NFS_Unstable):&#x27;</span></span><br><span class="line"><span class="comment"># 查看进程的 IO 统计</span></span><br><span class="line"><span class="built_in">cat</span> /proc/PID/io</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>%util 的误解</strong>：<code>%util = (IO 时间 / 采样时间) × 100%</code>。对于 SSD&#x2F;NVMe，多队列并行能力很强，%util 100% 不代表设备满了——可能只是某个队列满载。新版本 iostat 引入了 <code>aqu-sz</code>（平均队列深度）作为更准确的饱和指标。</p>
+</li>
+<li><p><strong>Dirty Page 对 IO 的影响</strong>：</p>
+<ul>
+<li><code>cat /proc/meminfo</code> 看 <code>Dirty</code> 和 <code>Writeback</code></li>
+<li>内核的 <code>dirty_writeback_centisecs</code>（默认 500，即 5 秒）和 <code>dirty_background_ratio</code>（默认 10%）控制回写频率</li>
+<li><strong>生产坑</strong>：大量脏页导致 <code>sync</code>&#x2F;<code>fsync</code> 触发大量回写，造成 IO 尖刺。尤其是数据库（MySQL&#x2F;PostgreSQL）频繁 fsync 时</li>
+</ul>
+</li>
+<li><p><strong>IO 调度器选择</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前调度器</span></span><br><span class="line"><span class="built_in">cat</span> /sys/block/sda/queue/scheduler</span><br><span class="line"><span class="comment"># 可选：[mq-deadline] kyber bfq none</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>mq-deadline</strong>：通用场景，平衡延时和吞吐</li>
+<li><strong>none（noop）</strong>：NVMe 等高规格 SSD 直接透传</li>
+<li><strong>bfq</strong>：桌面&#x2F;交互场景，强调低延时</li>
+<li><strong>kyber</strong>：低延时优先，适合数据库</li>
+</ul>
+</li>
+<li><p><strong>生产踩坑</strong>：</p>
+<ol>
+<li><strong>ext4 日志（journal）</strong>：ext4 默认的 <code>data=ordered</code> 模式，每次 write 前先写 journal，加倍 IO 量。可以考虑 <code>data=writeback</code>（有 crash 丢失风险）或用 XFS。</li>
+<li><strong>Page Cache 占用过多</strong>：某次排查发现 application 大量读取文件，Page Cache 占满，导致其他进程的 IO 请求被刷脏页阻塞。解法：对读密集型进程设置 <code>posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED)</code> 或使用 O_DIRECT。</li>
+<li><strong>轮询 IO（io_uring + polling）</strong>：Linux 5.1+ 支持 <code>IORING_SETUP_IOPOLL</code>，可以让应用主动轮询 NVMe 完成队列，延时更低（从 10μs 级降到 1μs），但 CPU 开销增加。</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man1/iostat.1.html">https://man7.org/linux/man-pages/man1/iostat.1.html</a></p>
+<hr>
+<h3 id="16-网络排查——tcpdump-ss-实战"><a href="#16-网络排查——tcpdump-ss-实战" class="headerlink" title="16. 网络排查——tcpdump + ss 实战"></a>16. 网络排查——tcpdump + ss 实战</h3><p><strong>标准答案</strong>：</p>
+<p><strong>常用网络排查命令</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">命令</th>
+<th align="left">用途</th>
+<th align="left">常用参数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>ss</code></td>
+<td align="left">查看 socket 状态</td>
+<td align="left"><code>-tlnp</code>(TCP监听) <code>-tan</code>(全连接) <code>-s</code>(汇总统计)</td>
+</tr>
+<tr>
+<td align="left"><code>tcpdump</code></td>
+<td align="left">抓包分析</td>
+<td align="left"><code>-i any</code>(所有接口) <code>-nn</code>(不解析主机名) <code>-X</code>(打印十六进制+ASCII)</td>
+</tr>
+<tr>
+<td align="left"><code>nslookup/dig</code></td>
+<td align="left">DNS 排查</td>
+<td align="left"><code>+short</code>(简洁)</td>
+</tr>
+<tr>
+<td align="left"><code>ping</code></td>
+<td align="left">连通性 + RTT</td>
+<td align="left"><code>-c 10</code>(次数)</td>
+</tr>
+<tr>
+<td align="left"><code>mtr</code></td>
+<td align="left">路由追踪 + 丢包</td>
+<td align="left">–report(报告)</td>
+</tr>
+<tr>
+<td align="left"><code>nc</code></td>
+<td align="left">端口测试</td>
+<td align="left"><code>-zv</code>(扫描端口)</td>
+</tr>
+<tr>
+<td align="left"><code>ip netstat</code></td>
+<td align="left">查看网络栈</td>
+<td align="left"><code>netstat -s</code>(协议统计)</td>
+</tr>
+<tr>
+<td align="left"><code>curl -w</code></td>
+<td align="left">HTTP 请求耗时分析</td>
+<td align="left"><code>@curl-format.txt</code></td>
+</tr>
+<tr>
+<td align="left"><code>sar -n DEV 1</code></td>
+<td align="left">网络流量统计</td>
+<td align="left"><code>-n</code>(网络) <code>DEV</code>(设备)</td>
+</tr>
+</tbody></table>
+<p><strong>SS 详解</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># TCP 连接状态分布</span></span><br><span class="line">ss -tan | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> | <span class="built_in">sort</span> | <span class="built_in">uniq</span> -c</span><br><span class="line"><span class="comment"># 示例输出：</span></span><br><span class="line"><span class="comment">#   152  ESTAB</span></span><br><span class="line"><span class="comment">#    23  TIME_WAIT</span></span><br><span class="line"><span class="comment">#     3  CLOSE_WAIT</span></span><br><span class="line"><span class="comment">#     1  LISTEN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看具体连接</span></span><br><span class="line">ss -tlnp sport = :80              <span class="comment"># 监听 80 端口的进程</span></span><br><span class="line">ss -tano <span class="string">&#x27;( dport = :443 or sport = :443 )&#x27;</span>  <span class="comment"># 443 端口的连接</span></span><br><span class="line">ss -tano state time-wait          <span class="comment"># 查看 TIME_WAIT 状态的连接</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># socket 缓冲区状态</span></span><br><span class="line">ss -tlnpe                         <span class="comment"># 显示 uid、inode、buffer 大小</span></span><br><span class="line">ss -tanoi <span class="string">&#x27;( dport = :6379 )&#x27;</span>     <span class="comment"># 看 Redis 连接的拥塞窗口</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>tcpdump 详解</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基本抓包</span></span><br><span class="line">tcpdump -i any -nn -X port 80</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存抓包（用于 Wireshark 分析）</span></span><br><span class="line">tcpdump -i eth0 -s 0 -w capture.pcap port 3306</span><br><span class="line"></span><br><span class="line"><span class="comment"># 高级过滤</span></span><br><span class="line">tcpdump -i any <span class="string">&#x27;tcp[tcpflags] &amp; tcp-syn != 0&#x27;</span>  <span class="comment"># 只抓 SYN 包</span></span><br><span class="line">tcpdump -i any <span class="string">&#x27;icmp[icmptype] = icmp-echo&#x27;</span>    <span class="comment"># 只抓 ping 包</span></span><br><span class="line">tcpdump -i any <span class="string">&#x27;tcp[tcpflags] &amp; tcp-fin != 0&#x27;</span>  <span class="comment"># 只抓 FIN 包</span></span><br><span class="line">tcpdump -i any <span class="string">&#x27;port 443 and host 10.0.0.1&#x27;</span>    <span class="comment"># 特定端口+主机</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示 HTTP 请求/响应头</span></span><br><span class="line">tcpdump -A -s 0 port 80</span><br><span class="line"></span><br><span class="line"><span class="comment"># 抓取部分数据包体（前 N 字节）</span></span><br><span class="line">tcpdump -i any -nn -X -s 1500 port 3306</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>TIME_WAIT 过多怎么办</strong>：<ul>
+<li>TIME_WAIT 是 TCP 的主动关闭方在发送最后一次 ACK 后等待的状态（2MSL，约 60 秒）</li>
+<li>高并发短连接场景（如 HTTP&#x2F;1.0）会积累大量 TIME_WAIT</li>
+<li>调优：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 允许重用 TIME_WAIT 的连接</span></span><br><span class="line">net.ipv4.tcp_tw_reuse = 1  <span class="comment"># 适用于客户端</span></span><br><span class="line"><span class="comment"># 快速回收 TIME_WAIT（Linux 4.12+ 已移除 tcp_tw_recycle）</span></span><br><span class="line">net.ipv4.tcp_fin_timeout = 30  <span class="comment"># 默认 60，可适当调小</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>根本解法</strong>：使用连接池（Keep-Alive）或 HTTP&#x2F;2 多路复用</li>
+</ul>
+</li>
+<li><strong>CLOSE_WAIT 堆积</strong>：<ul>
+<li>被动关闭方收到 FIN 后没调用 close() 就会留在 CLOSE_WAIT</li>
+<li>通常意味着应用层没正确处理连接关闭事件</li>
+<li>排查：<code>ss -tano state close-wait</code> 看是哪个进程，然后修代码</li>
+</ul>
+</li>
+<li><strong>SYN Flood 攻击排查</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">netstat -s | grep -E <span class="string">&#x27;SYN|DROP|overflow&#x27;</span></span><br><span class="line"><span class="comment"># 看半连接队列是否溢出</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>启用 SYN Cookies：<code>net.ipv4.tcp_syncookies = 1</code></li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li><strong>tcpdump 抓包导致丢包</strong>：tcpdump 在高流量场景下（&gt; 1Gbps）可能因 CPU 处理不过来造成 packet drop。解法：用 <code>-s 128</code> 只抓包头部，或使用 <code>AF_PACKET</code> 版本的 <code>tcpdump -i any</code> (mmap 优化)。</li>
+<li><strong>MTU 路径发现问题</strong>：<code>ss -tanoi</code> 可以看到 <code>tcpi_mss</code>。如果路径上某个路由器限制了 MTU 小于 1500，但 ICMP 被屏蔽，会导致 TCP 连接卡住。排查：<code>ping -M do -s 1472 host</code> 测试路径 MTU。</li>
+<li><strong>epoll_wait 被中断</strong>：<code>strace -e trace=epoll_wait -p PID</code> 看到不断返回 EINTR，可能是有频繁的信号（如 <code>SIGALRM</code>、<code>SIGCHLD</code>）打扰。解法：改成 <code>restart_syscall</code> 或自动重试。</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man8/tcpdump.8.html">https://man7.org/linux/man-pages/man8/tcpdump.8.html</a></p>
+<hr>
+<h2 id="0x04-容器与-Linux-底层"><a href="#0x04-容器与-Linux-底层" class="headerlink" title="0x04 容器与 Linux 底层"></a>0x04 容器与 Linux 底层</h2><h3 id="17-Cgroup（Control-Group）详解——容器资源隔离的基石"><a href="#17-Cgroup（Control-Group）详解——容器资源隔离的基石" class="headerlink" title="17. Cgroup（Control Group）详解——容器资源隔离的基石"></a>17. Cgroup（Control Group）详解——容器资源隔离的基石</h3><p><strong>标准答案</strong>：<br>Cgroup 是 Linux 内核提供的<strong>资源隔离和限制机制</strong>，是实现容器化的基石之一（另一个是 Namespace）。</p>
+<p><strong>Cgroup v1（传统版本）</strong>：</p>
+<ul>
+<li>每个子系统独立的层级结构（hierarchy）</li>
+<li>子系统包括：<ul>
+<li><code>cpu</code>：CPU 时间片分配（<code>cpu.shares</code>、<code>cpu.cfs_period_us</code>、<code>cpu.cfs_quota_us</code>）</li>
+<li><code>memory</code>：内存限制（<code>memory.limit_in_bytes</code>、<code>memory.oom_control</code>）</li>
+<li><code>blkio</code>：块设备 IO 限制（<code>blkio.throttle.read_bps_device</code>）</li>
+<li><code>cpuset</code>：CPU 核绑定</li>
+<li><code>devices</code>：设备访问控制</li>
+<li><code>freezer</code>：进程冻结&#x2F;恢复</li>
+<li><code>net_cls/net_prio</code>：网络分类和优先级</li>
+<li><code>pids</code>：进程数量限制</li>
+<li><code>hugetlb</code>：大页限制</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 cgroup v1 限制内存 100MB + swap 关闭</span></span><br><span class="line"><span class="built_in">mkdir</span> -p /sys/fs/cgroup/memory/myapp</span><br><span class="line"><span class="built_in">echo</span> 104857600 &gt; /sys/fs/cgroup/memory/myapp/memory.limit_in_bytes</span><br><span class="line"><span class="built_in">echo</span> 0 &gt; /sys/fs/cgroup/memory/myapp/memory.swappiness</span><br><span class="line"><span class="built_in">echo</span> 12345 &gt; /sys/fs/cgroup/memory/myapp/tasks  <span class="comment"># 将进程加入 cgroup</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Cgroup v2（统一版本，Linux 4.5+）</strong>：</p>
+<ul>
+<li>所有子系统统一在一个 hierarchy 中</li>
+<li>更安全的接口设计（写时复制）</li>
+<li>支持 <code>cgroup.kill</code> 原子杀死整个 cgroup 下的进程</li>
+<li>不可逆的升级（一旦启用 v2，无法部分回到 v1）</li>
+<li>主要改进：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="center">v1</th>
+<th align="center">v2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">架构</td>
+<td align="center">多 hierarchy</td>
+<td align="center">单 hierarchy</td>
+</tr>
+<tr>
+<td align="left">内存记账</td>
+<td align="center">page counter</td>
+<td align="center">LRU-based</td>
+</tr>
+<tr>
+<td align="left">IO 控制</td>
+<td align="center">独立 blkio</td>
+<td align="center">统一 IO controller（<code>io.max</code>）</td>
+</tr>
+<tr>
+<td align="left">CPU 控制</td>
+<td align="center">cpu + cpuset 分开</td>
+<td align="center">cpu 整合 cpuset 策略</td>
+</tr>
+<tr>
+<td align="left">BPF 集成</td>
+<td align="center">不支持</td>
+<td align="center">原生支持（cgroup-bpf）</td>
+</tr>
+<tr>
+<td align="left">cgroup.events</td>
+<td align="center">无</td>
+<td align="center">有（OOM 通知，populated 通知）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>容器的「资源视图」伪造</strong>：即使 cgroup 限制了容器只能使用 1GB 内存，<code>/proc/meminfo</code> 看到的仍是宿主机内存总量。这就是为什么 Java 在容器中容易踩 Xmx 的坑——JVM 读取 <code>/proc/meminfo</code> 判断可用内存。修复：JDK 8u131+ 的 <code>-XX:+UseCGroupMemoryLimitForHeap</code>（v1）或 <code>-XX:MaxRAMPercentage=75.0</code>（通用）。</li>
+<li><strong>Cgroup v2 在 Kubernetes 中的普及</strong>：<ul>
+<li>Kubernetes 1.24 开始 GA 支持 cgroup v2</li>
+<li>containerd 1.5+ 默认使用 cgroup v2</li>
+<li><strong>必须启用</strong> <code>systemd.unified_cgroup_hierarchy=1</code> 内核参数</li>
+<li>主流发行版：Fedora 31+、Ubuntu 21.10+、Debian 11+ 默认 cgroup v2</li>
+</ul>
+</li>
+<li><strong>内存 cgroup 的 OOM 行为</strong>：<ul>
+<li>v1：<code>memory.oom_control</code> 设为 1 时 OOM 杀死 cgroup 内进程</li>
+<li>v2：自动 OOM，可通过 <code>cgroup.events</code> 监听 OOM 事件</li>
+<li>生产防护：使用 <code>memory.high</code>（软限制）而不是 <code>memory.max</code>（硬限制），触发内存回收而非 OOM kill</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li><strong>v1 的 memory.move_charge_at_immigrate</strong>：进程迁移到新的 memory cgroup 时，旧的内存不会自动跟随。如果限制新 cgroup 内存小于已有内存，会立即 OOM。v2 修复了这个问题。</li>
+<li><strong>IO 限制的统计不准</strong>：v1 的 blkio 只统计 direct IO（O_DIRECT 打开的文件），对 Page Cache（缓存的读写）不准确。v2 的 io 控制器基于 page cache 统计，更精确。</li>
+<li><strong>Docker 默认使用的 cgroup 驱动</strong>：<code>cgroupfs</code> vs <code>systemd</code>。如果宿主机使用 systemd 作为 init 系统，建议 Docker daemon <code>--exec-opt native.cgroupdriver=systemd</code>，否则资源紧张时 systemd 和 cgroupfs 可能产生冲突。</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/cgroup-v2.txt">https://www.kernel.org/doc/Documentation/cgroup-v2.txt</a></p>
+<hr>
+<h3 id="18-Linux-Namespace——容器「独立沙箱」的实现原理"><a href="#18-Linux-Namespace——容器「独立沙箱」的实现原理" class="headerlink" title="18. Linux Namespace——容器「独立沙箱」的实现原理"></a>18. Linux Namespace——容器「独立沙箱」的实现原理</h3><p><strong>标准答案</strong>：<br>Namespace 是 Linux 内核提供的一种<strong>资源隔离机制</strong>，让一组进程拥有自己的全局资源视图，感觉自己在「独立」系统中。</p>
+<p><strong>8 种 Namespace</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Namespace</th>
+<th align="center">内核版本</th>
+<th align="left">隔离的资源</th>
+<th align="left">关键系统调用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Mount (mnt)</td>
+<td align="center">2.4.19</td>
+<td align="left">文件系统挂载点</td>
+<td align="left"><code>pivot_root</code></td>
+</tr>
+<tr>
+<td align="left">PID</td>
+<td align="center">2.6.24</td>
+<td align="left">进程 ID</td>
+<td align="left"><code>setns</code></td>
+</tr>
+<tr>
+<td align="left">Network (net)</td>
+<td align="center">2.6.24</td>
+<td align="left">网络栈（网卡、路由、iptables）</td>
+<td align="left"><code>ip netns</code></td>
+</tr>
+<tr>
+<td align="left">IPC</td>
+<td align="center">2.6.19</td>
+<td align="left">System V IPC、POSIX 消息队列</td>
+<td align="left">-</td>
+</tr>
+<tr>
+<td align="left">UTS</td>
+<td align="center">2.6.19</td>
+<td align="left">主机名和域名</td>
+<td align="left"><code>sethostname</code></td>
+</tr>
+<tr>
+<td align="left">User (user)</td>
+<td align="center">3.8</td>
+<td align="left">用户和用户组 ID</td>
+<td align="left"><code>newuidmap</code></td>
+</tr>
+<tr>
+<td align="left">Cgroup</td>
+<td align="center">4.6</td>
+<td align="left">cgroup 根目录视图</td>
+<td align="left">-</td>
+</tr>
+<tr>
+<td align="left">Time</td>
+<td align="center">5.6</td>
+<td align="left">系统时间（boottime&#x2F;monotonic）</td>
+<td align="left"><code>clock_settime</code></td>
+</tr>
+</tbody></table>
+<p><strong>Docker 容器创建流程（简化版）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 创建新的 namespaces</span></span><br><span class="line">unshare --mount --pid --net --uts --ipc --fork /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在新的 mount namespace 中使用 pivot_root 切换根文件系统</span></span><br><span class="line">pivot_root(new_root, old_root)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 设置 cgroup 限制</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PID</span> &gt; /sys/fs/cgroup/memory/docker/<span class="variable">$CONTAINER_ID</span>/tasks</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 设置网络（veth pair + bridge）</span></span><br><span class="line">ip <span class="built_in">link</span> add veth_host <span class="built_in">type</span> veth peer name veth_ns</span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> veth_ns netns <span class="variable">$PID</span></span><br><span class="line">brctl addif docker0 veth_host</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. chroot 进入容器文件系统（实际是 pivot_root）</span></span><br><span class="line"><span class="built_in">exec</span> /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p><strong>User Namespace 详解</strong>（最重要的安全特性）：</p>
+<ul>
+<li>容器内的 root（uid 0）<strong>映射到</strong>宿主机上的非特权用户（如 uid 100000）</li>
+<li>即使容器内进程突破了容器边界，它在宿主机上也只是普通用户权限</li>
+<li>实现：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 65536 个 uid 的映射，容器内 0-65535 映射到宿主机 100000-165535</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;0 100000 65536&quot;</span> &gt; /proc/<span class="variable">$PID</span>/uid_map</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;0 100000 65536&quot;</span> &gt; /proc/<span class="variable">$PID</span>/gid_map</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Docker 为什么不默认启用 User Namespace？</strong><ul>
+<li>兼容性问题：很多镜像假设 uid 0 有全部能力</li>
+<li>Volume 挂载权限复杂：宿主机文件和容器内 uid 0 的映射关系需要手动管理</li>
+<li>解决方案：Docker daemon 启动 <code>--userns-remap</code> 参数启用，但生产环境配置率不高</li>
+</ul>
+</li>
+<li><strong>Namespace 无法解决的问题</strong>：<ul>
+<li>时间（Time Namespace 只隔离 CLOCK_MONOTONIC，不隔离 CLOCK_REALTIME）</li>
+<li>内核模块（<code>lsmod</code> 在所有 namespace 下都看到相同列表）</li>
+<li><code>/proc</code>、<code>/sys</code> 的部分全局信息</li>
+<li>某些 <code>/sys/class/net</code> 下的设备</li>
+</ul>
+</li>
+<li><strong>Namespace 泄漏</strong>：如果容器的 mount namespace 中有 <code>--bind</code> 挂载的宿主机目录未清理，即使容器退出，mount 点残留导致 namespace 无法释放。</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li><code>/proc/sys</code> 的某些参数在容器内修改貌似成功（mount –bind 了 <code>/proc/sys</code> 的影子副本），但实际上没起作用。需要宿主机级别的 <code>sysctl</code> 或在容器启动时带 <code>--privileged</code>。</li>
+<li><strong>网络 namespace 的 DNS 问题</strong>：容器内 <code>/etc/resolv.conf</code> 默认由 Docker 管理（通过 mount bind），如果手动修改可能导致服务重启后 DNS 配置丢失。</li>
+<li><strong>PID Namespace 的 1 号进程</strong>：PID namespace 内的 1 号进程（通常是容器入口）要负责收养孤儿进程和信号处理。如果 1 号进程没有处理 SIGCHLD，子进程会成为僵尸。Docker 的 ENTRYPOINT 进程应该能在收到 SIGTERM&#x2F;SIGINT 时优雅退出。</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/namespaces.7.html">https://man7.org/linux/man-pages/man7/namespaces.7.html</a></p>
+<hr>
+<h3 id="19-Docker-底层原理全景——从容器创建到网络通信"><a href="#19-Docker-底层原理全景——从容器创建到网络通信" class="headerlink" title="19. Docker 底层原理全景——从容器创建到网络通信"></a>19. Docker 底层原理全景——从容器创建到网络通信</h3><p><strong>标准答案</strong>：<br>Docker 不是单一的容器运行时，而是一个<strong>分层架构的容器管理平台</strong>。</p>
+<p><strong>Docker 架构</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────┐</span><br><span class="line">│                   Docker CLI                    │</span><br><span class="line">├─────────────────────────────────────────────────┤</span><br><span class="line">│                 Docker Daemon                   │</span><br><span class="line">│     (dockerd, REST API, 镜像管理, 容器编排)        │</span><br><span class="line">├─────────────┬───────────────────────────────────┤</span><br><span class="line">│  containerd │       docker-proxy / iptables      │</span><br><span class="line">│ (CRI 实现)   │        (网络管理)                    │</span><br><span class="line">├──────┬──────┴────────────────────────────────────┤</span><br><span class="line">│ runc │              cgroup/namespace              │</span><br><span class="line">│ (OCI)│         (内核资源隔离)                      │</span><br><span class="line">└──────┴───────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键组件</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">组件</th>
+<th align="left">角色</th>
+<th align="left">实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>dockerd</strong></td>
+<td align="left">Docker daemon，提供 REST API</td>
+<td align="left">Go</td>
+</tr>
+<tr>
+<td align="left"><strong>containerd</strong></td>
+<td align="left">容器生命周期管理（创建&#x2F;停止&#x2F;删除）</td>
+<td align="left">从 Docker 拆分出的独立项目</td>
+</tr>
+<tr>
+<td align="left"><strong>containerd-shim</strong></td>
+<td align="left">每个容器一个的 shim 进程，让 runc 退出后容器继续运行</td>
+<td align="left">Go</td>
+</tr>
+<tr>
+<td align="left"><strong>runc</strong></td>
+<td align="left">OCI 运行时，实际创建&#x2F;运行容器</td>
+<td align="left">Go（基于 libcontainer）</td>
+</tr>
+<tr>
+<td align="left"><strong>docker-proxy</strong></td>
+<td align="left">端口映射（<code>-p 8080:80</code>），基于 iptables&#x2F;ipvs</td>
+<td align="left">Go</td>
+</tr>
+<tr>
+<td align="left"><strong>docker network</strong></td>
+<td align="left">CNM（Container Network Model）实现</td>
+<td align="left">Go</td>
+</tr>
+</tbody></table>
+<p><strong>镜像分层（UnionFS）</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">容器可写层（Container Layer）—— COW（写时复制）</span><br><span class="line">  ┌──────────────┐</span><br><span class="line">  │  Ubuntu:latest │  ← 镜像层（只读）</span><br><span class="line">  │   apt update   │  ← 镜像层</span><br><span class="line">  │    nginx pkg   │  ← 镜像层</span><br><span class="line">  │   entrypoint   │  ← 镜像层</span><br><span class="line">  └──────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>每一层是 Dockerfile 的一条指令，使用 Overlay2（推荐）或 AUFS&#x2F;DeviceMapper 叠加：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">overlay2:</span><br><span class="line">  lowerdir = /var/lib/docker/overlay2/l/... (镜像各层合并)</span><br><span class="line">  upperdir = /var/lib/docker/overlay2/HASH/diff (容器可写层)</span><br><span class="line">  mergedir = /var/lib/docker/overlay2/HASH/merged (容器看到的文件系统)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Docker 网络模型</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 浏览器 → 宿主机 8080 → docker-proxy → 容器 80</span></span><br><span class="line"><span class="comment"># 或通过 iptables DNAT 直接转发</span></span><br><span class="line">iptables -t nat -A DOCKER ! -i docker0 -p tcp \</span><br><span class="line">  --dport 8080 -j DNAT --to-destination 172.17.0.2:80</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">网络模式</th>
+<th align="left">原理</th>
+<th align="left">适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">bridge</td>
+<td align="left">veth pair + docker0 网桥</td>
+<td align="left">单机默认，容器间互通</td>
+</tr>
+<tr>
+<td align="left">host</td>
+<td align="left">直接使用宿主机网络栈</td>
+<td align="left">性能敏感场景（-p 无效）</td>
+</tr>
+<tr>
+<td align="left">none</td>
+<td align="left">只有 loopback</td>
+<td align="left">完全隔离，自定义网络</td>
+</tr>
+<tr>
+<td align="left">container:ID</td>
+<td align="left">共享另一个容器的网络栈</td>
+<td align="left">Sidecar 模式</td>
+</tr>
+<tr>
+<td align="left">overlay</td>
+<td align="left">VXLAN 隧道（跨主机）</td>
+<td align="left">Swarm&#x2F;K8s 多节点</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>容器 vs VM 的根本区别</strong>：<ul>
+<li>容器：共享宿主机内核，通过 cgroup + namespace 隔离</li>
+<li>VM：各自独立的内核，通过 Hypervisor 硬件虚拟化隔离</li>
+<li>安全边界：容器之间可以用 <code>ptrace</code> 互操作（如果禁用了 seccomp），VM 则完全隔离</li>
+</ul>
+</li>
+<li><strong>Docker 的安全机制</strong>：<ul>
+<li><strong>Capabilities</strong>：容器默认去掉大部分特权能力（<code>--cap-drop ALL --cap-add NEEDED</code>）</li>
+<li><strong>Seccomp</strong>：默认过滤掉 44 个不必要的系统调用</li>
+<li><strong>AppArmor&#x2F;SELinux</strong>：强制访问控制</li>
+<li><strong>Read-only Rootfs</strong>：<code>--read-only</code> 挂载容器根文件系统</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li><strong>容器内 <code>/dev/random</code> 耗尽</strong>：Docker 默认容器内 <code>/dev/random</code> 和宿主机共享熵池，高并发场景熵不足导致进程阻塞。解法：挂载宿主机的 <code>/dev/urandom</code> 或安装 <code>haveged</code> 服务。</li>
+<li><strong>Docker Daemon 日志占满磁盘</strong>：默认 JSON 日志驱动下的容器 stdout&#x2F;stderr 累积到 <code>journald</code> 或 JSON 文件，不轮转。必须设置 <code>--log-opt max-size=10m --log-opt max-file=3</code>，或切换到 <code>journald</code> 驱动。</li>
+<li><strong>容器内 ulimit 不生效</strong>：Docker 容器的 <code>ulimit</code> 默认继承自 dockerd，<code>--ulimit nofile=65536:65536</code> 必须在 docker run 时指定，容器内 <code>ulimit -n</code> 改不了。</li>
+<li><strong>Overlay2 和 Page Cache 不共享</strong>：不同容器读取同一镜像层文件时，每个容器有自己的 Page Cache 副本，浪费内存。Kata Containers（轻量级 VM）或 共享 fs 可以缓解。</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://docs.docker.com/get-started/overview/">https://docs.docker.com/get-started/overview/</a></p>
+<hr>
+<h3 id="20-cgroup-v1-vs-v2-迁移实战——你应该注意什么？"><a href="#20-cgroup-v1-vs-v2-迁移实战——你应该注意什么？" class="headerlink" title="20. cgroup v1 vs v2 迁移实战——你应该注意什么？"></a>20. cgroup v1 vs v2 迁移实战——你应该注意什么？</h3><p><strong>标准答案</strong>：</p>
+<p><strong>迁移检查清单</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查当前使用的版本</span></span><br><span class="line"><span class="built_in">stat</span> -<span class="built_in">fc</span> %T /sys/fs/cgroup/</span><br><span class="line"><span class="comment"># 输出 tmpfs → cgroup v1；cgroup2fs → cgroup v2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看系统是否同时启用了两个版本</span></span><br><span class="line"><span class="built_in">ls</span> -la /sys/fs/cgroup/unified/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 内核参数检查</span></span><br><span class="line"><span class="built_in">cat</span> /proc/cmdline | grep -o <span class="string">&#x27;systemd.unified_cgroup_hierarchy=[01]&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>核心区别对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="center">v1</th>
+<th align="center">v2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">接口组织</td>
+<td align="center">多 hierarchy，每个子系统独立目录</td>
+<td align="center">单 hierarchy，统一目录树</td>
+</tr>
+<tr>
+<td align="left">进程迁移</td>
+<td align="center">需手动改为 <code>echo PID &gt; tasks</code></td>
+<td align="center">cgroup.procs 自动处理已有线程</td>
+</tr>
+<tr>
+<td align="left">内存控制器</td>
+<td align="center"><code>memory.limit_in_bytes</code></td>
+<td align="center"><code>memory.max</code></td>
+</tr>
+<tr>
+<td align="left">Swap 控制</td>
+<td align="center"><code>memory.memsw.limit_in_bytes</code></td>
+<td align="center"><code>memory.swap.max</code></td>
+</tr>
+<tr>
+<td align="left">CPU 控制</td>
+<td align="center"><code>cpu.shares</code>（相对权重）</td>
+<td align="center"><code>cpu.weight</code>（范围 1-10000）</td>
+</tr>
+<tr>
+<td align="left">IO 控制</td>
+<td align="center"><code>blkio.throttle.*</code></td>
+<td align="center"><code>io.max</code>（统一读&#x2F;写&#x2F;IOPS）</td>
+</tr>
+<tr>
+<td align="left">OOM 通知</td>
+<td align="center">轮询 <code>memory.usage_in_bytes</code></td>
+<td align="center"><code>cgroup.events</code> 文件监听</td>
+</tr>
+<tr>
+<td align="left">cgroup.kill</td>
+<td align="center">无</td>
+<td align="center">有（系统调用 <code>cgroup_kill</code>）</td>
+</tr>
+<tr>
+<td align="left">子节点管理</td>
+<td align="center">任意深度创建</td>
+<td align="center">同一层次限制</td>
+</tr>
+<tr>
+<td align="left">BPF 集成</td>
+<td align="center">不原生</td>
+<td align="center"><code>cgroup-bpf</code> 直接附加</td>
+</tr>
+</tbody></table>
+<p><strong>关键迁移注意事项</strong>：</p>
+<p><strong>1. Java&#x2F;JVM 兼容</strong>：</p>
+<ul>
+<li>JDK 8u191-：只支持 cgroup v1，v2 下 memory 和 cpu 限制不生效</li>
+<li>JDK 8u191+：添加了 <code>UseContainerSupport</code> 实验性支持</li>
+<li>JDK 10+：默认启用 <code>UseContainerSupport</code>，支持 cgroup v1&#x2F;v2</li>
+<li>生产建议：升级到 JDK 11+ 或使用 <code>-XX:MaxRAMPercentage=75.0</code></li>
+</ul>
+<p><strong>2. systemd 集成</strong>：</p>
+<ul>
+<li>v1：cgroup 管理可能由 systemd 和 cgroupfs 双头管理（资源争用）</li>
+<li>v2：systemd 是唯一的 cgroup 管理器（<code>Delegate=yes</code> 授权给容器运行时）</li>
+<li>Docker 配置：<code>/etc/docker/daemon.json</code> 中 <code>&quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;]</code></li>
+</ul>
+<p><strong>3. 监控系统适配</strong>：</p>
+<ul>
+<li><code>cat /sys/fs/cgroup/memory/memory.usage_in_bytes</code> → v2 中改为 <code>cat /sys/fs/cgroup/memory.current</code></li>
+<li><code>docker stats</code> 命令兼容两者</li>
+<li>cAdvisor &#x2F; Prometheus node_exporter 需升级到支持 v2 的版本</li>
+</ul>
+<p><strong>4. 升级步骤</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 更新内核（4.15+ 推荐 5.2+）</span></span><br><span class="line"><span class="comment"># 2. 添加内核参数</span></span><br><span class="line">grubby --update-kernel=ALL --args=<span class="string">&quot;systemd.unified_cgroup_hierarchy=1&quot;</span></span><br><span class="line"><span class="comment"># 3. 重启</span></span><br><span class="line">reboot</span><br><span class="line"><span class="comment"># 4. 验证</span></span><br><span class="line">mount | grep cgroup</span><br><span class="line"><span class="comment"># 应该只有 cgroup2，没有 cgroup 或 tmpfs 类型的挂载</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>v2 的 IO 控制器写入顺序限制</strong>：v2 中写 <code>io.max</code> 前必须先分配 <code>io.weight</code>，否则返回错误。很多迁移应用在此处踩坑。</li>
+<li><strong>资源类型区分</strong>：v2 中的 <code>memory.zswap.max</code>（zswap 压缩缓存限制）是 v1 没有的新特性</li>
+<li><strong>压力通知（PSI）</strong>：v2 原生支持 <code>memory.pressure_level</code> 和 <code>io.pressure</code>，实现内存&#x2F;IO 压力的三级告警（<code>low</code> &#x2F; <code>medium</code> &#x2F; <code>critical</code>），比 v1 的轮询方式高效得多</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li>kubelet + cgroup v2 下 <code>--system-reserved</code> 参数配置与 v1 释义不同，可能需要调整</li>
+<li>NVIDIA GPU 设备插件在 cgroup v2 下可能未完全适配，确认版本支持情况后再迁移</li>
+<li>某些自定义的监控脚本直接硬编码了 v1 的路径（<code>/sys/fs/cgroup/memory/...</code>），迁移后全部报错</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/architecture/cgroups/">https://kubernetes.io/docs/concepts/architecture/cgroups/</a></p>
+<hr>
+<h3 id="21-容器-CPU-限制的真相——CFS-配额-vs-核心绑定"><a href="#21-容器-CPU-限制的真相——CFS-配额-vs-核心绑定" class="headerlink" title="21. 容器 CPU 限制的真相——CFS 配额 vs 核心绑定"></a>21. 容器 CPU 限制的真相——CFS 配额 vs 核心绑定</h3><p><strong>标准答案</strong>：<br>Docker&#x2F;Kubernetes 中的 CPU 限制有两种方式：<strong>CFS 配额（软限制）</strong> 和 <strong>cpuset（硬绑定）</strong>。</p>
+<p><strong>CFS（Completely Fair Scheduler）配额</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Docker</span></span><br><span class="line"><span class="string">docker</span> <span class="string">run</span> <span class="string">--cpus=1.5</span> <span class="string">myapp</span></span><br><span class="line"><span class="comment"># Kubernetes</span></span><br><span class="line"><span class="attr">resources:</span></span><br><span class="line">  <span class="attr">limits:</span></span><br><span class="line">    <span class="attr">cpu:</span> <span class="string">1500m</span>  <span class="comment"># 1.5 核</span></span><br><span class="line"><span class="attr">requests:</span></span><br><span class="line">  <span class="attr">cpu:</span> <span class="string">500m</span></span><br></pre></td></tr></table></figure>
+<p>实现原理：<code>cpu.cfs_period_us</code>（默认 100000μs &#x3D; 100ms）和 <code>cpu.cfs_quota_us</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">每 100ms (period)，cgroup 内所有进程总共只能使用 150ms CPU (quota)</span><br><span class="line">如果这段时间内用完了 150ms，剩下的时间被 throttled（节流）</span><br></pre></td></tr></table></figure>
+
+<p><strong>cpuset 绑定</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 绑定到特定 CPU 核</span></span><br><span class="line">docker run --cpuset-cpus=0-3 myapp</span><br><span class="line"><span class="comment"># 或手动设置</span></span><br><span class="line"><span class="built_in">echo</span> 0-3 &gt; /sys/fs/cgroup/cpuset/myapp/cpuset.cpus</span><br></pre></td></tr></table></figure>
+
+<p><strong>两种方式的对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="center">CFS Quota</th>
+<th align="center">cpuset</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">灵活度</td>
+<td align="center">高（可分配小数核）</td>
+<td align="center">低（必须整数核）</td>
+</tr>
+<tr>
+<td align="left">性能一致性</td>
+<td align="center">差（throttle 导致抖动）</td>
+<td align="center">好（独占核）</td>
+</tr>
+<tr>
+<td align="left">CPU 利用率</td>
+<td align="center">高（可超卖）</td>
+<td align="center">中（核被独占，不可超卖）</td>
+</tr>
+<tr>
+<td align="left">上下文切换</td>
+<td align="center">高频跨核切换，TLB miss 多</td>
+<td align="center">核内切换，cache 亲和性好</td>
+</tr>
+<tr>
+<td align="left">适合场景</td>
+<td align="center">一般业务、微服务</td>
+<td align="center">延迟敏感型、高频交易</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>CFS 的 throttle 问题</strong>：<ul>
+<li><code>cpu.stat</code> 中的 <code>nr_throttled</code> 和 <code>throttled_time</code> 指示节流频率</li>
+<li>100ms period 在高性能场景下太粗：一个线程排队 99ms 才获得 1ms 运行时间，频繁 throttle</li>
+<li><strong>解决方案</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 缩短 period（推荐 20ms 或 10ms）</span></span><br><span class="line"><span class="built_in">echo</span> 20000 &gt; /sys/fs/cgroup/cpu/myapp/cpu.cfs_period_us</span><br><span class="line"><span class="built_in">echo</span> 30000 &gt; /sys/fs/cgroup/cpu/myapp/cpu.cfs_quota_us  <span class="comment"># 1.5 核</span></span><br></pre></td></tr></table></figure></li>
+<li>Kubernetes 1.20+ 支持 <code>cpu.cfs_period_us</code> 配置（<code>--cpu-cfs-period</code>）</li>
+</ul>
+</li>
+<li><strong>CPU Manager（Kubernetes）</strong>：<ul>
+<li><code>static</code> 策略：将 Guaranteed QoS Pod 绑定到特定 CPU 核（cpuset）</li>
+<li>减少上下文切换抖动，适合数据库、DPDK 等服务</li>
+<li>代价：CPU 核被占用，不可用于其他 Pod</li>
+</ul>
+</li>
+<li><strong>生产踩坑</strong>：<ol>
+<li><strong>CPU Throttling 导致性能陡降</strong>：某 Java 应用设置 <code>--cpus=0.5</code>，CFS quota 每 100ms 只有 50ms CPU，但实际上应用需要 70ms 才能完成一次请求处理，结果每 100ms 里有 50ms 被 throttle，吞吐量直接减半。解法：调大 quota 或改用 <code>--cpuset-cpus</code>。</li>
+<li><strong>弹性伸缩的误区</strong>：HPA 基于 CPU 使用率扩缩容时，如果 Pod 被 throttle 了（CPU 受限），实际 CPU 使用率反而会被压低（因为用不了），导致 HPA 感知不到压力，不会扩容。此时应看 <code>cpu_cfs_throttled_seconds_total</code>（Prometheus metric）而不是 CPU 使用率。</li>
+<li><strong>Java <code>Runtime.availableProcessors()</code> 的 Bug</strong>：旧版 JDK 中此 API 返回的是<strong>宿主机 CPU 核数</strong>而非容器限额（cgroup.cfs_quota_us&#x2F;cfs_period_us），导致 ForkJoinPool 启动过多线程。JDK 10+ 通过 <code>UseContainerSupport</code> 修复。</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html">https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html</a></p>
+<hr>
+<blockquote>
+<p><strong>本文总结</strong>：操作系统是后端工程师的底层基本功。本文覆盖了进程线程、内存管理、IO 模型、生产排障、容器底层五大模块，共 22 道深度面试题。重点掌握 epoll&#x2F;io_uring、零拷贝、cgroup v2 迁移、OOM Killer 防护、perf 和火焰图分析等高频考点。每道题都搭配了「深入思考」和「生产踩坑」视角，帮助你在面试中展现工程实践深度而非死记硬背。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag"># 容器</a>
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="计算机网络 高级面试全解">
+                  <i class="fa fa-angle-left"></i> 计算机网络 高级面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Git-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="Git 高级面试全解">
+                  Git 高级面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

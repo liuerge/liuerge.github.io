@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文覆盖 Git 核心知识点：对象模型与暂存区、分支与合并策略、进阶操作（Reset&#x2F;Stash&#x2F;Bisect）、团队协作工作流、生产实战与大仓库优化。面向高级研发面试，每道题附带深入思考与生产踩坑案例。   目录 0x00 Git 基础：暂存区与对象模型 0x01 分支与合并 0x02 进阶操作 0x03 团队协作 0x04 生产实战   0x00 Git 基础：暂存区与对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git 高级面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Git-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="本文覆盖 Git 核心知识点：对象模型与暂存区、分支与合并策略、进阶操作（Reset&#x2F;Stash&#x2F;Bisect）、团队协作工作流、生产实战与大仓库优化。面向高级研发面试，每道题附带深入思考与生产踩坑案例。   目录 0x00 Git 基础：暂存区与对象模型 0x01 分支与合并 0x02 进阶操作 0x03 团队协作 0x04 生产实战   0x00 Git 基础：暂存区与对">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-11T12:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-13T06:35:47.020Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="DevOps">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="版本控制">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Git-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Git-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/11/后端面试题-Git-面试全解/","title":"Git 高级面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Git 高级面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-Git-%E5%9F%BA%E7%A1%80%EF%BC%9A%E6%9A%82%E5%AD%98%E5%8C%BA%E4%B8%8E%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x00 Git 基础：暂存区与对象模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-Git-%E7%9A%84%E6%9A%82%E5%AD%98%E5%8C%BA%EF%BC%88Stage-Index%EF%BC%89%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AE%BE%E8%AE%A1%E5%AE%83%EF%BC%9F"><span class="nav-text">0. Git 的暂存区（Stage&#x2F;Index）是什么？为什么设计它？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Git-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%EF%BC%9ABlob%E3%80%81Tree%E3%80%81Commit-%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. Git 对象模型：Blob、Tree、Commit 分别是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-HEAD-%E6%8C%87%E9%92%88%E5%92%8C%E5%88%86%E6%94%AF%E7%9A%84%E6%9C%AC%E8%B4%A8%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">2. HEAD 指针和分支的本质是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-git-add-%E5%92%8C-git-commit-%E5%BA%95%E5%B1%82%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">3. git add 和 git commit 底层发生了什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E5%88%86%E6%94%AF%E4%B8%8E%E5%90%88%E5%B9%B6"><span class="nav-text">0x01 分支与合并</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Merge-%E4%B8%8E-Rebase-%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%90%84%E8%87%AA%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%E4%BD%BF%E7%94%A8%EF%BC%9F"><span class="nav-text">4. Merge 与 Rebase 的区别是什么？各自什么场景使用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Cherry-pick-%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%E5%92%8C%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">5. Cherry-pick 的使用场景和最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%86%B2%E7%AA%81%E8%A7%A3%E5%86%B3%E7%9A%84%E7%AD%96%E7%95%A5%E5%92%8C%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">6. 冲突解决的策略和最佳实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-text">0x02 进阶操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Reset%E3%80%81Checkout%E3%80%81Revert-%E4%B8%89%E5%85%84%E5%BC%9F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">7. Reset、Checkout、Revert 三兄弟的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Stash-%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B8%8E%E8%BF%9B%E9%98%B6%E6%8A%80%E5%B7%A7"><span class="nav-text">8. Stash 的使用场景与进阶技巧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Git-Bisect-%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE%EF%BC%9A%E5%A6%82%E4%BD%95%E7%B2%BE%E5%87%86%E5%AE%9A%E4%BD%8D%E5%BC%95%E5%85%A5-Bug-%E7%9A%84-commit%EF%BC%9F"><span class="nav-text">9. Git Bisect 二分查找：如何精准定位引入 Bug 的 commit？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C"><span class="nav-text">0x03 团队协作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Fork-PR-%E5%8D%8F%E4%BD%9C%E6%B5%81%E7%A8%8B%E8%AF%A6%E8%A7%A3"><span class="nav-text">10. Fork + PR 协作流程详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Git-Flow-vs-GitHub-Flow-vs-GitLab-Flow-%E5%AF%B9%E6%AF%94"><span class="nav-text">11. Git Flow vs GitHub Flow vs GitLab Flow 对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Submodule-%E4%B8%8E-Subtree-%E7%9A%84%E5%8C%BA%E5%88%AB%E5%8F%8A%E9%80%89%E5%9E%8B"><span class="nav-text">12. Submodule 与 Subtree 的区别及选型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x04 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-%E5%A4%A7%E4%BB%93%E5%BA%93%E4%BC%98%E5%8C%96%EF%BC%9ASparse-Checkout-%E4%B8%8E-Shallow-Clone"><span class="nav-text">13. 大仓库优化：Sparse Checkout 与 Shallow Clone</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Git-%E5%9C%A8-CI-CD-%E4%B8%AD%E7%9A%84%E9%9B%86%E6%88%90%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">14. Git 在 CI&#x2F;CD 中的集成最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Git-Hooks%EF%BC%9A%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%9A%84%E5%85%B3%E9%94%AE"><span class="nav-text">15. Git Hooks：自动化工作流的关键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-%E5%8E%86%E5%8F%B2%E9%87%8D%E5%86%99%E4%B8%8E%E7%81%BE%E9%9A%BE%E6%81%A2%E5%A4%8D"><span class="nav-text">16. 历史重写与灾难恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98%E7%BB%BC%E5%90%88%E9%A2%98%EF%BC%9A%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E7%9A%84-Git-%E7%81%BE%E9%9A%BE%E5%A4%8D%E7%9B%98"><span class="nav-text">17. 生产实战综合题：一次完整的 Git 灾难复盘</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">112</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Git-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Git 高级面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Git 高级面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-11 20:00:00" itemprop="dateCreated datePublished" datetime="2026-06-11T20:00:00+08:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-13 14:35:47" itemprop="dateModified" datetime="2026-06-13T14:35:47+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">后端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本文覆盖 Git 核心知识点：对象模型与暂存区、分支与合并策略、进阶操作（Reset&#x2F;Stash&#x2F;Bisect）、团队协作工作流、生产实战与大仓库优化。面向高级研发面试，每道题附带深入思考与生产踩坑案例。</p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>0x00 Git 基础：暂存区与对象模型</li>
+<li>0x01 分支与合并</li>
+<li>0x02 进阶操作</li>
+<li>0x03 团队协作</li>
+<li>0x04 生产实战</li>
+</ul>
+<hr>
+<h2 id="0x00-Git-基础：暂存区与对象模型"><a href="#0x00-Git-基础：暂存区与对象模型" class="headerlink" title="0x00 Git 基础：暂存区与对象模型"></a>0x00 Git 基础：暂存区与对象模型</h2><h3 id="0-Git-的暂存区（Stage-Index）是什么？为什么设计它？"><a href="#0-Git-的暂存区（Stage-Index）是什么？为什么设计它？" class="headerlink" title="0. Git 的暂存区（Stage&#x2F;Index）是什么？为什么设计它？"></a>0. Git 的暂存区（Stage&#x2F;Index）是什么？为什么设计它？</h3><p><strong>标准答案</strong>：<br>Git 有三大区域：工作目录（Working Directory）、暂存区（Stage&#x2F;Index）、仓库（Repository&#x2F;History）。暂存区是一个位于 <code>.git/index</code> 的二进制文件，记录了即将提交的文件快照清单。</p>
+<p>提交过程：<code>git add</code> 将文件快照写入 <code>.git/objects/</code> 并更新索引 → <code>git commit</code> 将索引中的快照树打包成一个 commit 对象。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>为什么设计暂存区？</strong> 允许分批提交：你可以在一次开发中修改多个文件，只把相关的一组文件放入暂存区，分多次提交。这是 Git 对比 SVN 的关键优势之一。</li>
+<li><strong>底层实现</strong>：<code>.git/index</code> 是一个排序的路径-元数据映射表，包含文件名、mtime、SHA1、模式位等。<code>git ls-files --stage</code> 可以看到它的内容。</li>
+<li><strong>性能考量</strong>：大项目数千文件时，暂存区操作仍 O(1) —— 因为 hash 查找而非遍历。</li>
+<li><strong>与 SVN 差异</strong>：SVN 只有工作副本和中央仓库，没有暂存区概念；Git 的暂存区是一层安全网，让你在提交前能精细控制。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某团队在 CI 脚本中执行 <code>git add . &amp;&amp; git commit</code>，但 <code>.gitignore</code> 漏配了 <code>node_modules/</code>，导致 200MB 的 node_modules 被 add 到暂存区。<code>git commit</code> 产生了一个巨大的 blob，后续 <code>git gc</code> 每次都要处理这个庞然大物。修复需要用 <code>git filter-branch</code> 或 <code>git filter-repo</code> 从历史中清除，极为痛苦。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository">https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository</a></p>
+<hr>
+<h3 id="1-Git-对象模型：Blob、Tree、Commit-分别是什么？"><a href="#1-Git-对象模型：Blob、Tree、Commit-分别是什么？" class="headerlink" title="1. Git 对象模型：Blob、Tree、Commit 分别是什么？"></a>1. Git 对象模型：Blob、Tree、Commit 分别是什么？</h3><p><strong>标准答案</strong>：<br>Git 是<strong>内容寻址文件系统</strong>。四种对象类型：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>内容</th>
+<th>标识</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Blob</strong></td>
+<td>文件内容（二进制&#x2F;文本）</td>
+<td>SHA1 哈希</td>
+<td><code>e69de29bb2d1d6434b8b29ae775ad8c2e48c5391</code></td>
+</tr>
+<tr>
+<td><strong>Tree</strong></td>
+<td>目录结构：文件名→blob&#x2F;tree + 权限 + SHA1 的映射</td>
+<td>SHA1</td>
+<td>类似文件系统的目录节点</td>
+</tr>
+<tr>
+<td><strong>Commit</strong></td>
+<td>指向一棵 tree + 父 commit + 作者&#x2F;提交者信息 + 时间 + 消息</td>
+<td>SHA1</td>
+<td>一次提交的快照</td>
+</tr>
+<tr>
+<td><strong>Tag</strong></td>
+<td>指向一个 commit（注解标签还包含签名信息）</td>
+<td>SHA1</td>
+<td>补丁发布标记</td>
+</tr>
+</tbody></table>
+<p>对象存储路径：<code>.git/objects/XX/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>（前两位为目录名，后 38 位为文件名）。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Blob 只存内容不存文件名</strong>：文件重命名后内容不变，SHA1 相同，Git 自动检测为 rename。</li>
+<li><strong>内容寻址的威力</strong>：相同内容的文件在 Git 中只存一份 blob，无论它出现在多少目录中。</li>
+<li><strong><code>git cat-file -p &lt;SHA1&gt;</code></strong> 可以查看任意对象的内容。<code>git cat-file -t &lt;SHA1&gt;</code> 查看对象类型。</li>
+<li><strong>Tree 是完整快照，不是 diff</strong>：每次 commit 都保存一棵完整 tree，Git 通过对比两棵 tree 的 SHA1 来高效计算 diff。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某开发者误以为 <code>.git/objects/</code> 下的对象可以随意删除以节省空间。删除后 <code>git log</code> 报 <code>fatal: bad object</code>，整个仓库损坏。正确做法是用 <code>git gc</code> 或 <code>git prune</code> 清理 dangling objects。不要手动操作 objects 目录。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Git-Internals-Git-Objects">https://git-scm.com/book/en/v2/Git-Internals-Git-Objects</a></p>
+<hr>
+<h3 id="2-HEAD-指针和分支的本质是什么？"><a href="#2-HEAD-指针和分支的本质是什么？" class="headerlink" title="2. HEAD 指针和分支的本质是什么？"></a>2. HEAD 指针和分支的本质是什么？</h3><p><strong>标准答案</strong>：</p>
+<ul>
+<li><strong>HEAD</strong>：一个指向当前所在位置的指针。通常指向一个分支引用（如 <code>refs/heads/main</code>），此时称为 attached HEAD。如果指向一个具体 commit，称为 detached HEAD。</li>
+<li><strong>分支</strong>：本质上是一个<strong>可移动的指针</strong>，指向一个 commit。<code>main</code> 分支就是 <code>.git/refs/heads/main</code> 文件，内容是一个 40 位的 SHA1。</li>
+<li><strong><code>HEAD~N</code> &#x2F; <code>HEAD^N</code></strong>：相对引用，<code>~</code> 表示父提交，<code>^</code> 表示第几个父提交（merge commit 有多个父提交时用）。</li>
+</ul>
+<p><code>cat .git/HEAD</code> 输出类似 <code>ref: refs/heads/main</code>。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>分支的轻量性</strong>：SVN 的分支是目录拷贝（O(n) 文件复制），Git 分支只是一个 40 字节的文件（O(1)）。这就是 Git 鼓励”多建分支、频繁建分支”的根本原因。</li>
+<li><strong>Detached HEAD 的危险</strong>：在 detached HEAD 下做的 commit 没有分支指向，切换分支后这些 commit 变成 dangling objects，最终被 GC 回收。除非你 <code>git checkout -b new-branch</code> 创建一个分支引用它。</li>
+<li><strong><code>HEAD@{0}</code> &#x2F; <code>HEAD@{yesterday}</code></strong>：reflog（引用日志）记录了 HEAD 的移动历史，是 Git 的”后悔药”。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>一个常见的 CI&#x2F;CD 场景：在 Jenkins pipeline 中执行 <code>git checkout &lt;某个 SHA&gt;</code> 进入 detached HEAD 状态，然后执行构建。构建完成后没有切回分支就直接 <code>git push</code>，结果提交到了无分支的 dangling commit。修复方法：始终用 <code>git checkout -B temp-branch SHA</code> 创建临时分支，构建完成后强制推送到目标分支。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Git-Internals-Git-References">https://git-scm.com/book/en/v2/Git-Internals-Git-References</a></p>
+<hr>
+<h3 id="3-git-add-和-git-commit-底层发生了什么？"><a href="#3-git-add-和-git-commit-底层发生了什么？" class="headerlink" title="3. git add 和 git commit 底层发生了什么？"></a>3. <code>git add</code> 和 <code>git commit</code> 底层发生了什么？</h3><p><strong>标准答案</strong>：</p>
+<ol>
+<li><code>git add file.txt</code>：Git 压缩 file.txt 为 blob，写入 <code>.git/objects/</code>，然后在 <code>.git/index</code> 中记录路径→SHA1 映射</li>
+<li><code>git commit -m &quot;msg&quot;</code>：Git 将当前 index 中的 tree 快照写入 objects，创建一个 commit 对象（指向该 tree + 父 commit），然后将 HEAD 指向的 branch ref 更新为这个新 commit</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><code>git add</code> 之后但未 commit 前，文件内容已经在 <code>.git/objects/</code> 中了！只是没有被任何 commit 引用。<code>git fsck --lost-found</code> 可以找回这些 dangling blob。</li>
+<li><code>git commit --amend</code> 本质是创建一个新的 commit 替换当前分支的 tip，而不是修改原 commit。</li>
+<li><code>git add -p</code>（交互式暂存）允许只暂存文件的部分修改，底层是对同一个文件创建多个不同内容的 blob。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某开发者 <code>git add -A</code> 后才发现不小心加入了敏感信息（如数据库密码）。此时 commit 尚未发生，直接 <code>git reset HEAD</code> 即可清空暂存区。但如果是 <code>git add</code> 之后的文件在工作目录中被删除，blob 仍然在 objects 中。正确做法：<code>git rm --cached &lt;file&gt;</code> 从暂存区移除，且确保 <code>.gitignore</code> 已更新。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain">https://git-scm.com/book/en/v2/Git-Internals-Plumbing-and-Porcelain</a></p>
+<hr>
+<h2 id="0x01-分支与合并"><a href="#0x01-分支与合并" class="headerlink" title="0x01 分支与合并"></a>0x01 分支与合并</h2><h3 id="4-Merge-与-Rebase-的区别是什么？各自什么场景使用？"><a href="#4-Merge-与-Rebase-的区别是什么？各自什么场景使用？" class="headerlink" title="4. Merge 与 Rebase 的区别是什么？各自什么场景使用？"></a>4. Merge 与 Rebase 的区别是什么？各自什么场景使用？</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Merge</th>
+<th>Rebase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提交历史</td>
+<td>保留分支拓扑，产生 merge commit</td>
+<td>线性化历史，无 merge commit</td>
+</tr>
+<tr>
+<td>冲突范围</td>
+<td>一次性解决所有冲突</td>
+<td>逐个 commit 解决冲突</td>
+</tr>
+<tr>
+<td>可追溯性</td>
+<td>可以看到”合入来自 feature 分支”</td>
+<td>无法区分哪些是 rebase 过来的</td>
+</tr>
+<tr>
+<td>安全性</td>
+<td>安全，不重写历史</td>
+<td><strong>危险</strong>，会重写 commit SHA</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>公共分支（main&#x2F;release）</td>
+<td>私有&#x2F;本地分支</td>
+</tr>
+</tbody></table>
+<p><strong>核心原则</strong>：</p>
+<ul>
+<li><strong>公共分支永远用 merge，不要 rebase</strong>：rebase 会生成全新的 commit（新 SHA），其他协作者拉取时会爆炸。</li>
+<li><strong>私有分支在合入公共分支前 rebase 一次</strong>：<code>git checkout feature &amp;&amp; git rebase main</code>，让 feature 的基底在 main 的最新 commit，然后 <code>git checkout main &amp;&amp; git merge feature</code>（fast-forward）。</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Merge 的三种模式</strong>：<code>git merge --no-ff</code>（强制创建 merge commit，保留分支信息）、<code>--ff</code>（默认 fast-forward，不创建 merge commit）、<code>--squash</code>（将分支所有改动压缩为一个工作树变更，不保留提交历史）。</li>
+<li><strong>Rebase 交互模式</strong>：<code>git rebase -i HEAD~3</code> 可以 squash&#x2F;reword&#x2F;reorder&#x2F;delete commits，是非常强大的历史整理工具。</li>
+<li><strong>黄金法则</strong>：不要在已经推送到远程的分支上执行 rebase。重写已公开的 SHA 会导致其他协作者 <code>git pull</code> 后出现大量冲突。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某团队的 feature 分支已经 push 到远程并开了 PR，开发者在本地 <code>git rebase main</code> 后 <code>git push --force</code> 推上去。另一位协作者已经基于旧 feature 分支做了二次开发，<code>git pull</code> 后出现数百个莫名其妙的冲突。最终花费 2 天手工合并。教训：rebase 未通知团队 + 强制推送 &#x3D; 灾难。</p>
+<p><strong>修复方法</strong>：<code>git rebase --abort</code> 取消 rebase；如果已强制推送，协作者可以用 <code>git fetch origin feature:tmp</code> 获取旧分支，然后手动 cherry-pick。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">https://git-scm.com/book/en/v2/Git-Branching-Rebasing</a></p>
+<hr>
+<h3 id="5-Cherry-pick-的使用场景和最佳实践"><a href="#5-Cherry-pick-的使用场景和最佳实践" class="headerlink" title="5. Cherry-pick 的使用场景和最佳实践"></a>5. Cherry-pick 的使用场景和最佳实践</h3><p><strong>标准答案</strong>：<br><code>git cherry-pick &lt;commit&gt;</code> 将<strong>指定的 commit 的变更</strong>应用到当前分支，生成一个新的 commit（内容相同但 SHA 不同）。</p>
+<p><strong>典型场景</strong>：</p>
+<ol>
+<li><strong>Hotfix 同步</strong>：在 release 分支修复了一个 bug，需要同步到 main 分支，但不想合并整个 release</li>
+<li><strong>选择性移植</strong>：功能 A 在 feature&#x2F;1 分支上开发了一半，但部分代码对 feature&#x2F;2 有用</li>
+<li><strong>回退恢复</strong>：某 commit 被 revert 后，确认需要恢复时 cherry-pick 原 commit</li>
+<li><strong>分支间协调</strong>：submodule 的依赖提交需要引入到父项目</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>冲突处理</strong>：cherry-pick 也可能产生冲突，用 <code>git cherry-pick --continue</code> &#x2F; <code>--skip</code> &#x2F; <code>--abort</code> 控制。</li>
+<li><strong>批量 cherry-pick</strong>：<code>git cherry-pick A..B</code> 拣选 A 到 B 之间的所有 commit（不含 A）。</li>
+<li><strong>Cherry-pick 的副作用</strong>：原 commit 的作者信息和时间被保留，但 committer 信息和时间是当前操作者的。<code>git cherry-pick -x &lt;commit&gt;</code> 会在 commit message 中附加一行 <code>(cherry picked from commit &lt;SHA&gt;)</code>，便于追踪来源。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某项目在一次 release 分支上 cherry-pick 了 main 分支的 20+ 个 hotfix commit。没有用 <code>-x</code> 标记，导致后期排查某个修复为何在 release 上没有效果时，完全找不到来源。后来强制要求所有 cherry-pick 加 <code>-x</code> 参数，并在 commit message 中注明 JIRA ticket 号。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-cherry-pick">https://git-scm.com/docs/git-cherry-pick</a></p>
+<hr>
+<h3 id="6-冲突解决的策略和最佳实践"><a href="#6-冲突解决的策略和最佳实践" class="headerlink" title="6. 冲突解决的策略和最佳实践"></a>6. 冲突解决的策略和最佳实践</h3><p><strong>标准答案</strong>：<br>冲突标记格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br><span class="line">当前分支的内容</span><br><span class="line">=======</span><br><span class="line">合并进来的分支的内容</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-branch</span><br></pre></td></tr></table></figure>
+
+<p><strong>冲突解决五步法</strong>：</p>
+<ol>
+<li><code>git status</code> 查看哪些文件冲突</li>
+<li>手动编辑冲突文件，选择保留哪一侧（或组合）</li>
+<li><code>git add &lt;file&gt;</code> 标记为已解决</li>
+<li><code>git merge --continue</code>（或 <code>git rebase --continue</code>）完成操作</li>
+<li>验证编译通过 + 测试通过</li>
+</ol>
+<p><strong>高级策略</strong>：</p>
+<ul>
+<li><strong>使用 merge tool</strong>：<code>git mergetool</code> 调用 vimdiff&#x2F;meld&#x2F;kdiff3 等可视化工具</li>
+<li><strong>直接择一侧</strong>：<code>git checkout --ours &lt;file&gt;</code>（保留当前分支）、<code>git checkout --theirs &lt;file&gt;</code>（保留外来分支）</li>
+<li><strong>合并策略参数</strong>：<code>git merge -X theirs</code>（自动选择外来方，仅用于已知无关的变更）</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>冲突的本质</strong>：Git 按三路合并（3-way merge）算法工作。base（公共祖先）、ours、theirs 三方对比，当 ours 和 theirs 在同一个区域都做了不同修改时才产生冲突。</li>
+<li><strong>减少冲突的技巧</strong>：频繁合并上游、原子化 commit、模块化代码减少多人修改同一文件。</li>
+<li><strong>重命名检测</strong>：<code>git merge --find-renames</code> 会检测文件重命名，但配置不当可能导致误判。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某次合并，A 同事删除了 <code>src/old-utils.js</code>（已废弃），B 同事在该文件末尾追加了新功能。合并时 Git 报告”deleted by us”冲突（A 删了文件，B 改了文件）。B 同事看到冲突以为是误删，<code>git checkout --theirs</code> 恢复了文件。结果 <code>old-utils.js</code> 中大量废弃代码进入 main，导致 lint 失败、安全扫描报警。</p>
+<p><strong>教训</strong>：处理”文件删除”冲突时，必须理解上下文，不要机械地用 –theirs 或 –ours。最佳做法：<code>git diff HEAD...MERGE_HEAD -- &lt;file&gt;</code> 看清双方变更后再决定。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging">https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging</a></p>
+<hr>
+<h2 id="0x02-进阶操作"><a href="#0x02-进阶操作" class="headerlink" title="0x02 进阶操作"></a>0x02 进阶操作</h2><h3 id="7-Reset、Checkout、Revert-三兄弟的区别"><a href="#7-Reset、Checkout、Revert-三兄弟的区别" class="headerlink" title="7. Reset、Checkout、Revert 三兄弟的区别"></a>7. Reset、Checkout、Revert 三兄弟的区别</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>作用范围</th>
+<th>是否修改历史</th>
+<th>典型用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>git reset</code></td>
+<td>移动 HEAD 和分支引用</td>
+<td><strong>是</strong>（重写历史）</td>
+<td>撤销 commit、取消暂存</td>
+</tr>
+<tr>
+<td><code>git checkout</code></td>
+<td>切换分支&#x2F;恢复文件</td>
+<td>否（除非 detached HEAD）</td>
+<td>切换分支、恢复工作区文件</td>
+</tr>
+<tr>
+<td><code>git revert</code></td>
+<td>创建新的反提交</td>
+<td><strong>否</strong>（安全追加 commit）</td>
+<td>撤销已推送的公开 commit</td>
+</tr>
+</tbody></table>
+<p><strong><code>git reset</code> 的三个模式</strong>：</p>
+<ul>
+<li><code>--soft</code>：只移动 HEAD，暂存区和工作区不变（可以重新 commit）</li>
+<li><code>--mixed</code>（默认）：移动 HEAD + 重置暂存区，工作区不变</li>
+<li><code>--hard</code>：移动 HEAD + 重置暂存区 + 重置工作区（<strong>不可逆！</strong>）</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><code>git reset</code> 的可逆性：<code>--hard</code> 后文件被丢弃，但 <code>git reflog</code> 可以找回。只要对象还在 <code>.git/objects/</code> 中，<code>git reset --hard &lt;原来 SHA&gt;</code> 就能恢复。</li>
+<li><code>git checkout &lt;file&gt;</code> vs <code>git restore &lt;file&gt;</code>：Git 2.23+ 引入了 <code>restore</code> 命令，职责更清晰：<code>git restore --staged &lt;file&gt;</code> 取消暂存（替代 <code>reset HEAD &lt;file&gt;</code>），<code>git restore &lt;file&gt;</code> 恢复工作区（替代 <code>checkout -- &lt;file&gt;</code>）。</li>
+<li><code>git revert</code> 的多 commit：<code>git revert HEAD~3..HEAD</code> revert 最近 3 个 commit（逆序逐个 revert）。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某开发者在本地 <code>git reset --hard HEAD~5</code> 后才发现这 5 个 commit 中有 3 个是今天辛苦写的内容。幸好 <code>git reflog</code> 找到了原来的 HEAD 位置，<code>git reset --hard HEAD@{1}</code> 恢复了所有内容。教训：<code>--hard</code> 之前一定确认，或者先用 <code>--soft</code> 看看文件列表。</p>
+<p>另一个踩坑：<code>git checkout &lt;commit-SHA&gt;</code> 不是重置，而是进入 detached HEAD。某新人意图取消最近一次 commit，用了 <code>git checkout HEAD~1</code>，结果所有工作区文件变成了旧版本，他以为数据丢失了。正确做法是 <code>git reset --soft HEAD~1</code> 或 <code>git revert HEAD</code>。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-reset">https://git-scm.com/docs/git-reset</a></p>
+<hr>
+<h3 id="8-Stash-的使用场景与进阶技巧"><a href="#8-Stash-的使用场景与进阶技巧" class="headerlink" title="8. Stash 的使用场景与进阶技巧"></a>8. Stash 的使用场景与进阶技巧</h3><p><strong>标准答案</strong>：<br><code>git stash</code> 临时保存工作区中未提交的修改（tracked 文件），恢复干净的工作目录。</p>
+<p><strong>基础用法</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git stash                <span class="comment"># 保存当前修改</span></span><br><span class="line">git stash pop            <span class="comment"># 恢复并删除最近 stash</span></span><br><span class="line">git stash list           <span class="comment"># 查看 stash 列表</span></span><br><span class="line">git stash apply stash@&#123;2&#125; <span class="comment"># 恢复指定 stash 但不删除</span></span><br><span class="line">git stash drop stash@&#123;0&#125;  <span class="comment"># 删除指定 stash</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>进阶技巧</strong>：</p>
+<ul>
+<li><code>git stash push -m &quot;wip: 数据库连接优化&quot;</code>：带信息的 stash</li>
+<li><code>git stash -u</code> &#x2F; <code>git stash --include-untracked</code>：包括未跟踪的新文件</li>
+<li><code>git stash --all</code>：包括被 <code>.gitignore</code> 忽略的文件</li>
+<li><code>git stash branch &lt;new-branch&gt;</code>：从 stash 创建新分支并应用</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Stash 的底层</strong>：stash 实际上是创建了两个特殊的 commit（index 和 worktree），存放在 <code>refs/stash</code> 引用上。<code>git stash list</code> 本质是遍历这个引用链。</li>
+<li><strong>Stash 的冲突</strong>：<code>git stash pop</code> 时如果当前工作区和 stash 内容冲突，会弹出冲突并保留 stash（类似冲突的 merge）。解决后需要手动 <code>git stash drop</code>。</li>
+<li><strong>替代方案</strong>：Git 2.13+ 引入了 <code>git worktree</code>，可以创建多个工作目录，比 stash 更适合长期切换场景。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某开发者在 feature 分支上 <code>git stash</code> 后切换到 main 修复紧急 bug，修复后 <code>git checkout feature &amp;&amp; git stash pop</code>，结果发现 stash 的内容和 feature 当前状态产生了大量冲突——因为 feature 分支被其他同事 push 了新 commit。更糟糕的是，他忘了 stash 里还有未跟踪的配置文件，导致 <code>git stash pop</code> 后配置文件没恢复，本地环境启动失败。</p>
+<p><strong>教训</strong>：</p>
+<ol>
+<li>长时间用 stash 保存修改不如直接创建 WIP commit（<code>git commit -m &quot;WIP&quot;</code>）后用 <code>git reset HEAD~1</code> 恢复</li>
+<li>stash 尽量短命，不要跨天</li>
+<li>未跟踪的文件用 <code>-u</code> 参数确保被保存</li>
+</ol>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-stash">https://git-scm.com/docs/git-stash</a></p>
+<hr>
+<h3 id="9-Git-Bisect-二分查找：如何精准定位引入-Bug-的-commit？"><a href="#9-Git-Bisect-二分查找：如何精准定位引入-Bug-的-commit？" class="headerlink" title="9. Git Bisect 二分查找：如何精准定位引入 Bug 的 commit？"></a>9. Git Bisect 二分查找：如何精准定位引入 Bug 的 commit？</h3><p><strong>标准答案</strong>：<br><code>git bisect</code> 通过<strong>二分查找</strong>，在已知好（good）和坏（bad）的 commit 之间自动 checkout 中间 commit，帮助定位第一个引入 bug 的 commit。</p>
+<p><strong>标准流程</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git bisect start</span><br><span class="line">git bisect bad          <span class="comment"># 当前版本有 bug</span></span><br><span class="line">git bisect good v2.0    <span class="comment"># 已知 v2.0 是好的</span></span><br><span class="line"><span class="comment"># Git 自动 checkout 中间 commit</span></span><br><span class="line"><span class="comment"># 测试后标记 good 或 bad</span></span><br><span class="line">git bisect good         <span class="comment"># 当前 commit 没问题</span></span><br><span class="line">git bisect bad          <span class="comment"># 当前 commit 有 bug</span></span><br><span class="line"><span class="comment"># 反复 ~log2(N) 次后找到坏 commit</span></span><br><span class="line">git bisect reset        <span class="comment"># 结束 bisect，回到原分支</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>进阶用法</strong>：</p>
+<ul>
+<li><strong>自动化 bisect</strong>：<code>git bisect run &lt;script&gt;</code> 让脚本自动判断 good&#x2F;bad，适合 CI 集成。脚本 exit 0 表示 good，非 0 表示 bad。</li>
+<li><strong>跳过不可测试的 commit</strong>：<code>git bisect skip</code> 跳过编译失败的 commit，Git 会选另一个候选。</li>
+<li><strong>可视化 bisect</strong>：<code>git bisect visualize</code> 用 <code>gitk</code> 或 <code>git log --graph</code> 查看 bisect 进度。</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>效率</strong>：1000 个 commit 只需要 ~10 次测试，20000 个 commit 只需要 ~15 次。</li>
+<li><strong>适用条件</strong>：bug 必须可稳定复现。偶发性 bug 不适合 bisect（会误判）。</li>
+<li><strong>局限</strong>：如果 bug 是由多个 commit 的组合引入的（不是单一 commit），bisect 找到的 commit 可能只是”最后一根稻草”。</li>
+<li><strong>性能 bisect</strong>：也可用于定位性能回归的 commit，用基准测试脚本作为判断标准。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某项目有一个偶发性的 OOM 问题，团队用 <code>git bisect</code> 多次得到不同的”罪魁祸首”，浪费了两天时间。后来发现是因为测试机器资源波动导致误判。修复方法：使用固定的、隔离的测试环境，并且用脚本多次运行取中位数。</p>
+<p>另一个坑：bisect 过程中遇到编译失败的 commit（比如代码不全、依赖缺失），如果直接标记为 bad 会干扰二分。正确做法是 <code>git bisect skip</code>，Git 会智能挑选相邻的其它 commit 继续。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-bisect">https://git-scm.com/docs/git-bisect</a></p>
+<hr>
+<h2 id="0x03-团队协作"><a href="#0x03-团队协作" class="headerlink" title="0x03 团队协作"></a>0x03 团队协作</h2><h3 id="10-Fork-PR-协作流程详解"><a href="#10-Fork-PR-协作流程详解" class="headerlink" title="10. Fork + PR 协作流程详解"></a>10. Fork + PR 协作流程详解</h3><p><strong>标准答案</strong>：<br>Fork + PR（Pull Request）是 GitHub&#x2F;GitLab 上最流行的开源协作模式。</p>
+<p><strong>流程</strong>：</p>
+<ol>
+<li><strong>Fork</strong>：在 GitHub 上 fork 上游仓库到自己的账号</li>
+<li><strong>Clone</strong>：<code>git clone git@github.com:&lt;你的用户名&gt;/project.git</code></li>
+<li><strong>添加上游远程</strong>：<code>git remote add upstream git@github.com:&lt;原作者&gt;/project.git</code></li>
+<li><strong>创建 feature 分支</strong>：<code>git checkout -b feat/my-feature</code></li>
+<li><strong>开发 + 提交</strong>：多次 commit</li>
+<li><strong>同步上游</strong>：<code>git fetch upstream &amp;&amp; git rebase upstream/main</code></li>
+<li><strong>推送</strong>：<code>git push origin feat/my-feature</code></li>
+<li><strong>创建 PR</strong>：在 GitHub 上创建 Pull Request</li>
+<li><strong>Code Review</strong>：维护者审查、讨论、修改</li>
+<li><strong>合并</strong>：维护者 merge&#x2F;squash&#x2F;rebase 方式合入</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>保持 fork 同步</strong>：<code>gh repo sync &lt;你的用户名&gt;/&lt;repo&gt;</code>（GitHub CLI）或手动 <code>git fetch upstream &amp;&amp; git merge upstream/main</code>。</li>
+<li><strong>PR 的合并选项</strong>：<ul>
+<li><strong>Create a merge commit</strong>：保留所有分支历史</li>
+<li><strong>Squash and merge</strong>：压缩为一个 commit，适合小型修复</li>
+<li><strong>Rebase and merge</strong>：线性化，适合长期开发</li>
+</ul>
+</li>
+<li><strong>多 PR 协作</strong>：每个功能一个独立分支，不要把所有改动堆在一个分支上。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某开发者在 fork 的仓库上直接向 main 分支推送了修改（未建 feature 分支），然后通过 main 分支开了 PR。PR 审查期间，他又从上游同步了 main 分支，导致 PR 中包含了上游的无关 commit，Code Review 无法进行。最终不得不关闭 PR 重新开。</p>
+<p><strong>教训</strong>：永远不要在 fork 的 main 分支上直接开发。main 只用来同步上游。feature 分支才是开发主阵地。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://docs.github.com/en/get-started/quickstart/fork-a-repo">https://docs.github.com/en/get-started/quickstart/fork-a-repo</a></p>
+<hr>
+<h3 id="11-Git-Flow-vs-GitHub-Flow-vs-GitLab-Flow-对比"><a href="#11-Git-Flow-vs-GitHub-Flow-vs-GitLab-Flow-对比" class="headerlink" title="11. Git Flow vs GitHub Flow vs GitLab Flow 对比"></a>11. Git Flow vs GitHub Flow vs GitLab Flow 对比</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Git Flow</th>
+<th>GitHub Flow</th>
+<th>GitLab Flow</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>分支数量</strong></td>
+<td>多（main&#x2F;develop&#x2F;feature&#x2F;release&#x2F;hotfix）</td>
+<td>少（main + feature）</td>
+<td>中（main + feature + environment&#x2F;pre-production）</td>
+</tr>
+<tr>
+<td><strong>复杂度</strong></td>
+<td>高，需要 branch manager</td>
+<td>低，几乎零学习成本</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>发布频率</strong></td>
+<td>低（如每两周 release）</td>
+<td>高（CI 通过即发布）</td>
+<td>中到高</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>有版本号的大型产品</td>
+<td>SaaS&#x2F;web 应用，持续部署</td>
+<td>企业级项目，需要环境&#x2F;合规管理</td>
+</tr>
+<tr>
+<td><strong>Hotfix</strong></td>
+<td>专用 hotfix 分支，修复后合入 main 和 develop</td>
+<td>直接在 main 上修复</td>
+<td>环境分支向前修复</td>
+</tr>
+<tr>
+<td><strong>历史清晰度</strong></td>
+<td>高（有 develop 区分进行中和已完成）</td>
+<td>中（全靠 feature 分支命名）</td>
+<td>高（环境分支描述部署状态）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Git Flow 的弊端</strong>：develop 分支的存在增加了复杂性，在持续部署场景下 develop 和 main 的意义模糊。实际上很多团队只用 main 分支 + release branches。</li>
+<li><strong>GitHub Flow 的前提</strong>：完善的 CI&#x2F;CD pipeline + 完善的测试覆盖 + 小步频繁提交。没有这些，main 分支随时可能变红。</li>
+<li><strong>GitLab Flow 的特色</strong>：引入环境分支（staging&#x2F;pre-production&#x2F;production），支持”上游优先”原则——所有修复先合入 main，然后反向 cherry-pick 到环境分支。</li>
+<li><strong>Trunk-Based Development</strong>：另一种流派，比 GitHub Flow 更激进——所有开发直接在 main 上或非常短命的 feature 分支上完成，强调每日合并。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某团队采用 Git Flow 但每个 sprint 要发布 3-4 次，develop 和 main 之间频繁 merge，产生大量 merge commit，历史极其混乱。而且 hotfix 和 develop 的冲突每周都要花半天解决。最终切换到 GitHub Flow + CI 自动部署，发布效率提升了 3 倍。</p>
+<p><strong>教训</strong>：Git Flow 适合低频版本发布（如移动 App），不适合高频部署的 SaaS 产品。工作流的选择应匹配团队的发布频率和部署能力。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://nvie.com/posts/a-successful-git-branching-model/">https://nvie.com/posts/a-successful-git-branching-model/</a></p>
+<hr>
+<h3 id="12-Submodule-与-Subtree-的区别及选型"><a href="#12-Submodule-与-Subtree-的区别及选型" class="headerlink" title="12. Submodule 与 Subtree 的区别及选型"></a>12. Submodule 与 Subtree 的区别及选型</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Submodule</th>
+<th>Subtree</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>存储方式</td>
+<td>指针（commit SHA 引用）</td>
+<td>完整代码拷贝到父仓库</td>
+</tr>
+<tr>
+<td>版本管理</td>
+<td>子仓库独立</td>
+<td>子仓库代码成为父仓库的一部分</td>
+</tr>
+<tr>
+<td>克隆体验</td>
+<td><code>git clone --recursive</code> 或额外 <code>git submodule init &amp;&amp; git submodule update</code></td>
+<td>普通 clone 即可</td>
+</tr>
+<tr>
+<td>修改体验</td>
+<td>需要进入子目录操作<strong>独立仓库</strong></td>
+<td>直接在父仓库中修改，像普通文件一样</td>
+</tr>
+<tr>
+<td>冲突风险</td>
+<td>低（各仓库独立）</td>
+<td>中（修改可能被覆盖）</td>
+</tr>
+<tr>
+<td>推送到子仓库</td>
+<td>手动进入子目录 push</td>
+<td>用 <code>git subtree push</code> 推送</td>
+</tr>
+<tr>
+<td>学习成本</td>
+<td>中（需要理解 submodule 的概念）</td>
+<td>低（看起来像普通文件）</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议</strong>：</p>
+<ul>
+<li><strong>用 Submodule 的场景</strong>：你的团队需要严格隔离代码（如第三方库）、子仓库有独立生命周期、多人分工在不同仓库</li>
+<li><strong>用 Subtree 的场景</strong>：你需要锁定某个库的特定版本、不希望团队成员理解 submodule 的复杂度、你希望父仓库可以离线工作</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Submodule 的常见问题</strong>：<code>git pull</code> 不会自动更新 submodule，需要 <code>git submodule update --init --recursive</code>。版本切换时 submodule 容易处于 detached HEAD。</li>
+<li><strong>Subtree 的限制</strong>：<code>git subtree split</code> 操作在大仓库上很慢（需要遍历所有历史）。<code>git subtree merge</code> 冲突比普通 merge 更难处理。</li>
+<li><strong>现代替代</strong>：<strong>Git LFS</strong>（大文件存储）和<strong>包管理器</strong>（npm&#x2F;Maven&#x2F;pip）在很多场景比 submodule&#x2F;subtree 更好。大多数项目不应该用 submodule 来管理自己的微服务——用 monorepo 或包管理器更好。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某项目的 <code>lib/</code> 目录包含公共工具库，用 submodule 管理。某次紧急 hotfix 时，开发者 <code>git clone</code> 主项目忘了加 <code>--recursive</code>，导致 <code>lib/</code> 目录为空，构建直接失败。修复花了 20 分钟才定位到问题。</p>
+<p>更严重的坑：submodule 的版本被误更新了。A 同事更新了 submodule 的指针（在父仓库中）并 push，B 同事 <code>git pull</code> 后 submodule 自动指向新版本，但 B 的本地 submodule 没有对应的 blob，构建失败。解决方案：团队约定更新 submodule 指针时必须通知全员。</p>
+<p><strong>subtree 坑</strong>：某团队用 subtree 引入了第三方的 UI 组件库。某次他们直接手动修改了第三方代码来修复 bug（不在子仓库中修复），后续 <code>git subtree pull</code> 时产生了灾难性的冲突，花了 2 天才解决。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Git-Tools-Submodules">https://git-scm.com/book/en/v2/Git-Tools-Submodules</a></p>
+<hr>
+<h2 id="0x04-生产实战"><a href="#0x04-生产实战" class="headerlink" title="0x04 生产实战"></a>0x04 生产实战</h2><h3 id="13-大仓库优化：Sparse-Checkout-与-Shallow-Clone"><a href="#13-大仓库优化：Sparse-Checkout-与-Shallow-Clone" class="headerlink" title="13. 大仓库优化：Sparse Checkout 与 Shallow Clone"></a>13. 大仓库优化：Sparse Checkout 与 Shallow Clone</h3><p><strong>标准答案</strong>：</p>
+<p><strong>Shallow Clone（浅克隆）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --depth 1 &lt;repo-url&gt;        <span class="comment"># 只克隆最新一次 commit</span></span><br><span class="line">git <span class="built_in">clone</span> --depth 10 &lt;repo-url&gt;       <span class="comment"># 克隆最近 10 个 commit</span></span><br><span class="line">git <span class="built_in">clone</span> --shallow-since=<span class="string">&quot;2024-01-01&quot;</span> <span class="comment"># 克隆某个日期后的历史</span></span><br></pre></td></tr></table></figure>
+
+<p>优点：大幅减少克隆时间和磁盘占用（10GB 仓库可能降到 500MB）。<br>缺点：无法查看完整历史、无法 <code>git bisect</code>、无法 <code>git log --all</code>。</p>
+<p><strong>Sparse Checkout（稀疏检出）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --sparse &lt;repo-url&gt;         <span class="comment"># Git 2.25+ 稀疏克隆</span></span><br><span class="line"><span class="built_in">cd</span> repo</span><br><span class="line">git sparse-checkout <span class="built_in">set</span> <span class="string">&quot;apps/web/&quot;</span>   <span class="comment"># 只检出 apps/web/ 目录</span></span><br><span class="line">git sparse-checkout add <span class="string">&quot;libs/utils/&quot;</span> <span class="comment"># 添加更多目录</span></span><br></pre></td></tr></table></figure>
+
+<p>优点：工作目录中只包含你关心的文件，适用于 monorepo。<br>缺点：克隆时仍下载全部 Git 对象（2025+ Git 已经支持 <code>--filter=blob:none</code> 改善）。</p>
+<p><strong>最佳组合</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --depth 1 --filter=blob:none --sparse &lt;repo-url&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>--depth 1</code>：只拉最新 commit</li>
+<li><code>--filter=blob:none</code>：不拉取任何 blob（按需懒加载）</li>
+<li><code>--sparse</code>：只检出默认目录<br>后续需要某个文件时，Git 自动从远程获取。</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong><code>--filter=tree:0</code></strong>：比 <code>blob:none</code> 更激进，连 tree 对象也不拉，只拉 commit。适合只需要元数据的场景。</li>
+<li><strong><code>git maintenance</code></strong>：Git 2.30+ 引入的后台维护功能，<code>git maintenance start</code> 自动执行 <code>git gc</code>&#x2F;<code>git prefetch</code>，优化大仓库体验。</li>
+<li><strong>partial clone 的限制</strong>：一些命令（如 <code>git log --follow</code>）需要完整历史时仍然会自动补全，可能比普通 clone 还慢。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某公司的 monorepo 有 50GB+（包含所有历史），新入职的开发者 <code>git clone</code> 耗时 30+ 分钟，磁盘 50GB 直接报警。使用 <code>--depth 1 --filter=blob:none</code> 后，克隆时间降到 2 分钟，磁盘占用 800MB。</p>
+<p>但问题来了：开发者 <code>git log</code> 只能看到 1 条 commit，<code>git blame</code> 无法追溯。CI 上也用 shallow clone，导致某些依赖版本验证（需要检查历史中的 package.json 变化）失败。</p>
+<p><strong>解决方案</strong>：CI 用 <code>git fetch --unshallow</code> 在需要时补全历史；本地开发用 <code>--depth=100</code> 兼顾速度和功能。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-sparse-checkout">https://git-scm.com/docs/git-sparse-checkout</a></p>
+<hr>
+<h3 id="14-Git-在-CI-CD-中的集成最佳实践"><a href="#14-Git-在-CI-CD-中的集成最佳实践" class="headerlink" title="14. Git 在 CI&#x2F;CD 中的集成最佳实践"></a>14. Git 在 CI&#x2F;CD 中的集成最佳实践</h3><p><strong>标准答案</strong>：<br>CI 中 Git 的典型使用场景：</p>
+<ol>
+<li><strong>检出代码</strong>：<code>git clone --depth 50</code> 避免拉取全部历史</li>
+<li><strong>标签和版本</strong>：<code>git tag v1.2.3</code> 标记发布版本</li>
+<li><strong>状态检查</strong>：<code>git diff --name-only HEAD~1</code> 获取变更文件列表，实现增量构建</li>
+<li><strong>自动回滚</strong>：<code>git revert &lt;commit&gt;</code> 配合 CI pipeline 自动回滚</li>
+<li><strong>版本号生成</strong>：<code>git describe --tags --always</code> 生成形如 <code>v1.2.3-5-gabc1234</code> 的版本</li>
+<li><strong>触发检查</strong>：<code>git log --oneline HEAD...origin/main</code> 检查是否有未合并的提交</li>
+</ol>
+<p><strong>CI 中的 Git 配置要点</strong>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    git config user.name &quot;CI Bot&quot;</span></span><br><span class="line"><span class="string">    git config user.email &quot;ci@company.com&quot;</span></span><br><span class="line"><span class="string">    git fetch --tags --depth=100</span></span><br><span class="line"><span class="string">    # 不要在 CI 中执行 git push --force （除非你明确知道风险）</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>CI 中执行 git push 的风险</strong>：CI 环境中的 Git 操作可能被中断，导致仓库状态不一致。建议用 API（如 GitHub API）而非 <code>git push</code>。</li>
+<li><strong>语义版本自动生成</strong>：基于 commit message（Conventional Commits）+ git tag 自动计算版本号，工具如 <code>semantic-release</code>。</li>
+<li><strong>CI 中的 merge vs rebase</strong>：CI 中的自动合并永远用 <code>git merge --no-ff</code>，绝对不用 rebase。rebase 在 CI 中重写历史会导致 pipeline 混乱。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某团队在 CI pipeline 中写了一段自动发布脚本，包含 <code>git push --tags</code>。但某次 CI 执行时，两台并行的 runner 同时推送了 <code>v1.2.3</code> 标签，导致 tag 冲突覆盖，生产环境的部署脚本拉到了错误的版本。</p>
+<p><strong>教训</strong>：</p>
+<ol>
+<li>CI 中任何写 Git 操作都需要加锁或串行化</li>
+<li>标签推送到远程前先检查是否已存在：<code>git tag -l v* | grep v1.2.3 &amp;&amp; exit 1</code></li>
+<li>用 Git 标签做部署标记时，最好用时间戳+commit SHA（如 <code>deploy-prod-20260611-abc1234</code>）避免冲突</li>
+</ol>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions">https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions</a></p>
+<hr>
+<h3 id="15-Git-Hooks：自动化工作流的关键"><a href="#15-Git-Hooks：自动化工作流的关键" class="headerlink" title="15. Git Hooks：自动化工作流的关键"></a>15. Git Hooks：自动化工作流的关键</h3><p><strong>标准答案</strong>：<br>Git Hooks 是在 Git 操作的关键节点触发的脚本，放置在 <code>.git/hooks/</code> 目录下。</p>
+<p><strong>常用 Hook 类型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>触发时机</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pre-commit</code></td>
+<td><code>git commit</code> 前</td>
+<td>代码风格检查、lint、单元测试</td>
+</tr>
+<tr>
+<td><code>prepare-commit-msg</code></td>
+<td>提交信息编辑前</td>
+<td>自动添加 JIRA ticket 号、模板</td>
+</tr>
+<tr>
+<td><code>commit-msg</code></td>
+<td>提交信息编辑后</td>
+<td>验证 commit message 格式（如 Conventional Commits）</td>
+</tr>
+<tr>
+<td><code>pre-push</code></td>
+<td><code>git push</code> 前</td>
+<td>运行集成测试、检查分支命名规范</td>
+</tr>
+<tr>
+<td><code>post-receive</code></td>
+<td><code>git push</code> 完成后（服务端）</td>
+<td>触发 CI&#x2F;CD、部署</td>
+</tr>
+<tr>
+<td><code>post-merge</code></td>
+<td><code>git merge</code> 完成后</td>
+<td>自动更新 submodule、重新安装依赖</td>
+</tr>
+</tbody></table>
+<p><strong>最佳实践</strong>：</p>
+<ul>
+<li><strong>团队共享 Hooks</strong>：<code>.git/hooks/</code> 不会被 push 到远程。用工具如 <strong>husky</strong>（npm）&#x2F; <strong>pre-commit</strong>（Python）将 hooks 配置纳入版本控制。</li>
+<li><strong>性能考虑</strong>：hooks 脚本应轻量。pre-commit hook 运行超过 30 秒会严重影响开发者体验。</li>
+<li><strong>跳过 Hooks</strong>：<code>git commit --no-verify</code> 或 <code>git push --no-verify</code> 临时跳过，但应在紧急修复时使用。</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>服务端 vs 客户端 Hooks</strong>：<ul>
+<li>客户端 hooks：每个开发者的本地验证（pre-commit、pre-push）</li>
+<li>服务端 hooks：GitHub Actions &#x2F; GitLab CI &#x2F; Jenkins 等远程触发（post-receive）</li>
+</ul>
+</li>
+<li><strong><code>commit-msg</code> hook 示例</strong>（检查 Conventional Commits）：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> ! <span class="built_in">head</span> -1 <span class="string">&quot;<span class="variable">$1</span>&quot;</span> | grep -qE <span class="string">&#x27;^(feat|fix|chore|docs|refactor|test)\(.+\): .+&#x27;</span>; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;ERROR: Commit message must match Conventional Commits format&quot;</span></span><br><span class="line">  <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某团队在 pre-commit hook 中集成了格式化工具（Prettier）和 lint，但格式化工具自动修改了文件内容，而 hook 没有重新将修改后的文件 <code>git add</code>。结果 <code>git commit</code> 成功后，工作目录中还有未暂存的格式化改动。下一次 <code>git status</code> 看到一堆已提交+未暂存的 diff，非常困惑。</p>
+<p><strong>解决方案</strong>：在 hook 中格式化后显式 <code>git add</code> 修改过的文件，或者用 <code>lint-staged</code>（配合 husky）只处理暂存区的文件。</p>
+<p>另一个坑：某团队的 pre-push hook 会在推送前运行全部 6000+ 测试用例（耗时 40 分钟）。本意是保证代码质量，但开发者为了绕过这个 hook，统一用 <code>git push --no-verify</code>。剩下的 hooks 形同虚设。</p>
+<p><strong>教训</strong>：Hook 的性能至关重要。pre-push 只应运行关键的集成测试（&lt;3 分钟），全面测试留给 CI。</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks">https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks</a></p>
+<hr>
+<h3 id="16-历史重写与灾难恢复"><a href="#16-历史重写与灾难恢复" class="headerlink" title="16. 历史重写与灾难恢复"></a>16. 历史重写与灾难恢复</h3><p><strong>标准答案</strong>：<br>Git 提供多种历史重写工具，但<strong>必须谨慎使用</strong>。</p>
+<p><strong>常见历史重写操作</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>命令</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>修改最近 commit</td>
+<td><code>git commit --amend</code></td>
+<td>低（仅最后一个 commit）</td>
+</tr>
+<tr>
+<td>交互式 rebase</td>
+<td><code>git rebase -i HEAD~N</code></td>
+<td>中（重写 N 个 commit）</td>
+</tr>
+<tr>
+<td>批量替换</td>
+<td><code>git filter-branch</code>（已废弃）</td>
+<td>高（重写整个历史）</td>
+</tr>
+<tr>
+<td>专业清理</td>
+<td><code>git filter-repo</code>（推荐）</td>
+<td>高（整个历史）</td>
+</tr>
+<tr>
+<td>删除文件</td>
+<td><code>git rm --cached</code> + <code>.gitignore</code></td>
+<td>低（仅工作区）</td>
+</tr>
+</tbody></table>
+<p><strong>灾难恢复必杀技</strong>：</p>
+<ul>
+<li><strong>reflog 救场</strong>（<code>lost</code> 但 <code>referenced</code>）：<code>git reflog</code> 查看所有 HEAD 操作，找到被 reset&#x2F;rebase 前的 SHA，<code>git reset --hard &lt;SHA&gt;</code> 或 <code>git checkout &lt;SHA&gt; -b recovery-branch</code></li>
+<li><strong><code>git fsck --lost-found</code></strong>：找回 dangling commits&#x2F;blobs，写入 <code>.git/lost-found/</code></li>
+<li><strong><code>git cherry-pick</code> 逐个捞回</strong>：如果知道每个 commit 的 SHA，可以逐个 cherry-pick 到新分支</li>
+</ul>
+<p><strong>预防措施</strong>：</p>
+<ol>
+<li>推送到远程前，创建备份分支：<code>git branch backup/feature-name</code></li>
+<li>大操作前先用 <code>--dry-run</code> 预览</li>
+<li>敏感数据泄漏时，<strong>假设数据已泄漏</strong>，不仅仅是 <code>git filter-branch</code> 清除，还要轮换所有密钥</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong><code>filter-repo</code> vs <code>filter-branch</code></strong>：<ul>
+<li><code>filter-branch</code> 已废弃（Git 2.24+ 提示用它替代），性能差，处理大仓库可能跑数小时</li>
+<li><code>filter-repo</code>（Python 工具，<code>pip install git-filter-repo</code>）速度快 10-100 倍，支持并行处理</li>
+</ul>
+</li>
+<li><strong>BFG Repo-Cleaner</strong>：Java 工具，专注删除大文件&#x2F;敏感数据，比 <code>filter-repo</code> 更简单</li>
+<li><strong>重写历史后的团队协调</strong>：一旦重写了已推送的历史，需要 <code>git push --force-with-lease</code>（比 <code>--force</code> 更安全，会检查是否有人先推了），并通知所有协作者 <code>git fetch origin &amp;&amp; git reset --hard origin/main</code></li>
+</ul>
+<p><strong>生产踩坑（最严重的案例）</strong>：</p>
+<p><strong>案例 1：误提交 500MB 大文件</strong><br>某团队不小心将 500MB 的测试数据文件 commit 到了仓库。虽然事后 <code>git rm</code> 并新增 <code>.gitignore</code>，但 blob 已经永久存在于历史中。<code>git clone</code> 每次都要下载 500MB，即使最新代码不包含该文件。使用 <code>git filter-repo --path-glob &#39;*.data&#39; --invert-paths</code> 从整个历史中删除，仓库从 1.2GB 降到了 200MB。</p>
+<p><strong>案例 2：rebase 后 push –force 导致同事数据丢失</strong><br>开发者 A 在 feature 分支上 <code>git rebase main</code> 后 <code>git push --force</code>。开发者 B 之前从旧 feature 分支 pull 过，还在上面做了新 commit。B 的 <code>git push</code> 失败，被迫 <code>git pull --rebase</code>，结果 B 的 commit 被错误地应用到错误的位置，产生了 10+ 个重复 commit。最终 B 靠 <code>git reflog</code> 找回原始分支，但和 A 的冲突花了 1 天解决。</p>
+<p><strong>教训</strong>：强制推送前团队需要在 IM 群发公告，且用 <code>--force-with-lease</code> 替代 <code>--force</code>。</p>
+<p><strong>案例 3：误删 main 分支</strong><br>某团队在清理远程仓库时，误执行了 <code>git push origin :main</code>（删除远程 main 分支）。发现后紧急补救：因为本地 main 还在，<code>git push origin main</code> 恢复。但之后 5 分钟内不断有同事跑来说 <code>git pull</code> 报错，因为他们的本地 main 追踪的远程 ref 已经丢失。解决方案：<code>git branch --set-upstream-to=origin/main main</code>。</p>
+<p><strong>应急清单（灾难发生时按顺序执行）</strong>：</p>
+<ol>
+<li><strong>不要惊慌，不要 git gc</strong>（对象被清理前可恢复）</li>
+<li><code>git reflog</code> 查看本地操作历史</li>
+<li><code>git fsck --lost-found</code> 找回 dangling 对象</li>
+<li>如果分支被删除但远程还在，<code>git fetch origin &lt;branch&gt;:&lt;branch&gt;</code></li>
+<li>如果 push –force 覆盖了远程，找其他协作者要他们的 reflog</li>
+<li>最后的希望：GitHub&#x2F;GitLab 的 <strong>Ref Log</strong> 或<strong>仓库恢复功能</strong>（有些平台保留 90 天内被删除的引用）</li>
+<li>如果你什么工具都用了还不行 — 去 <code>.git/objects/</code> 看看有没有残留的 pack 文件</li>
+</ol>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://git-scm.com/docs/git-filter-repo">https://git-scm.com/docs/git-filter-repo</a></p>
+<hr>
+<h3 id="17-生产实战综合题：一次完整的-Git-灾难复盘"><a href="#17-生产实战综合题：一次完整的-Git-灾难复盘" class="headerlink" title="17. 生产实战综合题：一次完整的 Git 灾难复盘"></a>17. 生产实战综合题：一次完整的 Git 灾难复盘</h3><p><strong>标准答案</strong>：<br>以下是一个真实案例的综合复盘。</p>
+<p><strong>背景</strong>：某电商平台团队，10 人开发，Git Flow 工作流，代码托管在 GitLab。</p>
+<p><strong>事件经过</strong>：</p>
+<ol>
+<li>周三 14:00，开发者 A 在 feature&#x2F;checkout-optimize 分支上开发了 3 天，共 12 个 commit</li>
+<li>14:15，A 执行 <code>git rebase -i origin/main</code> 想整理 commit 历史，但操作中误选了 <code>drop</code> 删除了 2 个关键 commit</li>
+<li>14:16，A 发现不对，<code>git rebase --abort</code>，但不知道 rebase 已经改写了一部分 reflog</li>
+<li>14:20，A 在慌乱中执行了 <code>git reset --hard HEAD~5</code> 想回到 rebase 之前的状态，但 rebase 前后 SHA 已经不同了</li>
+<li>14:25，A 发现修改的代码都不见了，<code>git log</code> 看不到了，用 <code>git reflog</code> 找到了之前的 SHA</li>
+<li>14:30，A 恢复成功，但误以为需要强制推送到远程才能同步，执行了 <code>git push --force origin feature/checkout-optimize</code></li>
+<li>14:35，开发者 B 在同一个分支上做 code review 时，<code>git pull</code> 报奇怪的冲突</li>
+<li>14:45，B 尝试 <code>git fetch origin &amp;&amp; git reset --hard origin/feature/checkout-optimize</code>，丢失了自己的 review 笔记和 minor fixes</li>
+<li>15:00，团队开始争吵，认为有人”破坏”了分支</li>
+</ol>
+<p><strong>根本原因分析</strong>：</p>
+<ul>
+<li>A 在团队使用的分支上执行 rebase（黄金法则：<strong>shared branches never rebase</strong>）</li>
+<li>rebase 后发现错误没有立刻求助，而是继续操作</li>
+<li><code>git push --force</code> 代替 <code>--force-with-lease</code></li>
+<li>B 也缺乏灾难恢复经验，不应该 <code>reset --hard</code></li>
+</ul>
+<p><strong>正确做法</strong>：</p>
+<ol>
+<li>A 发现误 drop commit 后：<code>git rebase --abort</code> 立即取消</li>
+<li>如果 <code>--abort</code> 不可用（部分已应用），用 <code>git reflog</code> 找到 rebase 前的 SHA，<code>git reset --hard &lt;SHA&gt;</code></li>
+<li>绝不对已经推送的共享分支做 force push</li>
+<li>如果需要修正，开一个新的分支从头开始</li>
+</ol>
+<p><strong>事后改进措施</strong>：</p>
+<ol>
+<li>将 main&#x2F;develop 分支设为 <strong>Protected</strong>（GitLab&#x2F;GitHub 设置），禁止 force push</li>
+<li>feature 分支在 merge 前由 CI 自动 squash，开发者不需要手工 rebase</li>
+<li>团队培训：<code>git push --force-with-lease</code> 和 <code>set -u origin/main</code> 保护</li>
+<li>建立事故处理 SOP：一旦发生历史重写，立刻在群里发公告，全员 <code>git fetch</code> 后确认</li>
+<li>Jenkins CI 增加 <code>git push --force</code> 的审计告警</li>
+</ol>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://docs.gitlab.com/ee/topics/git/git_rebase.html">https://docs.gitlab.com/ee/topics/git/git_rebase.html</a></p>
+<hr>
+<blockquote>
+<p><strong>总结</strong>：Git 不仅是一个版本控制工具，更是团队协作的命脉。理解其对象模型和工作原理，才能在关键时刻做出正确决策。面试官关注的不只是你会用 <code>git rebase -i</code>，更关注你在生产事故面前能否冷静恢复。记住 Git 的黄金法则：<strong>公共分支永不 rebase，强制推送必先公告，reflog 是最后的救命稻草。</strong></p>
+</blockquote>
+<hr>
+<blockquote>
+<p>本文搜索来源：自身知识 + 生产踩坑经验整理。参考链接已标注在各题末尾。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Git/" rel="tag"># Git</a>
+              <a href="/tags/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" rel="tag"># 版本控制</a>
+              <a href="/tags/DevOps/" rel="tag"># DevOps</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="操作系统 &amp; Linux 高级面试全解">
+                  <i class="fa fa-angle-left"></i> 操作系统 & Linux 高级面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="架构面试题：分布式系统设计面试全解">
+                  架构面试题：分布式系统设计面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

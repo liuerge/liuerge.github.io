@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文覆盖 Redis 核心知识点：底层数据结构、持久化机制、集群高可用、缓存设计、分布式锁、生产实战与踩坑。面向高级研发面试，每道题附带深入思考与源码&#x2F;生产视角。   目录 0x00 基础与数据结构 0x01 持久化 0x02 集群与高可用 0x03 缓存设计 0x04 分布式锁 0x05 生产实战   0x00 基础与数据结构0. Redis 为什么这么快？标准答案：  纯内存操作：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 高级面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="本文覆盖 Redis 核心知识点：底层数据结构、持久化机制、集群高可用、缓存设计、分布式锁、生产实战与踩坑。面向高级研发面试，每道题附带深入思考与源码&#x2F;生产视角。   目录 0x00 基础与数据结构 0x01 持久化 0x02 集群与高可用 0x03 缓存设计 0x04 分布式锁 0x05 生产实战   0x00 基础与数据结构0. Redis 为什么这么快？标准答案：  纯内存操作：">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-11T08:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-13T06:35:47.020Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="缓存">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/11/后端面试题-Redis-面试全解/","title":"Redis 高级面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis 高级面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E5%9F%BA%E7%A1%80%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">0x00 基础与数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-Redis-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-text">0. Redis 为什么这么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-String-%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0-%E2%80%94%E2%80%94-SDS"><span class="nav-text">1. String 的底层实现 —— SDS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Hash-%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0-%E2%80%94%E2%80%94-ziplist-hashtable"><span class="nav-text">2. Hash 的底层实现 —— ziplist &#x2F; hashtable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-List-%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0-%E2%80%94%E2%80%94-quicklist"><span class="nav-text">3. List 的底层实现 —— quicklist</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Set-%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0-%E2%80%94%E2%80%94-intset-hashtable"><span class="nav-text">4. Set 的底层实现 —— intset &#x2F; hashtable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-ZSet-%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0-%E2%80%94%E2%80%94-ziplist-skiplist-dict"><span class="nav-text">5. ZSet 的底层实现 —— ziplist &#x2F; skiplist + dict</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-BigKey-%E9%97%AE%E9%A2%98-%E2%80%94%E2%80%94-%E5%8F%91%E7%8E%B0%E4%B8%8E%E5%A4%84%E7%90%86"><span class="nav-text">6. BigKey 问题 —— 发现与处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Hot-Key-%E5%8F%91%E7%8E%B0%E4%B8%8E%E5%A4%84%E7%90%86"><span class="nav-text">7. Hot Key 发现与处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-text">0x01 持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-RDB-%E4%B8%8E-AOF-%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AF%B9%E6%AF%94"><span class="nav-text">8. RDB 与 AOF 的原理与对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-AOF-Rewrite-%E9%98%BB%E5%A1%9E%E5%88%86%E6%9E%90"><span class="nav-text">9. AOF Rewrite 阻塞分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-RDB-vs-AOF-%E7%94%9F%E4%BA%A7%E9%80%89%E5%9E%8B"><span class="nav-text">10. RDB vs AOF 生产选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-%F0%9F%94%A5-%E7%94%9F%E4%BA%A7%E8%B8%A9%E5%9D%91%EF%BC%9ARDB-%E5%BF%AB%E7%85%A7%E6%96%87%E4%BB%B6%E6%8D%9F%E5%9D%8F%E6%81%A2%E5%A4%8D"><span class="nav-text">11. 🔥 生产踩坑：RDB 快照文件损坏恢复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E9%9B%86%E7%BE%A4%E4%B8%8E%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="nav-text">0x02 集群与高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86-%E2%80%94%E2%80%94-%E5%85%A8%E9%87%8F%E5%90%8C%E6%AD%A5%E4%B8%8E%E5%A2%9E%E9%87%8F%E5%90%8C%E6%AD%A5"><span class="nav-text">12. 主从复制原理 —— 全量同步与增量同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Sentinel-%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB-%E2%80%94%E2%80%94-%E5%8E%9F%E7%90%86%E4%B8%8E%E8%84%91%E8%A3%82"><span class="nav-text">13. Sentinel 故障转移 —— 原理与脑裂</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-Redis-Cluster-%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87-%E2%80%94%E2%80%94-16384-slots"><span class="nav-text">14. Redis Cluster 数据分片 —— 16384 slots</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Redis-Cluster-%E9%87%8D%E5%88%86%E7%89%87%E4%B8%8E-ASK-MOVED-%E5%A4%84%E7%90%86"><span class="nav-text">15. Redis Cluster 重分片与 ASK&#x2F;MOVED 处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Redis-Cluster-%E5%88%86%E7%89%87%E5%93%88%E5%B8%8C%E6%A0%87%E7%AD%BE%EF%BC%88Hash-Tag%EF%BC%89"><span class="nav-text">16. Redis Cluster 分片哈希标签（Hash Tag）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E7%BC%93%E5%AD%98%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x03 缓存设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#17-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F-%E5%87%BB%E7%A9%BF-%E9%9B%AA%E5%B4%A9-%E2%80%94%E2%80%94-%E5%8C%BA%E5%88%86%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">17. 缓存穿透 &#x2F; 击穿 &#x2F; 雪崩 —— 区分与解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7-%E2%80%94%E2%80%94-Cache-Aside-Read-Through-Write-Behind"><span class="nav-text">18. 缓存一致性 —— Cache Aside &#x2F; Read-Through &#x2F; Write-Behind</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98-Redis-%E5%A4%9A%E7%BA%A7%E7%BC%93%E5%AD%98%E6%96%B9%E6%A1%88"><span class="nav-text">19. 本地缓存 + Redis 多级缓存方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-%F0%9F%94%A5-%E7%94%9F%E4%BA%A7%E8%B8%A9%E5%9D%91%EF%BC%9A%E7%BC%93%E5%AD%98%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7%E5%AE%9E%E6%88%98"><span class="nav-text">20. 🔥 生产踩坑：缓存与数据库双写一致性实战</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-text">0x04 分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#21-SETNX-Lua-%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-text">21. SETNX + Lua 实现分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-Redlock-%E5%8E%9F%E7%90%86%E4%B8%8E%E4%BA%89%E8%AE%AE"><span class="nav-text">22. Redlock 原理与争议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#23-%F0%9F%94%A5-%E7%94%9F%E4%BA%A7%E8%B8%A9%E5%9D%91%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E8%B6%85%E6%97%B6%E4%B8%8E%E7%BB%AD%E6%9C%9F"><span class="nav-text">23. 🔥 生产踩坑：分布式锁超时与续期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#24-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">24. 分布式锁选型对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x05 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#25-Redis-7-4-8-0-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">25. Redis 7.4 &#x2F; 8.0 新特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#26-Valkey-%E5%88%86%E5%8F%89%E5%90%8E%E7%9A%84%E9%80%89%E5%9E%8B%E5%88%86%E6%9E%90"><span class="nav-text">26. Valkey 分叉后的选型分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#27-%E5%A4%A7-Key-%E6%89%AB%E6%8F%8F%E4%B8%8E%E5%A4%84%E7%90%86"><span class="nav-text">27. 大 Key 扫描与处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#28-OOM-%E6%8E%92%E6%9F%A5"><span class="nav-text">28. OOM 排查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#29-%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%88%86%E6%9E%90"><span class="nav-text">29. 慢查询分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#30-CPU-%E7%88%86%E6%BB%A1%E6%8E%92%E6%9F%A5"><span class="nav-text">30. CPU 爆满排查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#31-%F0%9F%94%A5-%E7%94%9F%E4%BA%A7%E8%B8%A9%E5%9D%91%EF%BC%9ARedis-%E5%86%85%E5%AD%98%E6%97%A0%E9%99%90%E5%A2%9E%E9%95%BF"><span class="nav-text">31. 🔥 生产踩坑：Redis 内存无限增长</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#32-Redis-%E4%BC%98%E5%8C%96-Checklist"><span class="nav-text">32. Redis 优化 Checklist</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">112</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis 高级面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis 高级面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-11 16:30:00" itemprop="dateCreated datePublished" datetime="2026-06-11T16:30:00+08:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-13 14:35:47" itemprop="dateModified" datetime="2026-06-13T14:35:47+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%90%8E%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">后端</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>本文覆盖 Redis 核心知识点：底层数据结构、持久化机制、集群高可用、缓存设计、分布式锁、生产实战与踩坑。面向高级研发面试，每道题附带深入思考与源码&#x2F;生产视角。</p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li>0x00 基础与数据结构</li>
+<li>0x01 持久化</li>
+<li>0x02 集群与高可用</li>
+<li>0x03 缓存设计</li>
+<li>0x04 分布式锁</li>
+<li>0x05 生产实战</li>
+</ul>
+<hr>
+<h2 id="0x00-基础与数据结构"><a href="#0x00-基础与数据结构" class="headerlink" title="0x00 基础与数据结构"></a>0x00 基础与数据结构</h2><h3 id="0-Redis-为什么这么快？"><a href="#0-Redis-为什么这么快？" class="headerlink" title="0. Redis 为什么这么快？"></a>0. Redis 为什么这么快？</h3><p><strong>标准答案</strong>：</p>
+<ol>
+<li><strong>纯内存操作</strong>：数据在内存中，读写纳秒级</li>
+<li><strong>单线程模型</strong>（&lt; 6.0）：避免上下文切换和锁竞争；6.0+ 网络 IO 多线程，命令执行仍单线程</li>
+<li><strong>IO 多路复用</strong>：epoll&#x2F;kqueue 事件驱动，单线程处理大量连接</li>
+<li><strong>高效数据结构</strong>：SDS（动态字符串）、ziplist、skiplist、quicklist 等定制化结构</li>
+<li><strong>避免内存碎片</strong>：jemalloc&#x2F;tcmalloc 内存分配器优化</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>CPU 瓶颈</strong>：纯内存场景 CPU 通常在 70% 以下；若 CPU 爆满往往是慢查询、BigKey、或者 AOF rewrite 频繁 fork 导致的上下文切换</li>
+<li><strong>单线程的代价</strong>：单个慢查询（如 <code>KEYS *</code>、<code>HGETALL</code> 大 hash）会阻塞所有请求，务必用 <code>SCAN</code> 替代</li>
+<li><strong>IO 多线程</strong>：Redis 6.0+ <code>io-threads</code> 仅处理网络读写，命令执行仍是单线程，实测在 10w+ QPS 场景提升约 30%-50%</li>
+<li><strong>对比延伸</strong>：Memcached 多线程模型在纯 KV 场景有优势，但 Redis 因丰富的数据结构胜出</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/reference/optimization/latency/">https://redis.io/docs/reference/optimization/latency/</a></p>
+<hr>
+<h3 id="1-String-的底层实现-——-SDS"><a href="#1-String-的底层实现-——-SDS" class="headerlink" title="1. String 的底层实现 —— SDS"></a>1. String 的底层实现 —— SDS</h3><p><strong>标准答案</strong>：<br>Redis 的 String 底层是 <strong>SDS（Simple Dynamic String）</strong>，而非 C 字符串。SDS 结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> len;    <span class="comment">// 已使用长度</span></span><br><span class="line">    <span class="type">int</span> <span class="built_in">free</span>;   <span class="comment">// 未使用字节数</span></span><br><span class="line">    <span class="type">char</span> buf[]; <span class="comment">// 字节数组</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>优点：</p>
+<ul>
+<li><strong>O(1) 获取长度</strong>：C 字符串需要遍历，SDS 直接读 len</li>
+<li><strong>杜绝缓冲区溢出</strong>：修改前检查空间，不够则扩容</li>
+<li><strong>减少内存重分配</strong>：预分配策略（<code>len &lt; 1MB</code> → 加倍；<code>len &gt;= 1MB</code> → 多分配 1MB）</li>
+<li><strong>二进制安全</strong>：不依赖 <code>\0</code> 判断结尾，可存图片&#x2F;序列化对象</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>SDS v2 演进</strong>：Redis 7.0+ 使用 <code>sdshdr8/16/32/64</code> 按字符串长度选择合适的 header，节省内存——短字符串用 <code>uint8_t len</code> 而非 <code>uint64_t</code></li>
+<li><strong>内存碎片</strong>：<code>APPEND</code> 频繁操作导致预分配空间膨胀，可用 <code>SETRANGE</code> 替代场景下更省内存</li>
+<li><strong>🔥 生产踩坑</strong>：某团队用 String 存 50MB 的用户画像 JSON，触发 <code>active-defrag</code> 导致 CPU 爆满，迁移到 Hash 分片后解决</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/data-types/strings/">https://redis.io/docs/data-types/strings/</a></p>
+<hr>
+<h3 id="2-Hash-的底层实现-——-ziplist-hashtable"><a href="#2-Hash-的底层实现-——-ziplist-hashtable" class="headerlink" title="2. Hash 的底层实现 —— ziplist &#x2F; hashtable"></a>2. Hash 的底层实现 —— ziplist &#x2F; hashtable</h3><p><strong>标准答案</strong>：<br>Redis Hash 有两种底层编码：</p>
+<ul>
+<li><strong>ziplist</strong>（压缩列表）：当 field-value 数 &lt; 512 且单个元素 &lt; 64 字节时使用，连续内存块存储，节省空间</li>
+<li><strong>hashtable</strong>：元素超过阈值时转换为哈希表，O(1) 读写</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Listpack 替代 ziplist</strong>：Redis 7.0+ 引入 listpack 替代 ziplist，解决 ziplist 的连锁更新问题（中间插入导致后续所有节点的 prevlen 字段需重新计算）</li>
+<li><strong>Hash 分片 BigKey</strong>：当 Hash 有数万 field 时，即使是 hashtable 也可能成 BigKey。建议按业务前缀分片，如 <code>user:info:{userId % 1000}</code>，每片控制 field &lt; 1000</li>
+<li><strong>对比延伸</strong>：<code>HINCRBY</code> 做计数器聚合非常高效，但注意原子性——没有事务保护时多次 HINCRBY 不是事务性操作</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/data-types/hashes/">https://redis.io/docs/data-types/hashes/</a></p>
+<hr>
+<h3 id="3-List-的底层实现-——-quicklist"><a href="#3-List-的底层实现-——-quicklist" class="headerlink" title="3. List 的底层实现 —— quicklist"></a>3. List 的底层实现 —— quicklist</h3><p><strong>标准答案</strong>：<br>Redis List 底层是 <strong>quicklist</strong>（3.2+），由多个 ziplist 节点组成的双向链表：</p>
+<ul>
+<li>每个节点是一个 ziplist，存储连续元素</li>
+<li><code>list-max-ziplist-size</code> 控制每个 ziplist 大小（默认 8KB）</li>
+<li>两端操作 O(1)，中间操作 O(n)</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>quicklist vs linkedlist+ziplist</strong>：3.2 之前是 ziplist 或 linkedlist 二选一；3.2 之后 quicklist 统一两者</li>
+<li><strong>🔥 生产踩坑</strong>：消息队列用 <code>LPUSH + BRPOP</code> 实现，某团队设置 <code>list-max-ziplist-size -2</code>（允许单节点 8KB），结果消息体平均 100KB → 每个 ziplist 只存 1-2 个元素，quicklist 退化为纯链表，内存和性能骤降</li>
+<li><strong>替代方案</strong>：Redis Stream（5.0+）更适合消息队列场景，支持消费者组、ACK、持久化</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/data-types/lists/">https://redis.io/docs/data-types/lists/</a></p>
+<hr>
+<h3 id="4-Set-的底层实现-——-intset-hashtable"><a href="#4-Set-的底层实现-——-intset-hashtable" class="headerlink" title="4. Set 的底层实现 —— intset &#x2F; hashtable"></a>4. Set 的底层实现 —— intset &#x2F; hashtable</h3><p><strong>标准答案</strong>：</p>
+<ul>
+<li><strong>intset</strong>（整数集合）：当所有元素是整数且数量 &lt; 512 时，有序紧凑数组存储</li>
+<li><strong>hashtable</strong>：元素超出阈值或含有非整数元素时切换</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>intset 升级策略</strong>：当插入一个更大范围的整数（如 int16 → int32），所有元素会升级，但不支持降级</li>
+<li><strong>SADD 的批量操作</strong>：<code>SADD key m1 m2 m3</code> 比多次 <code>SADD</code> 减少网络往返，但注意单命令过大会阻塞</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/data-types/sets/">https://redis.io/docs/data-types/sets/</a></p>
+<hr>
+<h3 id="5-ZSet-的底层实现-——-ziplist-skiplist-dict"><a href="#5-ZSet-的底层实现-——-ziplist-skiplist-dict" class="headerlink" title="5. ZSet 的底层实现 —— ziplist &#x2F; skiplist + dict"></a>5. ZSet 的底层实现 —— ziplist &#x2F; skiplist + dict</h3><p><strong>标准答案</strong>：</p>
+<ul>
+<li><strong>ziplist</strong>：元素数 &lt; 128 且单个元素 &lt; 64 字节时使用</li>
+<li><strong>skiplist + dict</strong>（跳表+字典）：跳表维护 score 有序性（O(logN) 范围查询），字典维护 member→score 映射（O(1) 查分）</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>为什么用 skiplist 而非平衡树</strong>：跳表实现简单、范围遍历友好（双向链表）、调整平衡时只需局部更新、平均 O(logN) 性能接近红黑树</li>
+<li><strong>ZI score 相同</strong>：ZSet 的 score 相同时按 member 字典序排列（二进制比较）</li>
+<li><strong>🔥 生产踩坑</strong>：某排行榜场景，用 <code>ZINCRBY</code> 每 5 秒更新一次分数，跳表频繁调整节点位置导致 CPU 使用率 85%+。优化：把实时分存在 Hash，每 10 分钟批量重新计算 ZSet</li>
+<li><strong>内存优化</strong>：<code>ZRANK</code> 内部通过 dict 查 member 再走 skiplist 算排名，多层 skiplist 指针（Redis 7.0+ 每层 50% 概率上升）内存占用约 8-12 字节&#x2F;元素</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/data-types/sorted-sets/">https://redis.io/docs/data-types/sorted-sets/</a></p>
+<hr>
+<h3 id="6-BigKey-问题-——-发现与处理"><a href="#6-BigKey-问题-——-发现与处理" class="headerlink" title="6. BigKey 问题 —— 发现与处理"></a>6. BigKey 问题 —— 发现与处理</h3><p><strong>标准答案</strong>：<br>BigKey 指单个 key 包含大量数据（如 10MB+ String 或数万成员的集合），危害：</p>
+<ul>
+<li>阻塞命令：<code>DEL</code> 大 key 会阻塞单线程</li>
+<li>网络带宽：<code>GET</code> 一个 50MB 的 key 传输耗时高</li>
+<li>内存不均：集群模式下数据倾斜</li>
+</ul>
+<p><strong>发现手段</strong>：</p>
+<ol>
+<li><code>redis-cli --bigkeys</code> 扫描（采样）</li>
+<li><code>DEBUG OBJECT key</code> 查看 serializedlength</li>
+<li>慢查询日志发现 <code>DEL</code>&#x2F;<code>GET</code> 耗时久</li>
+<li>RAM 分析工具：rdb-tools、redis-rdb-parser</li>
+</ol>
+<p><strong>处理方式</strong>：</p>
+<ul>
+<li>拆分：Hash 按 field 分片、List 分段、大 String 压缩</li>
+<li>异步删除：<code>UNLINK</code>（Redis 4.0+）后台线程回收内存</li>
+<li><code>lazyfree-lazy-server-del yes</code> 自动开启惰性删除</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某团队误将一张 20 万条 SQL 查询结果序列化后存入 String（约 80MB），导致 Redis 内存 OOM。排查过程：<code>redis-cli --bigkeys</code> 未发现（String 超 10MB 即触发告警但未设置），后通过 <code>MONITOR</code> 发现 <code>GET large_key_xxx</code> 耗时 2.3 秒</li>
+<li><code>UNLINK</code> 并非完全无阻塞：后台线程回收大内存时，如果内存碎片严重，free() 可能短暂卡顿</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/reference/optimization/latency/">https://redis.io/docs/reference/optimization/latency/</a></p>
+<hr>
+<h3 id="7-Hot-Key-发现与处理"><a href="#7-Hot-Key-发现与处理" class="headerlink" title="7. Hot Key 发现与处理"></a>7. Hot Key 发现与处理</h3><p><strong>标准答案</strong>：<br>Hot Key 指某 key 的 QPS 极高，导致单节点 CPU&#x2F;带宽打满。</p>
+<p><strong>发现手段</strong>：</p>
+<ol>
+<li><strong>redis-cli –hotkeys</strong>（Redis 4.0+）：基于 <code>OBJECT freq</code> 的 LFU 信息</li>
+<li><strong>MONITOR 采样</strong>：抓取 10s 流量，统计访问频率（生产慎用，对性能有影响）</li>
+<li><strong>客户端统计</strong>：在 Jedis&#x2F;Lettuce 调用层埋点</li>
+<li><strong>代理层</strong>：Codis&#x2F;Twemproxy 可在代理层统计</li>
+</ol>
+<p><strong>处理方案</strong>：</p>
+<ol>
+<li><strong>本地缓存</strong>：客户端或代理层用 Caffeine&#x2F;Guava Cache 缓存热点数据</li>
+<li><strong>读写分离</strong>：主节点写，从节点读，但要接受秒级不一致</li>
+<li><strong>打散扩容</strong>：在 key 后加随机后缀（如 <code>hotkey:0</code> ~ <code>hotkey:99</code>），客户端轮询或 hash 访问</li>
+<li><strong>限流降级</strong>：保护下游数据库</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某直播弹幕场景，<code>room:9999:danmu</code> List 被 10 万用户同时读取，单节点带宽打满。解决：本地缓存弹幕列表，每 500ms 刷新一次，带宽骤降 95%</li>
+<li><strong>Hot Key vs BigKey</strong>：Hot Key 是访问频率问题，BigKey 是数据体量问题，但常同时出现（大活动时热点商品既是 Hot Key 又是 BigKey）</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/topics/rediscli">https://redis.io/topics/rediscli</a></p>
+<hr>
+<h2 id="0x01-持久化"><a href="#0x01-持久化" class="headerlink" title="0x01 持久化"></a>0x01 持久化</h2><h3 id="8-RDB-与-AOF-的原理与对比"><a href="#8-RDB-与-AOF-的原理与对比" class="headerlink" title="8. RDB 与 AOF 的原理与对比"></a>8. RDB 与 AOF 的原理与对比</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RDB</th>
+<th>AOF</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原理</td>
+<td>快照全量持久化当前内存数据</td>
+<td>追加写命令到日志文件</td>
+</tr>
+<tr>
+<td>触发方式</td>
+<td><code>save</code>（阻塞）、<code>bgsave</code>（fork子进程）、自动策略</td>
+<td><code>always</code>&#x2F;<code>everysec</code>&#x2F;<code>no</code>（fsync 策略）</td>
+</tr>
+<tr>
+<td>文件大小</td>
+<td>小（二进制压缩）</td>
+<td>大（写命令文本，即使开启 AOF rewrite）</td>
+</tr>
+<tr>
+<td>恢复速度</td>
+<td>快（直接加载快照）</td>
+<td>慢（重放命令）</td>
+</tr>
+<tr>
+<td>数据安全</td>
+<td>丢失上次备份后的全部数据</td>
+<td><code>everysec</code> 最多丢 1s 数据</td>
+</tr>
+<tr>
+<td>对性能影响</td>
+<td><code>bgsave</code> fork 子进程，COW 写时复制</td>
+<td><code>always</code> 严重影响写性能</td>
+</tr>
+</tbody></table>
+<p><strong>混合持久化</strong>（Redis 4.0+）：<code>aof-use-rdb-preamble yes</code></p>
+<ul>
+<li>AOF rewrite 时生成的 AOF 文件前半段是 RDB 格式（全量内存快照），后半段是增量 AOF 日志</li>
+<li>结合 RDB 的恢复速度和 AOF 的数据安全性</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>fork 的代价</strong>：Redis 主进程 fork() 时需拷贝页表，内存越大 fork 越慢（12GB 内存 fork 约 300ms-1s）；期间 redis 无法响应请求</li>
+<li><strong>COW 写时复制</strong>：fork 后父子进程共享内存页；子进程写 RDB，父进程若有写请求则触发页复制。写量大的场景下 COW 会导致内存翻倍风险</li>
+<li><strong>🔥 生产踩坑</strong>：某电商 Redis 实例 32GB 内存，开启 <code>save 900 1</code> 自动 RDB；大促期间写流量暴涨，bgsave fork 耗时 2.3s，期间请求全部堆积；更严重的是 COW 导致 RSS 从 32GB 飙升到 58GB，OOM killer 杀掉 Redis 进程</li>
+<li><strong>优化方案</strong>：<ol>
+<li>关闭自动 RDB，仅保留 AOF</li>
+<li>大实例（&gt;20GB）考虑用 Redis Cluster 分片</li>
+<li>替换物理机用更快的 CPU 降低 fork 时间</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/management/persistence/">https://redis.io/docs/management/persistence/</a></p>
+<hr>
+<h3 id="9-AOF-Rewrite-阻塞分析"><a href="#9-AOF-Rewrite-阻塞分析" class="headerlink" title="9. AOF Rewrite 阻塞分析"></a>9. AOF Rewrite 阻塞分析</h3><p><strong>标准答案</strong>：<br>AOF rewrite 过程：</p>
+<ol>
+<li><code>BGREWRITEAOF</code> 触发</li>
+<li>主进程 fork 子进程</li>
+<li>子进程将内存数据写为最小命令集到临时文件</li>
+<li>父进程将增量写命令缓存到 AOF rewrite buffer</li>
+<li>子进程完成，父进程将 buffer 追加到临时文件</li>
+<li>原子替换旧 AOF 文件</li>
+</ol>
+<p><strong>阻塞点</strong>：</p>
+<ol>
+<li><strong>fork() 阻塞</strong>：主进程需要拷贝页表</li>
+<li><strong>写入阻塞</strong>：当 <code>aof-use-rdb-preamble yes</code> 时，父进程写 RDB preamble 可能因内存置换卡顿</li>
+<li><strong>fsync 阻塞</strong>：<code>appendfsync always</code> 每次写操作 fsync，在磁盘繁忙时阻塞</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某 AOF rewrite 执行 15 分钟未完成，排查发现 IO 利用率 100%（同机有日志采集程序写同块磁盘）。隔离方案：Redis 使用单独 SSD 或云盘</li>
+<li><strong>优化建议</strong>：<ol>
+<li><code>appendfsync everysec</code> 平衡数据安全与性能</li>
+<li>大实例 <code>auto-aof-rewrite-min-size 64GB</code> 避免频繁 rewrite</li>
+<li>使用 <code>no-appendfsync-on-rewrite yes</code>，Rewrite 期间不 fsync，防 IO 竞争</li>
+</ol>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/management/config/">https://redis.io/docs/management/config/</a></p>
+<hr>
+<h3 id="10-RDB-vs-AOF-生产选型"><a href="#10-RDB-vs-AOF-生产选型" class="headerlink" title="10. RDB vs AOF 生产选型"></a>10. RDB vs AOF 生产选型</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>缓存场景，可接受丢数据</td>
+<td>RDB 或关闭持久化</td>
+</tr>
+<tr>
+<td>数据重要，不能丢数据</td>
+<td>AOF everysec</td>
+</tr>
+<tr>
+<td>大实例（&gt;20GB）</td>
+<td>AOF（RDB fork+COW 风险大）</td>
+</tr>
+<tr>
+<td>快速恢复</td>
+<td>混合持久化（RDB preamble + AOF 增量）</td>
+</tr>
+<tr>
+<td>极致性能</td>
+<td>关闭持久化，仅做主从复制</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Redis 数据可靠性</strong>：多数生产环境 <strong>开启 AOF everysec + 混合持久化</strong>，同时至少 1 个从节点异步备份</li>
+<li><strong>备份策略</strong>：每日将 RDB 备份到 OSS&#x2F;S3，保留最近 7 天备份，用于灾难恢复</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/management/persistence/">https://redis.io/docs/management/persistence/</a></p>
+<hr>
+<h3 id="11-🔥-生产踩坑：RDB-快照文件损坏恢复"><a href="#11-🔥-生产踩坑：RDB-快照文件损坏恢复" class="headerlink" title="11. 🔥 生产踩坑：RDB 快照文件损坏恢复"></a>11. 🔥 生产踩坑：RDB 快照文件损坏恢复</h3><p><strong>标准答案</strong>：<br>某团队因磁盘坏道导致 RDB 文件损坏，Redis 重启失败：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Bad file format reading the append only file</span><br></pre></td></tr></table></figure>
+
+<p><strong>恢复过程</strong>：</p>
+<ol>
+<li>使用 <code>redis-check-rdb</code> 工具修复或提取可读数据</li>
+<li>若损坏不可修复，使用从节点 RDB 恢复</li>
+<li>若无从节点，启用 AOF 日志重放</li>
+<li>最终方案：磁盘替换 + 从备份恢复 RDB + 增量同步</li>
+</ol>
+<p><strong>教训</strong>：</p>
+<ul>
+<li>不要只依赖单机持久化文件，务必有从节点或远程备份</li>
+<li>定期 <code>redis-check-rdb</code> 检查 RDB 文件完整性</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/topics/rediscli">https://redis.io/topics/rediscli</a></p>
+<hr>
+<h2 id="0x02-集群与高可用"><a href="#0x02-集群与高可用" class="headerlink" title="0x02 集群与高可用"></a>0x02 集群与高可用</h2><h3 id="12-主从复制原理-——-全量同步与增量同步"><a href="#12-主从复制原理-——-全量同步与增量同步" class="headerlink" title="12. 主从复制原理 —— 全量同步与增量同步"></a>12. 主从复制原理 —— 全量同步与增量同步</h3><p><strong>标准答案</strong>：<br><strong>全量同步（PSYNC 2）</strong>：</p>
+<ol>
+<li>从节点发送 <code>PSYNC ? -1</code></li>
+<li>主节点执行 <code>bgsave</code> 生成 RDB</li>
+<li>主节点将 RDB 发送给从节点，同时持续写入 replication buffer</li>
+<li>从节点清空自身数据，加载 RDB</li>
+<li>主节点将 replication buffer 增量发送给从节点</li>
+</ol>
+<p><strong>增量同步（PSYNC <replid> <offset>）</strong>：</p>
+<ol>
+<li>从节点发送自己的 replid 和 offset</li>
+<li>若主节点 replication backlog 中仍有数据，则增量同步</li>
+<li>若 offset 已超出 backlog，则触发全量同步</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>repl_backlog_size</strong>：默认 1MB，网络不稳定时容易触发全量同步。计算公式：<code>repl_backlog_size = 主库写速率 × 最大断连时间 × 2</code></li>
+<li><strong>🔥 生产踩坑</strong>：某主从间网络闪断 30s，因 repl_backlog_size 设置过小（1MB），写速率 10MB&#x2F;s → 30s 产生 300MB 数据远超 backlog，从节点触发全量同步。大 RDB（8GB）传输过程中再次闪断 → 反复全量同步 3 次。解决方案：<code>repl_backlog_size 512MB</code>，并优化网络稳定性</li>
+<li><strong>PSYNC 2</strong>（Redis 4.0+）：主节点重启后 replid 不变，从节点可增量同步，避免全量</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/management/replication/">https://redis.io/docs/management/replication/</a></p>
+<hr>
+<h3 id="13-Sentinel-故障转移-——-原理与脑裂"><a href="#13-Sentinel-故障转移-——-原理与脑裂" class="headerlink" title="13. Sentinel 故障转移 —— 原理与脑裂"></a>13. Sentinel 故障转移 —— 原理与脑裂</h3><p><strong>标准答案</strong>：<br>Redis Sentinel 提供高可用保障：</p>
+<ol>
+<li><strong>监控</strong>：Sentinel 每秒向主从节点发送 PING</li>
+<li><strong>主观下线（sdown）</strong>：单个 Sentinel 节点超时未收到回复</li>
+<li><strong>客观下线（odown）</strong>：quorum 个 Sentinel 同意主观下线</li>
+<li><strong>领导者选举</strong>：Sentinel 之间用 Raft 类似协议选举 leader 执行故障转移</li>
+<li><strong>故障转移</strong>：选一个从节点升为主、修改配置、通知其他从节点</li>
+</ol>
+<p><strong>脑裂问题</strong>：<br>网络分区时，Sentinel 认为主节点挂了，提升从节点为新主；旧主恢复正常后继续接受写入，导致数据不一致。</p>
+<p><strong>解决方案</strong>：</p>
+<ul>
+<li><code>min-replicas-to-write 1</code>：至少有 1 个从节点确认时才可写</li>
+<li><code>min-replicas-max-lag 10</code>：从节点延迟超过 10s 时禁止主节点写入</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某公司使用 Redis Sentinel 3 节点部署，因网络交换机故障导致主节点被隔离，Sentinel 提升新主；旧主交换机恢复后重新接入集群，但 <code>min-replicas-to-write 0</code> 导致旧主仍在接受写入，恢复后出现大量键冲突</li>
+<li><strong>Sentinel vs Cluster</strong>：Sentinel 适合主从架构高可用，Cluster 适合数据分片 + 高可用</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/management/sentinel/">https://redis.io/docs/management/sentinel/</a></p>
+<hr>
+<h3 id="14-Redis-Cluster-数据分片-——-16384-slots"><a href="#14-Redis-Cluster-数据分片-——-16384-slots" class="headerlink" title="14. Redis Cluster 数据分片 —— 16384 slots"></a>14. Redis Cluster 数据分片 —— 16384 slots</h3><p><strong>标准答案</strong>：</p>
+<ul>
+<li><strong>16384 个哈希槽</strong>：对 key 用 CRC16 计算后模 16384 决定归属槽</li>
+<li><strong>三主三从</strong>最小集群，主节点负责读写，从节点备份</li>
+<li><strong>槽迁移</strong>：<code>CLUSTER SETSLOT</code> 系列命令实现平滑迁移</li>
+<li><strong>MOVED 重定向</strong>：客户端请求的槽不属于当前节点，返回 MOVED 错误 + 目标节点地址（直连模式）</li>
+<li><strong>ASK 重定向</strong>：槽迁移过程中，请求落在正在迁出的槽时，返回 ASK 错误 + 目标节点地址</li>
+</ul>
+<p><strong>为什么是 16384 不是更多的槽</strong>？</p>
+<ul>
+<li>心跳包用 2KB 位图表示所有槽（16384 bits &#x3D; 2KB）</li>
+<li>若用 65536 个槽，心跳包 → 8KB，集群规模大时网络开销激增</li>
+<li>16384 在常见集群规模（&lt;1000 节点）下够用</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：批量操作（<code>MGET</code>、<code>MSET</code>、管道）跨槽时，Redis Cluster 不支持跨槽原子操作。某团队用 <code>MGET</code> 批量查 500 个 key，发现 key 分布在 4 个槽上，<code>MGET</code> 返回 <code>CROSSSLOT</code> 错误。解决方案：用 Hash Tag <code>{user:123}</code> 确保相关 key 在同一槽</li>
+<li><strong>重分片对性能的影响</strong>：槽迁移期间，源节点需 dump+restore 数据，CPU 和网络开销大；建议低峰期执行，每次最多迁移 100 个槽</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/management/scaling/">https://redis.io/docs/management/scaling/</a></p>
+<hr>
+<h3 id="15-Redis-Cluster-重分片与-ASK-MOVED-处理"><a href="#15-Redis-Cluster-重分片与-ASK-MOVED-处理" class="headerlink" title="15. Redis Cluster 重分片与 ASK&#x2F;MOVED 处理"></a>15. Redis Cluster 重分片与 ASK&#x2F;MOVED 处理</h3><p><strong>标准答案</strong>：<br><strong>重分片（Resharding）</strong>：</p>
+<ol>
+<li>确定目标节点和需要迁移的槽</li>
+<li>在目标节点执行 <code>CLUSTER SETSLOT &lt;slot&gt; IMPORTING &lt;source-node-id&gt;</code></li>
+<li>在源节点执行 <code>CLUSTER SETSLOT &lt;slot&gt; MIGRATING &lt;target-node-id&gt;</code></li>
+<li>从源节点获取 slot 中的 key：<code>CLUSTER GETKEYSINSLOT &lt;slot&gt; &lt;count&gt;</code></li>
+<li>逐个迁移 key：<code>MIGRATE &lt;target-host&gt; &lt;target-port&gt; &lt;key&gt; 0 5000</code></li>
+<li>迁移完成后通知所有节点：<code>CLUSTER SETSLOT &lt;slot&gt; NODE &lt;target-node-id&gt;</code></li>
+</ol>
+<p><strong>MOVED 与 ASK 的区别</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>MOVED</th>
+<th>ASK</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>场景</td>
+<td>槽已永久迁移</td>
+<td>槽正在迁移中</td>
+</tr>
+<tr>
+<td>客户端缓存</td>
+<td>更新本地槽映射</td>
+<td>不更新</td>
+</tr>
+<tr>
+<td>重试</td>
+<td>直接连新节点</td>
+<td>先发 ASKING 再操作</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某团队上线自动重分片脚本，未检查集群负载，在 11:00 高峰期执行迁移。结果源节点 CPU 100%（<code>MIGRATE</code> 需要序列化 + 网络传输 + 反序列化），槽迁移耗时 2 小时，大量请求超时。教训：重分片必须在低峰期 + 控制迁移速率 + 监控 CPU 和网络</li>
+<li><strong>Redis Cluster 客户端要求</strong>：客户端必须实现 MOVED&#x2F;ASK 重定向逻辑。常见客户端：Jedis Cluster（Java）、StackExchange.Redis（C#）、lettuce（Java+响应式）、redis-py-cluster（Python）</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/management/scaling/">https://redis.io/docs/management/scaling/</a></p>
+<hr>
+<h3 id="16-Redis-Cluster-分片哈希标签（Hash-Tag）"><a href="#16-Redis-Cluster-分片哈希标签（Hash-Tag）" class="headerlink" title="16. Redis Cluster 分片哈希标签（Hash Tag）"></a>16. Redis Cluster 分片哈希标签（Hash Tag）</h3><p><strong>标准答案</strong>：<br>Hash Tag 是一种将多个 key 强制分配到同一槽的机制：</p>
+<ul>
+<li>语法：<code>{tag}</code>，如 <code>user:123:profile</code>、<code>user:123:orders</code></li>
+<li>Redis 只取 <code>{}</code> 内的 tag 计算 CRC16 决定槽位</li>
+<li>常用于需要事务&#x2F;MULTI 操作的关联数据</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Hot Key 问题加剧</strong>：所有带相同 tag 的 key 集中在同一槽，若 tag 设计不当（如所有 key 用 <code>{global}</code>），会导致单节点过热</li>
+<li><strong>Tag 长度限制</strong>：<code>{}</code> 内至少 1 字符，<code>{}</code> 外至少 1 字符，否则不作为 Hash Tag</li>
+<li><strong>嵌套花括号</strong>：只有第一个左括号和第一个右括号之间的内容生效：<code>{user:{123}</code> → tag 为 <code>user:{123</code></li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/reference/cluster-spec/">https://redis.io/docs/reference/cluster-spec/</a></p>
+<hr>
+<h2 id="0x03-缓存设计"><a href="#0x03-缓存设计" class="headerlink" title="0x03 缓存设计"></a>0x03 缓存设计</h2><h3 id="17-缓存穿透-击穿-雪崩-——-区分与解决方案"><a href="#17-缓存穿透-击穿-雪崩-——-区分与解决方案" class="headerlink" title="17. 缓存穿透 &#x2F; 击穿 &#x2F; 雪崩 —— 区分与解决方案"></a>17. 缓存穿透 &#x2F; 击穿 &#x2F; 雪崩 —— 区分与解决方案</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>描述</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>穿透</strong></td>
+<td>请求不存在的数据，每次绕过缓存打到 DB</td>
+<td>布隆过滤器 + 空值缓存（TTL 短）</td>
+</tr>
+<tr>
+<td><strong>击穿</strong></td>
+<td>热点 key 过期，大量请求同时打 DB</td>
+<td>互斥锁（SETNX）、热点 key 不过期、本地缓存</td>
+</tr>
+<tr>
+<td><strong>雪崩</strong></td>
+<td>大量 key 同时过期，DB 被打垮</td>
+<td>TTL 加随机值、多级缓存、限流降级</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>布隆过滤器的局限性</strong>：有误判率（假阳性），不可删除元素。对于需要删除的场景不可用，考虑布谷鸟过滤器</li>
+<li><strong>互斥锁的尺度</strong>：锁的粒度可按 key 维度（防击穿）而非全局锁；用 <code>SETNX key value EX 5</code> 实现，避免死锁</li>
+<li><strong>🔥 生产踩坑</strong>：某电商双 11 活动，商品详情页缓存 TTL 统一设为 30 分钟，零点大促同时触发缓存刷新，DB 连接数瞬间打爆。修复方案：TTL &#x3D; 1800 + random(0, 300)，错开过期时间</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/manual/patterns/">https://redis.io/docs/manual/patterns/</a></p>
+<hr>
+<h3 id="18-缓存一致性-——-Cache-Aside-Read-Through-Write-Behind"><a href="#18-缓存一致性-——-Cache-Aside-Read-Through-Write-Behind" class="headerlink" title="18. 缓存一致性 —— Cache Aside &#x2F; Read-Through &#x2F; Write-Behind"></a>18. 缓存一致性 —— Cache Aside &#x2F; Read-Through &#x2F; Write-Behind</h3><p><strong>标准答案</strong>：</p>
+<p><strong>Cache Aside（旁路缓存）</strong>：</p>
+<ul>
+<li>读：先查缓存 → 未命中查 DB → 写入缓存</li>
+<li>写：先更新 DB → 再删除缓存（延迟双删：先删缓存 → 更新 DB → 异步再删一次）</li>
+</ul>
+<p><strong>Read-Through</strong>：</p>
+<ul>
+<li>缓存层代理数据库查询，请求只与缓存交互</li>
+<li>缓存未命中时，缓存层自行加载 DB 数据</li>
+</ul>
+<p><strong>Write-Behind（Write-Back）</strong>：</p>
+<ul>
+<li>写请求只写缓存层，缓存异步批量刷回 DB</li>
+<li>写性能极高，但数据丢失风险大（缓存挂了数据丢失）</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>为什么是「删缓存」而非「更新缓存」</strong>：</p>
+<ol>
+<li>并发写场景下，更新缓存可能会导致旧值覆盖（A 写 DB&#x3D;10，B 写 DB&#x3D;20，B 先更新缓存&#x3D;20，A 后更新缓存&#x3D;10）</li>
+<li>删缓存后，下次读一定会从 DB 拉最新值</li>
+<li>懒加载策略，只在真正需要时才加载</li>
+</ol>
+</li>
+<li><p><strong>延迟双删的时序问题</strong>：</p>
+<ul>
+<li>A 删缓存 → A 更新 DB → B 读缓存未命中 → B 读 DB（旧数据） → B 写缓存（旧数据） → A 第二次删缓存</li>
+<li>解决方案：第二次删除用延迟（500ms），确保 B 的写缓存操作在前</li>
+</ul>
+</li>
+<li><p><strong>🔥 生产踩坑</strong>：某支付订单场景，更新订单状态后删缓存，因删除失败（Redis 超时）导致缓存中一直是「已支付」状态。修复：用 binlog（Canal）监听 MySQL 变更，异步刷新缓存</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/manual/patterns/">https://redis.io/docs/manual/patterns/</a></p>
+<hr>
+<h3 id="19-本地缓存-Redis-多级缓存方案"><a href="#19-本地缓存-Redis-多级缓存方案" class="headerlink" title="19. 本地缓存 + Redis 多级缓存方案"></a>19. 本地缓存 + Redis 多级缓存方案</h3><p><strong>标准答案</strong>：<br><strong>一级缓存（本地）</strong>：Caffeine&#x2F;Guava Cache，存放在应用进程内<br><strong>二级缓存（Redis）</strong>：分布式缓存集群<br><strong>三级查询（DB）</strong>：数据库兜底</p>
+<p><strong>请求流程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">请求 → 一级缓存（Caffeine）→ 命中则返回</span><br><span class="line">                                    ↓ 未命中</span><br><span class="line">                              二级缓存（Redis）→ 命中则返回，同时回写一级</span><br><span class="line">                                                    ↓ 未命中</span><br><span class="line">                                                DB 查询 → 回写两级缓存</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据一致性策略</strong>：</p>
+<ul>
+<li><strong>一级缓存 TTL 短</strong>（秒级），Redis 更新后本地缓存快速过期</li>
+<li><strong>Redis 订阅通知</strong>：数据变更时发布消息，应用收到后失效本地缓存</li>
+<li><strong>强一致场景</strong>：直接跳过本地缓存，只走 Redis+DB</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>内存限制</strong>：本地缓存需设置上限（如 10000 条），用 LRU&#x2F;LFU 淘汰；防止 OOM</li>
+<li><strong>🔥 生产踩坑</strong>：某团队对热点数据使用本地缓存 Caffeine + Redis，本地 TTL 设为 5 分钟。运营后台修改商品价格后，用户端看到的仍是旧价格（本地缓存未过期）。修复：修改商品时发布 Redis Pub&#x2F;Sub 消息，应用订阅后失效对应本地缓存</li>
+<li><strong>适用场景</strong>：读多写少（配置信息&#x2F;商品详情）、对一致性和实时性要求不严格的场景</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://github.com/ben-manes/caffeine">https://github.com/ben-manes/caffeine</a></p>
+<hr>
+<h3 id="20-🔥-生产踩坑：缓存与数据库双写一致性实战"><a href="#20-🔥-生产踩坑：缓存与数据库双写一致性实战" class="headerlink" title="20. 🔥 生产踩坑：缓存与数据库双写一致性实战"></a>20. 🔥 生产踩坑：缓存与数据库双写一致性实战</h3><p><strong>标准答案</strong>：<br>某社交平台点赞业务场景：</p>
+<ol>
+<li>用户 A 点赞 → 更新 DB 点赞数 + 1</li>
+<li>删除缓存</li>
+<li>用户 B 读取点赞数 → 缓存未命中 → 从 DB 读取（此时可能读到旧数据，因为主从延迟）</li>
+<li>用户 B 写缓存（写入旧值）</li>
+<li>脏数据持续到缓存过期</li>
+</ol>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li><strong>先删缓存，后写 DB</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">删缓存 → 写 DB → 延迟 500ms → 再删缓存</span><br></pre></td></tr></table></figure></li>
+<li><strong>写 DB 后直接更新缓存（加分布式锁）</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">写 DB → 加锁 → 读 DB 最新值 → 写缓存 → 解锁</span><br></pre></td></tr></table></figure></li>
+<li><strong>监听 binlog</strong>：用 Canal 订阅 MySQL binlog，解析变更 → 同步到 Redis</li>
+</ol>
+<p><strong>最终方案</strong>：读多写少场景用「删除缓存」；写多读少场景用「binlog 同步」</p>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/manual/patterns/">https://redis.io/docs/manual/patterns/</a></p>
+<hr>
+<h2 id="0x04-分布式锁"><a href="#0x04-分布式锁" class="headerlink" title="0x04 分布式锁"></a>0x04 分布式锁</h2><h3 id="21-SETNX-Lua-实现分布式锁"><a href="#21-SETNX-Lua-实现分布式锁" class="headerlink" title="21. SETNX + Lua 实现分布式锁"></a>21. SETNX + Lua 实现分布式锁</h3><p><strong>标准答案</strong>：<br><strong>加锁</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET key uuid NX EX 30</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>NX</code>：key 不存在时才设置</li>
+<li><code>EX 30</code>：自动过期 30s，防死锁</li>
+<li>value 用 uuid 标识锁的持有者</li>
+</ul>
+<p><strong>解锁（Lua 脚本，保证原子性）</strong>：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> redis.call(<span class="string">&quot;GET&quot;</span>, KEYS[<span class="number">1</span>]) == ARGV[<span class="number">1</span>] <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> redis.call(<span class="string">&quot;DEL&quot;</span>, KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>为什么要用 Lua</strong>：<code>GET</code> 值判断 + <code>DEL</code> 操作不是原子的，两个操作之间锁可能过期被其他线程获取</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>锁续期（Watch Dog）</strong>：业务执行时间超过锁 TTL 怎么办？<ul>
+<li>Redisson 的实现：后台线程每 10s（锁 TTL 的 1&#x2F;3）检查一次，如锁仍由当前线程持有，则 <code>PEXPIRE key 30000</code></li>
+<li>客户端挂了？锁自动过期释放</li>
+</ul>
+</li>
+<li><strong>🔥 生产踩坑</strong>：未设置锁 TTL 导致死锁（服务器宕机、进程被 kill -9）；设置了 TTL 但业务执行超时导致并发执行<ul>
+<li>优化：锁 TTL &#x3D; 业务预估最大时间 × 2，配合 Watch Dog</li>
+</ul>
+</li>
+<li><strong>单点问题</strong>：SETNX 只在一个 Redis 节点上加锁，主从异步复制下主节点挂了，从节点未同步锁信息 → 其他线程可以加锁成功 → 锁失效</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/manual/patterns/">https://redis.io/docs/manual/patterns/</a></p>
+<hr>
+<h3 id="22-Redlock-原理与争议"><a href="#22-Redlock-原理与争议" class="headerlink" title="22. Redlock 原理与争议"></a>22. Redlock 原理与争议</h3><p><strong>标准答案</strong>：<br>Redlock（Redis Distributed Lock）由 Redis 作者 Antirez 提出，解决单点锁的可靠性：</p>
+<p><strong>加锁步骤</strong>：</p>
+<ol>
+<li>获取当前时间戳</li>
+<li>依次向 N 个（通常 5 个）独立的 Redis 节点加锁，设置相同 key+value+TTL</li>
+<li>计算加锁耗时，如果成功加锁节点数 ≥ N&#x2F;2 + 1 且总耗时 &lt; TTL，则加锁成功</li>
+<li>加锁失败则向所有节点发送解锁</li>
+</ol>
+<p><strong>争议（Martin Kleppmann vs Antirez）</strong>：</p>
+<ul>
+<li><p><strong>Martin Kleppmann（《DDIA》作者）</strong> 认为 Redlock 不安全：</p>
+<ol>
+<li><strong>时钟漂移</strong>：依赖时间戳，时钟跳跃会导致锁过期判断错误</li>
+<li><strong>GC&#x2F;停顿</strong>：客户端加锁后发生 STW GC，锁自动过期，另一个客户端获得锁 → 第一个客户端 GC 恢复后以为自己仍持有锁</li>
+<li><strong>Fencing Token 问题</strong>：Redlock 没有生成递增的 fencing token，无法在资源层做合法性校验</li>
+</ol>
+</li>
+<li><p><strong>Antirez 反驳</strong>：</p>
+<ol>
+<li>时钟漂移在生产环境中可管理（NTP 不会跳变太大）</li>
+<li>GC 停顿是通用问题，所有分布式锁都会遇到</li>
+<li>Redlock 适用于大多数业务场景，不需要 fencing token</li>
+</ol>
+</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产建议</strong>：<ul>
+<li>大多数场景 <code>SETNX</code> 单节点锁就够了</li>
+<li>真的需要强一致锁？用 ZooKeeper（临时顺序节点 + Watch 机制）或 etcd（租约 + revision）</li>
+<li>Redlock 在业务复杂度上不值得，除非你真的有 5 个独立 Redis 节点</li>
+</ul>
+</li>
+<li><strong>🔥 生产踩坑</strong>：某团队使用 Redlock 实现分布式锁，但因磁盘 IO 瓶颈导致 Redis 节点间时钟 skew 超过 2s，锁频繁失效。最终回退到 SETNX + 主从哨兵方案</li>
+<li><strong>Fencing Token</strong>：ZooKeeper 的 <code>zxid</code> 可充当 fencing token，资源层可校验 token 递增</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://redis.io/docs/manual/patterns/">https://redis.io/docs/manual/patterns/</a></li>
+<li><a target="_blank" rel="noopener" href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://antirez.com/news/101">http://antirez.com/news/101</a></li>
+</ul>
+<hr>
+<h3 id="23-🔥-生产踩坑：分布式锁超时与续期"><a href="#23-🔥-生产踩坑：分布式锁超时与续期" class="headerlink" title="23. 🔥 生产踩坑：分布式锁超时与续期"></a>23. 🔥 生产踩坑：分布式锁超时与续期</h3><p><strong>标准答案</strong>：<br>某定时任务场景，每 2 分钟执行一次，用 Redis 分布式锁确保单点执行：</p>
+<ol>
+<li>线程 A 加锁成功（TTL&#x3D;10s）</li>
+<li>数据库查询 + 业务计算耗时 15s</li>
+<li>第 10s 锁自动过期</li>
+<li>线程 B 加锁成功（以为 A 已结束）</li>
+<li>第 15s A 完成业务，执行 Lua 解锁</li>
+<li>A 解锁了谁的锁？—— A 的锁已过期，B 的锁被 A 误删！</li>
+</ol>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li><strong>Watch Dog 自动续期</strong>（Redisson）：锁持有期间定期续期，直到业务结束释放</li>
+<li><strong>Lua 解锁检查 value 是否是自己</strong>：每个线程用唯一 uuid 标识锁持有者</li>
+<li><strong>合理设置 TTL</strong>：基于业务预估最大耗时 × 2</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Redisson 实现</span></span><br><span class="line"><span class="type">RLock</span> <span class="variable">lock</span> <span class="operator">=</span> redissonClient.getLock(<span class="string">&quot;myLock&quot;</span>);</span><br><span class="line">lock.lock(<span class="number">30</span>, TimeUnit.SECONDS); <span class="comment">// 看门狗自动续期</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 业务逻辑</span></span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    lock.unlock();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://github.com/redisson/redisson/wiki/8.-distributed-locks-and-synchronizers">https://github.com/redisson/redisson/wiki/8.-distributed-locks-and-synchronizers</a></p>
+<hr>
+<h3 id="24-分布式锁选型对比"><a href="#24-分布式锁选型对比" class="headerlink" title="24. 分布式锁选型对比"></a>24. 分布式锁选型对比</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>强一致性</th>
+<th>可靠性</th>
+<th>性能</th>
+<th>复杂度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SETNX + Lua</td>
+<td>低（主从异步复制丢锁）</td>
+<td>中</td>
+<td>极高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>Redlock</td>
+<td>中（有争议）</td>
+<td>较高</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>ZooKeeper</td>
+<td>高（ZAB 协议，顺序节点）</td>
+<td>高</td>
+<td>中</td>
+<td>中</td>
+</tr>
+<tr>
+<td>etcd</td>
+<td>高（Raft 共识）</td>
+<td>高</td>
+<td>中</td>
+<td>中</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>性能优先级</strong>：SETNX 单节点 ≈ 5-10μs，ZooKeeper ≈ 10-20ms（需要磁盘 fsync）</li>
+<li><strong>ZooKeeper 的惊群效应</strong>：大量客户端监听同一节点时，节点变更会触发所有客户端同时加锁 → 大量网络风暴</li>
+<li><strong>etcd 租约（Lease）</strong>：与 TTL 类似，但 etcd 通过 gRPC keepalive 续期，比 Redis Watch Dog 更可靠</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/manual/patterns/">https://redis.io/docs/manual/patterns/</a></p>
+<hr>
+<h2 id="0x05-生产实战"><a href="#0x05-生产实战" class="headerlink" title="0x05 生产实战"></a>0x05 生产实战</h2><h3 id="25-Redis-7-4-8-0-新特性"><a href="#25-Redis-7-4-8-0-新特性" class="headerlink" title="25. Redis 7.4 &#x2F; 8.0 新特性"></a>25. Redis 7.4 &#x2F; 8.0 新特性</h3><p><strong>标准答案</strong>：</p>
+<p><strong>Redis 7.4（2024+）</strong>：</p>
+<ol>
+<li>引入 <strong>Redis Stack</strong> 作为官方多模型方案（JSON &#x2F; Search &#x2F; TimeSeries &#x2F; Bloom）</li>
+<li><strong>AOF 文件格式优化</strong>：改进的 AOF 存储格式，减少文件体积</li>
+<li><strong>更好的内存效率</strong>：更紧凑的 hash&#x2F;ziplist 编码</li>
+<li><strong>安全增强</strong>：TLS 默认支持、ACL 改进</li>
+</ol>
+<p><strong>Redis 8.0（2025+ 展望）</strong>：</p>
+<ol>
+<li>基于 Redis Stack 的进一步多模型整合</li>
+<li>向量搜索（Vector Similarity Search）集成</li>
+<li>更高效的主从复制协议</li>
+<li>更好的集群管理工具</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Redis Stack vs 原生 Redis</strong>：Stack 集成了模块（RediSearch、RedisJSON、RedisTimeSeries），生产环境建议使用 Redis Stack 以节省部署和维护成本</li>
+<li><strong>Valkey 分叉</strong>：2024 年 Linux 基金会接管 Redis 后，开源社区分叉出 <strong>Valkey</strong>（Linux Foundation 托管）。Valkey 保持与 Redis 7.2 API 兼容，但后续路线分歧：<ul>
+<li>Redis（自 7.4+）：SSPL &#x2F; RSAL 许可证变化，商业化加速</li>
+<li>Valkey：保持 BSD 许可证，社区驱动，兼容 Redis 协议</li>
+</ul>
+</li>
+</ul>
+<p><strong>选型建议</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>新项目，需要商业支持</td>
+<td>Redis（Redis Stack &#x2F; Redis Cloud）</td>
+</tr>
+<tr>
+<td>开源优先，避免许可证风险</td>
+<td>Valkey（BSD 许可证）</td>
+</tr>
+<tr>
+<td>已有大量 Redis 部署，不想迁移</td>
+<td>保持当前版本，观望生态发展</td>
+</tr>
+<tr>
+<td>需要向量搜索 &#x2F; JSON 等模块</td>
+<td>Redis Stack 或 Valkey + 社区模块</td>
+</tr>
+</tbody></table>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://redis.io/blog/">https://redis.io/blog/</a></li>
+<li><a target="_blank" rel="noopener" href="https://valkey.io/">https://valkey.io/</a></li>
+</ul>
+<hr>
+<h3 id="26-Valkey-分叉后的选型分析"><a href="#26-Valkey-分叉后的选型分析" class="headerlink" title="26. Valkey 分叉后的选型分析"></a>26. Valkey 分叉后的选型分析</h3><p><strong>标准答案</strong>：<br>2024 年 3 月，Redis 修改许可证（RSALv2 + SSPL），不再属于 OSI 认证的开源协议。Linux 基金会接管社区分支创建 <strong>Valkey</strong>。</p>
+<p><strong>核心差异</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Redis（7.4+）</th>
+<th>Valkey（7.2-compatible+）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>许可证</td>
+<td>RSALv2 + SSPL（非 OSI 开源）</td>
+<td>BSD-3-Clause（OSI 开源）</td>
+</tr>
+<tr>
+<td>维护组织</td>
+<td>Redis Inc. &#x2F; TFS</td>
+<td>Linux Foundation &#x2F; 社区</td>
+</tr>
+<tr>
+<td>API 兼容</td>
+<td>7.4+ 保持向后兼容</td>
+<td>7.2 API 100% 兼容</td>
+</tr>
+<tr>
+<td>新功能</td>
+<td>向量搜索、Redis Stack 商业化</td>
+<td>社区驱动，路线图更开放</td>
+</tr>
+<tr>
+<td>生态支持</td>
+<td>AWS ElastiCache &#x2F; Redis Cloud</td>
+<td>部分云厂商已支持（VMware、Aiven）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>迁移成本</strong>：Valkey 兼容 Redis 7.2 API，<code>redis-cli</code> 直接可用；配置项基本一致，迁移只需替换二进制和配置文件名</li>
+<li><strong>生产建议</strong>：当前（2026）建议新项目用 <strong>Valkey</strong> 以避免许可证风险；已有大量 Redis Stack 依赖（如 RediSearch）的团队暂留守 Redis，等 Valkey 社区版框架成熟</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://valkey.io/">https://valkey.io/</a></p>
+<hr>
+<h3 id="27-大-Key-扫描与处理"><a href="#27-大-Key-扫描与处理" class="headerlink" title="27. 大 Key 扫描与处理"></a>27. 大 Key 扫描与处理</h3><p><strong>标准答案</strong>：<br><strong>手动扫描</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --bigkeys</span><br></pre></td></tr></table></figure>
+<p>输出每种类型中最大的 key 的 size 和 key 名称。</p>
+<p><strong>生产脚本</strong>（Python，避免主库负载过高）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> redis</span><br><span class="line">r = redis.Redis(host=<span class="string">&#x27;localhost&#x27;</span>, port=<span class="number">6379</span>, db=<span class="number">0</span>, socket_timeout=<span class="number">5</span>)</span><br><span class="line">cursor = <span class="number">0</span></span><br><span class="line">threshold = <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>  <span class="comment"># 10MB</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    cursor, keys = r.scan(cursor=cursor, count=<span class="number">1000</span>)</span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> keys:</span><br><span class="line">        type_ = r.<span class="built_in">type</span>(key)</span><br><span class="line">        <span class="keyword">if</span> type_ == <span class="string">b&#x27;string&#x27;</span>:</span><br><span class="line">            size = r.strlen(key)</span><br><span class="line">        <span class="keyword">elif</span> type_ <span class="keyword">in</span> (<span class="string">b&#x27;list&#x27;</span>, <span class="string">b&#x27;set&#x27;</span>, <span class="string">b&#x27;zset&#x27;</span>):</span><br><span class="line">            size = r.memory_usage(key)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">if</span> size &gt; threshold:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;BIG KEY: <span class="subst">&#123;key.decode()&#125;</span> type=<span class="subst">&#123;type_.decode()&#125;</span> size=<span class="subst">&#123;size&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> cursor == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>处理方案</strong>：</p>
+<ul>
+<li><strong>String 大 Key</strong>：压缩（gzip&#x2F;snappy）或分片存储</li>
+<li><strong>Hash&#x2F;Set&#x2F;ZSet 大 Key</strong>：按业务字段拆分，如 <code>user:info:{userId % 1000}</code></li>
+<li><strong>惰性删除</strong>：<code>UNLINK</code> 代替 <code>DEL</code></li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某团队使用 <code>redis-cli --bigkeys</code> 扫描，因扫描过程使用 <code>SCAN</code> 采样但采样率不足（默认 100 个样本），漏过了一个 50MB 的 Hash key。修复：用 <code>MEMORY USAGE key</code> 获取精确内存，但注意该命令本身耗 CPU（需要遍历整个数据结构）</li>
+<li><strong>SCAN 计数参数</strong>：<code>COUNT</code> 是迭代器的一次扫描的 bucket 数，不是精确返回数量，不保证均匀返回</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/commands/scan/">https://redis.io/commands/scan/</a></p>
+<hr>
+<h3 id="28-OOM-排查"><a href="#28-OOM-排查" class="headerlink" title="28. OOM 排查"></a>28. OOM 排查</h3><p><strong>标准答案</strong>：<br><strong>现象</strong>：<code>OOM command not allowed when used memory &gt; &#39;maxmemory&#39;</code></p>
+<p><strong>排查步骤</strong>：</p>
+<ol>
+<li><code>INFO memory</code> 查看内存分配</li>
+<li><code>redis-cli --bigkeys</code> 检查大 Key</li>
+<li><code>MEMORY STATS</code> 查看内存细分（overhead、数据集、碎片）</li>
+<li>检查 <code>maxmemory-policy</code> 配置是否合理</li>
+<li><code>MEMORY DOCTOR</code> 诊断内存健康度</li>
+</ol>
+<p><strong>常见原因</strong>：</p>
+<ol>
+<li>BigKey 未拆分</li>
+<li>内存碎片率高（<code>used_memory_rss / used_memory &gt; 1.5</code>）</li>
+<li>没有设置 <code>maxmemory</code> 或 <code>maxmemory-policy noeviction</code></li>
+<li>业务写入速率远大于过期&#x2F;淘汰速率</li>
+</ol>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li>设置合理的 <code>maxmemory</code>（物理内存 70%-80%）</li>
+<li>选择合适的淘汰策略：<code>allkeys-lru</code>（缓存场景）、<code>volatile-ttl</code>（有时效数据）</li>
+<li><code>activedefrag yes</code> 开启自动碎片整理</li>
+<li>升级到 jemalloc 5.x 减少碎片</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某实例 <code>maxmemory=8GB</code>，<code>used_memory</code> 显示 6GB，但 RSS 达到了 11GB → OOM killer 杀进程。原因：<code>activedefrag no</code>，碎片率 &gt; 1.8。开启 <code>activedefrag yes</code> 后 RSS 降回 7.5GB</li>
+<li><strong>COW 导致的伪 OOM</strong>：<code>bgsave</code> 时 COW 翻倍内存，即使 <code>used_memory &lt; maxmemory</code>，RSS 也可能超物理内存。关闭自动 bgsave 或调大物理内存</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/commands/info/">https://redis.io/commands/info/</a></p>
+<hr>
+<h3 id="29-慢查询分析"><a href="#29-慢查询分析" class="headerlink" title="29. 慢查询分析"></a>29. 慢查询分析</h3><p><strong>标准答案</strong>：<br><strong>配置与查看</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置慢查询阈值（微秒）</span></span><br><span class="line">CONFIG SET slowlog-log-slower-than 10000  <span class="comment"># 10ms</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置慢查询日志最大条数</span></span><br><span class="line">CONFIG SET slowlog-max-len 1000</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看慢查询</span></span><br><span class="line">SLOWLOG GET 100</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重置日志</span></span><br><span class="line">SLOWLOG RESET</span><br></pre></td></tr></table></figure>
+
+<p><strong>慢查询示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1) 1) (integer) 123           # 唯一 ID</span><br><span class="line">   2) (integer) 1718000000     # Unix 时间戳</span><br><span class="line">   3) (integer) 45231          # 执行耗时（微秒） = 45ms</span><br><span class="line">   4) 1) &quot;KEYS&quot;                # 命令</span><br><span class="line">      2) &quot;*user*&quot;              # 参数</span><br><span class="line">   5) &quot;127.0.0.1:6379&quot;         # 客户端地址</span><br><span class="line">   6) &quot;worker-123&quot;             # 客户端名称</span><br></pre></td></tr></table></figure>
+
+<p><strong>常见慢查询原因</strong>：</p>
+<ol>
+<li><code>KEYS *</code> &#x2F; <code>SMEMBERS</code> &#x2F; <code>HGETALL</code>（全量遍历）</li>
+<li><code>ZRANGEBYSCORE</code> 范围过大</li>
+<li>BigKey 的 <code>DEL</code> &#x2F; <code>GET</code> &#x2F; <code>SET</code></li>
+<li><code>MGET</code> 批量操作包含大 Value</li>
+<li><code>SORT</code> 排序操作</li>
+</ol>
+<p><strong>优化建议</strong>：</p>
+<ul>
+<li><code>KEYS</code> → <code>SCAN</code></li>
+<li><code>SMEMBERS</code> → <code>SSCAN</code></li>
+<li><code>HGETALL</code> → <code>HSCAN</code> + 限制 field 数</li>
+<li>BigKey → 拆分</li>
+<li>复杂操作 → <code>Lua script</code> 或服务端聚合</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某定时任务每 5 分钟执行 <code>KEYS *</code> 清理过期 session，导致 Redis CPU 持续 80%+。原因：<code>KEYS</code> 是 O(N) 操作，遍历 200 万 key 耗时约 500ms，阻塞所有其他请求</li>
+<li><strong>slowlog-max-len 设置过小</strong>：日志被冲掉，无法追溯问题。建议设置 10000 以上，低频消费到外部存储</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/commands/slowlog/">https://redis.io/commands/slowlog/</a></p>
+<hr>
+<h3 id="30-CPU-爆满排查"><a href="#30-CPU-爆满排查" class="headerlink" title="30. CPU 爆满排查"></a>30. CPU 爆满排查</h3><p><strong>标准答案</strong>：<br><strong>排查流程</strong>：</p>
+<ol>
+<li><code>redis-cli INFO cpu</code>：检查 <code>used_cpu_sys</code> &#x2F; <code>used_cpu_user</code> 比例</li>
+<li><code>redis-cli --hotkeys</code>：找 Hot Key</li>
+<li><code>SLOWLOG GET 50</code>：看慢查询</li>
+<li><code>INFO commandstats</code>：各命令耗时占比</li>
+<li>检查 AOF&#x2F;RDB 是否正在执行</li>
+<li><code>INFO clients</code>：检查客户端连接数</li>
+</ol>
+<p><strong>常见原因与解决</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>特征</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>慢查询</td>
+<td><code>KEYS *</code> &#x2F; BigKey</td>
+<td>改用 SCAN，拆分 BigKey</td>
+</tr>
+<tr>
+<td>Hot Key</td>
+<td>单 key QPS 极高</td>
+<td>本地缓存&#x2F;打散</td>
+</tr>
+<tr>
+<td>fork 负载</td>
+<td>bgsave&#x2F;bgrewriteaof</td>
+<td>关闭自动持久化&#x2F;调大实例</td>
+</tr>
+<tr>
+<td>客户端风暴</td>
+<td>连接数 &gt; 10000</td>
+<td>连接池&#x2F;限流</td>
+</tr>
+<tr>
+<td>内存碎片整理</td>
+<td>activedefrag 导致</td>
+<td>限制 defrag 速度</td>
+</tr>
+<tr>
+<td>复杂 Lua 脚本</td>
+<td>执行时间长</td>
+<td>拆分&#x2F;优化脚本</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>🔥 生产踩坑</strong>：某 Redis 实例 CPU 100%，排查发现 <code>INFO commandstats</code> 中 <code>ZREMRANGEBYSCORE</code> 占比 70%。原因：某定时任务每 10 秒执行一次 <code>ZREMRANGEBYSCORE</code> 清空过期数据（ZSet 有 80 万成员），每次耗时 300ms。优化：改为每日一次，或用 Sorted Set 的 TTL 机制</li>
+<li><strong>Linux 层面的排查</strong>：<code>top</code> 看 redis-server 进程 CPU，<code>perf top -p &lt;pid&gt;</code> 看热点函数，<code>/proc/&lt;pid&gt;/status</code> 看上下文切换</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/reference/optimization/latency/">https://redis.io/docs/reference/optimization/latency/</a></p>
+<hr>
+<h3 id="31-🔥-生产踩坑：Redis-内存无限增长"><a href="#31-🔥-生产踩坑：Redis-内存无限增长" class="headerlink" title="31. 🔥 生产踩坑：Redis 内存无限增长"></a>31. 🔥 生产踩坑：Redis 内存无限增长</h3><p><strong>标准答案</strong>：<br>某日志采集系统使用 Redis List 作为消息缓冲，未设置 <code>maxmemory</code> 和淘汰策略。业务高峰期日志量暴涨，Redis 内存从 4GB 增长到 28GB，最终 OOM 宕机。</p>
+<p><strong>根因分析</strong>：</p>
+<ol>
+<li><code>maxmemory 0</code>（无限制）</li>
+<li><code>maxmemory-policy noeviction</code>（默认）</li>
+<li>消费端消费速度 &lt; 生产速度，List 持续堆积</li>
+<li>没有监控告警</li>
+</ol>
+<p><strong>修复方案</strong>：</p>
+<ol>
+<li><code>maxmemory 12GB</code>：限制 Redis 最大内存</li>
+<li><code>maxmemory-policy allkeys-lru</code>：开启淘汰策略</li>
+<li>改为 <strong>Redis Stream</strong> 替代 List，支持消费者组和消息过期</li>
+<li>给 List 设置上限：<code>LTRIM key 0 99999</code> 保留最近 10 万条</li>
+<li>增加消费端并发度</li>
+</ol>
+<p><strong>教训</strong>：</p>
+<ul>
+<li>所有 Redis 实例必须设置 <code>maxmemory</code></li>
+<li>缓存场景使用 <code>allkeys-lru</code>，有时效数据使用 <code>volatile-ttl</code></li>
+<li>监控 <code>used_memory / maxmemory</code> 比率，超过 80% 告警</li>
+</ul>
+<p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://redis.io/docs/manual/configuration/">https://redis.io/docs/manual/configuration/</a></p>
+<hr>
+<h3 id="32-Redis-优化-Checklist"><a href="#32-Redis-优化-Checklist" class="headerlink" title="32. Redis 优化 Checklist"></a>32. Redis 优化 Checklist</h3><p><strong>标准答案</strong>：</p>
+<p><strong>配置层面</strong>：</p>
+<ul>
+<li>✅ <code>maxmemory</code> 设置为物理内存的 70-80%</li>
+<li>✅ <code>maxmemory-policy</code> 按业务选择淘汰策略</li>
+<li>✅ <code>activedefrag yes</code>（Redis 4.0+）开启自动碎片整理</li>
+<li>✅ <code>hz 10</code>（默认）适当调高到 20 以加速过期 key 清理</li>
+<li>✅ <code>lazyfree-lazy-eviction yes</code> 惰性淘汰</li>
+<li>✅ 关闭 <code>save</code> 自动 RDB，仅用 AOF everysec</li>
+</ul>
+<p><strong>数据层面</strong>：</p>
+<ul>
+<li>✅ 拆分 BigKey（Hash 分片、List 分段、大 String 压缩）</li>
+<li>✅ Hot Key 本地缓存或打散</li>
+<li>✅ 合理的 TTL + 随机偏移防雪崩</li>
+<li>✅ 避免 <code>KEYS *</code>、<code>SMEMBERS</code>、<code>HGETALL</code> 全量操作</li>
+</ul>
+<p><strong>集群层面</strong>：</p>
+<ul>
+<li>✅ Cluster 每个节点内存 &lt; 20GB（fork 风险）</li>
+<li>✅ <code>repl_backlog_size</code> 按写速率计算</li>
+<li>✅ <code>min-replicas-to-write</code> 和 <code>min-replicas-max-lag</code> 防脑裂</li>
+<li>✅ 客户端 Hash Tag 合理规划，防 Hot Slot</li>
+</ul>
+<p><strong>运维层面</strong>：</p>
+<ul>
+<li>✅ <code>slowlog-log-slower-than 10000</code> 监控慢查询</li>
+<li>✅ 内存利用率告警（&gt;80%）</li>
+<li>✅ 定期 <code>redis-cli --bigkeys</code> 扫描</li>
+<li>✅ 备份 RDB 到异地存储</li>
+</ul>
+<p><strong>参考来源</strong>：作者生产经验总结</p>
+<hr>
+<blockquote>
+<p><strong>本文搜索来源</strong>：自身知识库 + Redis 官方文档（redis.io）+ 生产经验总结</p>
+<p><strong>更新记录</strong>：2026-06-11 首次发布，覆盖 Redis 面试全栈知识点</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/%E7%BC%93%E5%AD%98/" rel="tag"># 缓存</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag"># 分布式</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-MySQL-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="MySQL 高级面试全解">
+                  <i class="fa fa-angle-left"></i> MySQL 高级面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="计算机网络 高级面试全解">
+                  计算机网络 高级面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
