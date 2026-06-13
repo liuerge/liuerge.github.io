@@ -29,7 +29,7 @@
 <meta property="og:description" content="Spring 核心面试全解，覆盖 IoC 容器、DI 与注解、AOP 代理、事务管理、Spring Boot 自动配置、生产实战六大模块。面向高级研发，侧重源码分析和生产踩坑，每道题含标准答案+深入思考+生产踩坑。   目录 0x00 IoC 容器 0x01 DI 与注解 0x02 AOP 0x03 事务管理 0x04 Spring Boot 自动配置 0x05 生产实战   0x00 IoC">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-11T04:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-13T06:42:45.877Z">
+<meta property="article:modified_time" content="2026-06-13T07:18:32.592Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="AOP">
 <meta property="article:tag" content="IoC">
@@ -255,7 +255,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-13 14:42:45" itemprop="dateModified" datetime="2026-06-13T14:42:45+08:00">2026-06-13</time>
+      <time title="修改时间：2026-06-13 15:18:32" itemprop="dateModified" datetime="2026-06-13T15:18:32+08:00">2026-06-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -397,7 +397,7 @@
 <li><strong>源码层面</strong>：<code>ConfigurationClassPostProcessor.postProcessBeanFactory()</code> → 遍历所有候选类 → 检查是否有 @Configuration → 使用 <code>ClassPathBeanDefinitionScanner</code> 扫描 → 对 @Configuration 类创建 <code>EnhancedConfigurationBeanDefinition</code>，设置 <code>CONFIGURATION_CLASS_ATTRIBUTE</code> 为 <code>full</code>（对应 @Configuration）或 <code>lite</code>（对应 @Component&#x2F;@Bean 组合）。</li>
 <li><strong>CGLIB 增强细节</strong>：Spring 使用 <code>ConfigurationClassEnhancer</code> 生成代理子类。增强后调用 @Bean 方法时先查 BeanFactory 缓存，如果存在直接返回，不存在才调用父类方法创建。这就是为什么 full 模式下 @Bean 方法可以无压力互相调用。</li>
 <li><strong>lite 模式陷阱</strong>：如果 @Component 内声明了 @Bean 方法，方法间调用如 <code>dataSource()</code> → <code>transactionManager(dataSource())</code> 会导致每次 new 一个 DataSource，事务管理器连接的 DataSource 和注入到其它 Bean 的 DataSource 不是同一个对象。</li>
-<li><strong>Spring Boot 3.x 变化</strong>：Spring 6 &#x2F; Boot 3 引入了 <code>proxyBeanMethods</code> 属性——<code>@Configuration(proxyBeanMethods=false)</code> 可以关闭 CGLIB 代理，适用于不需要 @Bean 方法间调用的场景，启动速度更快（减少了 CGLIB 生成开销）。</li>
+<li><strong>proxyBeanMethods 属性</strong>：Spring 5.2 &#x2F; Boot 2.2+ 引入了 <code>proxyBeanMethods</code> 属性——<code>@Configuration(proxyBeanMethods=false)</code> 可以关闭 CGLIB 代理，在不需要 @Bean 方法间调用的场景下启动更快。Spring Boot 3.x 进一步推广了这一用法，<code>@AutoConfiguration</code> 注解默认 <code>proxyBeanMethods=false</code>。</li>
 </ul>
 <p>🔥 <strong>生产踩坑</strong>：某项目中在 @Configuration 类上用了 @Component 注解而非 @Configuration，导致数据库中插入了重复数据。原因是用 Spring Data JPA 时，多个地方调用了同一个 @Bean 方法，每次 new 了一个新 Repository Bean 出来，连接不同的 DataSource 实例写入。排查两天，最终对比 Bean 的 hashCode 发现不是同一个对象。修复：改为 @Configuration 即可。</p>
 <h3 id="0x00-04-Spring-容器的-refresh-方法的核心步骤是什么？"><a href="#0x00-04-Spring-容器的-refresh-方法的核心步骤是什么？" class="headerlink" title="0x00-04. Spring 容器的 refresh() 方法的核心步骤是什么？"></a>0x00-04. Spring 容器的 refresh() 方法的核心步骤是什么？</h3><p><strong>标准答案</strong>：<br><code>AbstractApplicationContext.refresh()</code> 是 Spring IoC 容器初始化的核心入口，包含 12+ 个步骤：</p>
@@ -982,7 +982,7 @@
 <p><strong>深入思考</strong>：</p>
 <ul>
 <li><strong>@Inherited 的作用</strong>：@SpringBootApplication 标记了 @Inherited，意味着子类可以继承父类的 @SpringBootApplication 配置。但在实践中，只有 Spring Boot 的 main 类才会用这个注解，子类场景很少。</li>
-<li><strong>@AliasFor 的使用</strong>：@AliasFor 是 Spring 5.1 引入的注解属性别名机制。比如 <code>exclude</code> 这个属性在 @SpringBootApplication 上定义，但实际指向 @EnableAutoConfiguration 的 exclude 属性。编译期间两个属性被视为等价，设置任何一个都会更新另一个。</li>
+<li><strong>@AliasFor 的使用</strong>：@AliasFor 是 Spring 4.2 引入的注解属性别名机制（Spring 5.1 增强了透明别名跨注解支持）。比如 <code>exclude</code> 这个属性在 @SpringBootApplication 上定义，但实际指向 @EnableAutoConfiguration 的 exclude 属性。编译期间两个属性被视为等价，设置任何一个都会更新另一个。</li>
 <li><strong>Spring Boot 3.x 的改进</strong>：@SpringBootApplication 的 scanBasePackages 现在支持 SPEL 表达式吗？不支持，但可以通过 <code>@ComponentScan(basePackages = &quot;${app.scan.base-packages}&quot;)</code> 自定义实现。</li>
 </ul>
 <p>🔥 <strong>生产踩坑</strong>：团队将业务代码全部放在 <code>com.business.user</code> 包下，但 main 类在 <code>com.infra.Bootstrap</code> 包下，结果 @SpringBootApplication 默认只扫描 <code>com.infra</code> 包，业务 Service 全部注入失败。排查了两小时才意识到 @ComponentScan 默认以 main 类所在包为根。修复：显式指定 <code>@SpringBootApplication(scanBasePackages = &quot;com.business&quot;)</code>。<strong>常见错误：main 类放在单独的包而不是根包。</strong></p>
@@ -1277,8 +1277,15 @@
 <hr>
 <blockquote>
 <p>本文覆盖 Spring 核心框架的 IoC、DI、AOP、事务、自动配置、生产实战六大模块，共 24 道高级面试题。每道题包含标准答案、源码级深入思考和生产踩坑案例，适合高级研发岗位面试准备。</p>
-<p><strong>参考来源</strong>：Spring Framework 6.x 官方文档、Spring Boot 3.x 官方文档、Spring 源码解析（github.com&#x2F;spring-projects&#x2F;spring-framework）、作者自身生产经验。</p>
-<p><strong>来源说明</strong>：本文基于自身知识整理，结合 Spring 官方源码、生产运维经验及常见面试题汇编。搜索工具：自身知识 + Spring 官方文档。</p>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Spring Framework 官方文档（7.x）：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/reference/">https://docs.spring.io/spring-framework/reference/</a></li>
+<li>Spring Boot 官方文档（4.x）：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/reference/">https://docs.spring.io/spring-boot/reference/</a></li>
+<li>Spring Framework 源码：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></li>
+<li>Spring Boot 2.6 发布说明（循环依赖）：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.6-Release-Notes">https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.6-Release-Notes</a></li>
+<li>Spring @Configuration javadoc：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Configuration.html">https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Configuration.html</a></li>
+</ul>
+<p><strong>来源说明</strong>：本文基于自身知识整理，结合 Spring 官方源码、生产运维经验及常见面试题汇编。搜索工具：自身知识 + Spring 官方文档。建议读者查阅上述链接获取最新版本信息。</p>
 </blockquote>
 
     </div>
@@ -1305,8 +1312,8 @@
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：操作系统 &amp; Linux 面试全解">
-                  后端面试题：操作系统 & Linux 面试全解 <i class="fa fa-angle-right"></i>
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：计算机网络 面试全解">
+                  后端面试题：计算机网络 面试全解 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>

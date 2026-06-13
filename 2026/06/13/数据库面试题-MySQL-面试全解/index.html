@@ -29,7 +29,7 @@
 <meta property="og:description" content="数据库面试题：MySQL 面试全解 面向全栈高级&#x2F;资深研发的 MySQL 深度全解。覆盖 InnoDB 引擎、MVCC、锁机制、SQL 优化、主从高可用、分库分表、分布式数据库对比与生产实战。每道题包含：标准答案 + 深入思考 + 生产踩坑案例 + 参考链接。   0x00 InnoDB 存储引擎0x00-01 B+ 树数据结构（高度&#x2F;扇出&#x2F;为什么选 B+ 树而非 L">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-13T04:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-13T06:42:13.341Z">
+<meta property="article:modified_time" content="2026-06-13T07:43:57.197Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="InnoDB">
 <meta property="article:tag" content="MySQL">
@@ -249,7 +249,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-06-13 12:00:00 / 修改时间：14:42:13" itemprop="dateCreated datePublished" datetime="2026-06-13T12:00:00+08:00">2026-06-13</time>
+      <time title="创建时间：2026-06-13 12:00:00 / 修改时间：15:43:57" itemprop="dateCreated datePublished" datetime="2026-06-13T12:00:00+08:00">2026-06-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -318,9 +318,9 @@
 </blockquote>
 <p><strong>参考链接：</strong></p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/index-btree-hash.html">MySQL 官方文档 - InnoDB B+ Tree 索引</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.4/en/index-btree-hash.html">MySQL 官方文档 - InnoDB B+ Tree 索引</a></li>
 <li><a target="_blank" rel="noopener" href="https://tianpan.co/notes/2018-07-22-b-tree-vs-b-plus-tree">B-Tree vs B+Tree comparison</a></li>
-<li><a target="_blank" rel="noopener" href="https://ristret.com/s/g1ukbq/lsm_tree_vs_b_tree_performance_tradeoffs">LSM-Tree vs B-Tree: Performance Trade-offs</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.pingcap.com/blog/reading-inverted-lsm-tree-and-b-tree/">LSM-Tree vs B-Tree: Performance Trade-offs (PingCAP Blog)</a></li>
 </ul>
 <hr>
 <h3 id="0x00-02-聚簇索引与二级索引"><a href="#0x00-02-聚簇索引与二级索引" class="headerlink" title="0x00-02 聚簇索引与二级索引"></a>0x00-02 聚簇索引与二级索引</h3><p><strong>标准答案：</strong></p>
@@ -508,7 +508,7 @@
 <p><strong>参考链接：</strong></p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-multi-versioning.html">MySQL 8.0 InnoDB Multi-Versioning</a></li>
-<li><a target="_blank" rel="noopener" href="https://betterprogramming.pub/in-depth-analysis-of-the-mvcc-principle-of-mysql-c4a5529e4f5">InnoDB MVCC Principle Deep Analysis</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.jcole.us/2014/04/16/the-basics-of-the-innodb-undo-logging-and-history-system">MySQL InnoDB Undo Log Basics</a></li>
 </ul>
 <hr>
 <h3 id="0x01-02-事务隔离级别（RR-RC-下-MVCC-差异-幻读解决-vs-未解决）"><a href="#0x01-02-事务隔离级别（RR-RC-下-MVCC-差异-幻读解决-vs-未解决）" class="headerlink" title="0x01-02 事务隔离级别（RR&#x2F;RC 下 MVCC 差异 + 幻读解决 vs 未解决）"></a>0x01-02 事务隔离级别（RR&#x2F;RC 下 MVCC 差异 + 幻读解决 vs 未解决）</h3><p><strong>标准答案：</strong></p>
@@ -1687,33 +1687,41 @@
 </ul>
 <hr>
 <h2 id="0x07-生产实战"><a href="#0x07-生产实战" class="headerlink" title="0x07 生产实战"></a>0x07 生产实战</h2><h3 id="0x07-01-MySQL-8-4-9-x-有哪些值得关注的新特性？"><a href="#0x07-01-MySQL-8-4-9-x-有哪些值得关注的新特性？" class="headerlink" title="0x07-01 MySQL 8.4&#x2F;9.x 有哪些值得关注的新特性？"></a>0x07-01 MySQL 8.4&#x2F;9.x 有哪些值得关注的新特性？</h3><p><strong>标准答案：</strong></p>
-<p><strong>MySQL 8.4 LTS（2024 年发布）：</strong></p>
+<p><strong>MySQL 8.4 LTS（2024 年发布，最新版本 8.4.9）：</strong></p>
 <ol>
 <li><strong>InnoDB 增强</strong>：<code>innodb_buffer_pool_in_core_file=OFF</code> 避免 buffer pool 进入 core dump；<code>innodb_log_writer_spin_delay</code> 优化日志写入 CPU 占用。</li>
 <li><strong>GTID 在线迁移</strong>：<code>CHANGE REPLICATION SOURCE TO SOURCE_CONNECTION_AUTO_FAILOVER=1</code> 支持自动故障转移而不需要手动指定 binlog 位置。</li>
 <li><strong>原子 DDL 范围扩大</strong>：更多 DDL 操作（RENAME COLUMN, DROP COLUMN）变为原子操作，崩溃后可安全回滚。</li>
 <li><strong>安全增强</strong>：<code>mysql_native_password</code> 废弃（默认 <code>caching_sha2_password</code>），支持 FIPS 140-3 合规。</li>
 </ol>
-<p><strong>MySQL 9.x（Innovation Release）：</strong></p>
+<p><strong>MySQL 9.0–9.6（Innovation Release，2024–2025）：</strong></p>
 <ol>
 <li><strong>Vector 数据类型</strong>（9.0+）：原生支持 <code>VECTOR</code> 类型，存储浮点向量，配合 <code>VECTOR_DISTANCE()</code> 函数做向量距离计算。MySQL 正式进入 AI 场景。</li>
-<li><strong>EXPLAIN ANALYZE FORMAT&#x3D;JSON&#x2F;TREE</strong>：输出更丰富的执行计划统计信息（实际行数、执行时间、循环次数）。</li>
-<li><strong>InnoDB 的页压缩增强</strong>：<code>COMPRESSED</code> 行格式支持更高效的透明页压缩（ZSTD 级别可配置）。</li>
 <li><strong>DDL 即时操作更多</strong>：<code>ALTER TABLE ... ALTER COLUMN ... SET DEFAULT</code> 变为即时操作（不再需要表重建）。</li>
 <li><strong>触发器缺省创建模式变化</strong>：<code>CREATE TRIGGER</code> 默认不强制要求 <code>SUPER</code> 权限。</li>
 <li><strong>增强审计日志</strong>：支持更细粒度的审计策略（表级别、用户级别）。</li>
 </ol>
+<p><strong>MySQL 9.7 LTS（2026 年 4 月 21 日发布，当前最新 LTS 版本）：</strong></p>
+<ol>
+<li><strong>Community Edition 功能大幅增强</strong>：复制应用指标（Replication Applier Metrics）、组复制流量控制统计、组复制资源管理器、组复制主节点选举等此前仅企业版的功能现在社区版可用。</li>
+<li><strong>Hypergraph Optimizer 进入社区版</strong>：MySQL 8.4 引入的超图优化器（Hypergraph Optimizer）在 9.7 中开放给社区版用户，可显著改善复杂 JOIN 查询的执行计划。</li>
+<li><strong>JSON Duality View DML</strong>：支持对 JSON Duality View 执行 INSERT&#x2F;UPDATE&#x2F;DELETE 操作。</li>
+<li><strong>动态数据脱敏（Dynamic Data Masking）</strong>：MySQL Enterprise Edition 新增动态数据脱敏功能，保护敏感数据。</li>
+<li><strong>可观测性提升</strong>：Telemetry 遥测能力增强，便于运维监控。<strong>MySQL 8.0 已于 2026 年 4 月结束生命周期（EoL）</strong>，用户应升级到 8.4 LTS 或 9.7 LTS。</li>
+</ol>
 <p><strong>深入思考：</strong></p>
 <ol>
 <li><strong>Vector 类型的生产准备度</strong>：MySQL 9.x 的 Vector 引擎还不适合大规模向量搜索（相比专门的 Vector DB 如 Milvus&#x2F;Pinecone）。现在主要用于小规模场景（&lt;100 万向量），做简单的相似度过滤 + MySQL 自有条件的混合检索。</li>
-<li><strong>8.4 LTS vs 9.x Innovation</strong>：Oracle 的策略变了——8.4 是 LTS（长期支持），9.x 是 Innovation（快速迭代，每年发布新版本）。生产环境建议用 LTS，开发环境可以尝鲜 Innovation。8.4 至少支持到 2030 年。</li>
+<li><strong>8.4 LTS vs 9.x Innovation vs 9.7 LTS</strong>：Oracle 的策略是交替发布 Innovation 和 LTS 版本——8.4 是 LTS，9.0–9.6 是 Innovation（快速迭代，每 3–4 个月发布），9.7 是 LTS。当前最新 LTS 为 9.7（支持至 2031 年+），8.4 LTS 至少支持到 2030 年。生产环境优先使用 LTS 版本。MySQL 8.0 已于 2026 年 4 月正式 EoL，不应再用于新部署。</li>
 <li>🔥 <strong>生产踩坑</strong>：某团队在 8.0.32 上升级到 8.4.0，凌晨上线后所有 Prepared Statement 报 <code>PREPARE_STATEMENT_NOT_EXIST</code>。原因是 8.4 修改了 Prepared Statement 的全局缓存策略，连接池断开后 prepare 失效。修复：调大 <code>max_prepared_stmt_count</code> + 升级数据库客户端驱动（mysql-connector-j 8.4.x）。</li>
 </ol>
 <p><strong>参考链接：</strong></p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/relnotes/mysql/8.4/en/">MySQL 8.4 Release Notes</a></li>
 <li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/relnotes/mysql/9.0/en/">MySQL 9.0 Release Notes</a></li>
-<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/9.0/en/vector-data-type.html">MySQL Vector Data Type</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/relnotes/mysql/9.7/en/">MySQL 9.7 Release Notes</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/9.7/en/vector.html">MySQL Vector Data Type</a></li>
+<li><a target="_blank" rel="noopener" href="https://blogs.oracle.com/mysql/mysql-9-7-lts-is-here-upgrade-and-modernize-on-a-stronger-community-edition">MySQL 9.7 LTS Announcement</a></li>
 </ul>
 <hr>
 <h3 id="0x07-02-MySQL-OOM（内存溢出）排查与解决"><a href="#0x07-02-MySQL-OOM（内存溢出）排查与解决" class="headerlink" title="0x07-02 MySQL OOM（内存溢出）排查与解决"></a>0x07-02 MySQL OOM（内存溢出）排查与解决</h3><p><strong>标准答案：</strong></p>
@@ -2061,8 +2069,8 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="架构面试题：分布式系统设计面试全解">
-                  <i class="fa fa-angle-left"></i> 架构面试题：分布式系统设计面试全解
+                <a href="/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="架构面试题：架构与工程实践面试全解">
+                  <i class="fa fa-angle-left"></i> 架构面试题：架构与工程实践面试全解
                 </a>
             </div>
             <div class="post-nav-item">

@@ -29,7 +29,7 @@
 <meta property="og:description" content="本文覆盖 Git 核心知识点：对象模型与暂存区、分支与合并策略、进阶操作（Reset&#x2F;Stash&#x2F;Bisect）、团队协作工作流、生产实战与大仓库优化。面向高级研发面试，每道题附带深入思考与生产踩坑案例。   目录 0x00 Git 基础：暂存区与对象模型 0x01 分支与合并 0x02 进阶操作 0x03 团队协作 0x04 生产实战   0x00 Git 基础：暂存区与对">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-11T12:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-13T06:45:45.937Z">
+<meta property="article:modified_time" content="2026-06-13T08:10:29.581Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="DevOps">
 <meta property="article:tag" content="Git">
@@ -254,7 +254,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-13 14:45:45" itemprop="dateModified" datetime="2026-06-13T14:45:45+08:00">2026-06-13</time>
+      <time title="修改时间：2026-06-13 16:10:29" itemprop="dateModified" datetime="2026-06-13T16:10:29+08:00">2026-06-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -463,7 +463,7 @@
 <ul>
 <li><strong>冲突的本质</strong>：Git 按三路合并（3-way merge）算法工作。base（公共祖先）、ours、theirs 三方对比，当 ours 和 theirs 在同一个区域都做了不同修改时才产生冲突。</li>
 <li><strong>减少冲突的技巧</strong>：频繁合并上游、原子化 commit、模块化代码减少多人修改同一文件。</li>
-<li><strong>重命名检测</strong>：<code>git merge --find-renames</code> 会检测文件重命名，但配置不当可能导致误判。</li>
+<li><strong>重命名检测</strong>：Git 合并时默认检测文件重命名（基于内容相似度），可通过 <code>merge.renameLimit</code> 配置检测上限。配置不当（如阈值过低）可能导致误判或漏判。</li>
 </ul>
 <p><strong>生产踩坑</strong>：<br>某次合并，A 同事删除了 <code>src/old-utils.js</code>（已废弃），B 同事在该文件末尾追加了新功能。合并时 Git 报告”deleted by us”冲突（A 删了文件，B 改了文件）。B 同事看到冲突以为是误删，<code>git checkout --theirs</code> 恢复了文件。结果 <code>old-utils.js</code> 中大量废弃代码进入 main，导致 lint 失败、安全扫描报警。</p>
 <p><strong>教训</strong>：处理”文件删除”冲突时，必须理解上下文，不要机械地用 –theirs 或 –ours。最佳做法：<code>git diff HEAD...MERGE_HEAD -- &lt;file&gt;</code> 看清双方变更后再决定。</p>
@@ -529,7 +529,7 @@
 <ul>
 <li><strong>Stash 的底层</strong>：stash 实际上是创建了两个特殊的 commit（index 和 worktree），存放在 <code>refs/stash</code> 引用上。<code>git stash list</code> 本质是遍历这个引用链。</li>
 <li><strong>Stash 的冲突</strong>：<code>git stash pop</code> 时如果当前工作区和 stash 内容冲突，会弹出冲突并保留 stash（类似冲突的 merge）。解决后需要手动 <code>git stash drop</code>。</li>
-<li><strong>替代方案</strong>：Git 2.13+ 引入了 <code>git worktree</code>，可以创建多个工作目录，比 stash 更适合长期切换场景。</li>
+<li><strong>替代方案</strong>：Git 2.5+ 引入了 <code>git worktree</code>，可以创建多个工作目录，比 stash 更适合长期切换场景。</li>
 </ul>
 <p><strong>生产踩坑</strong>：<br>某开发者在 feature 分支上 <code>git stash</code> 后切换到 main 修复紧急 bug，修复后 <code>git checkout feature &amp;&amp; git stash pop</code>，结果发现 stash 的内容和 feature 当前状态产生了大量冲突——因为 feature 分支被其他同事 push 了新 commit。更糟糕的是，他忘了 stash 里还有未跟踪的配置文件，导致 <code>git stash pop</code> 后配置文件没恢复，本地环境启动失败。</p>
 <p><strong>教训</strong>：</p>
@@ -717,7 +717,7 @@
 <p><strong>Sparse Checkout（稀疏检出）</strong>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --sparse &lt;repo-url&gt;         <span class="comment"># Git 2.25+ 稀疏克隆</span></span><br><span class="line"><span class="built_in">cd</span> repo</span><br><span class="line">git sparse-checkout <span class="built_in">set</span> <span class="string">&quot;apps/web/&quot;</span>   <span class="comment"># 只检出 apps/web/ 目录</span></span><br><span class="line">git sparse-checkout add <span class="string">&quot;libs/utils/&quot;</span> <span class="comment"># 添加更多目录</span></span><br></pre></td></tr></table></figure>
 
-<p>优点：工作目录中只包含你关心的文件，适用于 monorepo。<br>缺点：克隆时仍下载全部 Git 对象（2025+ Git 已经支持 <code>--filter=blob:none</code> 改善）。</p>
+<p>优点：工作目录中只包含你关心的文件，适用于 monorepo。<br>缺点：克隆时仍下载全部 Git 对象（Git 2.17+ 支持 <code>--filter=blob:none</code> 配合 partial clone 改善，按需拉取 blob）。</p>
 <p><strong>最佳组合</strong>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --depth 1 --filter=blob:none --sparse &lt;repo-url&gt;</span><br></pre></td></tr></table></figure>
 <ul>
@@ -964,13 +964,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：计算机网络 面试全解">
-                  <i class="fa fa-angle-left"></i> 后端面试题：计算机网络 面试全解
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：操作系统 &amp; Linux 面试全解">
+                  <i class="fa fa-angle-left"></i> 后端面试题：操作系统 & Linux 面试全解
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="架构面试题：架构与工程实践面试全解">
-                  架构面试题：架构与工程实践面试全解 <i class="fa fa-angle-right"></i>
+                <a href="/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="架构面试题：分布式系统设计面试全解">
+                  架构面试题：分布式系统设计面试全解 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
