@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.27.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="数据库面试题：分布式数据库与 OLAP 面试全解 面向高级&#x2F;资深&#x2F;专家级研发面试，数据库选型架构师视角覆盖 TiDB、OceanBase、ClickHouse、Apache Doris、StarRocks 五大体系含架构原理、源码分析、生产踩坑、选型决策   目录 0x00 TiDB 深度 0x01 OceanBase 0x02 ClickHouse 0x03 Apache D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库面试题：分布式数据库与 OLAP 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8EOLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="数据库面试题：分布式数据库与 OLAP 面试全解 面向高级&#x2F;资深&#x2F;专家级研发面试，数据库选型架构师视角覆盖 TiDB、OceanBase、ClickHouse、Apache Doris、StarRocks 五大体系含架构原理、源码分析、生产踩坑、选型决策   目录 0x00 TiDB 深度 0x01 OceanBase 0x02 ClickHouse 0x03 Apache D">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-13T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-13T06:54:29.985Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="ClickHouse">
+<meta property="article:tag" content="Doris">
+<meta property="article:tag" content="OLAP">
+<meta property="article:tag" content="OceanBase">
+<meta property="article:tag" content="StarRocks">
+<meta property="article:tag" content="TiDB">
+<meta property="article:tag" content="分布式数据库">
+<meta property="article:tag" content="国产化">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8EOLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8EOLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/13/数据库面试题-分布式数据库与OLAP-面试全解/","title":"数据库面试题：分布式数据库与 OLAP 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数据库面试题：分布式数据库与 OLAP 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E-OLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3"><span class="nav-text">数据库面试题：分布式数据库与 OLAP 面试全解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-TiDB-%E6%B7%B1%E5%BA%A6"><span class="nav-text">0x00 TiDB 深度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-01-TiDB-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F%E5%90%84%E7%BB%84%E4%BB%B6%E8%81%8C%E8%B4%A3%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x00-01 TiDB 整体架构是怎样的？各组件职责是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-02-TiKV-%E4%B8%AD%E7%9A%84-Raft-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9FRegion-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FLeader-Follower-%E5%A6%82%E4%BD%95%E8%B0%83%E5%BA%A6%EF%BC%9F"><span class="nav-text">0x00-02 TiKV 中的 Raft 是如何工作的？Region 是什么？Leader&#x2F;Follower 如何调度？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-03-TiDB-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9F%E4%B9%90%E8%A7%82%E9%94%81%E4%B8%8E%E6%82%B2%E8%A7%82%E9%94%81%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">0x00-03 TiDB 分布式事务的工作原理？乐观锁与悲观锁的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-04-TiDB-%E7%9A%84-HTAP-%E6%9E%B6%E6%9E%84%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9FTiFlash-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E4%B8%8E-TiKV-%E7%9A%84%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9F"><span class="nav-text">0x00-04 TiDB 的 HTAP 架构是如何实现的？TiFlash 如何保证与 TiKV 的数据一致性？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-05-TiDB-7-x-8-x-%E6%9C%89%E5%93%AA%E4%BA%9B%E9%87%8D%E8%A6%81%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%9F"><span class="nav-text">0x00-05 TiDB 7.x&#x2F;8.x 有哪些重要新特性？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-06-TiDB-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%B8%B8%E8%A7%81%E7%9A%84%E8%B8%A9%E5%9D%91%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x00-06 TiDB 生产环境常见的踩坑与最佳实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-OceanBase"><span class="nav-text">0x01 OceanBase</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-01-OceanBase-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9FRootService-%E4%B8%8E-OBServer-%E7%9A%84%E8%81%8C%E8%B4%A3%EF%BC%9F"><span class="nav-text">0x01-01 OceanBase 整体架构是怎样的？RootService 与 OBServer 的职责？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-02-OceanBase-%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%80%89%E4%B8%BE%EF%BC%88Paxos-Paxos-Group%EF%BC%89%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9F"><span class="nav-text">0x01-02 OceanBase 的分布式选举（Paxos&#x2F;Paxos Group）是如何工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-03-OceanBase-LSM-Tree-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9F"><span class="nav-text">0x01-03 OceanBase LSM-Tree 存储引擎的工作原理？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-04-OceanBase-%E7%9A%84%E5%A4%9A%E7%A7%9F%E6%88%B7%E4%B8%8E%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E6%9C%BA%E5%88%B6%EF%BC%9F"><span class="nav-text">0x01-04 OceanBase 的多租户与资源隔离机制？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-05-OceanBase-4-x-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">0x01-05 OceanBase 4.x 新特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-06-OceanBase-%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%B8%A9%E5%9D%91"><span class="nav-text">0x01-06 OceanBase 生产实践与常见踩坑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-ClickHouse"><span class="nav-text">0x02 ClickHouse</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-01-ClickHouse-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9FShard-Replica-%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%EF%BC%9F"><span class="nav-text">0x02-01 ClickHouse 整体架构是怎样的？Shard&#x2F;Replica 如何组织？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-02-MergeTree-%E8%A1%A8%E5%BC%95%E6%93%8E%E5%AE%B6%E6%97%8F%E8%AF%A6%E8%A7%A3%EF%BC%9F%E5%90%84%E5%BC%95%E6%93%8E%E7%9A%84%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9F"><span class="nav-text">0x02-02 MergeTree 表引擎家族详解？各引擎的适用场景？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-03-ClickHouse-%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%89%87%E3%80%81%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE"><span class="nav-text">0x02-03 ClickHouse 分区、分片、物化视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-04-ClickHouse-%E5%88%86%E7%89%87%E7%AD%96%E7%95%A5%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%88%86%E5%B8%83%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02-04 ClickHouse 分片策略与数据分布最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-05-ClickHouse-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%8E%92%E5%BA%8F%E3%80%81%E7%A8%80%E7%96%8F%E7%B4%A2%E5%BC%95%E3%80%81%E9%A2%84%E8%81%9A%E5%90%88"><span class="nav-text">0x02-05 ClickHouse 性能调优：数据排序、稀疏索引、预聚合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-06-ClickHouse-JOIN-%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5"><span class="nav-text">0x02-06 ClickHouse JOIN 优化策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-07-ClickHouse-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02-07 ClickHouse 数据类型与表结构设计最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-08-ClickHouse-%E7%9A%84-TTL-%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86"><span class="nav-text">0x02-08 ClickHouse 的 TTL 与数据生命周期管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-09-ClickHouse-%E6%9F%A5%E8%AF%A2%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD%EF%BC%9Asystem-query-log-%E4%B8%8E-Profile"><span class="nav-text">0x02-09 ClickHouse 查询性能诊断：system.query_log 与 Profile</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Apache-Doris-StarRocks"><span class="nav-text">0x03 Apache Doris &#x2F; StarRocks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-01-Apache-Doris-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%EF%BC%9FFE-%E4%B8%8E-BE-%E7%9A%84%E8%81%8C%E8%B4%A3%EF%BC%9F"><span class="nav-text">0x03-01 Apache Doris 整体架构？FE 与 BE 的职责？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-02-Doris-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AD%98%E5%82%A8%E6%A8%A1%E5%9E%8B%E4%BB%A5%E5%8F%8A%E4%B8%BB%E9%94%AE%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x03-02 Doris 的三种存储模型以及主键模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-03-Doris-%E4%B8%8E-StarRocks-%E6%9E%B6%E6%9E%84%E5%AF%B9%E6%AF%94"><span class="nav-text">0x03-03 Doris 与 StarRocks 架构对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-04-Doris-StarRocks-%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E-Rollup"><span class="nav-text">0x03-04 Doris&#x2F;StarRocks 物化视图与 Rollup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-05-Doris-StarRocks-%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E%E4%B8%8E-MPP-%E6%89%A7%E8%A1%8C"><span class="nav-text">0x03-05 Doris&#x2F;StarRocks 查询引擎与 MPP 执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-06-Apache-Doris-3-x-StarRocks-3-x-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">0x03-06 Apache Doris 3.x &#x2F; StarRocks 3.x 新特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-07-ClickHouse-vs-Doris-vs-StarRocks-%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">0x03-07 ClickHouse vs Doris vs StarRocks 选型对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%A0%91"><span class="nav-text">0x04 选型决策树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-01-%E8%A1%8C%E5%AD%98-vs-%E5%88%97%E5%AD%98-vs-HTAP-%E9%80%89%E5%9E%8B%E7%9F%A9%E9%98%B5"><span class="nav-text">0x04-01 行存 vs 列存 vs HTAP 选型矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-02-MySQL%EF%BC%88%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%EF%BC%89vs-TiDB-vs-OceanBase-%E9%80%89%E5%9E%8B"><span class="nav-text">0x04-02 MySQL（分库分表）vs TiDB vs OceanBase 选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-03-ClickHouse-vs-Doris-vs-StarRocks-vs-Snowflake-%E9%80%89%E5%9E%8B"><span class="nav-text">0x04-03 ClickHouse vs Doris vs StarRocks vs Snowflake 选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-04-%E5%9B%BD%E4%BA%A7%E5%8C%96%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9B%BF%E4%BB%A3%E8%B7%AF%E5%BE%84%EF%BC%88%E4%BF%A1%E5%88%9B%EF%BC%89"><span class="nav-text">0x04-04 国产化数据库替代路径（信创）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%E5%BD%95%EF%BC%9A%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E4%B8%8E%E5%8F%82%E8%80%83%E8%B5%84%E6%BA%90"><span class="nav-text">附录：学习路线与参考资源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84"><span class="nav-text">推荐学习路径</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E5%85%B3%E9%94%AE%E8%AF%8D%E9%80%9F%E6%9F%A5"><span class="nav-text">面试高频关键词速查</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">126</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8EOLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数据库面试题：分布式数据库与 OLAP 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数据库面试题：分布式数据库与 OLAP 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-06-13 15:00:00 / 修改时间：14:54:29" itemprop="dateCreated datePublished" datetime="2026-06-13T15:00:00+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="数据库面试题：分布式数据库与-OLAP-面试全解"><a href="#数据库面试题：分布式数据库与-OLAP-面试全解" class="headerlink" title="数据库面试题：分布式数据库与 OLAP 面试全解"></a>数据库面试题：分布式数据库与 OLAP 面试全解</h1><blockquote>
+<p>面向高级&#x2F;资深&#x2F;专家级研发面试，数据库选型架构师视角<br>覆盖 TiDB、OceanBase、ClickHouse、Apache Doris、StarRocks 五大体系<br>含架构原理、源码分析、生产踩坑、选型决策</p>
+</blockquote>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#0x00-tidb-%E6%B7%B1%E5%BA%A6">0x00 TiDB 深度</a></li>
+<li><a href="#0x01-oceanbase">0x01 OceanBase</a></li>
+<li><a href="#0x02-clickhouse">0x02 ClickHouse</a></li>
+<li><a href="#0x03-apache-doris--starrocks">0x03 Apache Doris &#x2F; StarRocks</a></li>
+<li><a href="#0x04-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%A0%91">0x04 选型决策树</a></li>
+</ul>
+<hr>
+<h2 id="0x00-TiDB-深度"><a href="#0x00-TiDB-深度" class="headerlink" title="0x00 TiDB 深度"></a>0x00 TiDB 深度</h2><h3 id="0x00-01-TiDB-整体架构是怎样的？各组件职责是什么？"><a href="#0x00-01-TiDB-整体架构是怎样的？各组件职责是什么？" class="headerlink" title="0x00-01 TiDB 整体架构是怎样的？各组件职责是什么？"></a>0x00-01 TiDB 整体架构是怎样的？各组件职责是什么？</h3><p><strong>标准答案</strong>：<br>TiDB 采用计算存储分离的三层架构：</p>
+<ol>
+<li><strong>TiDB Server（无状态 SQL 层）</strong>：负责接收客户端连接，解析 SQL，生成分布式执行计划。自身不存储数据，通过 PD 获取元数据后下推计算任务到 TiKV&#x2F;TiFlash。</li>
+<li><strong>PD (Placement Driver)</strong>：集群的”大脑”。维护全局元信息（Region 路由表），分配全局事务 ID（TSO），执行 Region 调度（负载均衡、Leader 迁移、故障恢复）。由至少 3 节点通过 etcd&#x2F;Raft 构成高可用组。</li>
+<li><strong>TiKV（行存引擎）</strong>：分布式 Key-Value 存储。数据按 Key Range 切分为 Region（默认 96MB），每个 Region 通过 Multi-Raft 复制 3 副本保证强一致。支持 MVCC 和分布式事务。</li>
+<li><strong>TiFlash（列存引擎）</strong>：TiKV 的列存 Learner 节点。通过 Raft Learner 实时同步 TiKV 数据，提供列式存储和向量化计算，为 OLAP 查询加速。与 TiKV 共享同一份数据的最新版本。</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：TiDB Server 无状态意味着可随意扩缩容，但大查询的中间结果集仍在 TiDB 内存中，需要配置 <code>mem-quota-query</code> 防止 OOM。</li>
+<li><strong>源码层面</strong>：PD 使用 etcd 的 Raft 实现保证高可用，但 etcd 本身对磁盘 IO 敏感，PD 节点磁盘延迟升高会影响 TSO 分配，进而拖慢全集群写入。</li>
+<li><strong>对比延伸</strong>：与 OceanBase 的 RootService 对比——OB 的 RootService 是主节点模式（Active-Standby），TiDB 的 PD 通过 Raft 选举，两者都是元数据管理核心但 HA 机制不同。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某金融客户 TiDB 集群 PD 节点磁盘使用率超过 80%，导致 etcd 写入延迟飙升，TSO 分配超时，全集群写入 P999 从 5ms 暴涨到 500ms。排查发现是 PD 的 <code>gc-safe-point</code> 历史记录未清理。解决：配置 <code>pd-ctl scheduler config gc-emphasis</code> 并清理历史 Region 信息。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/tidb-architecture">https://docs.pingcap.com/tidb/stable/tidb-architecture</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.vldb.org/pvldb/vol13/p3072-huang.pdf">https://www.vldb.org/pvldb/vol13/p3072-huang.pdf</a></li>
+</ul>
+<hr>
+<h3 id="0x00-02-TiKV-中的-Raft-是如何工作的？Region-是什么？Leader-Follower-如何调度？"><a href="#0x00-02-TiKV-中的-Raft-是如何工作的？Region-是什么？Leader-Follower-如何调度？" class="headerlink" title="0x00-02 TiKV 中的 Raft 是如何工作的？Region 是什么？Leader&#x2F;Follower 如何调度？"></a>0x00-02 TiKV 中的 Raft 是如何工作的？Region 是什么？Leader&#x2F;Follower 如何调度？</h3><p><strong>标准答案</strong>：<br>TiKV 将整个 KV 空间按 Key 范围切分为若干 Region（默认 96MB）。每个 Region 是一个独立的 Raft Group，包含 3 个或更多副本（Peer）。每个 Peer 分布在不同的 TiKV 节点上。</p>
+<p><strong>Raft 工作流程</strong>：</p>
+<ol>
+<li><strong>Leader 选举</strong>：每个 Region 有一个 Leader，负责处理所有读写请求。Leader 通过心跳维持任期，宕机后 Follower 触发选举。</li>
+<li><strong>日志复制</strong>：Leader 接收写请求后写入 Raft Log，并行复制到 Follower 节点，多数派（Quorum）确认后提交。</li>
+<li><strong>读写路径</strong>：读请求也由 Leader 处理（Lease Read &#x2F; Read Index 保证线性一致读），Follower 可提供 stale read。</li>
+</ol>
+<p><strong>PD 调度机制</strong>：</p>
+<ul>
+<li><strong>Leader 均衡</strong>：将访问热点的 Region Leader 分散到不同 TiKV 节点</li>
+<li><strong>Region 均衡</strong>：根据 Store 的 Region 数量&#x2F;大小，通过调度器移动 Region Peer</li>
+<li><strong>故障恢复</strong>：检测到 Peer 不可用后，在健康节点上补建新 Peer</li>
+<li><strong>Merge&#x2F;Split</strong>：Region 大小超过 96MB 时自动分裂，小于阈值时合并减少元数据开销</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：Region 分裂是 PD 触发 TiKV 在本地执行 split 操作，不涉及数据搬迁。但如果原始 Region 是热点，分裂后的两个 Region 可能都还在同一节点，需要调度器介入。</li>
+<li><strong>源码层面</strong>：Raft 在 TiKV 中基于 etcd raft-rs 库实现，但 TiKV 使用 Multi-Raft（每个 Region 一个 Raft Group），相比 etcd 的单 Raft Group，元数据开销随 Region 数量线性增长。千万级 Region 场景下，Raft 心跳消息成为网络瓶颈。</li>
+<li><strong>生产经验</strong>：大表创建后，一开始只有一个 Region，写入全部落在一个 TiKV 节点。需要开启 <code>split-table</code> + <code>load-base-split</code> 让 TiDB 预分裂 Region。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某 IoT 场景使用自增主键写入，所有数据落在最后一个 Region 上形成写入热点。虽然 PD 尝试迁移 Leader，但写流量集中在单一节点。解决：改用 Hash 分区键（如 <code>user_id % 64</code>）作为主键，或开启 <code>load-base-split</code> 让 PD 根据 QPS 自动分裂热点 Region。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/tikv-overview">https://docs.pingcap.com/tidb/stable/tikv-overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://pingcap.medium.com/tidb-internal-iii-scheduling-de1001ef207d">https://pingcap.medium.com/tidb-internal-iii-scheduling-de1001ef207d</a></li>
+</ul>
+<hr>
+<h3 id="0x00-03-TiDB-分布式事务的工作原理？乐观锁与悲观锁的区别？"><a href="#0x00-03-TiDB-分布式事务的工作原理？乐观锁与悲观锁的区别？" class="headerlink" title="0x00-03 TiDB 分布式事务的工作原理？乐观锁与悲观锁的区别？"></a>0x00-03 TiDB 分布式事务的工作原理？乐观锁与悲观锁的区别？</h3><p><strong>标准答案</strong>：<br>TiDB 的分布式事务基于 Google Percolator 模型，结合 MVCC（多版本并发控制）实现快照隔离（SI）&#x2F;可重复读（RR）。</p>
+<p><strong>乐观事务（默认）</strong>：</p>
+<ol>
+<li><strong>Prewrite 阶段</strong>：客户端从 PD 获取 <code>start_ts</code>，将所有写入的 Key 加锁并写入 TiKV。锁包含主锁（Primary Lock）和从锁（Secondary Lock）。</li>
+<li><strong>Commit 阶段</strong>：获取 <code>commit_ts</code>，提交主锁释放主 Key，异步提交从锁。</li>
+<li><strong>冲突检测</strong>：Prewrite 时如果发现 Key 已被锁定，则事务冲突，需要回退重试。</li>
+</ol>
+<p><strong>悲观事务</strong>：</p>
+<ol>
+<li><strong>加锁阶段</strong>：事务执行 DML 时立即对涉及行加悲观锁（<code>for_update_ts</code>），防止其他事务修改。</li>
+<li><strong>Prewrite&#x2F;Commit</strong>：同乐观模式，但因为已持有锁，Prewrite 冲突概率极低。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>乐观锁</th>
+<th>悲观锁</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>冲突检测时机</td>
+<td>Commit 时</td>
+<td>执行 DML 时</td>
+</tr>
+<tr>
+<td>冲突场景性能</td>
+<td>冲突高时大量回退重试</td>
+<td>额外 RTT 加锁成本</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>低冲突、短事务</td>
+<td>高冲突、长事务</td>
+</tr>
+<tr>
+<td>死锁检测</td>
+<td>无（靠超时）</td>
+<td>TiDB 内置死锁检测器</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：乐观事务在冲突率高时（&gt;5%），系统吞吐量断崖式下跌，因为大量事务在 Commit 时回退重试。这时必须切换到悲观锁。</li>
+<li><strong>源码层面</strong>：Percolator 模型有个著名缺陷——Secondary Lock 提交失败会导致数据不一致（Primary 已提交，Secondary 未提交）。TiDB 通过异步提交 + 后台”锁清理”（Lock Resolver）巡检补偿来保证最终一致。</li>
+<li><strong>对比延伸</strong>：与 Spanner 的 TrueTime 对比——Percolator 需要中心化的 TSO 分配器，受时钟漂移影响；TrueTime 用原子钟+GPS 消除了中心化瓶颈。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某电商库存系统使用乐观事务，高峰期库存扣减冲突率高达 30%，大量事务回退导致成功率不到 60%。改为悲观锁后，虽然单次延迟从 5ms 升到 15ms，但吞吐量提升 3 倍，成功率恢复到 99.9%+。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dataturbo.medium.com/deep-dive-into-distributed-transactions-in-tikv-and-tidb-80337b4104cb">https://dataturbo.medium.com/deep-dive-into-distributed-transactions-in-tikv-and-tidb-80337b4104cb</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.mydbops.com/blog/optimistic-and-pessimistic-locking-in-tidb">https://www.mydbops.com/blog/optimistic-and-pessimistic-locking-in-tidb</a></li>
+</ul>
+<hr>
+<h3 id="0x00-04-TiDB-的-HTAP-架构是如何实现的？TiFlash-如何保证与-TiKV-的数据一致性？"><a href="#0x00-04-TiDB-的-HTAP-架构是如何实现的？TiFlash-如何保证与-TiKV-的数据一致性？" class="headerlink" title="0x00-04 TiDB 的 HTAP 架构是如何实现的？TiFlash 如何保证与 TiKV 的数据一致性？"></a>0x00-04 TiDB 的 HTAP 架构是如何实现的？TiFlash 如何保证与 TiKV 的数据一致性？</h3><p><strong>标准答案</strong>：<br>TiDB 的 HTAP 方案通过”行存 TiKV + 列存 TiFlash”双引擎实现，用户无需关心数据路由——优化器根据 SQL 类型自动选择引擎。</p>
+<p><strong>TiFlash 架构要点</strong>：</p>
+<ol>
+<li><strong>Raft Learner</strong>：TiFlash 以 Raft Learner 角色加入 TiKV 的 Raft Group。Learner 不参与选举，只接收 Raft Log 实时同步数据。</li>
+<li><strong>DeltaTree 引擎</strong>：列式存储引擎，数据按列压缩（LZ4&#x2F;ZSTD），支持向量化执行（SIMD）。</li>
+<li><strong>一致性保证</strong>：TiFlash 提供 Snapshot Isolation 级别的读一致性，与 TiKV 一致。读请求检查 apply index，确保读到最新已提交数据。</li>
+<li><strong>智能路由</strong>：TiDB 优化器根据代价模型决定查询下推到 TiKV（行存）还是 TiFlash（列存），通过 <code>tidb_isolation_read_engines</code> 变量可手动控制。</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：如果 TiFlash 同步延迟较大（如网络抖动），TiDB 可能读取到旧版本数据？实际上 TiFlash 在查询时会等待 apply index 追上 read timestamp，所以不会读到过时数据，但会增加查询延迟。</li>
+<li><strong>源码层面</strong>：TiFlash 通过 <code>tiflash replica</code> 命令建立 TiKV 表副本。每个 Region 在 TiFlash 中对应一个 Segment，Segment 大小默认 256MB 至 2GB，远大于 TiKV 的 Region。这是为了避免列存中过多小文件影响扫描性能。</li>
+<li><strong>生产经验</strong>：HTAP 混合负载时注意资源隔离——通过 <code>tidb_enforce_mpp</code> 将 OLAP 查询强制走 TiFlash，避免消耗 TiKV 的 CPU&#x2F;IO 资源影响 TP 业务。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某 BI 报表场景，运行大查询时 TiKV CPU 冲到 100%，TP 业务 P99 延迟从 10ms 飙到 2s。排查发现查询未走 TiFlash，而是直接在 TiKV 上全表扫描。根因：TiFlash 副本同步延迟过大，优化器判断走 TiKV 更快。解决：调整 <code>tidb_allow_mpp</code> 强制走 TiFlash，并优化 TiFlash 与 TiKV 之间的网络带宽。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/tiflash-overview">https://docs.pingcap.com/tidb/stable/tiflash-overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/pingcap/tiflash/blob/master/docs/design/0000-00-00-architecture-of-distributed-storage-and-transaction.md">https://github.com/pingcap/tiflash/blob/master/docs/design/0000-00-00-architecture-of-distributed-storage-and-transaction.md</a></li>
+</ul>
+<hr>
+<h3 id="0x00-05-TiDB-7-x-8-x-有哪些重要新特性？"><a href="#0x00-05-TiDB-7-x-8-x-有哪些重要新特性？" class="headerlink" title="0x00-05 TiDB 7.x&#x2F;8.x 有哪些重要新特性？"></a>0x00-05 TiDB 7.x&#x2F;8.x 有哪些重要新特性？</h3><p><strong>标准答案</strong>：</p>
+<p><strong>TiDB 7.1 LTS (2023)</strong>：</p>
+<ul>
+<li><strong>Resource Control GA</strong>：多租户资源隔离，通过 <code>RESOURCE GROUP</code> 限制 CPU&#x2F;IO&#x2F;内存，防止 OLAP 影响 OLTP</li>
+<li><strong>TiFlash 半持久化</strong>：减少 TiFlash 内存压力</li>
+<li><strong>Grafana 告警增强</strong>：内置 50+ 告警规则</li>
+</ul>
+<p><strong>TiDB 7.5 LTS (2024)</strong>：</p>
+<ul>
+<li><strong>Global Sort</strong>：减少 BR&#x2F;Restore 和 DDL 过程中对缓存的依赖，降低大表 DDL 对 I&#x2F;O 的冲击</li>
+<li><strong>并行 ADD INDEX</strong>：支持对单表并发添加多个索引，DDL 时间大幅缩短</li>
+<li><strong>TiFlash 查询下推增强</strong>：更多算子下推（窗口函数、JSON 函数等）</li>
+<li><strong>AutoAnalyze 增强</strong>：根据查询模式智能选择统计信息收集时机</li>
+</ul>
+<p><strong>TiDB 8.x (2025)</strong>：</p>
+<ul>
+<li><strong>Global Memory Control</strong>：全局视角的内存管理，防止单条查询撑爆 TiDB 节点</li>
+<li><strong>TiFlash MPP 增强</strong>：支持跨节点 Shuffle Hash Join，大表 JOIN 性能飞跃</li>
+<li><strong>Placement Policy in SQL</strong>：通过 SQL 定义数据放置策略（跨 AZ&#x2F;跨 Region）</li>
+<li><strong>TiKV 异步 IO</strong>：降低写延迟 P99</li>
+<li><strong>TTL 自动分区管理</strong>：时序数据自动过期清理</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产经验</strong>：Resource Control 是集群级隔离，不是节点级——意味着即使配置了资源组，同节点上的不同租户仍共享 CPU 资源。</li>
+<li><strong>选型意义</strong>：8.x 的 Global Memory Control 对于多租户场景是革命性特性——在此之前，一条大查询可以耗尽 TiDB Server 内存导致 OOM。现在可以精确限制每个 Query 的内存使用。</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/release-7.5.0">https://docs.pingcap.com/tidb/stable/release-7.5.0</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/tidb-resource-control">https://docs.pingcap.com/tidb/stable/tidb-resource-control</a></li>
+</ul>
+<hr>
+<h3 id="0x00-06-TiDB-生产环境常见的踩坑与最佳实践"><a href="#0x00-06-TiDB-生产环境常见的踩坑与最佳实践" class="headerlink" title="0x00-06 TiDB 生产环境常见的踩坑与最佳实践"></a>0x00-06 TiDB 生产环境常见的踩坑与最佳实践</h3><p><strong>标准答案</strong>：</p>
+<p><strong>常见问题清单</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>现象</th>
+<th>根因</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>写入热点</td>
+<td>单 TiKV 节点 CPU&#x2F;IO 打满</td>
+<td>自增主键&#x2F;单调递增索引</td>
+<td>使用 Hash 分区键&#x2F;散列索引</td>
+</tr>
+<tr>
+<td>大事务 OOM</td>
+<td>TiDB Server 内存耗尽</td>
+<td>单事务行数过多（&gt;10w）</td>
+<td><code>tidb_batch_commit</code> &#x2F; 分批写入</td>
+</tr>
+<tr>
+<td>Region 过多</td>
+<td>PD 响应慢，调度卡顿</td>
+<td>表太多&#x2F;Region 分裂过快</td>
+<td>调大 <code>split-size</code> &#x2F; 合并小 Region</td>
+</tr>
+<tr>
+<td>TiFlash OOM</td>
+<td>列存查询 CTE 过大</td>
+<td>未限制中间结果集</td>
+<td><code>tidb_mem_quota_query</code> + TiFlash <code>max_memory_usage</code></td>
+</tr>
+<tr>
+<td>GC 影响查询</td>
+<td>DELETE&#x2F;UPDATE 后查询慢</td>
+<td>MVCC 版本堆积</td>
+<td>调整 <code>tidb_gc_life_time</code> &#x2F; 手动触发 GC</td>
+</tr>
+<tr>
+<td>DDL 阻塞</td>
+<td>ADD INDEX 卡住</td>
+<td>写冲突&#x2F;Online DDL 队列阻塞</td>
+<td>升级 7.5+ 使用并行 ADD INDEX</td>
+</tr>
+</tbody></table>
+<p><strong>最佳实践</strong>：</p>
+<ul>
+<li>使用 <code>AUTO_RANDOM</code> 替代自增主键避免写入热点</li>
+<li>TiFlash 副本数控制在 1-2（默认），不浪费存储</li>
+<li>配置 <code>tidb_enable_resource_control</code> 隔离 TP 和 AP 资源</li>
+<li>大表定期 <code>ANALYZE TABLE</code> 防止优化器选错索引</li>
+<li>开启 <code>load-base-split</code> 自动处理突发热点</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/best-practices/high-concurrency-best-practices">https://docs.pingcap.com/best-practices/high-concurrency-best-practices</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/configure-load-base-split">https://docs.pingcap.com/tidb/stable/configure-load-base-split</a></li>
+</ul>
+<hr>
+<h2 id="0x01-OceanBase"><a href="#0x01-OceanBase" class="headerlink" title="0x01 OceanBase"></a>0x01 OceanBase</h2><h3 id="0x01-01-OceanBase-整体架构是怎样的？RootService-与-OBServer-的职责？"><a href="#0x01-01-OceanBase-整体架构是怎样的？RootService-与-OBServer-的职责？" class="headerlink" title="0x01-01 OceanBase 整体架构是怎样的？RootService 与 OBServer 的职责？"></a>0x01-01 OceanBase 整体架构是怎样的？RootService 与 OBServer 的职责？</h3><p><strong>标准答案</strong>：<br>OceanBase 采用 Shared-Nothing 架构，所有节点对等，每个节点上运行 OBServer 进程。</p>
+<p><strong>核心组件</strong>：</p>
+<ol>
+<li><strong>OBServer</strong>：每个节点运行一个 observer 进程，内含 SQL 引擎、事务引擎、存储引擎，对等提供服务。</li>
+<li><strong>RootService（RS）</strong>：运行在某个 OBServer 上的主控进程（Active-Standby 模式），负责集群管理、分区调度、负载均衡、DDL 操作。通过选举产生主 RS，备 RS 随时接管。</li>
+<li><strong>Zone</strong>：逻辑上的可用区概念，一个 Zone 包含一组 OBServer。数据在同一 Paxos Group 内的副本分布在不同的 Zone 中，实现跨 AZ&#x2F;跨 Region 容灾。</li>
+<li><strong>租户（Tenant）</strong>：逻辑数据库实例，每个租户有独立的资源池（CPU&#x2F;内存&#x2F;存储），互不干扰。系统租户（<code>sys</code>）管理集群，普通租户提供业务服务。</li>
+</ol>
+<p><strong>数据分片</strong>：表按用户指定的分区规则（Hash&#x2F;Range&#x2F;List）水平切分为 Partition，每个 Partition 的多个副本组成 Paxos Group。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>对比延伸</strong>：TiDB 的 PD 通过 Raft 保证高可用（3 节点投票），OB 的 RootService 是 Active-Standby 选举，Leader 挂掉后在 OBServer 中重新选举。OB 的方式更轻量，但切 RS 期间（约 30s）新 DDL 无法执行。</li>
+<li><strong>架构差异</strong>：OB 是”计算存储不分离”，每个 OBServer 同时承载计算和存储；TiDB 是真正的计算存储分离。OB 的好处是减少网络开销（本地 IO），坏处是扩缩容需要数据搬迁。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某银行 OB 集群 RS 节点硬件故障，RootService 切主后，新 RS 需要重新收集全集群 Partition 分布信息，耗时 5 分钟。期间 DDL 操作全部阻塞。解决：部署 RS 为独立资源组，确保 RS 所在节点配置和隔离性最佳。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://oceanbase.github.io/oceanbase/architecture">https://oceanbase.github.io/oceanbase/architecture</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384579">https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384579</a></li>
+</ul>
+<hr>
+<h3 id="0x01-02-OceanBase-的分布式选举（Paxos-Paxos-Group）是如何工作的？"><a href="#0x01-02-OceanBase-的分布式选举（Paxos-Paxos-Group）是如何工作的？" class="headerlink" title="0x01-02 OceanBase 的分布式选举（Paxos&#x2F;Paxos Group）是如何工作的？"></a>0x01-02 OceanBase 的分布式选举（Paxos&#x2F;Paxos Group）是如何工作的？</h3><p><strong>标准答案</strong>：<br>OceanBase 使用自研的 Multi-Paxos 协议（基于 Basic Paxos 优化）实现数据副本的强一致。</p>
+<p><strong>Paxos Group</strong>：</p>
+<ol>
+<li>每个 Partition 的多个副本组成一个 Paxos Group（通常 3 副本）。</li>
+<li>Redo Log 通过 Paxos 同步：写操作需要多数派（Quorum）确认才算提交。</li>
+<li>Leader 处理读写（Strong Read，强一致读），Follower 可提供弱一致读。</li>
+</ol>
+<p><strong>选举流程</strong>：</p>
+<ul>
+<li>Leader 通过定期心跳维持领导地位</li>
+<li>Leader 宕机后，Follower 触发选举（通过 Paxos Prepare&#x2F;Accept 阶段）</li>
+<li>选出的新 Leader 通过日志追赶（Log Catchup）补全未同步的 Redo Log</li>
+</ul>
+<p><strong>与 Raft 的核心区别</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Raft</th>
+<th>OceanBase Paxos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>日志顺序</td>
+<td>强顺序，日志连续</td>
+<td>允许空洞，更加灵活</td>
+</tr>
+<tr>
+<td>选举</td>
+<td>随机超时触发</td>
+<td>基于租约+优先级</td>
+</tr>
+<tr>
+<td>成员变更</td>
+<td>Joint Consensus 两阶段</td>
+<td>逐节点变更（轻量）</td>
+</tr>
+<tr>
+<td>读优化</td>
+<td>Lease Read&#x2F;Follower Read</td>
+<td>Weak Read + LSN 对齐</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码层面</strong>：OB 的 Paxos 实现中，日志副本数不是固定的 3——生产环境常用”5 副本跨 3 AZ 部署”：主 AZ 3 副本，备 AZ 2 副本，允许单 AZ 整体故障而不丢数据。</li>
+<li><strong>生产经验</strong>：Paxos Group 太小（如 3 副本）时，多 Zone 场景下备 Zone 的磁盘延迟会影响主 Zone 写入——因为每次 Redo Log 都需要跨 AZ 确认。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某用户 OB 集群跨 3 Zone 部署，每个 Zone 在同一个 IDC 的 3 个机柜。机柜级交换机故障导致一个 Zone 离线，Paxos Group（3 副本跨 3 Zone）只剩 2 个副本，仍可写入。但故障恢复后 Leader 发现日志空洞过大，追赶时间长达 30 分钟。解决：调整为 5 副本（3+2），降低单 Zone 故障对日志追赶的影响。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs/common-oceanbase-database-10000000001031451">https://en.oceanbase.com/docs/common-oceanbase-database-10000000001031451</a></li>
+</ul>
+<hr>
+<h3 id="0x01-03-OceanBase-LSM-Tree-存储引擎的工作原理？"><a href="#0x01-03-OceanBase-LSM-Tree-存储引擎的工作原理？" class="headerlink" title="0x01-03 OceanBase LSM-Tree 存储引擎的工作原理？"></a>0x01-03 OceanBase LSM-Tree 存储引擎的工作原理？</h3><p><strong>标准答案</strong>：<br>OB 使用基于 LSM-Tree 的自研存储引擎，将数据分为基线数据和增量数据：</p>
+<p><strong>分层结构</strong>：</p>
+<ol>
+<li><strong>MemTable（内存表）</strong>：新写入&#x2F;修改的数据先写入 MemTable（内存中的有序结构）。写入操作记录 Redo Log 后才算持久化。</li>
+<li><strong>SSTable（静态基线）</strong>：MemTable 达到阈值（默认 64MB&#x2F;256MB）后，冻结并刷入磁盘成为 Mini SSTable。多个 Mini SSTable 后台合并为 Major SSTable。</li>
+<li><strong>Compaction（合并）</strong>：<ul>
+<li><strong>Minor Compaction</strong>：多个 Mini SSTable 合并</li>
+<li><strong>Major Compaction</strong>：全量基线数据 + 增量数据合并为新的基线，清理删除标记和过期版本</li>
+</ul>
+</li>
+</ol>
+<p><strong>读放大处理</strong>：</p>
+<ul>
+<li>读请求需要同时查 MemTable + 所有 SSTable 层级</li>
+<li>OB 使用 Block Cache + Row Cache + Bloom Filter 三件套加速读路径</li>
+<li>每个 SSTable 带有 Bloom Filter，快速判断 Key 是否不存在</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>对比 RocksDB</strong>：OB 的 LSM-Tree 与 RocksDB 最大的区别在于”每日合并”——OB 默认每天执行一次 Major Compaction（可配置），不像 RocksDB 用层级合并（L0→L1→L2…）。这使 OB 的写放大更可控，但空间放大略大。</li>
+<li><strong>编码压缩</strong>：OB 支持行列混合编码（DICTIONARY &#x2F; RLE &#x2F; DELTA &#x2F; PREFIX），压缩比可达 70-90%，远超 MySQL InnoDB 的页压缩。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某 OB 集群白天写入量大，MemTable 频繁冻结刷盘，Minor Compaction 跟不上产生速度，导致 SSTable 层级暴涨，读放大严重，查询延迟从 1ms 升到 50ms。解决：调大 <code>freeze_trigger_percentage</code>（从 20% 调到 50%），增加 MemTable 容量，减少冻结频率。同时将 Major Compaction 改到凌晨执行。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384361">https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384361</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.alibabacloud.com/blog/599324">https://www.alibabacloud.com/blog/599324</a></li>
+</ul>
+<hr>
+<h3 id="0x01-04-OceanBase-的多租户与资源隔离机制？"><a href="#0x01-04-OceanBase-的多租户与资源隔离机制？" class="headerlink" title="0x01-04 OceanBase 的多租户与资源隔离机制？"></a>0x01-04 OceanBase 的多租户与资源隔离机制？</h3><p><strong>标准答案</strong>：<br>OB 通过”租户”实现多租户架构，每个租户是一个逻辑数据库实例，拥有独立的数据、用户、系统变量。</p>
+<p><strong>资源隔离层级</strong>：</p>
+<ol>
+<li><strong>CPU 隔离</strong>：通过 cgroup（user-mode scheduling fallback）限制租户使用的 CPU 核数。OB 4.x 使用内置 SQL 引擎的优先级调度，以微秒粒度分配 CPU 时间片。</li>
+<li><strong>内存隔离</strong>：完全独立。每个租户的 MemTable、SQL 执行内存、Plan Cache 都分隔在不同内存池中。一个租户 OOM 不会影响其他租户。</li>
+<li><strong>IO 隔离</strong>：4.x 引入了 IOPS 限制，通过 <code>min_iops</code> &#x2F; <code>max_iops</code> 控制每个租户的磁盘读写带宽。</li>
+<li><strong>数据隔离</strong>：每个租户的元数据（系统表）完全独立，一个租户无法看到其他租户的数据。</li>
+</ol>
+<p><strong>资源池</strong>：</p>
+<ul>
+<li><code>CREATE RESOURCE POOL</code> 定义资源规格（CPU&#x2F;内存&#x2F;磁盘）</li>
+<li>一个租户绑定一个或多个资源池</li>
+<li>资源池分布在不同 Zone 上实现高可用</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>对比延伸</strong>：TiDB 的 Resource Control 是集群维度限制（Group），OB 是租户维度隔离。OB 的隔离粒度更细（完全独立内存池），适合严苛的金融级多租户场景。</li>
+<li><strong>生产经验</strong>：多租户场景下需要合理规划 UNIT 数量——OB 的弹性伸缩通过 <code>ALTER RESOURCE TENANT</code> 动态调整，无需重启。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某 SaaS 厂商在 OB 集群上部署了 50+ 租户，部分中小租户活跃度低但占用大量内存（MemTable 长时间不释放）。排查发现 MemTable 的 <code>freeze_trigger_percentage</code> 全局设置对中小租户不友好。解决：为不同规格的租户设置不同的 <code>freeze_trigger_percentage</code>，大租户 30%，小租户 60%。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384579">https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384579</a></li>
+</ul>
+<hr>
+<h3 id="0x01-05-OceanBase-4-x-新特性"><a href="#0x01-05-OceanBase-4-x-新特性" class="headerlink" title="0x01-05 OceanBase 4.x 新特性"></a>0x01-05 OceanBase 4.x 新特性</h3><p><strong>标准答案</strong>：</p>
+<p><strong>OB 4.0（2023）— “单机分布式一体化”</strong>：</p>
+<ul>
+<li><strong>单机部署能力</strong>：支持 2C8G 规格单机部署，降低开发和测试成本</li>
+<li><strong>MySQL 兼容性大幅提升</strong>：支持 JSON&#x2F;Window Function&#x2F;CTE 等</li>
+<li><strong>列式存储引擎（实验性）</strong>：引入列存格式 HTAP 能力</li>
+<li><strong>自适应日志流</strong>：动态调整 Redo Log 并发度</li>
+</ul>
+<p><strong>OB 4.1&#x2F;4.2（2024）</strong>：</p>
+<ul>
+<li><strong>物化视图</strong>：支持预计算加速 OLAP 查询</li>
+<li><strong>Multi-Tenant Resource Isolation GA</strong>：IOPS 隔离正式 GA</li>
+<li><strong>并行 DDL</strong>：大表 DDL 操作不再阻塞</li>
+<li><strong>Data Compression 增强</strong>：ZSTD 编码支持，压缩比提升 20%</li>
+</ul>
+<p><strong>OB 4.3+（2025）</strong>：</p>
+<ul>
+<li><strong>HTAP 列存 GA</strong>：列式存储引擎正式用于生产</li>
+<li><strong>增强型优化器</strong>：支持 Dynamic Programming 的 Join Order 选择</li>
+<li><strong>Auto-Diagnose</strong>：内置智能诊断系统，自动分析性能瓶颈</li>
+<li><strong>UPSERT 性能优化</strong>：基于 Primary Key 的 UPSERT 性能提升 3x</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li>4.x 最大的变化是”单机分布式一体化”——以前 OB 最少需要 3 台机器，现在单机也能跑。这对开发测试和中小客户是重大利好。</li>
+<li>列存引擎的引入使 OB 开始真正具备 HTAP 能力，但相比 TiFlash 的成熟度还有差距。</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://oceanbase.github.io/">https://oceanbase.github.io</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.oceanbase.com/en/news/new-9">https://www.oceanbase.com/en/news/new-9</a></li>
+</ul>
+<hr>
+<h3 id="0x01-06-OceanBase-生产实践与常见踩坑"><a href="#0x01-06-OceanBase-生产实践与常见踩坑" class="headerlink" title="0x01-06 OceanBase 生产实践与常见踩坑"></a>0x01-06 OceanBase 生产实践与常见踩坑</h3><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>根因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>写入性能瓶颈</td>
+<td>MemTable 频繁冻结</td>
+<td>调大 <code>freeze_trigger_percentage</code></td>
+</tr>
+<tr>
+<td>查询变慢</td>
+<td>Major Compaction 未完成</td>
+<td>管理合并窗口</td>
+</tr>
+<tr>
+<td>节点内存 OOM</td>
+<td>SQL 无限制的大查询</td>
+<td><code>max_memory_for_query</code> 限制</td>
+</tr>
+<tr>
+<td>网络延迟高</td>
+<td>跨 AZ Paxos 日志同步</td>
+<td>主 Zone 内尽量同 AZ</td>
+</tr>
+</tbody></table>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384361">https://en.oceanbase.com/docs/enterprise-oceanbase-database-en-10000000000384361</a></li>
+</ul>
+<hr>
+<h2 id="0x02-ClickHouse"><a href="#0x02-ClickHouse" class="headerlink" title="0x02 ClickHouse"></a>0x02 ClickHouse</h2><h3 id="0x02-01-ClickHouse-整体架构是怎样的？Shard-Replica-如何组织？"><a href="#0x02-01-ClickHouse-整体架构是怎样的？Shard-Replica-如何组织？" class="headerlink" title="0x02-01 ClickHouse 整体架构是怎样的？Shard&#x2F;Replica 如何组织？"></a>0x02-01 ClickHouse 整体架构是怎样的？Shard&#x2F;Replica 如何组织？</h3><p><strong>标准答案</strong>：<br>ClickHouse 采用 Shared-Nothing 的 MPP 架构，典型部署包含以下角色：</p>
+<ol>
+<li><strong>Coordinator 节点</strong>：接收客户端查询，解析 SQL，生成分布式执行计划，协调各节点执行。CH 中没有独立的 Coordinator 进程——任意节点都可以作为 Coordinator。</li>
+<li><strong>Shard（分片）</strong>：数据水平切分单元。一张分布式表的数据按分片键分布到多个 Shard 上。</li>
+<li><strong>Replica（副本）</strong>：每个 Shard 可以有多副本保证高可用。通过 <code>ReplicatedMergeTree</code> 引擎实现跨节点数据复制（基于 ZooKeeper&#x2F;ClickHouse Keeper 的日志复制）。</li>
+<li><strong>ClickHouse Keeper</strong>：替代 ZooKeeper 的一致性服务，用于分布式 DDL 协调和 ReplicatedMergeTree 的元数据同步。</li>
+</ol>
+<p><strong>分布式表</strong>：通过 <code>Distributed</code> 表引擎实现，本身不存数据，作为”视图”将查询分发到所有分片后聚合结果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE distributed_table AS local_table</span><br><span class="line">ENGINE = Distributed(&#x27;cluster_name&#x27;, &#x27;db&#x27;, &#x27;local_table&#x27;, rand())</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>对比延伸</strong>：CH 没有独立的 Coordinator&#x2F;Scheduler 进程（不像 Doris 有 FE，Trino 有 Coordinator），任何节点都可以是查询起点。这简化了架构但增加了查询调度的不确定性。</li>
+<li><strong>Keeper vs ZooKeeper</strong>：CH 从 21.8 开始内置 ClickHouse Keeper，使用 Raft 替代 ZooKeeper，运维负担大幅降低。但 Keeper 的稳定性在超大规模集群（50+ 节点）上仍不如 ZK 久经考验。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某 30 节点集群使用 ZooKeeper 管理 ReplicatedMergeTree 元数据，ZK 节点处理约 5000 TPS 的写入请求（来自 CH 的复制日志），频繁触发 ZK 的 Sync 超时导致 CH 节点间复制中断。解决：迁移到 ClickHouse Keeper 并使用独立磁盘（NVMe SSD），KV 请求延迟从 5ms 降到 0.3ms。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/engines/table-engines/mergetree-family/replication">https://clickhouse.com/docs/engines/table-engines/mergetree-family/replication</a></li>
+</ul>
+<hr>
+<h3 id="0x02-02-MergeTree-表引擎家族详解？各引擎的适用场景？"><a href="#0x02-02-MergeTree-表引擎家族详解？各引擎的适用场景？" class="headerlink" title="0x02-02 MergeTree 表引擎家族详解？各引擎的适用场景？"></a>0x02-02 MergeTree 表引擎家族详解？各引擎的适用场景？</h3><p><strong>标准答案</strong>：<br>MergeTree 是 CH 的核心引擎，所有变体都基于 MergeTree：</p>
+<p><strong>1. MergeTree（基础引擎）</strong></p>
+<ul>
+<li>数据按 ORDER BY 排序，按 PARTITION BY 分区</li>
+<li>支持稀疏主索引（主键隔 N 行建一个索引标记）</li>
+<li>适用：原始事件日志、时序数据</li>
+</ul>
+<p><strong>2. ReplacingMergeTree</strong></p>
+<ul>
+<li>合并时按 ORDER BY 去重，保留最后一条（可配版本列）</li>
+<li>适用：实时更新的维度表、变更数据捕获（CDC）</li>
+<li>注意：去重只在合并时发生，查询时需加 <code>FINAL</code> 保证拿到最新版本</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> users (</span><br><span class="line">  user_id UInt64, name String, version DateTime</span><br><span class="line">) ENGINE <span class="operator">=</span> ReplacingMergeTree(version)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. SummingMergeTree</strong></p>
+<ul>
+<li>合并时按 ORDER BY 累加数值列，保留一条汇总行</li>
+<li>适用：预聚合指标（PV&#x2F;UV&#x2F;金额），对实时性不敏感的场景</li>
+<li>注意：非确定性合并——相同分片键的行不一定都被合并到一条</li>
+</ul>
+<p><strong>4. AggregatingMergeTree</strong></p>
+<ul>
+<li>合并时用 <code>AggregateFunction</code> 类型存储聚合中间状态（如 uniqState&#x2F;avgState）</li>
+<li>写入用 <code>-State</code> 函数，查询用 <code>-Merge</code> 函数</li>
+<li>适用：复杂预聚合（Distinct Count&#x2F;分位数&#x2F;自定义聚合），物化视图底层引擎</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> agg_metrics (</span><br><span class="line">  <span class="type">date</span> <span class="type">Date</span>, city String,</span><br><span class="line">  uv AggregateFunction(uniq, UInt64),</span><br><span class="line">  p95 AggregateFunction(quantile(<span class="number">0.95</span>), UInt64)</span><br><span class="line">) ENGINE <span class="operator">=</span> AggregatingMergeTree()</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> (<span class="type">date</span>, city);</span><br></pre></td></tr></table></figure>
+
+<p><strong>5. VersionedCollapsingMergeTree</strong></p>
+<ul>
+<li>通过 sign 列（1&#x2F;-1）和 version 实现”折叠”——相同 version 的 +1 和 -1 行互相抵消</li>
+<li>适用：金融数据变更流、平衡表，需要精确的实时合并</li>
+<li>查询时用 <code>sum(sign) &gt; 0</code> 过滤有效行</li>
+</ul>
+<p><strong>6. CollapsingMergeTree（旧版）</strong></p>
+<ul>
+<li>同 VersionedCollapsingMergeTree 但不支持 version，只支持 sign</li>
+<li>不推荐新项目使用</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>选型决策</strong>：绝大部分场景用 MergeTree（只追加）即可。需要去重用 ReplacingMergeTree，需要预聚合看 SummingMergeTree 够不够用，不够上 AggregatingMergeTree。需要精确版本控制用 VersionedCollapsingMergeTree。</li>
+<li><strong>FINAL 的性能代价</strong>：<code>SELECT ... FINAL</code> 会在查询时做去重&#x2F;合并，单线程执行，扫描量巨大。大表频繁加 FINAL 不现实，应配合物化视图 + AggregatingMergeTree 预聚合。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某用户使用 ReplacingMergeTree 做实时数据去重，高峰 10 万+ TPS 写入，FINAL 查询耗时从 10ms 升到 5s。排查发现存量数据 parts 数太多（3000+），FINAL 需要合并所有 parts。解决：设置 <code>merge_with_ttl_timeout</code> 主动触发合并，同时用物化视图预聚合替代实时 FINAL。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/engines/table-engines/mergetree-family">https://clickhouse.com/docs/engines/table-engines/mergetree-family</a></li>
+<li><a target="_blank" rel="noopener" href="https://altinity.com/blog/clickhouse-replacingmergetree-explained-the-good-the-bad-and-the-ugly">https://altinity.com/blog/clickhouse-replacingmergetree-explained-the-good-the-bad-and-the-ugly</a></li>
+</ul>
+<hr>
+<h3 id="0x02-03-ClickHouse-分区、分片、物化视图"><a href="#0x02-03-ClickHouse-分区、分片、物化视图" class="headerlink" title="0x02-03 ClickHouse 分区、分片、物化视图"></a>0x02-03 ClickHouse 分区、分片、物化视图</h3><p><strong>标准答案</strong>：</p>
+<p><strong>分区（Partition）</strong>：</p>
+<ul>
+<li>按 PARTITION BY 表达式将数据分为不同目录（partition_id），查询可做分区裁剪</li>
+<li>典型：<code>PARTITION BY toYYYYMM(event_date)</code> — 按年月分区</li>
+<li>分区数建议 100-1000 个，过多（&gt;1000）导致 PART 数量爆炸</li>
+</ul>
+<p><strong>分片（Sharding）</strong>：</p>
+<ul>
+<li>通过 Distributed 表 + 分片键实现数据水平拆分</li>
+<li>分片键一般用 <code>rand()</code> 随机分布，或按业务 ID 保证关联数据在同一分片</li>
+<li>注意：CH 不支持自动 rebalancing——增加新分片后老数据不会自动迁移</li>
+</ul>
+<p><strong>物化视图（Materialized View）</strong>：</p>
+<ul>
+<li>CH 的物化视图是”触发器”模型：数据写入源表时触发生成新数据写入物化视图表</li>
+<li>不是传统意义上的”查询结果快照”</li>
+<li>典型架构：源表（MergeTree）+ 聚合表（AggregatingMergeTree）+ 物化视图桥接</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">-- 源表</span><br><span class="line">CREATE TABLE events (date Date, city String, cnt UInt32)</span><br><span class="line">ENGINE = MergeTree ORDER BY (date, city);</span><br><span class="line"></span><br><span class="line">-- 聚合目标表</span><br><span class="line">CREATE TABLE events_agg (date Date, city String, total AggregateFunction(sum, UInt32))</span><br><span class="line">ENGINE = AggregatingMergeTree ORDER BY (date, city);</span><br><span class="line"></span><br><span class="line">-- 物化视图</span><br><span class="line">CREATE MATERIALIZED VIEW mv_events TO events_agg AS</span><br><span class="line">SELECT date, city, sumState(cnt) AS total</span><br><span class="line">FROM events GROUP BY date, city;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>物化视图的陷阱</strong>：数据是增量写入的——如果源表有历史数据，物化视图不会自动回填。需要先 <code>INSERT INTO events_agg SELECT ...</code> 回填历史，再建物化视图。</li>
+<li><strong>分区过多隐患</strong>：每个 INSERT 生成一个新 part。如果分区数 3000，每秒 1000 次插入，part 数会爆炸，合并线程跟不上。解决方案：减少分区数 + 使用 <code>UNIQUE</code> 约束合并前合并。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某日志平台每天 10TB 数据入 CH，按小时分区（<code>toYYYYMMDDHH</code>），每分区每天有 24 个。6 个月后分区数超过 4300，parts 总数 100 万+，合并线程 CPU 耗尽，查询延迟从 100ms 升到 30s。解决：改为按天分区 + 每个分区内使用 <code>TTL</code> 自动清理过期的 parts，同时调大 <code>max_bytes_to_merge_at_max_space_in_pool</code> 加速合并。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/engines/table-engines/mergetree-family/aggregatingmergetree">https://clickhouse.com/docs/engines/table-engines/mergetree-family/aggregatingmergetree</a></li>
+<li><a target="_blank" rel="noopener" href="https://altinity.com/blog/clickhouse-materialized-views-illuminated-part-2">https://altinity.com/blog/clickhouse-materialized-views-illuminated-part-2</a></li>
+</ul>
+<hr>
+<h3 id="0x02-04-ClickHouse-分片策略与数据分布最佳实践"><a href="#0x02-04-ClickHouse-分片策略与数据分布最佳实践" class="headerlink" title="0x02-04 ClickHouse 分片策略与数据分布最佳实践"></a>0x02-04 ClickHouse 分片策略与数据分布最佳实践</h3><p><strong>标准答案</strong>：<br>ClickHouse 的分片通过 <code>Distributed</code> 表引擎实现，核心概念包括：</p>
+<p><strong>建表方式</strong>：集群中的每个分片（Shard）节点创建本地表（Local Table），然后创建分布式表作为统一查询入口。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 在每台节点上创建本地表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> events_local <span class="keyword">ON</span> CLUSTER my_cluster (</span><br><span class="line">  event_id UInt64, event_date <span class="type">Date</span>, user_id UInt64, event_type String, ...</span><br><span class="line">) ENGINE <span class="operator">=</span> ReplicatedMergeTree(<span class="string">&#x27;/clickhouse/tables/&#123;shard&#125;/events&#x27;</span>, <span class="string">&#x27;&#123;replica&#125;&#x27;</span>)</span><br><span class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> toYYYYMM(event_date)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> (event_date, event_type, user_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 创建分布式表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> events_distributed <span class="keyword">AS</span> events_local</span><br><span class="line">ENGINE <span class="operator">=</span> Distributed(<span class="string">&#x27;my_cluster&#x27;</span>, <span class="string">&#x27;default&#x27;</span>, <span class="string">&#x27;events_local&#x27;</span>, rand());</span><br></pre></td></tr></table></figure>
+
+<p><strong>分片键选择</strong>：</p>
+<ol>
+<li><code>rand()</code> — 随机分布，数据均匀但无法利用 Join 本地性</li>
+<li><code>hash(user_id)</code> — 按用户 Hash 分布，同用户数据在同一分片</li>
+<li><code>intHash64(partition_key)</code> — 结合分区键的 Hash 分布</li>
+</ol>
+<p><strong>跨分片查询</strong>：Distributed 表发送查询到所有分片 → 各分片并行执行 → Coordinator 节点汇总结果。对于 <code>GROUP BY</code>，各分片先做本地聚合，Coordinator 再做二次聚合。</p>
+<p><strong>数据重分布难题</strong>：</p>
+<ul>
+<li>CH 不支持内置的自动数据重平衡</li>
+<li>增加分片后，新数据写入新分片，但老数据不会自动迁移</li>
+<li>解决：使用 <code>ALTER TABLE ... MOVE PARTITION</code> 手动搬迁，或重建表使用 <code>INSERT INTO ... SELECT</code></li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>分片数量规划</strong>：分片数 &#x3D; 集群计算能力目标 &#x2F; 单节点算力。但要注意——分片太多（&gt;20）会导致 Coordinator 节点上的二次聚合成为瓶颈。</li>
+<li><strong>过少分片问题</strong>：如果只有 2 个分片，其中一个故障时系统只剩 50% 计算能力，且 Replica 恢复期间大量数据需要追赶。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某用户集群从 5 个分片扩容到 10 个分片（节点数翻倍），发现老数据仍然集中在原来的 5 个分片上，半数新节点无历史数据。大范围时间查询时，5 个老节点 CPU 满载而 5 个新节点空闲。解决：使用 <code>ALTER TABLE events_local MOVE PARTITION</code> 将老分区逐步搬迁到新节点，配合业务低峰期分批次执行。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/engines/table-engines/special/distributed">https://clickhouse.com/docs/engines/table-engines/special/distributed</a></li>
+</ul>
+<hr>
+<h3 id="0x02-05-ClickHouse-性能调优：数据排序、稀疏索引、预聚合"><a href="#0x02-05-ClickHouse-性能调优：数据排序、稀疏索引、预聚合" class="headerlink" title="0x02-05 ClickHouse 性能调优：数据排序、稀疏索引、预聚合"></a>0x02-05 ClickHouse 性能调优：数据排序、稀疏索引、预聚合</h3><p><strong>标准答案</strong>：</p>
+<p><strong>1. 数据排序（ORDER BY）</strong></p>
+<ul>
+<li>ORDER BY 决定数据的物理存储顺序，也是稀疏索引的构建基础</li>
+<li>最佳实践：高基数列在前，过滤频繁的列在前</li>
+<li>示例：<code>ORDER BY (event_date, city, user_id)</code> — 日期过滤先裁剪大范围</li>
+</ul>
+<p><strong>2. 稀疏主索引</strong></p>
+<ul>
+<li>主键不是唯一约束，而是”每隔 N 行记一个索引标记”</li>
+<li>默认 <code>index_granularity = 8192</code>（每 8192 行一个标记）</li>
+<li>索引大小只有行数的 1&#x2F;8192，完全可加载到内存</li>
+<li>查询时先查稀疏索引定位可能的 granules，再逐一扫描</li>
+</ul>
+<p><strong>3. 预聚合</strong></p>
+<ul>
+<li>物化视图 + AggregatingMergeTree 是最常用的预聚合手段</li>
+<li>按常见查询维度（日期&#x2F;城市&#x2F;页面）预计算指标</li>
+<li>典型场景：实时报表从扫描百亿行变为扫描预聚合表百万行</li>
+</ul>
+<p><strong>4. 其他调优参数</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>max_threads</code></td>
+<td>单查询并行度（默认 CPU 核数，大查询适当降低）</td>
+</tr>
+<tr>
+<td><code>max_memory_usage</code></td>
+<td>单查询内存限制</td>
+</tr>
+<tr>
+<td><code>merge_tree.min_rows_for_compact_part</code></td>
+<td>控制 part 合并策略</td>
+</tr>
+<tr>
+<td><code>use_uncompressed_cache</code></td>
+<td>未压缩数据缓存（列扫描场景关闭）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>ORDER BY 顺序至关重要</strong>：如果 ORDER BY 把高基数列放前面（如 <code>user_id</code>），稀疏索引会非常”稀释”，分区裁剪效果差。正确做法：过滤频率最高、基数适中的列在前。</li>
+<li><strong>稀疏索引 vs B+Tree</strong>：CH 的索引粒度是 8192 行，MySQL B+Tree 索引粒度是一行。CH 牺牲了点查能力换取了极致的分析扫描性能。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某广告分析系统，ORDER BY 设为 <code>(ad_id, event_time)</code>，ad_id 是 UUID，基数千万级。查询按 <code>event_time</code> 过滤时无法有效裁剪，全表扫描。解决：ORDER BY 改为 <code>(event_date, ad_id, event_time)</code>，跳数索引加 <code>event_time</code>。查询速度提升 20 倍。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/best-practices/minimize-optimize-joins">https://clickhouse.com/docs/best-practices/minimize-optimize-joins</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.e6data.com/query-and-cost-optimization-hub/how-to-optimize-clickhouse-query-performance">https://www.e6data.com/query-and-cost-optimization-hub/how-to-optimize-clickhouse-query-performance</a></li>
+</ul>
+<hr>
+<h3 id="0x02-06-ClickHouse-JOIN-优化策略"><a href="#0x02-06-ClickHouse-JOIN-优化策略" class="headerlink" title="0x02-06 ClickHouse JOIN 优化策略"></a>0x02-06 ClickHouse JOIN 优化策略</h3><p><strong>标准答案</strong>：<br>ClickHouse 的 JOIN 曾是其最大短板（右表全量加载到内存建 Hash Table），但 24.x+ 版本已经有显著改进。</p>
+<p><strong>JOIN 算法演进</strong>：</p>
+<ol>
+<li><strong>Hash Join（默认）</strong>：右表全量加载到内存建 Hash Table。适用：右表小（&lt;内存）。</li>
+<li><strong>Parallel Hash Join（CH 24.12+ 默认）</strong>：多线程并行建 Hash Table，大右表性能提升 3-5x。</li>
+<li><strong>Grace Hash Join（CH 24.x+）</strong>：右表超出内存时分片到磁盘，避免 OOM。</li>
+<li><strong>Full Sorting Merge Join</strong>：双表按 Join Key 排序后归并。适用于大表 Join 且 Join Key 有序。</li>
+<li><strong>Direct Join</strong>：右表使用 Dictionary&#x2F;Join 表引擎时，点查式 Join，避免全量加载。</li>
+</ol>
+<p><strong>Global Join</strong>：</p>
+<ul>
+<li>分布式场景中，默认 Join 只在本地节点上执行（右表取本地数据）</li>
+<li>使用 <code>GLOBAL JOIN</code> 使右表广播到所有节点，保证数据完整</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 不加 GLOBAL：各节点只用本地 Join</span></span><br><span class="line"><span class="comment">-- 加 GLOBAL：右表全量广播到每个节点</span></span><br><span class="line"><span class="keyword">SELECT</span> ...</span><br><span class="line"><span class="keyword">FROM</span> fact_table</span><br><span class="line"><span class="keyword">GLOBAL</span> <span class="keyword">JOIN</span> dim_table <span class="keyword">ON</span> fact_table.key <span class="operator">=</span> dim_table.key</span><br></pre></td></tr></table></figure>
+
+<p><strong>优化策略</strong>：</p>
+<ol>
+<li><strong>右表越小越好</strong>：大表左、小表右</li>
+<li><strong>用字典替代维度表 JOIN</strong>：使用 <code>dictGet()</code> 函数比 JOIN 快 10-100 倍</li>
+<li><strong>过滤条件下推</strong>：WHERE 条件在 JOIN 前执行</li>
+<li><strong>合理使用 ANY JOIN</strong>：右表只需要任意匹配一行时，比默认 JOIN 快</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>CH JOIN vs 传统 OLAP</strong>：Doris&#x2F;StarRocks 使用 CBO（代价优化器）支持 10 张以上的复杂 Join，CH 的 Join 能力仍有差距。这是 CH 被批评最多的地方。</li>
+<li><strong>生产建议</strong>：如果业务需要 5+ 表复杂 Join，慎重选择 CH；优先考虑预 Join（物化视图将 Join 结果提前算好）或使用数据湖方式（Trino&#x2F;Iceberg）。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某 BI 看板需要将事实表（50 亿行）与维度表（500 万行）Join，每次查询都 OOM。排查发现 CH 默认将右表（维度表）加载到内存，500 万行维度表加上 Hash 结构占用 2GB 内存，多个并发查询叠加导致 OOM。解决：使用 <code>join_algorithm = &#39;partial_merge&#39;</code> 将右表排序后分片加载，同时把维度表加载到 <code>Dictionary</code>，查询改为 <code>dictGet</code> 免去 JOIN。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/best-practices/minimize-optimize-joins">https://clickhouse.com/docs/best-practices/minimize-optimize-joins</a></li>
+<li><a target="_blank" rel="noopener" href="https://dataanalyticsguide.substack.com/p/clickhouse-join-performance-2026">https://dataanalyticsguide.substack.com/p/clickhouse-join-performance-2026</a></li>
+</ul>
+<hr>
+<h3 id="0x02-07-ClickHouse-数据类型与表结构设计最佳实践"><a href="#0x02-07-ClickHouse-数据类型与表结构设计最佳实践" class="headerlink" title="0x02-07 ClickHouse 数据类型与表结构设计最佳实践"></a>0x02-07 ClickHouse 数据类型与表结构设计最佳实践</h3><p><strong>标准答案</strong>：<br>ClickHouse 的数据类型设计注重压缩效率和计算性能，常见的最佳实践：</p>
+<p><strong>数值类型选择</strong>：</p>
+<ul>
+<li>能用 <code>UInt8/16/32</code> 不用 <code>Int64</code>——每列根据字段真实取值范围选择最小类型</li>
+<li><code>DateTime</code>（秒级）vs <code>DateTime64</code>（毫秒&#x2F;微秒级）——精确到秒用 DateTime（4 字节），需要毫秒用 DateTime64(3)</li>
+<li><code>Decimal</code> 用于金额——<code>Decimal(P, S)</code> 精度由 P 决定，避免 Float 精度问题</li>
+</ul>
+<p><strong>字符串类型</strong>：</p>
+<ul>
+<li><code>FixedString(N)</code> 定长字符串：适用于固定长度编码如 MD5（32 字节）、IP 地址</li>
+<li><code>String</code> 变长：压缩率高，适合长文本</li>
+<li><code>LowCardinality(String)</code>：字符串取值有限（如状态、国家代码），使用字典编码，查询和存储兼顾</li>
+</ul>
+<p><strong>特殊类型</strong>：</p>
+<ul>
+<li><code>UUID</code> — 16 字节，写入效率低，考虑用 <code>FixedString(36)</code> 替代</li>
+<li><code>IPv4</code> &#x2F; <code>IPv6</code> — 比 String 更紧凑的存储格式</li>
+<li><code>Nested</code> — 嵌套数据结构，适合数组&#x2F;子事件</li>
+<li><code>AggregateFunction</code> — 存储聚合函数中间状态（仅用于 AggregatingMergeTree）</li>
+</ul>
+<p><strong>Nullable 的代价</strong>：</p>
+<ul>
+<li><code>Nullable(Int32)</code> 比 <code>Int32</code> 多一条标记数组（存储是否为 NULL），增加 1 倍存储 + 额外 CPU</li>
+<li>最佳实践：用默认值替代 NULL（如中位数填充、-1 表示未知、空字符串）</li>
+<li>只有在业务语义必须区别”0”和”无数据”时才用 NULL</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>LowCardinality 的原理</strong>：写入时对值做字典编码（Global Dictionary），存储字典 ID（Int32），减少重复字符串。适合 1000 万以内不同值。超过时字典膨胀，性能反而下降。</li>
+<li><strong>Nullable 对索引的影响</strong>：稀疏索引在标记位置跳过 NULL 值的效率低，因为标记位置是固定间隔，不因 NULL 而跳过。使用 <code>isNotNull</code> 过滤并不能有效减少扫描量。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某日志平台将 HTTP 状态码定义为 <code>Nullable(UInt16)</code>，状态码取自登录页面的随机用户名以替代默认值。数据量 5 亿行&#x2F;天，NULL 比例约 30%。存储占用比非 NULL 版本多 40%。排查发现 <code>Nullable</code> 额外标记列占用了大量空间。解决：将默认值改为 <code>0</code> （代表未知状态码），省去 Nullable 开销，压缩后存储降低 30%。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/sql-reference/data-types">https://clickhouse.com/docs/sql-reference/data-types</a></li>
+</ul>
+<hr>
+<h3 id="0x02-08-ClickHouse-的-TTL-与数据生命周期管理"><a href="#0x02-08-ClickHouse-的-TTL-与数据生命周期管理" class="headerlink" title="0x02-08 ClickHouse 的 TTL 与数据生命周期管理"></a>0x02-08 ClickHouse 的 TTL 与数据生命周期管理</h3><p><strong>标准答案</strong>：<br>ClickHouse 支持列级别和表级别的 TTL（Time-To-Live），用于数据生命周期管理。</p>
+<p><strong>表级 TTL</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> events (</span><br><span class="line">  event_date <span class="type">Date</span>,</span><br><span class="line">  event_data String</span><br><span class="line">) ENGINE <span class="operator">=</span> MergeTree</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> event_date</span><br><span class="line">TTL event_date <span class="operator">+</span> <span class="type">INTERVAL</span> <span class="number">90</span> <span class="keyword">DAY</span> <span class="keyword">DELETE</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>过期数据在后台合并时删除</li>
+<li>支持 <code>TO DISK &#39;cold_volume&#39;</code> 将冷数据迁移到廉价存储</li>
+</ul>
+<p><strong>列级 TTL</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> events (</span><br><span class="line">  event_date <span class="type">Date</span>,</span><br><span class="line">  raw_data String TTL event_date <span class="operator">+</span> <span class="type">INTERVAL</span> <span class="number">30</span> <span class="keyword">DAY</span>,</span><br><span class="line">  agg_data String TTL event_date <span class="operator">+</span> <span class="type">INTERVAL</span> <span class="number">365</span> <span class="keyword">DAY</span></span><br><span class="line">) ENGINE <span class="operator">=</span> MergeTree <span class="keyword">ORDER</span> <span class="keyword">BY</span> event_date;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>不同列可以设置不同过期时间</li>
+<li>原始数据 30 天后清空值（置零），聚合结果保留一年</li>
+</ul>
+<p><strong>TTL 执行机制</strong>：</p>
+<ul>
+<li>TTL 删除&#x2F;迁移由后台合并线程触发</li>
+<li>非强制：如果合并被阻塞，TTL 数据不会立即清理</li>
+<li>性能优化：设置 <code>ttl_only_drop_parts = 1</code> 让整个 part 全部过期时直接删除文件（更快）</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>TTL 不立即执行</strong>：如果表 TTL 是 90 天，可能 95 天后数据才实际被删除。因为 TTL 依赖合并线程，而合并可能在等待或者被跳过。需要手动触发 <code>OPTIMIZE TABLE events FINAL</code>。</li>
+<li><strong>列级 TTL 的代价</strong>：列级 TTL 在合并时需要重建整个 part，即使是删除一列的数据。大表列级 TTL 的合并代价与删除整行相当。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某监控系统设置 TTL 7 天后删除，但 15 天后磁盘满告警。发现 TTL 过期数据未被清理——因为该表 <code>merge_with_ttl_timeout</code> 设置为 0（禁用 TTL 合并），且 <code>ttl_only_drop_parts</code> 未开启。解决：启用 <code>ttl_only_drop_parts = 1</code>，并设置定期的 <code>OPTIMIZE TABLE ... FINAL</code> 作业强制触发 TTL 清理。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/docs/engines/table-engines/mergetree-family/mergetree#table_engine-mergetree-ttl">https://clickhouse.com/docs/engines/table-engines/mergetree-family/mergetree#table_engine-mergetree-ttl</a></li>
+</ul>
+<hr>
+<h3 id="0x02-09-ClickHouse-查询性能诊断：system-query-log-与-Profile"><a href="#0x02-09-ClickHouse-查询性能诊断：system-query-log-与-Profile" class="headerlink" title="0x02-09 ClickHouse 查询性能诊断：system.query_log 与 Profile"></a>0x02-09 ClickHouse 查询性能诊断：system.query_log 与 Profile</h3><p><strong>标准答案</strong>：<br>ClickHouse 内置强大的自诊断体系，80% 的性能问题可通过 <code>system</code> 表定位。</p>
+<p><strong>核心诊断表</strong>：</p>
+<ol>
+<li><strong><code>system.query_log</code></strong>：记录每条查询的执行信息（类型、SQL、查询耗时、读取行数、读取字节数、内存使用、Profile Events）</li>
+<li><strong><code>system.query_thread_log</code></strong>：每个线程的执行细节</li>
+<li><strong><code>system.parts</code></strong>：表的 part 信息（行数、大小、活跃状态）</li>
+<li><strong><code>system.merges</code></strong>：正在执行的合并操作</li>
+<li><strong><code>system.mutations</code></strong>：正在执行的突变操作</li>
+<li><strong><code>system.metrics</code></strong> &#x2F; <strong><code>system.events</code></strong>：集群级指标和累计事件</li>
+</ol>
+<p><strong>典型诊断查询</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 找出最慢的 10 条查询</span></span><br><span class="line"><span class="keyword">SELECT</span> query, query_duration_ms, read_rows, read_bytes, memory_usage</span><br><span class="line"><span class="keyword">FROM</span> system.query_log</span><br><span class="line"><span class="keyword">WHERE</span> type <span class="operator">=</span> <span class="string">&#x27;QueryFinished&#x27;</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> query_duration_ms <span class="keyword">DESC</span></span><br><span class="line">LIMIT <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 找出读取行数最多的大查询</span></span><br><span class="line"><span class="keyword">SELECT</span> query, read_rows, written_rows, query_duration_ms</span><br><span class="line"><span class="keyword">FROM</span> system.query_log</span><br><span class="line"><span class="keyword">WHERE</span> type <span class="operator">=</span> <span class="string">&#x27;QueryFinished&#x27;</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> read_rows <span class="keyword">DESC</span></span><br><span class="line">LIMIT <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 当前正在运行的查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> system.processes;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Profile Events</strong>：</p>
+<ul>
+<li>通过 <code>system.query_log</code> 的 <code>ProfileEvents</code> 字段查看内部事件计数</li>
+<li>关键事件：<code>MergeTreeDataReadRows</code>、<code>MergeTreeDataReadUncompressedBytes</code>、<code>SelectedPart</code>、<code>BloomFilterFalsePositive</code></li>
+<li>可以精确判断索引是否被有效利用，Bloom Filter 是否误判过多</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产经验</strong>：<code>query_log</code> 本身就是 MergeTree 表，在高峰期写入查询日志也会消耗 IO。建议保留 7-30 天，设置 TTL 自动清理。</li>
+<li><strong>关键判断</strong>：<code>SelectedParts</code> 和 <code>read_rows</code> 比例可以判断索引裁剪效果——如果 <code>SelectedParts</code> 很多但 <code>read_rows</code> 很大，说明索引选择后扫描量仍然较高，需要考虑优化 ORDER BY。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某慢查询排查：<code>system.query_log</code> 显示 <code>read_rows = 10亿</code> 但 <code>SelectedParts = 500</code>，说明 ORDER BY 按 <code>(event_type, event_date)</code> 排序，但查询过滤条件只有 <code>event_date &gt;= &#39;2026-01-01&#39;</code>，索引无法有效裁剪（event_type 在高位）。添加跳数索引 <code>INDEX idx_date event_date TYPE minmax GRANULARITY 4</code> 后，<code>read_rows</code> 降到 2000 万。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://bigdataboutique.com/blog/clickhouse-production-monitoring-and-optimization-tips-9b26bc">https://bigdataboutique.com/blog/clickhouse-production-monitoring-and-optimization-tips-9b26bc</a></li>
+</ul>
+<p><strong>高频踩坑汇总</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>现象</th>
+<th>根因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SELECT OOM</td>
+<td>大查询内存爆炸</td>
+<td>未设置 <code>max_memory_usage</code></td>
+<td>限制单查询内存 + 调大数据落盘阈值</td>
+</tr>
+<tr>
+<td>INSERT 慢</td>
+<td>每秒插入量低</td>
+<td>part 过多导致合并压力</td>
+<td>分批插入（batch 100k+），减少 part 数</td>
+</tr>
+<tr>
+<td>副本不一致</td>
+<td>分布式表部分分片返回不同结果</td>
+<td>Keeper 会话超时</td>
+<td>检查 Keeper 负载，增加 Keeper 节点</td>
+</tr>
+<tr>
+<td>突变卡死</td>
+<td>ALTER DELETE 永远不结束</td>
+<td>被合并操作阻塞</td>
+<td>分范围删除 + 调低 <code>max_alter_threads</code></td>
+</tr>
+<tr>
+<td>CPU 打满</td>
+<td>后台合并占用全部 CPU</td>
+<td>合并线程过多</td>
+<td>限制 <code>max_part_merging_threads</code></td>
+</tr>
+<tr>
+<td>磁盘空间暴涨</td>
+<td>TTL 过期数据未清理</td>
+<td>TTL 合并等待时间过长</td>
+<td>设置 <code>ttl_only_drop_parts = 1</code></td>
+</tr>
+</tbody></table>
+<p><strong>最佳实践清单</strong>：</p>
+<ol>
+<li>每个表设置 TTL 自动过期</li>
+<li>批量 INSERT（每次 &gt;10 万行），避免小批量频繁写入</li>
+<li>使用 <code>system.query_log</code> 诊断慢查询（涵盖 80% 问题）</li>
+<li>物化视图替代实时聚合查询</li>
+<li>Dictionary 替代维度 JOIN</li>
+<li>分区数控制在 1000 以内</li>
+</ol>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://bigdataboutique.com/blog/clickhouse-production-monitoring-and-optimization-tips-9b26bc">https://bigdataboutique.com/blog/clickhouse-production-monitoring-and-optimization-tips-9b26bc</a></li>
+<li><a target="_blank" rel="noopener" href="https://clickhouse.com/blog/common-getting-started-issues-with-clickhouse">https://clickhouse.com/blog/common-getting-started-issues-with-clickhouse</a></li>
+</ul>
+<hr>
+<h2 id="0x03-Apache-Doris-StarRocks"><a href="#0x03-Apache-Doris-StarRocks" class="headerlink" title="0x03 Apache Doris &#x2F; StarRocks"></a>0x03 Apache Doris &#x2F; StarRocks</h2><h3 id="0x03-01-Apache-Doris-整体架构？FE-与-BE-的职责？"><a href="#0x03-01-Apache-Doris-整体架构？FE-与-BE-的职责？" class="headerlink" title="0x03-01 Apache Doris 整体架构？FE 与 BE 的职责？"></a>0x03-01 Apache Doris 整体架构？FE 与 BE 的职责？</h3><p><strong>标准答案</strong>：<br>Doris 采用 MPP 架构，分为 Frontend（FE）和 Backend（BE）两层：</p>
+<p><strong>Frontend（FE）— 无状态计算协调层</strong>：</p>
+<ul>
+<li>负责 SQL 解析、元数据管理、查询计划生成与调度</li>
+<li>通过 Raft 选举（多 FE）保证高可用</li>
+<li>采用 MySQL 协议兼容客户端</li>
+</ul>
+<p><strong>Backend（BE）— 有状态存储层</strong>：</p>
+<ul>
+<li>负责数据存储、本地查询执行、聚合计算</li>
+<li>BE 之间通过 Brpc（百度自研 RPC 框架）通信</li>
+<li>支持列式存储、向量化执行引擎</li>
+<li>数据以 Tablet（数据分片）为单位分布，每个 Tablet 多副本</li>
+</ul>
+<p><strong>数据流</strong>：FE 接收查询 → 生成分布式执行计划 → 下发任务到 BE → BE 并行执行 → FE 聚合结果返回客户端</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>对比延伸</strong>：Doris 的 FE 类似 TiDB 的 PD+TiDB Server 合体，但 FE 将元数据（存储在 BDBJE）和查询优化结合在同一进程中。BE 类似 TiKV+TiFlash 的列存版本。</li>
+<li><strong>存储计算一体 vs 分离</strong>：Doris 默认存储计算一体（BE 负责存储和执行），但 3.0+ 开始支持存算分离（独立 Compute Group）。</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://doris.apache.org/docs/4.x/getting-started/what-is-apache-doris">https://doris.apache.org/docs/4.x/getting-started/what-is-apache-doris</a></li>
+</ul>
+<hr>
+<h3 id="0x03-02-Doris-的三种存储模型以及主键模型"><a href="#0x03-02-Doris-的三种存储模型以及主键模型" class="headerlink" title="0x03-02 Doris 的三种存储模型以及主键模型"></a>0x03-02 Doris 的三种存储模型以及主键模型</h3><p><strong>标准答案</strong>：<br>Doris 提供三种数据模型，在建表时指定：</p>
+<p><strong>1. Duplicate Key Model（明细模型）</strong></p>
+<ul>
+<li>最通用的模型，数据按 Key 列排序但不做任何合并&#x2F;去重</li>
+<li>适用：原始日志、事件数据、不需要聚合的场景</li>
+<li>Key 列用于排序和前缀索引加速</li>
+</ul>
+<p><strong>2. Aggregate Key Model（聚合模型）</strong></p>
+<ul>
+<li>相同 Key 的行按聚合函数合并（SUM&#x2F;REPLACE&#x2F;MAX&#x2F;MIN&#x2F;HLL_UNION&#x2F;BITMAP_UNION）</li>
+<li>适用：预聚合报表、维度指标、PV&#x2F;UV 统计</li>
+<li>注意：Key 列顺序影响聚合语义——REPLACE 类型的列会用最后写入的值</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> site_visit (</span><br><span class="line">  site_id <span class="type">VARCHAR</span>(<span class="number">64</span>),</span><br><span class="line">  <span class="type">date</span> <span class="type">DATE</span>,</span><br><span class="line">  pv <span class="type">BIGINT</span> SUM <span class="keyword">DEFAULT</span> <span class="string">&#x27;0&#x27;</span>,</span><br><span class="line">  uv BITMAP BITMAP_UNION <span class="keyword">DEFAULT</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">) ENGINE <span class="operator">=</span> AGGREGATE KEY(site_id, <span class="type">date</span>)</span><br><span class="line">DISTRIBUTED <span class="keyword">BY</span> HASH(site_id) BUCKETS <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. Unique Key Model（唯一键模型）</strong></p>
+<ul>
+<li>相同 Key 只保留最后一条（类似 UPSERT）</li>
+<li>Doris 3.0 前通过 Merge-on-Read 实现（读时合并，读取性能损耗大）</li>
+<li>Doris 3.0+ 引入”主键模型”（Primary Key Model）——使用写时合并（Delete+Insert），读取性能接近 Duplicate Key</li>
+</ul>
+<p><strong>4. Primary Key Model（主键模型，3.0+）</strong></p>
+<ul>
+<li>真正的 Upsert 存储，写时直接标记删除旧版本</li>
+<li>主键列建立索引，支持高性能点查和实时更新</li>
+<li>适用：实时维表、库存流水、CDC 场景</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>选型决策</strong>：APS 看板用 Aggregate Key；CDC 实时同步用 Primary Key；原始日志用 Duplicate Key。Aggregate Key 和 Unique Key（Merge-on-Read）对高频扫表性能有影响。</li>
+<li><strong>Primary Key 的代价</strong>：写时需要同时写主键索引，内存占用高。如果主键列过长（如字符串 UUID），内存中索引可达 GB 级。</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://doris.apache.org/docs/4.x/key-features/data-model">https://doris.apache.org/docs/4.x/key-features/data-model</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@VeloDB_poweredby_ApacheDoris/introduction-to-apache-doris-storage-layer-design-explanation-of-storage-structure-design-83f083acddce">https://medium.com/@VeloDB_poweredby_ApacheDoris/introduction-to-apache-doris-storage-layer-design-explanation-of-storage-structure-design-83f083acddce</a></li>
+</ul>
+<hr>
+<h3 id="0x03-03-Doris-与-StarRocks-架构对比"><a href="#0x03-03-Doris-与-StarRocks-架构对比" class="headerlink" title="0x03-03 Doris 与 StarRocks 架构对比"></a>0x03-03 Doris 与 StarRocks 架构对比</h3><p><strong>标准答案</strong>：<br>StarRocks 是 Apache Doris 的一个商业 Fork（由 Doris 原核心团队创建），两者架构同源但差异化日益明显。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Apache Doris</th>
+<th>StarRocks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>开源状态</strong></td>
+<td>Apache 基金会顶级项目</td>
+<td>社区版开源 + 企业版商业</td>
+</tr>
+<tr>
+<td><strong>FE 元数据</strong></td>
+<td>BDBJE（Berkeley DB Java Edition）</td>
+<td>自研 Quorum (Raft) 实现</td>
+</tr>
+<tr>
+<td><strong>存储模型</strong></td>
+<td>Duplicate&#x2F;Aggregate&#x2F;Unique&#x2F;Primary Key</td>
+<td>Duplicate&#x2F;Aggregate&#x2F;Unique&#x2F;Primary Key</td>
+</tr>
+<tr>
+<td><strong>物化视图</strong></td>
+<td>异步（手动刷新）</td>
+<td>同步（写入时自动更新）+ 异步</td>
+</tr>
+<tr>
+<td><strong>存算分离</strong></td>
+<td>3.0+ 支持</td>
+<td>企业版支持</td>
+</tr>
+<tr>
+<td><strong>向量化</strong></td>
+<td>全面向量化执行</td>
+<td>全面向量化执行（自研实现）</td>
+</tr>
+<tr>
+<td><strong>主键更新</strong></td>
+<td>3.0 引入写时合并</td>
+<td>原生写时合并</td>
+</tr>
+<tr>
+<td><strong>CBO（优化器）</strong></td>
+<td>自研 Cascades 优化器</td>
+<td>自研 CBO（多表 Join 更优）</td>
+</tr>
+<tr>
+<td><strong>Lakehouse</strong></td>
+<td>内置 Iceberg&#x2F;Hudi&#x2F;Delta&#x2F;Paimon Catalog</td>
+<td>External Table 方式</td>
+</tr>
+<tr>
+<td><strong>高并发点查</strong></td>
+<td>3.0 优化（Short-Circuit）</td>
+<td>原生支持</td>
+</tr>
+<tr>
+<td><strong>开发者社区</strong></td>
+<td>社区驱动，百度&#x2F;腾讯&#x2F;小米</td>
+<td>StarRocks Inc. 为主</td>
+</tr>
+<tr>
+<td><strong>经典用户</strong></td>
+<td>美团、小米、京东、字节跳动</td>
+<td>腾讯、滴滴、贝壳、小红书</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>选型建议</strong>：对纯开源要求严格的选 Doris；需要更好的售后支持和稳定性优先选 StarRocks 企业版。</li>
+<li><strong>功能差距缩小中</strong>：Doris 3.0 引入 Primary Key + 存算分离 + CBO 后，与 StarRocks 的功能差距已经大幅缩小。</li>
+<li><strong>物化视图差异巨大</strong>：Doris 的物化视图是”异步”的（需要 <code>REFRESH MATERIALIZED VIEW</code>），而 StarRocks 支持”同步”物化视图（写入主表时自动更新物化视图），这对实时分析场景影响很大。</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.reddit.com/r/dataengineering/comments/134s3hl/difference_between_starrocks_and_doris/">https://www.reddit.com/r/dataengineering/comments/134s3hl/difference_between_starrocks_and_doris/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.influxdata.com/comparison/doris-vs-starrocks">https://www.influxdata.com/comparison/doris-vs-starrocks</a></li>
+</ul>
+<hr>
+<h3 id="0x03-04-Doris-StarRocks-物化视图与-Rollup"><a href="#0x03-04-Doris-StarRocks-物化视图与-Rollup" class="headerlink" title="0x03-04 Doris&#x2F;StarRocks 物化视图与 Rollup"></a>0x03-04 Doris&#x2F;StarRocks 物化视图与 Rollup</h3><p><strong>标准答案</strong>：</p>
+<p><strong>Rollup（上卷）— Doris 特有</strong>：</p>
+<ul>
+<li>Rollup 是基于基表的预聚合索引，自动维护聚合结果</li>
+<li>查询时 FE 自动匹配最优 Rollup</li>
+<li>可理解为”自动物化视图”</li>
+<li>示例：基表按 <code>(site_id, date, hour)</code> 聚合，创建 Rollup 按 <code>(date)</code> 预聚合，查询按天统计时自动走 Rollup</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER TABLE</span> site_visit <span class="keyword">ADD</span> <span class="keyword">ROLLUP</span> rollup_by_date (<span class="type">date</span>, <span class="built_in">sum</span>(pv));</span><br></pre></td></tr></table></figure>
+
+<p><strong>物化视图（Materialized View）</strong>：</p>
+<ul>
+<li>Doris 3.0 支持异步物化视图，StarRocks 同时支持同步和异步</li>
+<li>同步 MV：写入主表时自动更新 MV，实时性强但写入延迟增加</li>
+<li>异步 MV：定时或手动触发刷新，适合大量预计算场景</li>
+</ul>
+<p><strong>区别总结</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Rollup</th>
+<th>物化视图</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>维护方式</td>
+<td>自动，写时维护</td>
+<td>异步&#x2F;同步</td>
+</tr>
+<tr>
+<td>可自定义</td>
+<td>仅支持聚合和排序列变化</td>
+<td>支持任意 SQL（Join&#x2F;Filter&#x2F;子查询）</td>
+</tr>
+<tr>
+<td>查询匹配</td>
+<td>自动匹配</td>
+<td>手动匹配（Base Table）或自动匹配改写</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>简单预聚合</td>
+<td>复杂 ETL、跨表 Join</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Rollup 的局限性</strong>：Rollup 只能在基表的排序键上做聚合，灵活性远不如物化视图。Doris 社区已逐步用物化视图替代 Rollup。</li>
+<li><strong>StarRocks 同步 MV 的代价</strong>：同步 MV 在写入时会增加一次写放大（同时写主表和 MV），大列场景写入性能下降明显。</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://doris.apache.org/docs/4.x/key-features/data-model">https://doris.apache.org/docs/4.x/key-features/data-model</a></li>
+</ul>
+<hr>
+<h3 id="0x03-05-Doris-StarRocks-查询引擎与-MPP-执行"><a href="#0x03-05-Doris-StarRocks-查询引擎与-MPP-执行" class="headerlink" title="0x03-05 Doris&#x2F;StarRocks 查询引擎与 MPP 执行"></a>0x03-05 Doris&#x2F;StarRocks 查询引擎与 MPP 执行</h3><p><strong>标准答案</strong>：<br>Doris&#x2F;StarRocks 都基于 MPP（Massively Parallel Processing）架构：</p>
+<p><strong>MPP 执行流程</strong>：</p>
+<ol>
+<li>FE 解析 SQL → 生成逻辑计划 → CBO 生成物理计划</li>
+<li>物理计划由多个 Fragment 组成，每个 Fragment 是一段可并行执行的算子</li>
+<li>Fragment 通过 Exchange 算子跨 BE 传输数据（Shuffle&#x2F;Broadcast）</li>
+<li>各 BE 并行执行 Fragment，最终 FE 汇聚结果</li>
+</ol>
+<p><strong>核心优化</strong>：</p>
+<ul>
+<li><strong>向量化执行</strong>：以 Batch（列存向量）为单位处理数据，而非逐行，大幅减少虚函数调用和 CPU 缓存 miss</li>
+<li><strong>CBO（代价优化器）</strong>：基于统计信息（行数&#x2F;NDV&#x2F;数据分布）选择最优 Join Order 和执行策略</li>
+<li><strong>Colocate Join</strong>：将 Join 两表按相同分布键和 Bucket 数分布，Join 时避免 Shuffle 直接在本地执行</li>
+<li><strong>Runtime Filter</strong>：在 Join 执行动态生成 Bloom Filter，下推给 probe 端提前过滤，减少 IO</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Colocate Join 的黄金法则</strong>：分布键和 Bucket 数必须完全相同，否则退化为普通 Shuffle Join。建表时需提前规划好分布策略。</li>
+<li><strong>Runtime Filter 的效果</strong>：典型场景下 Reduce 90%+ 的 Probe 端扫描量，是 Doris&#x2F;SR 在 Join 性能上吊打 ClickHouse 的核心原因之一。</li>
+</ul>
+<p><strong>生产踩坑案例</strong>：<br>某 Doris 集群大表 Join 性能差，排查发现两表 COLOCATE 属性定义正确但 Bucket 数不同（10 vs 20），导致 Runtime 走 Shuffle Join。修正 Bucket 数一致后，Join 延迟从 30s 降到 2s。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://doris.apache.org/docs/4.x/getting-started/what-is-apache-doris">https://doris.apache.org/docs/4.x/getting-started/what-is-apache-doris</a></li>
+</ul>
+<hr>
+<h3 id="0x03-06-Apache-Doris-3-x-StarRocks-3-x-新特性"><a href="#0x03-06-Apache-Doris-3-x-StarRocks-3-x-新特性" class="headerlink" title="0x03-06 Apache Doris 3.x &#x2F; StarRocks 3.x 新特性"></a>0x03-06 Apache Doris 3.x &#x2F; StarRocks 3.x 新特性</h3><p><strong>标准答案</strong>：</p>
+<p><strong>Doris 3.0（2024-2025）</strong>：</p>
+<ul>
+<li><strong>主键模型（写时合并）GA</strong>：支持高效 Upsert，写入性能接近 Duplicate Key</li>
+<li><strong>存算分离架构</strong>：支持 Compute Group 独立扩缩，降低存储成本</li>
+<li><strong>内置 Lakehouse Catalog</strong>：原生对接 Hive&#x2F;Iceberg&#x2F;Hudi&#x2F;Paimon&#x2F;Delta，支持联邦查询</li>
+<li><strong>CBO 全面 GA</strong>：基于 Cascades 框架的代价优化器，复杂 Join 显著提速</li>
+<li><strong>Short-Circuit 高并发点查</strong>：主键点查延迟降至亚毫秒级</li>
+<li><strong>物化视图自动改写</strong>：查询自动匹配物化视图，无需手动改写 SQL</li>
+<li><strong>向量化全文检索</strong>：内置倒排索引加速 Like&#x2F;Regex 查询</li>
+</ul>
+<p><strong>StarRocks 3.x（2024-2025）</strong>：</p>
+<ul>
+<li><strong>同步物化视图 GA</strong>：写入主表时自动更新物化视图，实时性极强</li>
+<li><strong>Data Cache 加速</strong>：对对象存储（S3&#x2F;MinIO）自动缓存热数据</li>
+<li><strong>PK 模型增强</strong>：支持 Partial Update（只更新部分列）</li>
+<li><strong>Pipe 持续导入</strong>：从 Kafka&#x2F;Pulsar 实时流式导入</li>
+<li><strong>Auto-increment 列</strong>：支持自增 ID 生成</li>
+<li><strong>Shared-Data 模式</strong>：存算分离 GA，计算组弹性伸缩</li>
+<li><strong>Federated Catalog</strong>：对接 Hive&#x2F;Iceberg&#x2F;Hudi&#x2F;Delta&#x2F;Elasticsearch</li>
+</ul>
+<p><strong>关键差异解读</strong>：</p>
+<ul>
+<li>Doris 3.0 的主键模型（写时合并）是与 StarRocks 缩小差距的关键版本，此前 Doris 的 Unique Key 模型使用 Merge-on-Read 导致读取性能较差</li>
+<li>StarRocks 的同步物化视图仍是独家优势——Doris 的物化视图需要手动 <code>REFRESH</code></li>
+<li>两者路线趋同：存算分离、Lakehouse 联邦查询、向量化全文检索都在逐步对齐</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://doris.apache.org/docs/4.x/getting-started/what-is-apache-doris">https://doris.apache.org/docs/4.x/getting-started/what-is-apache-doris</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.starrocks.io/blog/benchmark-test">https://www.starrocks.io/blog/benchmark-test</a></li>
+</ul>
+<h3 id="0x03-07-ClickHouse-vs-Doris-vs-StarRocks-选型对比"><a href="#0x03-07-ClickHouse-vs-Doris-vs-StarRocks-选型对比" class="headerlink" title="0x03-07 ClickHouse vs Doris vs StarRocks 选型对比"></a>0x03-07 ClickHouse vs Doris vs StarRocks 选型对比</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ClickHouse</th>
+<th>Apache Doris</th>
+<th>StarRocks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>架构</strong></td>
+<td>Shared-Nothing (Coordinator+Shard)</td>
+<td>MPP (FE+BE)</td>
+<td>MPP (FE+BE)</td>
+</tr>
+<tr>
+<td><strong>写入</strong></td>
+<td>Append-Only 为主，UPDATE&#x2F;DELETE 代价高</td>
+<td>支持 UPSERT (Primary Key)</td>
+<td>支持 UPSERT</td>
+</tr>
+<tr>
+<td><strong>Join 能力</strong></td>
+<td>弱（右表内存限制）</td>
+<td>强（MPP+CBO+Colocate+RuntimeFilter）</td>
+<td>强（同 Doris，更优 CBO）</td>
+</tr>
+<tr>
+<td><strong>单表查询</strong></td>
+<td>极快（MergeTree 稀疏索引）</td>
+<td>快</td>
+<td>快</td>
+</tr>
+<tr>
+<td><strong>实时性</strong></td>
+<td>强（毫秒级写入可见）</td>
+<td>强（秒级）</td>
+<td>强（秒级）</td>
+</tr>
+<tr>
+<td><strong>高并发点查</strong></td>
+<td>弱</td>
+<td>3.0+ 优化后可用</td>
+<td>强</td>
+</tr>
+<tr>
+<td><strong>压缩率</strong></td>
+<td>极高（5-10x）</td>
+<td>高（3-5x）</td>
+<td>高（3-5x）</td>
+</tr>
+<tr>
+<td><strong>运维复杂度</strong></td>
+<td>中等（注意 part 管理）</td>
+<td>中等（FE&#x2F;BE 都需要关注）</td>
+<td>中等（同 Doris）</td>
+</tr>
+<tr>
+<td><strong>物化视图</strong></td>
+<td>触发器模型（增量）</td>
+<td>异步（3.0+）</td>
+<td>同步+异步</td>
+</tr>
+<tr>
+<td><strong>社区活跃度</strong></td>
+<td>极高（Yandex&#x2F;Altinity）</td>
+<td>高（Apache 基金会）</td>
+<td>中（商业驱动）</td>
+</tr>
+<tr>
+<td><strong>License</strong></td>
+<td>Apache 2.0</td>
+<td>Apache 2.0</td>
+<td>Apache 2.0（社区版）</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议</strong>：</p>
+<ul>
+<li><strong>用 ClickHouse 当</strong>：纯日志分析、单表千万级 QPS 写入、时序指标存储、需要极致压缩率</li>
+<li><strong>用 Doris&#x2F;StarRocks 当</strong>：复杂 JOIN 报表、实时 BI 看板、CDC 实时数仓、湖仓一体查询加速</li>
+<li><strong>简单判断</strong>：如果 Join &gt;&#x3D; 3 张表 + 频繁的复杂查询 → Doris&#x2F;SR；如果单表大吞吐扫描 + 压缩优先 → ClickHouse</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.pracdata.io/p/state-of-open-source-read-time-olap-2025">https://www.pracdata.io/p/state-of-open-source-read-time-olap-2025</a></li>
+<li><a target="_blank" rel="noopener" href="https://oneuptime.com/blog/post/2026-03-31-clickhouse-vs-starrocks-performance/view">https://oneuptime.com/blog/post/2026-03-31-clickhouse-vs-starrocks-performance/view</a></li>
+</ul>
+<hr>
+<h2 id="0x04-选型决策树"><a href="#0x04-选型决策树" class="headerlink" title="0x04 选型决策树"></a>0x04 选型决策树</h2><h3 id="0x04-01-行存-vs-列存-vs-HTAP-选型矩阵"><a href="#0x04-01-行存-vs-列存-vs-HTAP-选型矩阵" class="headerlink" title="0x04-01 行存 vs 列存 vs HTAP 选型矩阵"></a>0x04-01 行存 vs 列存 vs HTAP 选型矩阵</h3><table>
+<thead>
+<tr>
+<th>工作负载</th>
+<th>推荐方案</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心 OLTP（高并发 CRUD）</td>
+<td>MySQL&#x2F;PostgreSQL&#x2F;OceanBase&#x2F;TiDB</td>
+<td>行存，支持事务</td>
+</tr>
+<tr>
+<td>分析报表（大表扫描、聚合）</td>
+<td>ClickHouse&#x2F;Doris&#x2F;StarRocks</td>
+<td>列存，高效压缩</td>
+</tr>
+<tr>
+<td>混合负载 HTAP</td>
+<td>TiDB (TiFlash) &#x2F; OceanBase 4.x</td>
+<td>行存+列存双引擎</td>
+</tr>
+<tr>
+<td>轻量分析（内嵌）</td>
+<td>DuckDB</td>
+<td>进程内列存，免部署</td>
+</tr>
+<tr>
+<td>云原生数仓</td>
+<td>Snowflake&#x2F;Redshift</td>
+<td>存算分离，弹性扩展</td>
+</tr>
+<tr>
+<td>数据湖分析</td>
+<td>Trino&#x2F;Spark + Iceberg&#x2F;Hudi</td>
+<td>开放格式，灵活</td>
+</tr>
+</tbody></table>
+<p><strong>HTAP 的真相</strong>：</p>
+<ul>
+<li>“一份数据既跑 TP 又跑 AP” 是理想，现实是 HTAP 需要资源隔离（TiDB Resource Control &#x2F; OB 租户隔离），否则 AP 大查询必然影响 TP 延迟。</li>
+<li>如果 TP 和 AP 负载都很重，物理隔离（两个集群 + 数据同步）仍是更可靠的选择。</li>
+</ul>
+<hr>
+<h3 id="0x04-02-MySQL（分库分表）vs-TiDB-vs-OceanBase-选型"><a href="#0x04-02-MySQL（分库分表）vs-TiDB-vs-OceanBase-选型" class="headerlink" title="0x04-02 MySQL（分库分表）vs TiDB vs OceanBase 选型"></a>0x04-02 MySQL（分库分表）vs TiDB vs OceanBase 选型</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>MySQL + ShardingSphere&#x2F;MyCat</th>
+<th>TiDB</th>
+<th>OceanBase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>分布式事务</strong></td>
+<td>XA&#x2F;Seata（跨库事务弱）</td>
+<td>Percolator（强一致）</td>
+<td>Paxos（强一致）</td>
+</tr>
+<tr>
+<td><strong>MySQL 兼容</strong></td>
+<td>100%</td>
+<td>~95%（协议兼容，部分语法差异）</td>
+<td>MySQL 模式 + Oracle 模式</td>
+</tr>
+<tr>
+<td><strong>水平扩展</strong></td>
+<td>手动分片 + 运维复杂</td>
+<td>自动扩缩容</td>
+<td>自动扩缩容</td>
+</tr>
+<tr>
+<td><strong>高可用</strong></td>
+<td>异步&#x2F;半同步复制（丢数据风险）</td>
+<td>Raft（RPO&#x3D;0）</td>
+<td>Paxos（RPO&#x3D;0）</td>
+</tr>
+<tr>
+<td><strong>OLTP 性能</strong></td>
+<td>极高（单机）</td>
+<td>中（分布式开销）</td>
+<td>高（TPC-C 世界纪录）</td>
+</tr>
+<tr>
+<td><strong>OLAP 能力</strong></td>
+<td>无（需额外导出）</td>
+<td>HTAP（TiFlash）</td>
+<td>4.x 列存实验性</td>
+</tr>
+<tr>
+<td><strong>运维复杂度</strong></td>
+<td>中（sharding 中间件）</td>
+<td>中（PD&#x2F;TiKV&#x2F;TiFlash 组件多）</td>
+<td>中（OBServer 对等）</td>
+</tr>
+<tr>
+<td><strong>信创合规</strong></td>
+<td>否</td>
+<td>是（国产开源）</td>
+<td>是（蚂蚁集团）</td>
+</tr>
+<tr>
+<td><strong>成本</strong></td>
+<td>低</td>
+<td>中（3 副本存储）</td>
+<td>中（依赖配套生态）</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议</strong>：</p>
+<ul>
+<li><strong>选 MySQL 分库分表</strong>：业务体量可控（&lt;100 节点），团队 MySQL 经验丰富，不需要跨库事务</li>
+<li><strong>选 TiDB</strong>：需要自动水平扩展 + MySQL 生态 + HTAP 能力，适合互联网&#x2F;电商&#x2F;SaaS</li>
+<li><strong>选 OceanBase</strong>：金融核心交易（银行&#x2F;保险&#x2F;支付），需要 Oracle 兼容，TPC-C 标杆性能，信创最佳案例</li>
+</ul>
+<hr>
+<h3 id="0x04-03-ClickHouse-vs-Doris-vs-StarRocks-vs-Snowflake-选型"><a href="#0x04-03-ClickHouse-vs-Doris-vs-StarRocks-vs-Snowflake-选型" class="headerlink" title="0x04-03 ClickHouse vs Doris vs StarRocks vs Snowflake 选型"></a>0x04-03 ClickHouse vs Doris vs StarRocks vs Snowflake 选型</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>日志分析（写多读少、单表扫描）</td>
+<td>ClickHouse</td>
+<td>极致写入速度 + 压缩率</td>
+</tr>
+<tr>
+<td>实时 BI 看板（多表 Join）</td>
+<td>Doris &#x2F; StarRocks</td>
+<td>MPP + CBO + Runtime Filter</td>
+</tr>
+<tr>
+<td>CDC 实时数仓（从 Kafka 实时入仓）</td>
+<td>StarRocks &#x2F; Doris</td>
+<td>Primary Key 模型 + 实时 Upsert</td>
+</tr>
+<tr>
+<td>云原生数仓（存算分离、按量付费）</td>
+<td>Snowflake</td>
+<td>无需运维，弹性扩展</td>
+</tr>
+<tr>
+<td>数据湖查询加速</td>
+<td>Doris &#x2F; StarRocks（Lakehouse）</td>
+<td>内置多 Catalog</td>
+</tr>
+<tr>
+<td>高并发点查（广告&#x2F;推荐）</td>
+<td>StarRocks &#x2F; Doris 3.0+</td>
+<td>主键索引 + 短路径查询</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="0x04-04-国产化数据库替代路径（信创）"><a href="#0x04-04-国产化数据库替代路径（信创）" class="headerlink" title="0x04-04 国产化数据库替代路径（信创）"></a>0x04-04 国产化数据库替代路径（信创）</h3><p><strong>替代路径</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Oracle → OceanBase（Oracle 模式兼容性最好）</span><br><span class="line">Oracle → TiDB（MySQL 协议，需改造 SQL）</span><br><span class="line">Oracle → 达梦 DM8（SQL 语法高度兼容）</span><br><span class="line"></span><br><span class="line">MySQL → TiDB（零改造，协议兼容）</span><br><span class="line">MySQL → OceanBase MySQL 模式（语法兼容）</span><br><span class="line">MySQL → 分布式中间件（ShardingSphere/MyCat）</span><br><span class="line"></span><br><span class="line">DB2/SQL Server → OceanBase（Oracle 兼容性可用）</span><br><span class="line">DB2/SQL Server → 达梦 DM8（语法兼容）</span><br></pre></td></tr></table></figure>
+
+<p><strong>信创选型核心考量</strong>：</p>
+<ol>
+<li><strong>兼容性</strong>：SQL 方言、存储过程、触发器的兼容程度</li>
+<li><strong>迁移成本</strong>：ETL 工具、CDC 同步、应用改造成本</li>
+<li><strong>生态成熟度</strong>：运维工具、监控对接、人才储备</li>
+<li><strong>性能替代性</strong>：能否支撑原库的峰值 TPS&#x2F;QPS</li>
+<li><strong>安全合规</strong>：国测认证、EAL4+ 安全、信创目录</li>
+</ol>
+<p><strong>实战案例</strong>：<br>某国有大行将 Oracle RAC 迁移至 OceanBase（3 地 5 中心部署），涉及 2000+ 存储过程、500+ 应用系统。迁移周期 18 个月，投入 50+ DBA + 100+ 开发。最终 TPC-C 性能提升 30%，硬件成本降低 60%。</p>
+<p>某互联网公司将 MySQL 分库分表（256 个分片）迁移至 TiDB，7 人 DBA 团队缩至 2 人，查询响应 P99 从 200ms 降至 30ms，存储成本降低 40%（无需冗余备份）。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.pingcap.com/compare/tidb-vs-oceanbase">https://www.pingcap.com/compare/tidb-vs-oceanbase</a></li>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2654474">https://cloud.tencent.com/developer/article/2654474</a></li>
+</ul>
+<hr>
+<h2 id="附录：学习路线与参考资源"><a href="#附录：学习路线与参考资源" class="headerlink" title="附录：学习路线与参考资源"></a>附录：学习路线与参考资源</h2><h3 id="推荐学习路径"><a href="#推荐学习路径" class="headerlink" title="推荐学习路径"></a>推荐学习路径</h3><p><strong>TiDB</strong>：</p>
+<ol>
+<li>TiDB 官方文档 — <a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable">https://docs.pingcap.com/tidb/stable</a></li>
+<li>TiDB 进阶课程 — <a target="_blank" rel="noopener" href="https://learn.pingcap.com/">https://learn.pingcap.com/</a></li>
+<li>TiKV 源码 — <a target="_blank" rel="noopener" href="https://github.com/tikv/tikv">https://github.com/tikv/tikv</a></li>
+<li>VLDB 论文 — <a target="_blank" rel="noopener" href="https://www.vldb.org/pvldb/vol13/p3072-huang.pdf">https://www.vldb.org/pvldb/vol13/p3072-huang.pdf</a></li>
+</ol>
+<p><strong>OceanBase</strong>：</p>
+<ol>
+<li>OB 官方文档 — <a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs">https://en.oceanbase.com/docs</a></li>
+<li>OB GitHub — <a target="_blank" rel="noopener" href="https://github.com/oceanbase/oceanbase">https://github.com/oceanbase/oceanbase</a></li>
+<li>OB 架构深度解读 — <a target="_blank" rel="noopener" href="https://oceanbase.github.io/">https://oceanbase.github.io/</a></li>
+</ol>
+<p><strong>ClickHouse</strong>：</p>
+<ol>
+<li>CH 文档 — <a target="_blank" rel="noopener" href="https://clickhouse.com/docs">https://clickhouse.com/docs</a></li>
+<li>Altinity Blog — <a target="_blank" rel="noopener" href="https://altinity.com/blog">https://altinity.com/blog</a></li>
+<li>CH 性能调优 — <a target="_blank" rel="noopener" href="https://bigdataboutique.com/blog">https://bigdataboutique.com/blog</a></li>
+</ol>
+<p><strong>Doris &#x2F; StarRocks</strong>：</p>
+<ol>
+<li>Doris 文档 — <a target="_blank" rel="noopener" href="https://doris.apache.org/docs/4.x/">https://doris.apache.org/docs/4.x/</a></li>
+<li>StarRocks 文档 — <a target="_blank" rel="noopener" href="https://docs.starrocks.io/">https://docs.starrocks.io/</a></li>
+<li>OLAP 对比 — <a target="_blank" rel="noopener" href="https://www.pracdata.io/p/state-of-open-source-read-time-olap-2025">https://www.pracdata.io/p/state-of-open-source-read-time-olap-2025</a></li>
+</ol>
+<h3 id="面试高频关键词速查"><a href="#面试高频关键词速查" class="headerlink" title="面试高频关键词速查"></a>面试高频关键词速查</h3><table>
+<thead>
+<tr>
+<th>关键词</th>
+<th>关联产品</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Multi-Raft</td>
+<td>TiDB&#x2F;TiKV</td>
+<td>每个 Region 一个 Raft Group</td>
+</tr>
+<tr>
+<td>Percolator</td>
+<td>TiDB</td>
+<td>Google 论文实现的分布式事务模型</td>
+</tr>
+<tr>
+<td>TSO</td>
+<td>TiDB&#x2F;PD</td>
+<td>全局单调递增时间戳分配器</td>
+</tr>
+<tr>
+<td>DeltaTree</td>
+<td>TiDB&#x2F;TiFlash</td>
+<td>列式存储引擎，支持实时更新</td>
+</tr>
+<tr>
+<td>Paxos Group</td>
+<td>OceanBase</td>
+<td>每个 Partition 的副本组</td>
+</tr>
+<tr>
+<td>LSM-Tree</td>
+<td>OceanBase&#x2F;RocksDB</td>
+<td>写优化型存储引擎，基线+增量</td>
+</tr>
+<tr>
+<td>MergeTree</td>
+<td>ClickHouse</td>
+<td>排序 + 分区 + 稀疏索引的列存引擎</td>
+</tr>
+<tr>
+<td>FINAL</td>
+<td>ClickHouse</td>
+<td>查询时对 ReplacingMergeTree 做去重</td>
+</tr>
+<tr>
+<td>MPP</td>
+<td>Doris&#x2F;StarRocks</td>
+<td>大规模并行处理，多节点协同计算</td>
+</tr>
+<tr>
+<td>Colocate Join</td>
+<td>Doris&#x2F;StarRocks</td>
+<td>数据分布一致，避免 Shuffle Join</td>
+</tr>
+<tr>
+<td>Runtime Filter</td>
+<td>Doris&#x2F;StarRocks</td>
+<td>运行时动态下推 Bloom Filter 预过滤</td>
+</tr>
+<tr>
+<td>CBO</td>
+<td>Doris&#x2F;StarRocks</td>
+<td>基于代价的查询优化器</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<p>本文写作日期：2026-06-13<br>搜索工具：Tavily MCP（tavily_search &#x2F; tavily_crawl）<br>参考来源：各产品官方文档、VLDB 论文、技术博客、生产案例汇总</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 分布式数据库</a>
+              <a href="/tags/TiDB/" rel="tag"># TiDB</a>
+              <a href="/tags/ClickHouse/" rel="tag"># ClickHouse</a>
+              <a href="/tags/OLAP/" rel="tag"># OLAP</a>
+              <a href="/tags/%E5%9B%BD%E4%BA%A7%E5%8C%96/" rel="tag"># 国产化</a>
+              <a href="/tags/OceanBase/" rel="tag"># OceanBase</a>
+              <a href="/tags/Doris/" rel="tag"># Doris</a>
+              <a href="/tags/StarRocks/" rel="tag"># StarRocks</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/13/AI%E9%9D%A2%E8%AF%95%E9%A2%98-AI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="AI 面试题：AI 工程化与 LLMOps 面试全解">
+                  <i class="fa fa-angle-left"></i> AI 面试题：AI 工程化与 LLMOps 面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%BC%80%E5%8F%91%E5%85%A8%E6%A0%88-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="大数据面试题：大数据开发全栈面试全解">
+                  大数据面试题：大数据开发全栈面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
