@@ -23,13 +23,13 @@
 
     <meta name="description" content="本文覆盖计算机网络核心知识点：TCP&#x2F;IP 协议栈、HTTP 演进、HTTPS&#x2F;TLS、DNS&#x2F;CDN、WebSocket&#x2F;gRPC、生产实战与踩坑。面向高级研发面试，每道题附带深入思考与源码&#x2F;生产视角。   目录 0x00 TCP&#x2F;IP：三次握手与四次挥手 0x01 HTTP：协议演进与缓存 0x02 DNS&#x2F;CDN：域名解">
 <meta property="og:type" content="article">
-<meta property="og:title" content="计算机网络 高级面试全解">
+<meta property="og:title" content="后端面试题：计算机网络 面试全解">
 <meta property="og:url" content="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
 <meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
 <meta property="og:description" content="本文覆盖计算机网络核心知识点：TCP&#x2F;IP 协议栈、HTTP 演进、HTTPS&#x2F;TLS、DNS&#x2F;CDN、WebSocket&#x2F;gRPC、生产实战与踩坑。面向高级研发面试，每道题附带深入思考与源码&#x2F;生产视角。   目录 0x00 TCP&#x2F;IP：三次握手与四次挥手 0x01 HTTP：协议演进与缓存 0x02 DNS&#x2F;CDN：域名解">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-11T10:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-11T07:19:20.278Z">
+<meta property="article:modified_time" content="2026-06-15T02:01:23.009Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="DNS">
 <meta property="article:tag" content="HTTP">
@@ -43,10 +43,10 @@
 <link rel="canonical" href="https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/11/后端面试题-计算机网络-面试全解/","title":"计算机网络 高级面试全解"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/11/后端面试题-计算机网络-面试全解/","title":"后端面试题：计算机网络 面试全解"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>计算机网络 高级面试全解 | xiaoxin1024's Blog</title>
+<title>后端面试题：计算机网络 面试全解 | xiaoxin1024's Blog</title>
   
 
 
@@ -169,7 +169,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-TCP-IP"><span class="nav-text">0x00 TCP&#x2F;IP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-TCP-%E4%B8%89%E6%AC%A1%E6%8C%A5%E6%89%8B%E7%9A%84%E8%AF%A6%E7%BB%86%E8%BF%87%E7%A8%8B%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%89%E6%AC%A1%E4%B8%8D%E6%98%AF%E4%B8%A4%E6%AC%A1%E6%88%96%E5%9B%9B%E6%AC%A1%EF%BC%9F"><span class="nav-text">0. TCP 三次挥手的详细过程？为什么是三次不是两次或四次？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-TCP-%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B%E7%9A%84%E8%AF%A6%E7%BB%86%E8%BF%87%E7%A8%8B%EF%BC%9FTIME-WAIT-%E7%9A%84%E6%84%8F%E4%B9%89%EF%BC%9F"><span class="nav-text">1. TCP 四次挥手的详细过程？TIME_WAIT 的意义？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-TCP-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6"><span class="nav-text">2. TCP 滑动窗口与流量控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-text">3. TCP 拥塞控制算法详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-TCP-%E7%B2%98%E5%8C%85%E4%B8%8E%E6%8B%86%E5%8C%85%E9%97%AE%E9%A2%98"><span class="nav-text">4. TCP 粘包与拆包问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-HTTP"><span class="nav-text">0x01 HTTP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-HTTP-1-0-%E2%86%92-1-1-%E2%86%92-2-%E2%86%92-3-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%BC%94%E8%BF%9B"><span class="nav-text">5. HTTP&#x2F;1.0 → 1.1 → 2 → 3 的核心演进</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-HTTPS-%E5%AE%8C%E6%95%B4%E6%8F%A1%E6%89%8B%E8%BF%87%E7%A8%8B%EF%BC%88TLS-1-2-vs-1-3%EF%BC%89"><span class="nav-text">6. HTTPS 完整握手过程（TLS 1.2 vs 1.3）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-HTTP-%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5%E5%85%A8%E8%A7%A3"><span class="nav-text">7. HTTP 缓存策略全解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Cookie-vs-Session-vs-Token"><span class="nav-text">8. Cookie vs Session vs Token</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-DNS-CDN"><span class="nav-text">0x02 DNS &#x2F; CDN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-DNS-%E5%AE%8C%E6%95%B4%E8%A7%A3%E6%9E%90%E8%BF%87%E7%A8%8B"><span class="nav-text">9. DNS 完整解析过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-CDN-%E5%8A%A0%E9%80%9F%E5%8E%9F%E7%90%86%E5%8F%8A%E5%85%B3%E9%94%AE%E6%8A%80%E6%9C%AF"><span class="nav-text">10. CDN 加速原理及关键技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-DNS-%E5%8A%AB%E6%8C%81%E4%B8%8E%E9%98%B2%E6%8A%A4"><span class="nav-text">11. DNS 劫持与防护</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-WebSocket-gRPC"><span class="nav-text">0x03 WebSocket &#x2F; gRPC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-WebSocket-%E6%8F%A1%E6%89%8B%E8%BF%87%E7%A8%8B%E5%8F%8A%E5%8E%9F%E7%90%86"><span class="nav-text">12. WebSocket 握手过程及原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-WebSocket-vs-HTTP-%E9%95%BF%E8%BD%AE%E8%AF%A2-vs-SSE"><span class="nav-text">13. WebSocket vs HTTP 长轮询 vs SSE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-gRPC-%E5%9B%9B%E7%A7%8D%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%BC%8F%E8%AF%A6%E8%A7%A3"><span class="nav-text">14. gRPC 四种通信模式详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-gRPC-%E4%B8%8E-Thrift-HTTP-API-%E7%9A%84%E9%80%89%E5%9E%8B"><span class="nav-text">15. gRPC 与 Thrift&#x2F;HTTP API 的选型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x04 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Linux-TCP-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%85%A8%E6%94%BB%E7%95%A5"><span class="nav-text">16. Linux TCP 参数调优全攻略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-HTTPS-%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">17. HTTPS 证书管理最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-%E5%85%A8%E9%93%BE%E8%B7%AF%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF%EF%BC%88%E7%94%A8%E6%88%B7%E6%85%A2-%E2%86%92-%E6%89%BE%E5%88%B0%E6%A0%B9%E5%9B%A0%EF%BC%89"><span class="nav-text">18. 全链路排查思路（用户慢 → 找到根因）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0%E4%B8%8E%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95"><span class="nav-text">19. 网络性能评估与基准测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-TCP-IP"><span class="nav-text">0x00 TCP&#x2F;IP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-TCP-%E4%B8%89%E6%AC%A1%E6%8C%A5%E6%89%8B%E7%9A%84%E8%AF%A6%E7%BB%86%E8%BF%87%E7%A8%8B%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%89%E6%AC%A1%E4%B8%8D%E6%98%AF%E4%B8%A4%E6%AC%A1%E6%88%96%E5%9B%9B%E6%AC%A1%EF%BC%9F"><span class="nav-text">0. TCP 三次挥手的详细过程？为什么是三次不是两次或四次？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-TCP-%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B%E7%9A%84%E8%AF%A6%E7%BB%86%E8%BF%87%E7%A8%8B%EF%BC%9FTIME-WAIT-%E7%9A%84%E6%84%8F%E4%B9%89%EF%BC%9F"><span class="nav-text">1. TCP 四次挥手的详细过程？TIME_WAIT 的意义？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-TCP-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6"><span class="nav-text">2. TCP 滑动窗口与流量控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-TCP-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-text">3. TCP 拥塞控制算法详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-TCP-%E7%B2%98%E5%8C%85%E4%B8%8E%E6%8B%86%E5%8C%85%E9%97%AE%E9%A2%98"><span class="nav-text">4. TCP 粘包与拆包问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-HTTP"><span class="nav-text">0x01 HTTP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-HTTP-1-0-%E2%86%92-1-1-%E2%86%92-2-%E2%86%92-3-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%BC%94%E8%BF%9B"><span class="nav-text">5. HTTP&#x2F;1.0 → 1.1 → 2 → 3 的核心演进</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-HTTPS-%E5%AE%8C%E6%95%B4%E6%8F%A1%E6%89%8B%E8%BF%87%E7%A8%8B%EF%BC%88TLS-1-2-vs-1-3%EF%BC%89"><span class="nav-text">6. HTTPS 完整握手过程（TLS 1.2 vs 1.3）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-HTTP-%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5%E5%85%A8%E8%A7%A3"><span class="nav-text">7. HTTP 缓存策略全解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Cookie-vs-Session-vs-Token"><span class="nav-text">8. Cookie vs Session vs Token</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-DNS-CDN"><span class="nav-text">0x02 DNS &#x2F; CDN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-DNS-%E5%AE%8C%E6%95%B4%E8%A7%A3%E6%9E%90%E8%BF%87%E7%A8%8B"><span class="nav-text">9. DNS 完整解析过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-CDN-%E5%8A%A0%E9%80%9F%E5%8E%9F%E7%90%86%E5%8F%8A%E5%85%B3%E9%94%AE%E6%8A%80%E6%9C%AF"><span class="nav-text">10. CDN 加速原理及关键技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-DNS-%E5%8A%AB%E6%8C%81%E4%B8%8E%E9%98%B2%E6%8A%A4"><span class="nav-text">11. DNS 劫持与防护</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-WebSocket-gRPC"><span class="nav-text">0x03 WebSocket &#x2F; gRPC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#12-WebSocket-%E6%8F%A1%E6%89%8B%E8%BF%87%E7%A8%8B%E5%8F%8A%E5%8E%9F%E7%90%86"><span class="nav-text">12. WebSocket 握手过程及原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-WebSocket-vs-HTTP-%E9%95%BF%E8%BD%AE%E8%AF%A2-vs-SSE"><span class="nav-text">13. WebSocket vs HTTP 长轮询 vs SSE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-gRPC-%E5%9B%9B%E7%A7%8D%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%BC%8F%E8%AF%A6%E8%A7%A3"><span class="nav-text">14. gRPC 四种通信模式详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-gRPC-%E4%B8%8E-Thrift-HTTP-API-%E7%9A%84%E9%80%89%E5%9E%8B"><span class="nav-text">15. gRPC 与 Thrift&#x2F;HTTP API 的选型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x04 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Linux-TCP-%E5%8F%82%E6%95%B0%E8%B0%83%E4%BC%98%E5%85%A8%E6%94%BB%E7%95%A5"><span class="nav-text">16. Linux TCP 参数调优全攻略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-HTTPS-%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">17. HTTPS 证书管理最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-%E5%85%A8%E9%93%BE%E8%B7%AF%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF%EF%BC%88%E7%94%A8%E6%88%B7%E6%85%A2-%E2%86%92-%E6%89%BE%E5%88%B0%E6%A0%B9%E5%9B%A0%EF%BC%89"><span class="nav-text">18. 全链路排查思路（用户慢 → 找到根因）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0%E4%B8%8E%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95"><span class="nav-text">19. 网络性能评估与基准测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#27-HTTP-3-QUIC-%E7%94%9F%E4%BA%A7%E7%BA%A7%E6%80%A7%E8%83%BD%E5%89%96%E6%9E%90%EF%BC%9A0-RTT-%E6%8F%A1%E6%89%8B%E3%80%81%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E6%97%A0%E9%98%9F%E5%A4%B4%E9%98%BB%E5%A1%9E"><span class="nav-text">27. HTTP&#x2F;3 (QUIC) 生产级性能剖析：0-RTT 握手、多路复用无队头阻塞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#28-TCP-BBR-%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E7%9A%84%E9%80%89%E6%8B%A9%EF%BC%9ABBRv1-vs-BBRv3-vs-CUBIC"><span class="nav-text">28. TCP BBR 拥塞控制算法在生产环境中的选择：BBRv1 vs BBRv3 vs CUBIC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#29-WebSocket-%E7%94%9F%E4%BA%A7%E6%9E%B6%E6%9E%84%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E5%B9%BF%E6%92%AD%E3%80%81%E5%BF%83%E8%B7%B3%E4%BF%9D%E6%B4%BB%E4%B8%8E%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86"><span class="nav-text">29. WebSocket 生产架构：分布式广播、心跳保活与连接管理</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -182,18 +182,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">83</span>
+        <span class="site-state-item-count">128</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -233,12 +233,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="计算机网络 高级面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="name" content="后端面试题：计算机网络 面试全解 | xiaoxin1024's Blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          计算机网络 高级面试全解
+          后端面试题：计算机网络 面试全解
         </h1>
 
         <div class="post-meta-container">
@@ -248,9 +248,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-06-11 18:00:00 / 修改时间：15:19:20" itemprop="dateCreated datePublished" datetime="2026-06-11T18:00:00+08:00">2026-06-11</time>
+      <time title="创建时间：2026-06-11 18:00:00" itemprop="dateCreated datePublished" datetime="2026-06-11T18:00:00+08:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-06-15 10:01:23" itemprop="dateModified" datetime="2026-06-15T10:01:23+08:00">2026-06-15</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1277,6 +1283,36 @@
 <li><a target="_blank" rel="noopener" href="https://grpc.io/docs/guides/">https://grpc.io/docs/guides/</a></li>
 <li><a target="_blank" rel="noopener" href="https://hpbn.co/">https://hpbn.co/</a></li>
 </ul>
+<hr>
+<h3 id="27-HTTP-3-QUIC-生产级性能剖析：0-RTT-握手、多路复用无队头阻塞"><a href="#27-HTTP-3-QUIC-生产级性能剖析：0-RTT-握手、多路复用无队头阻塞" class="headerlink" title="27. HTTP&#x2F;3 (QUIC) 生产级性能剖析：0-RTT 握手、多路复用无队头阻塞"></a>27. HTTP&#x2F;3 (QUIC) 生产级性能剖析：0-RTT 握手、多路复用无队头阻塞</h3><p><strong>标准答案</strong>：<br>HTTP&#x2F;3 基于 QUIC 协议（RFC 9000），运行在 UDP 而非 TCP 之上。相比 HTTP&#x2F;2 的核心优势：<strong>① 0-RTT 握手</strong>：已连接过的客户端发送请求时不需要握手延迟（HTTP&#x2F;2 需要 1-RTT TCP + 1-RTT TLS）；<strong>② 无队头阻塞（HOL Blocking）</strong>：TCP 的丢包会导致所有 HTTP&#x2F;2 流被阻塞（因为 TCP 按序交付），QUIC 的丢包只影响相关的流；<strong>③ 连接迁移</strong>：客户端 IP 变化时（如从 WiFi 切到 5G），QUIC 通过 Connection ID 保持连接，TCP 需要重新握手。生产环境实测：弱网环境（丢包率 2%）下，HTTP&#x2F;3 的页面加载时间比 HTTP&#x2F;2 快 25-40%。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>0-RTT 的安全风险</strong>：0-RTT 数据存在**重放攻击（Replay Attack）**风险——如果客户端发送了一个 0-RTT 请求（如 <code>POST /order</code>），攻击者截获并重放该请求，服务端可能重复处理。QUIC 要求服务端对 0-RTT 数据做幂等校验（通过 Token 或时间戳），但 HTTP&#x2F;3 规范建议 0-RTT 只用于幂等请求（<code>GET</code>&#x2F;<code>HEAD</code>）。生产配置：Nginx QUIC 的 <code>quic_retry on;</code> 可以要求 0-RTT 请求做额外验证。</li>
+<li><strong>UDP 的 NAT&#x2F;firewall 穿透问题</strong>：UDP 在企业防火墙中常被限制或限流。Akamai 2025 年的数据：约 5-8% 的企业用户无法使用 QUIC（UDP 被防火墙拦截），需要优雅降级到 HTTP&#x2F;2。CDN 的 fallback 策略：先尝试 QUIC，超时 3s 后降级到 HTTP&#x2F;2。</li>
+<li><strong>CPU 开销差异</strong>：QUIC 的加密是内建的（所有数据包都加密），比 HTTP&#x2F;2 的加密（TLS over TCP）CPU 开销高约 10-15%。但 QUIC 的 Better BBR 拥塞控制可以抵消部分延迟收益。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某视频流平台启用 HTTP&#x2F;3 后，发现 CDN 回源链路的丢包率从 0.5% 飙升到 8%。排查发现：CDN 边缘节点到源站的网络路径中，某个中间路由器的 UDP 缓冲队列设置过小（<code>net.core.rmem_max=212992</code> 默认值），高并发 QUIC 数据包到达时触发 UDP 缓冲区溢出。<strong>修复</strong>：在源站服务器上调整内核参数 <code>net.core.rmem_max=4194304</code> 和 <code>net.core.wmem_max=4194304</code>，并开启 <code>net.ipv4.udp_rmem_min=4096</code>。教训：<strong>QUIC 的 UDP 传输对内核缓冲区配置比 TCP 敏感得多——TCP 的缓冲区管理在协议栈内部，UDP 需要更大的内核缓冲区来应对流量突发</strong>。</p>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc9000">RFC 9000: QUIC</a> | <a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc9114">RFC 9114: HTTP&#x2F;3</a> | <a target="_blank" rel="noopener" href="https://nginx.org/en/docs/http/ngx_http_quic_module.html">Nginx QUIC 文档</a></p>
+<hr>
+<h3 id="28-TCP-BBR-拥塞控制算法在生产环境中的选择：BBRv1-vs-BBRv3-vs-CUBIC"><a href="#28-TCP-BBR-拥塞控制算法在生产环境中的选择：BBRv1-vs-BBRv3-vs-CUBIC" class="headerlink" title="28. TCP BBR 拥塞控制算法在生产环境中的选择：BBRv1 vs BBRv3 vs CUBIC"></a>28. TCP BBR 拥塞控制算法在生产环境中的选择：BBRv1 vs BBRv3 vs CUBIC</h3><p><strong>标准答案</strong>：<br>TCP BBR（Bottleneck Bandwidth and Round-trip propagation time）是 Google 开发的基于模型而非丢弃（model-based, not loss-based）的拥塞控制算法。BBRv3（Linux 6.x+ 默认）相比 BBRv1 的关键改进：<strong>显式探测带宽利用率上限</strong>（<code>bw_lo</code>&#x2F;<code>bw_hi</code> 双窗口探测），在浅缓存场景下带宽利用更充分。相比 CUBIC（传统丢包感知），BBR 在高延迟链路（&gt;50ms）和&#x2F;或丢包链路（&gt;0.1%）上优势明显。选择依据：<strong>CUBIC 适合低延迟低丢包的内网&#x2F;同 AZ 场景（延迟 &lt;1ms），BBR 适合跨地域&#x2F;移动网络&#x2F;卫星链路（延迟 &gt;20ms，丢包率 &gt;0.1%）</strong>。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>BBRv3 的 ProbeRTT 机制</strong>：BBR 周期性地进入 PROBE_RTT 状态（每 10s 一次，持续 200ms），将发送窗口缩至 4 个包，以测量真实的 RTT 最小值。这个 Probe 操作会导致瞬时的吞吐下降。对于延迟敏感的应用（如在线游戏、高频交易），ProbeRTT 的 200ms 降速可能导致感知到的卡顿。Linux 6.8+ 提供了 <code>BBR_NO_PROBE_RTT</code> 控制位绕过这个行为——代价是无法更新最小 RTT。</li>
+<li><strong>公平性（Fairness）</strong>：BBRv1 在与其他 CUBIC 流共享瓶颈带宽时不公平——BBR 流倾向于多占带宽。BBRv3 通过 pacing gain 的随机化（<code>bbr_bw_probe_rand</code>）改善了与 CUBIC 的共存能力。但生产环境建议：<strong>整个数据中心统一使用同一算法</strong>，混合使用会导致不可预测的带宽分配。</li>
+<li><strong>tc qdisc 的交互</strong>：BBR 依赖 <code>fq</code>（Fair Queueing）qdisc 做精确的 pacing。如果接口使用 <code>pfifo_fast</code> 或 <code>mq</code> qdisc，BBR 的 pacing 不生效，退化为类似 CUBIC 的 burst 行为。<code>tc qdisc replace dev eth0 root fq</code> 是启用 BBR 的前提。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某跨洋 RPC 服务（延迟 200ms，丢包率 0.5%）从 CUBIC 切换到 BBRv3 后，P99 延迟从 600ms 降至 250ms——但 CPU 利用率从 30% 飙升到 85%。<code>perf top</code> 显示热点在 <code>tcp_bbr.c:tcp_bbr_update_model</code> 中的 <code>bbr_update_bw</code> 函数。BBR 的带宽探测计算比 CUBIC 的丢包检测复杂得多（涉及 EWMA 滤波、增益探测等），高连接数（&gt;10,000）下 CPU 开销显著。<strong>优化</strong>：将 <code>SO_PRIORITY</code> 分配给延迟敏感连接，让 BBR 只用于这些连接，其他连接保留 CUBIC。<strong>关键教训</strong>：<strong>BBR 的 CPU 开销是 CUBIC 的 2-3 倍，在容器化部署中（CPU 受限），1000+ 连接&#x2F;容器时 BBR 可能成为 CPU 瓶颈</strong>。</p>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://github.com/google/bbr/blob/master/bbr.md">BBR 算法设计文档</a> | <a target="_blank" rel="noopener" href="https://lwn.net/Articles/931949/">Linux BBRv3 实现</a></p>
+<hr>
+<h3 id="29-WebSocket-生产架构：分布式广播、心跳保活与连接管理"><a href="#29-WebSocket-生产架构：分布式广播、心跳保活与连接管理" class="headerlink" title="29. WebSocket 生产架构：分布式广播、心跳保活与连接管理"></a>29. WebSocket 生产架构：分布式广播、心跳保活与连接管理</h3><p><strong>标准答案</strong>：<br>WebSocket 生产环境的核心挑战不是实现长连接本身，而是<strong>百万级并发连接的分布式架构</strong>。典型的架构分三层：<strong>① LB 层</strong>（Nginx&#x2F;Envoy 配置 <code>proxy_pass http://upstream; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade;</code>，使用 <code>ip_hash</code> 或 <code>sticky session</code> 保证 WebSocket 连接的节点亲和性）；<strong>② 业务层</strong>（Netty&#x2F;Spring WebFlux 处理 WebSocket Handler，管理 Session 映射到用户 ID）；<strong>③ 消息层</strong>（Redis Pub&#x2F;Sub 或 Kafka 做跨节点广播）。心跳保活通过 <code>ping</code>&#x2F;<code>pong</code> 帧实现，Nginx 的 <code>proxy_read_timeout 60s</code> 控制连接超时。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>连接管理的关键数据结构</strong>：WebSocket 服务端的 Session 管理需要做到 O(1) 的用户→Session 映射。常用的设计是 <code>ConcurrentHashMap&lt;String, WebSocketSession&gt;</code>（key 为 userId，value 为 Session）。但 WebSocket 关闭、异常断开时需要从 Map 中移除——这个移除操作必须保证原子性（<code>computeIfPresent</code>）。</li>
+<li><strong>分布式广播的两条路径</strong>：<strong>Redis Pub&#x2F;Sub</strong>（延迟 1-5ms，适合 &lt;1,000 节点集群）vs **Kafka**（延迟 10-50ms，适合 &gt;1,000 节点或需要消息持久化的场景）。选型的关键指标是 Topic 数量：Redis Pub&#x2F;Sub 的每个 Topic 都是一个 channel，超过 10,000 个 channel 后 Redis 的 CPU 开销飙升。</li>
+<li><strong>优雅退出</strong>：Kubernetes Pod 退出时的 WebSocket 断连处理——Pod 收到 <code>SIGTERM</code> 后应该在 PreStop hook 中等待所有 WebSocket Handler 完成清理（发送关闭帧、移除 Session），而不是直接退出。<code>preStop</code> 的 <code>sleep 5</code> 是常见但不优雅的做法。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某实时协作平台（Notion-like）使用 WebSocket 做协作文档编辑。上线后发现一个奇怪的现象：用户断网重连后，之前的编辑历史不会同步——但其他在线用户能看到。排查发现：Nginx 的 <code>proxy_read_timeout</code> 设置为 180s，但 Redis Pub&#x2F;Sub 的 Consumer 端在 Pod 重启后没有重新订阅频道。<strong>根因</strong>：WebSocket 连接断连后，Pod 会清理 Session Map，但 Redis Pub&#x2F;Sub subscriber（<code>SUBSCRIBE document:12345</code>）的线程没有被清理——一个孤儿 subscriber 仍然在消费消息，但消息没有对应的 Session 可以投递。<strong>修复</strong>：在 WebSocket 关闭事件中不仅清理 Session，还要取消 Redis 订阅（<code>UNSUBSCRIBE</code>）。并添加 <code>RedisSubscriber</code> 的心跳检查（每 30s 检查 Session Map 中是否有对应的活跃 Session）。教训：<strong>WebSocket 生产架构中，连接断开后的「资源清理」不仅要清理自身，还要清理关联的中间件订阅——Redis&#x2F;Kafka 的 orphan subscriber 是常见的内存泄漏源</strong>。</p>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc6455">RFC 6455: WebSocket</a> | <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/reference/web/webflux-websocket.html">Spring WebFlux WebSocket 文档</a></p>
 
     </div>
 
@@ -1298,13 +1334,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="Redis 高级面试全解">
-                  <i class="fa fa-angle-left"></i> Redis 高级面试全解
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-%E6%A0%B8%E5%BF%83-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：Spring 核心面试全解">
+                  <i class="fa fa-angle-left"></i> 后端面试题：Spring 核心面试全解
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="操作系统 &amp; Linux 高级面试全解">
-                  操作系统 & Linux 高级面试全解 <i class="fa fa-angle-right"></i>
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：操作系统 &amp; Linux 面试全解">
+                  后端面试题：操作系统 & Linux 面试全解 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
