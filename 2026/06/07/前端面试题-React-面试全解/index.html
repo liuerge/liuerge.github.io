@@ -29,7 +29,7 @@
 <meta property="og:description" content="React 高级面试全解，覆盖 Fiber 架构、Hooks 原理、状态管理、性能优化和 SSR。  0x00 Fiber 架构1. React Fiber 解决了什么问题？React 15 的 Stack Reconciler 是递归同步渲染，一旦开始无法中断，长任务会阻塞浏览器： 12更新 → 递归遍历整个虚拟 DOM 树 → 提交 DOM → 浏览器才能响应">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:30:00.000Z">
-<meta property="article:modified_time" content="2026-06-15T02:09:32.321Z">
+<meta property="article:modified_time" content="2026-06-16T01:16:22.613Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Hooks">
 <meta property="article:tag" content="React">
@@ -1162,8 +1162,37 @@
 &lt;&#x2F;ul&gt;
 &lt;p&gt;&lt;strong&gt;参考来源&lt;&#x2F;strong&gt;：React 19 RSC 文档 (react.dev), Next.js 15 App Router 文档, PPR RFC (Vercel), Server Actions 安全指南 (Next.js 官方), RSC 测试策略 (Epic React by Kent C. Dodds)&lt;&#x2F;p&gt;
 &lt;hr&gt;
+&lt;h3 id&#x3D;&quot;Q73：React-19-2-组件——保留后台组件状态的革命性-API&quot;&gt;&lt;a href&#x3D;&quot;#Q73：React-19-2-组件——保留后台组件状态的革命性-API&quot; class&#x3D;&quot;headerlink&quot; title&#x3D;&quot;Q73：React 19.2 &lt;Activity &#x2F;&gt; 组件——保留后台组件状态的革命性 API&quot;&gt;&lt;&#x2F;a&gt;Q73：React 19.2 &lt;code&gt;&lt;Activity &#x2F;&gt;&lt;&#x2F;code&gt; 组件——保留后台组件状态的革命性 API&lt;&#x2F;h3&gt;&lt;p&gt;&lt;strong&gt;难度&lt;&#x2F;strong&gt;：⭐⭐⭐⭐（专家）&lt;br&gt;&lt;strong&gt;问题&lt;&#x2F;strong&gt;：React 19.2 引入的 &lt;code&gt;&lt;Activity &#x2F;&gt;&lt;&#x2F;code&gt; 组件解决了什么问题？与条件渲染有何不同？&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;标准答案&lt;&#x2F;strong&gt;：&lt;br&gt;React 19.2（2026 年 3 月）引入了 &lt;code&gt;&lt;Activity &#x2F;&gt;&lt;&#x2F;code&gt; 组件——允许将渲染树标记为「非活动」（inactive），但&lt;strong&gt;不卸载&lt;&#x2F;strong&gt;其内容。传统条件渲染中，如果 &lt;code&gt;{show &amp;&amp; &lt;Component &#x2F;&gt;}&lt;&#x2F;code&gt; 中的 &lt;code&gt;show&lt;&#x2F;code&gt; 变为 &lt;code&gt;false&lt;&#x2F;code&gt;，&lt;code&gt;&lt;Component &#x2F;&gt;&lt;&#x2F;code&gt; 会被卸载，其内部状态（useState、useRef、useEffect）全部丢失。&lt;code&gt;&lt;Activity &#x2F;&gt;&lt;&#x2F;code&gt; 提供中间状态：组件可见性由 &lt;code&gt;Activity&lt;&#x2F;code&gt; 控制，但组件树保持挂载，状态、ref、DOM 引用都保留。核心 API：&lt;code&gt;&lt;Activity mode&#x3D;&quot;visible&quot; | &quot;hidden&quot; | &quot;inactive&quot;&gt;&lt;&#x2F;code&gt;——&lt;code&gt;visible&lt;&#x2F;code&gt; 正常渲染，&lt;code&gt;hidden&lt;&#x2F;code&gt; 隐藏但不卸载（类似 CSS &lt;code&gt;visibility: hidden&lt;&#x2F;code&gt;），&lt;code&gt;inactive&lt;&#x2F;code&gt; 完全非活跃（可能被 Suspense 暂停，但状态保留）。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;深入思考&lt;&#x2F;strong&gt;：&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;实现原理&lt;&#x2F;strong&gt;：&lt;code&gt;&lt;Activity &#x2F;&gt;&lt;&#x2F;code&gt; 在 React Fiber 层面引入了新的 &lt;code&gt;Offscreen&lt;&#x2F;code&gt; 模式。Fiber 树在 &lt;code&gt;inactive&lt;&#x2F;code&gt; 模式下不会触发 &lt;code&gt;useEffect&lt;&#x2F;code&gt; cleanup，也不会调度提交阶段（Commit Phase）。DOM 节点会被移除（&lt;code&gt;display: none&lt;&#x2F;code&gt; 或从父容器分离），但 Fiber 引用保留。&lt;code&gt;inactive&lt;&#x2F;code&gt; 节点不会参与正常的渲染调度——在 Concurrent Mode 中，&lt;code&gt;Activity&lt;&#x2F;code&gt; 的子树的优先级被降为最低。&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;与 &lt;code&gt;KeepAlive&lt;&#x2F;code&gt; 的区别&lt;&#x2F;strong&gt;：Vue 的 &lt;code&gt;&lt;KeepAlive&gt;&lt;&#x2F;code&gt; 和 React 的 &lt;code&gt;&lt;Activity&gt;&lt;&#x2F;code&gt; 目标相似但实现不同。KeepAlive 缓存整个组件树的 VNode（包括 DOM），而 Activity 在 Fiber 层面控制渲染，状态保留但不缓存 DOM（inactive 移出 DOM 树）。Activity 的内存占用小（只保留 Fiber 引用和状态），KeepAlive 保留完整 DOM。&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;生产典型场景&lt;&#x2F;strong&gt;：Tab 切换（保留非活跃 Tab 的滚动位置和输入数据）、Modal 切换（隐藏一个 Modal 打开另一个，不丢失表单数据）、列表缓存（滚动到某一项时标记其他项为 inactive，保留它们的滚动监听和数据）。&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;生产踩坑&lt;&#x2F;strong&gt;：&lt;br&gt;某团队在 Dashboard 应用中使用了 &lt;code&gt;&lt;Activity mode&#x3D;&quot;inactive&quot;&gt;&lt;&#x2F;code&gt; 来缓存状态（4 个 Tab 页面，每个页面包含复杂的表格和图表）。上线后观察到页面切换时偶尔出现「白屏」——切换到某个 Tab 时内容空白，持续 2-3 秒后恢复。排查发现：&lt;code&gt;&lt;Activity mode&#x3D;&quot;inactive&quot;&gt;&lt;&#x2F;code&gt; 会将子树的调度优先级降到 &lt;code&gt;Idle&lt;&#x2F;code&gt;（最低优先级），当某个 Tab 中的组件包含 &lt;code&gt;useDeferredValue&lt;&#x2F;code&gt; 或 &lt;code&gt;startTransition&lt;&#x2F;code&gt; 时，这些极低优先级的任务被 React 的调度器无限推迟，导致内容渲染被完全阻塞。&lt;strong&gt;根因&lt;&#x2F;strong&gt;：&lt;code&gt;Activity&lt;&#x2F;code&gt; 的 &lt;code&gt;inactive&lt;&#x2F;code&gt; 模式将 Fiber 的 &lt;code&gt;lane&lt;&#x2F;code&gt;（优先级跑道）重置为 &lt;code&gt;Idle&lt;&#x2F;code&gt;，调度器在有空闲时才执行——但如果主线程一直被高优先级任务（如输入响应、动画帧）占用，Idle 任务永远不会被执行。&lt;strong&gt;修复&lt;&#x2F;strong&gt;：将有实时更新需求（如定时器、WebSocket 更新）的 Tab 改为 &lt;code&gt;mode&#x3D;&quot;hidden&quot;&lt;&#x2F;code&gt;（CSS 隐藏但渲染循环正常运行），只有纯静态内容的 Tab 才用 &lt;code&gt;inactive&lt;&#x2F;code&gt;。教训：&lt;strong&gt;&lt;code&gt;&lt;Activity mode&#x3D;&quot;inactive&quot;&gt;&lt;&#x2F;code&gt; 会完全暂停子树的渲染调度——如果子树中有需要持续更新的内容（如倒计时、数据轮询），&lt;code&gt;inactive&lt;&#x2F;code&gt; 会使其永远停止更新。&lt;code&gt;mode&#x3D;&quot;hidden&quot;&lt;&#x2F;code&gt; 保留了渲染循环但是视觉隐藏，更适合有实时更新的场景&lt;&#x2F;strong&gt;。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;面试金句&lt;&#x2F;strong&gt;：&lt;&#x2F;p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;本文将持续更新。本次更新：2026-06-15 — 新增 React 19 preload&#x2F;preinit API、RSC 与 Server Actions 2026 生产最佳实践(Work Hermes)。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;&lt;Activity &#x2F;&gt;&lt;&#x2F;code&gt; 是 React 在「状态保留」方面的原生解决方案——它解决了组件卸载导致状态丢失这一 React 长期存在的痛点。但 &lt;code&gt;inactive&lt;&#x2F;code&gt; 模式的调度优先级归零（Idle），意味着有实时更新需求的组件不适合用 &lt;code&gt;inactive&lt;&#x2F;code&gt;，应该用 &lt;code&gt;hidden&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;参考&lt;&#x2F;strong&gt;：&lt;a href&#x3D;&quot;https:&#x2F;&#x2F;react.dev&#x2F;blog&#x2F;2026&#x2F;03&#x2F;15&#x2F;react-19-2&quot;&gt;React 19.2 发布说明&lt;&#x2F;a&gt; | &lt;a href&#x3D;&quot;https:&#x2F;&#x2F;github.com&#x2F;reactjs&#x2F;rfcs&#x2F;pull&#x2F;277&quot;&gt;&lt;Activity&gt; RFC&lt;&#x2F;a&gt; | &lt;a href&#x3D;&quot;https:&#x2F;&#x2F;www.reddit.com&#x2F;r&#x2F;react&#x2F;comments&#x2F;1oesxdq&#x2F;react_192_what_actually_matters_my_3week&#x2F;&quot;&gt;React 19.2 实战测试&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;hr&gt;
+&lt;h3 id&#x3D;&quot;Q74：React-Server-Components-的-Streaming-性能优化——Sub-100ms-TTFB-的生产模式&quot;&gt;&lt;a href&#x3D;&quot;#Q74：React-Server-Components-的-Streaming-性能优化——Sub-100ms-TTFB-的生产模式&quot; class&#x3D;&quot;headerlink&quot; title&#x3D;&quot;Q74：React Server Components 的 Streaming 性能优化——Sub-100ms TTFB 的生产模式&quot;&gt;&lt;&#x2F;a&gt;Q74：React Server Components 的 Streaming 性能优化——Sub-100ms TTFB 的生产模式&lt;&#x2F;h3&gt;&lt;p&gt;&lt;strong&gt;难度&lt;&#x2F;strong&gt;：⭐⭐⭐⭐（专家）&lt;br&gt;&lt;strong&gt;问题&lt;&#x2F;strong&gt;：React Server Components + Streaming 如何实现 &lt;100ms TTFB？有哪些性能瓶颈？&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;标准答案&lt;&#x2F;strong&gt;：&lt;br&gt;RSC + Streaming 的核心是&lt;strong&gt;渐进式 HTML 流&lt;&#x2F;strong&gt;——服务端将 RSC Payload 以 Chunk 形式发送到浏览器，浏览器在收到第一个 Chunk 后就立即开始渲染（Suspense 边界）。优化目标是使 First Chunk（包含 App Shell）在 100ms 内到达浏览器。关键优化手段：&lt;strong&gt;Partial Prerendering（PPR，Next.js 15+）&lt;&#x2F;strong&gt;——将页面的静态部分（导航栏、侧边栏）在构建时预渲染为静态 HTML，动态部分（数据、个性化内容）在请求时流式填充。PPR 将 TTFB 中静态部分的渲染时间（通常 50-100ms）全部消除。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;深入思考&lt;&#x2F;strong&gt;：&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Nested Suspense Orchestration&lt;&#x2F;strong&gt;：Streaming 性能的关键是 Suspense 边界的设置。&lt;code&gt;&lt;Suspense fallback&#x3D;{&lt;Skeleton &#x2F;&gt;}&gt;&lt;&#x2F;code&gt; 包裹每个数据获取点，但 Suspense 嵌套层级过深（3 层以上）会导致 streaming 效率下降——因为内层 Suspense 需要等待外层 Suspense 的边界 resolution 后才能开始 stream。最佳实践：将数据获取尽量扁平化（1-2 层 Suspense 嵌套），利用 &lt;code&gt;use()&lt;&#x2F;code&gt;（React 19 的 Suspense-enabled hook）在 Server Component 中等待 Promise resolve。&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Payload Chunking 策略&lt;&#x2F;strong&gt;：RSC 的 streaming Payload 不是整页发送的，而是逐步发送每个已 resolved 的 Chunk。Chunk 大小影响 TTFB——如果第一个 Chunk 太大（包含太多 CSS&#x2F;JS 引用），TTFB 会变慢。Next.js 15 的 PPR 策略：第一个 Chunk 只发送 App Shell 的 HTML + 最优先的 CSS（critical CSS inline），动态部分的 Chunk 稍后发送。&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;CDN 与 Streaming 的冲突&lt;&#x2F;strong&gt;：Streaming 依赖 HTTP&#x2F;1.1 的 chunked transfer encoding 或 HTTP&#x2F;2 的 server push，但 CDN（Cloudflare、Akamai、CloudFront）默认会缓冲整个响应再转发——这会破坏 Streaming。解决方法：使用 CDN 的 streaming 模式（Cloudflare 的 &lt;code&gt;streaming&lt;&#x2F;code&gt; 响应，CloudFront 的 &lt;code&gt;response-headers-policy&lt;&#x2F;code&gt; 设置 &lt;code&gt;X-Accel-Buffering: no&lt;&#x2F;code&gt;）。&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;面试金句&lt;&#x2F;strong&gt;：&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;RSC Streaming 不是「把整页 SSRed 之后流式传输」——它是「先发送 App Shell，然后在 Suspense 边界解析时逐个发送 Chunk」。PPR 将这一模式推向极致——在构建时就决定哪些部分是静态的（直接预渲染到 HTML），哪些是动态的（请求时流式传输），从而实现了 &lt;100ms TTFB。&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;参考&lt;&#x2F;strong&gt;：&lt;a href&#x3D;&quot;https:&#x2F;&#x2F;www.sitepoint.com&#x2F;react-server-components-streaming-performance-2026&quot;&gt;RSC Streaming Performance Guide 2026&lt;&#x2F;a&gt; | &lt;a href&#x3D;&quot;https:&#x2F;&#x2F;nextjs.org&#x2F;docs&#x2F;app&#x2F;api-reference&#x2F;next-config-js&#x2F;partial-prerendering&quot;&gt;PPR in Next.js 15&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;hr&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本文将持续更新。本次更新：2026-06-16 — 新增 React 19.2 Activity 组件、RSC Streaming &lt;100ms TTFB 优化。&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 </span></a></li></ol></li></ol></div>
         </div>
@@ -1178,7 +1207,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1189,7 +1218,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">128</span>
+        <span class="site-state-item-count">131</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1252,7 +1281,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-15 10:09:32" itemprop="dateModified" datetime="2026-06-15T10:09:32+08:00">2026-06-15</time>
+      <time title="修改时间：2026-06-16 09:16:22" itemprop="dateModified" datetime="2026-06-16T09:16:22+08:00">2026-06-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -2560,8 +2589,37 @@
 </ul>
 <p><strong>参考来源</strong>：React 19 RSC 文档 (react.dev), Next.js 15 App Router 文档, PPR RFC (Vercel), Server Actions 安全指南 (Next.js 官方), RSC 测试策略 (Epic React by Kent C. Dodds)</p>
 <hr>
+<h3 id="Q73：React-19-2-组件——保留后台组件状态的革命性-API"><a href="#Q73：React-19-2-组件——保留后台组件状态的革命性-API" class="headerlink" title="Q73：React 19.2 &lt;Activity /&gt; 组件——保留后台组件状态的革命性 API"></a>Q73：React 19.2 <code>&lt;Activity /&gt;</code> 组件——保留后台组件状态的革命性 API</h3><p><strong>难度</strong>：⭐⭐⭐⭐（专家）<br><strong>问题</strong>：React 19.2 引入的 <code>&lt;Activity /&gt;</code> 组件解决了什么问题？与条件渲染有何不同？</p>
+<p><strong>标准答案</strong>：<br>React 19.2（2026 年 3 月）引入了 <code>&lt;Activity /&gt;</code> 组件——允许将渲染树标记为「非活动」（inactive），但<strong>不卸载</strong>其内容。传统条件渲染中，如果 <code>{show &amp;&amp; &lt;Component /&gt;}</code> 中的 <code>show</code> 变为 <code>false</code>，<code>&lt;Component /&gt;</code> 会被卸载，其内部状态（useState、useRef、useEffect）全部丢失。<code>&lt;Activity /&gt;</code> 提供中间状态：组件可见性由 <code>Activity</code> 控制，但组件树保持挂载，状态、ref、DOM 引用都保留。核心 API：<code>&lt;Activity mode=&quot;visible&quot; | &quot;hidden&quot; | &quot;inactive&quot;&gt;</code>——<code>visible</code> 正常渲染，<code>hidden</code> 隐藏但不卸载（类似 CSS <code>visibility: hidden</code>），<code>inactive</code> 完全非活跃（可能被 Suspense 暂停，但状态保留）。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>实现原理</strong>：<code>&lt;Activity /&gt;</code> 在 React Fiber 层面引入了新的 <code>Offscreen</code> 模式。Fiber 树在 <code>inactive</code> 模式下不会触发 <code>useEffect</code> cleanup，也不会调度提交阶段（Commit Phase）。DOM 节点会被移除（<code>display: none</code> 或从父容器分离），但 Fiber 引用保留。<code>inactive</code> 节点不会参与正常的渲染调度——在 Concurrent Mode 中，<code>Activity</code> 的子树的优先级被降为最低。</li>
+<li><strong>与 <code>KeepAlive</code> 的区别</strong>：Vue 的 <code>&lt;KeepAlive&gt;</code> 和 React 的 <code>&lt;Activity&gt;</code> 目标相似但实现不同。KeepAlive 缓存整个组件树的 VNode（包括 DOM），而 Activity 在 Fiber 层面控制渲染，状态保留但不缓存 DOM（inactive 移出 DOM 树）。Activity 的内存占用小（只保留 Fiber 引用和状态），KeepAlive 保留完整 DOM。</li>
+<li><strong>生产典型场景</strong>：Tab 切换（保留非活跃 Tab 的滚动位置和输入数据）、Modal 切换（隐藏一个 Modal 打开另一个，不丢失表单数据）、列表缓存（滚动到某一项时标记其他项为 inactive，保留它们的滚动监听和数据）。</li>
+</ul>
+<p><strong>生产踩坑</strong>：<br>某团队在 Dashboard 应用中使用了 <code>&lt;Activity mode=&quot;inactive&quot;&gt;</code> 来缓存状态（4 个 Tab 页面，每个页面包含复杂的表格和图表）。上线后观察到页面切换时偶尔出现「白屏」——切换到某个 Tab 时内容空白，持续 2-3 秒后恢复。排查发现：<code>&lt;Activity mode=&quot;inactive&quot;&gt;</code> 会将子树的调度优先级降到 <code>Idle</code>（最低优先级），当某个 Tab 中的组件包含 <code>useDeferredValue</code> 或 <code>startTransition</code> 时，这些极低优先级的任务被 React 的调度器无限推迟，导致内容渲染被完全阻塞。<strong>根因</strong>：<code>Activity</code> 的 <code>inactive</code> 模式将 Fiber 的 <code>lane</code>（优先级跑道）重置为 <code>Idle</code>，调度器在有空闲时才执行——但如果主线程一直被高优先级任务（如输入响应、动画帧）占用，Idle 任务永远不会被执行。<strong>修复</strong>：将有实时更新需求（如定时器、WebSocket 更新）的 Tab 改为 <code>mode=&quot;hidden&quot;</code>（CSS 隐藏但渲染循环正常运行），只有纯静态内容的 Tab 才用 <code>inactive</code>。教训：<strong><code>&lt;Activity mode=&quot;inactive&quot;&gt;</code> 会完全暂停子树的渲染调度——如果子树中有需要持续更新的内容（如倒计时、数据轮询），<code>inactive</code> 会使其永远停止更新。<code>mode=&quot;hidden&quot;</code> 保留了渲染循环但是视觉隐藏，更适合有实时更新的场景</strong>。</p>
+<p><strong>面试金句</strong>：</p>
 <blockquote>
-<p>本文将持续更新。本次更新：2026-06-15 — 新增 React 19 preload&#x2F;preinit API、RSC 与 Server Actions 2026 生产最佳实践(Work Hermes)。</p>
+<p><code>&lt;Activity /&gt;</code> 是 React 在「状态保留」方面的原生解决方案——它解决了组件卸载导致状态丢失这一 React 长期存在的痛点。但 <code>inactive</code> 模式的调度优先级归零（Idle），意味着有实时更新需求的组件不适合用 <code>inactive</code>，应该用 <code>hidden</code>。</p>
+</blockquote>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://react.dev/blog/2026/03/15/react-19-2">React 19.2 发布说明</a> | <a target="_blank" rel="noopener" href="https://github.com/reactjs/rfcs/pull/277"><Activity> RFC</a> | <a target="_blank" rel="noopener" href="https://www.reddit.com/r/react/comments/1oesxdq/react_192_what_actually_matters_my_3week/">React 19.2 实战测试</a></p>
+<hr>
+<h3 id="Q74：React-Server-Components-的-Streaming-性能优化——Sub-100ms-TTFB-的生产模式"><a href="#Q74：React-Server-Components-的-Streaming-性能优化——Sub-100ms-TTFB-的生产模式" class="headerlink" title="Q74：React Server Components 的 Streaming 性能优化——Sub-100ms TTFB 的生产模式"></a>Q74：React Server Components 的 Streaming 性能优化——Sub-100ms TTFB 的生产模式</h3><p><strong>难度</strong>：⭐⭐⭐⭐（专家）<br><strong>问题</strong>：React Server Components + Streaming 如何实现 &lt;100ms TTFB？有哪些性能瓶颈？</p>
+<p><strong>标准答案</strong>：<br>RSC + Streaming 的核心是<strong>渐进式 HTML 流</strong>——服务端将 RSC Payload 以 Chunk 形式发送到浏览器，浏览器在收到第一个 Chunk 后就立即开始渲染（Suspense 边界）。优化目标是使 First Chunk（包含 App Shell）在 100ms 内到达浏览器。关键优化手段：<strong>Partial Prerendering（PPR，Next.js 15+）</strong>——将页面的静态部分（导航栏、侧边栏）在构建时预渲染为静态 HTML，动态部分（数据、个性化内容）在请求时流式填充。PPR 将 TTFB 中静态部分的渲染时间（通常 50-100ms）全部消除。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>Nested Suspense Orchestration</strong>：Streaming 性能的关键是 Suspense 边界的设置。<code>&lt;Suspense fallback={&lt;Skeleton /&gt;}&gt;</code> 包裹每个数据获取点，但 Suspense 嵌套层级过深（3 层以上）会导致 streaming 效率下降——因为内层 Suspense 需要等待外层 Suspense 的边界 resolution 后才能开始 stream。最佳实践：将数据获取尽量扁平化（1-2 层 Suspense 嵌套），利用 <code>use()</code>（React 19 的 Suspense-enabled hook）在 Server Component 中等待 Promise resolve。</li>
+<li><strong>Payload Chunking 策略</strong>：RSC 的 streaming Payload 不是整页发送的，而是逐步发送每个已 resolved 的 Chunk。Chunk 大小影响 TTFB——如果第一个 Chunk 太大（包含太多 CSS&#x2F;JS 引用），TTFB 会变慢。Next.js 15 的 PPR 策略：第一个 Chunk 只发送 App Shell 的 HTML + 最优先的 CSS（critical CSS inline），动态部分的 Chunk 稍后发送。</li>
+<li><strong>CDN 与 Streaming 的冲突</strong>：Streaming 依赖 HTTP&#x2F;1.1 的 chunked transfer encoding 或 HTTP&#x2F;2 的 server push，但 CDN（Cloudflare、Akamai、CloudFront）默认会缓冲整个响应再转发——这会破坏 Streaming。解决方法：使用 CDN 的 streaming 模式（Cloudflare 的 <code>streaming</code> 响应，CloudFront 的 <code>response-headers-policy</code> 设置 <code>X-Accel-Buffering: no</code>）。</li>
+</ul>
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>RSC Streaming 不是「把整页 SSRed 之后流式传输」——它是「先发送 App Shell，然后在 Suspense 边界解析时逐个发送 Chunk」。PPR 将这一模式推向极致——在构建时就决定哪些部分是静态的（直接预渲染到 HTML），哪些是动态的（请求时流式传输），从而实现了 &lt;100ms TTFB。</p>
+</blockquote>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://www.sitepoint.com/react-server-components-streaming-performance-2026">RSC Streaming Performance Guide 2026</a> | <a target="_blank" rel="noopener" href="https://nextjs.org/docs/app/api-reference/next-config-js/partial-prerendering">PPR in Next.js 15</a></p>
+<hr>
+<blockquote>
+<p>本文将持续更新。本次更新：2026-06-16 — 新增 React 19.2 Activity 组件、RSC Streaming &lt;100ms TTFB 优化。</p>
 </blockquote>
 
     </div>
