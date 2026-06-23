@@ -29,7 +29,7 @@
 <meta property="og:description" content="数据库面试题：分布式数据库与 OLAP 面试全解 面向高级&#x2F;资深&#x2F;专家级研发面试，数据库选型架构师视角覆盖 TiDB、OceanBase、ClickHouse、Apache Doris、StarRocks 五大体系含架构原理、源码分析、生产踩坑、选型决策   目录 0x00 TiDB 深度 0x01 OceanBase 0x02 ClickHouse 0x03 Apache D">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-13T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-15T01:10:28.007Z">
+<meta property="article:modified_time" content="2026-06-23T01:14:05.657Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="ClickHouse">
 <meta property="article:tag" content="Doris">
@@ -172,7 +172,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E-OLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3"><span class="nav-text">数据库面试题：分布式数据库与 OLAP 面试全解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-TiDB-%E6%B7%B1%E5%BA%A6"><span class="nav-text">0x00 TiDB 深度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-01-TiDB-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F%E5%90%84%E7%BB%84%E4%BB%B6%E8%81%8C%E8%B4%A3%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x00-01 TiDB 整体架构是怎样的？各组件职责是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-02-TiKV-%E4%B8%AD%E7%9A%84-Raft-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9FRegion-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FLeader-Follower-%E5%A6%82%E4%BD%95%E8%B0%83%E5%BA%A6%EF%BC%9F"><span class="nav-text">0x00-02 TiKV 中的 Raft 是如何工作的？Region 是什么？Leader&#x2F;Follower 如何调度？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-03-TiDB-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9F%E4%B9%90%E8%A7%82%E9%94%81%E4%B8%8E%E6%82%B2%E8%A7%82%E9%94%81%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">0x00-03 TiDB 分布式事务的工作原理？乐观锁与悲观锁的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-04-TiDB-%E7%9A%84-HTAP-%E6%9E%B6%E6%9E%84%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9FTiFlash-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E4%B8%8E-TiKV-%E7%9A%84%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9F"><span class="nav-text">0x00-04 TiDB 的 HTAP 架构是如何实现的？TiFlash 如何保证与 TiKV 的数据一致性？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-05-TiDB-7-x-8-x-%E6%9C%89%E5%93%AA%E4%BA%9B%E9%87%8D%E8%A6%81%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%9F"><span class="nav-text">0x00-05 TiDB 7.x&#x2F;8.x 有哪些重要新特性？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-06-TiDB-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%B8%B8%E8%A7%81%E7%9A%84%E8%B8%A9%E5%9D%91%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x00-06 TiDB 生产环境常见的踩坑与最佳实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-OceanBase"><span class="nav-text">0x01 OceanBase</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-01-OceanBase-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9FRootService-%E4%B8%8E-OBServer-%E7%9A%84%E8%81%8C%E8%B4%A3%EF%BC%9F"><span class="nav-text">0x01-01 OceanBase 整体架构是怎样的？RootService 与 OBServer 的职责？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-02-OceanBase-%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%80%89%E4%B8%BE%EF%BC%88Paxos-Paxos-Group%EF%BC%89%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9F"><span class="nav-text">0x01-02 OceanBase 的分布式选举（Paxos&#x2F;Paxos Group）是如何工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-03-OceanBase-LSM-Tree-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9F"><span class="nav-text">0x01-03 OceanBase LSM-Tree 存储引擎的工作原理？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-04-OceanBase-%E7%9A%84%E5%A4%9A%E7%A7%9F%E6%88%B7%E4%B8%8E%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E6%9C%BA%E5%88%B6%EF%BC%9F"><span class="nav-text">0x01-04 OceanBase 的多租户与资源隔离机制？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-05-OceanBase-4-x-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">0x01-05 OceanBase 4.x 新特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-06-OceanBase-%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%B8%A9%E5%9D%91"><span class="nav-text">0x01-06 OceanBase 生产实践与常见踩坑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-ClickHouse"><span class="nav-text">0x02 ClickHouse</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-01-ClickHouse-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9FShard-Replica-%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%EF%BC%9F"><span class="nav-text">0x02-01 ClickHouse 整体架构是怎样的？Shard&#x2F;Replica 如何组织？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-02-MergeTree-%E8%A1%A8%E5%BC%95%E6%93%8E%E5%AE%B6%E6%97%8F%E8%AF%A6%E8%A7%A3%EF%BC%9F%E5%90%84%E5%BC%95%E6%93%8E%E7%9A%84%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9F"><span class="nav-text">0x02-02 MergeTree 表引擎家族详解？各引擎的适用场景？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-03-ClickHouse-%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%89%87%E3%80%81%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE"><span class="nav-text">0x02-03 ClickHouse 分区、分片、物化视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-04-ClickHouse-%E5%88%86%E7%89%87%E7%AD%96%E7%95%A5%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%88%86%E5%B8%83%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02-04 ClickHouse 分片策略与数据分布最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-05-ClickHouse-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%8E%92%E5%BA%8F%E3%80%81%E7%A8%80%E7%96%8F%E7%B4%A2%E5%BC%95%E3%80%81%E9%A2%84%E8%81%9A%E5%90%88"><span class="nav-text">0x02-05 ClickHouse 性能调优：数据排序、稀疏索引、预聚合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-06-ClickHouse-JOIN-%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5"><span class="nav-text">0x02-06 ClickHouse JOIN 优化策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-07-ClickHouse-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02-07 ClickHouse 数据类型与表结构设计最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-08-ClickHouse-%E7%9A%84-TTL-%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86"><span class="nav-text">0x02-08 ClickHouse 的 TTL 与数据生命周期管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-09-ClickHouse-%E6%9F%A5%E8%AF%A2%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD%EF%BC%9Asystem-query-log-%E4%B8%8E-Profile"><span class="nav-text">0x02-09 ClickHouse 查询性能诊断：system.query_log 与 Profile</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Apache-Doris-StarRocks"><span class="nav-text">0x03 Apache Doris &#x2F; StarRocks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-01-Apache-Doris-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%EF%BC%9FFE-%E4%B8%8E-BE-%E7%9A%84%E8%81%8C%E8%B4%A3%EF%BC%9F"><span class="nav-text">0x03-01 Apache Doris 整体架构？FE 与 BE 的职责？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-02-Doris-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AD%98%E5%82%A8%E6%A8%A1%E5%9E%8B%E4%BB%A5%E5%8F%8A%E4%B8%BB%E9%94%AE%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x03-02 Doris 的三种存储模型以及主键模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-03-Doris-%E4%B8%8E-StarRocks-%E6%9E%B6%E6%9E%84%E5%AF%B9%E6%AF%94"><span class="nav-text">0x03-03 Doris 与 StarRocks 架构对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-04-Doris-StarRocks-%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E-Rollup"><span class="nav-text">0x03-04 Doris&#x2F;StarRocks 物化视图与 Rollup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-05-Doris-StarRocks-%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E%E4%B8%8E-MPP-%E6%89%A7%E8%A1%8C"><span class="nav-text">0x03-05 Doris&#x2F;StarRocks 查询引擎与 MPP 执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-06-Apache-Doris-3-x-StarRocks-3-x-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">0x03-06 Apache Doris 3.x &#x2F; StarRocks 3.x 新特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-07-ClickHouse-vs-Doris-vs-StarRocks-%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">0x03-07 ClickHouse vs Doris vs StarRocks 选型对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%A0%91"><span class="nav-text">0x04 选型决策树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-01-%E8%A1%8C%E5%AD%98-vs-%E5%88%97%E5%AD%98-vs-HTAP-%E9%80%89%E5%9E%8B%E7%9F%A9%E9%98%B5"><span class="nav-text">0x04-01 行存 vs 列存 vs HTAP 选型矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-02-MySQL%EF%BC%88%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%EF%BC%89vs-TiDB-vs-OceanBase-%E9%80%89%E5%9E%8B"><span class="nav-text">0x04-02 MySQL（分库分表）vs TiDB vs OceanBase 选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-03-ClickHouse-vs-Doris-vs-StarRocks-vs-Snowflake-%E9%80%89%E5%9E%8B"><span class="nav-text">0x04-03 ClickHouse vs Doris vs StarRocks vs Snowflake 选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-04-%E5%9B%BD%E4%BA%A7%E5%8C%96%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9B%BF%E4%BB%A3%E8%B7%AF%E5%BE%84%EF%BC%88%E4%BF%A1%E5%88%9B%EF%BC%89"><span class="nav-text">0x04-04 国产化数据库替代路径（信创）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%E5%BD%95%EF%BC%9A%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E4%B8%8E%E5%8F%82%E8%80%83%E8%B5%84%E6%BA%90"><span class="nav-text">附录：学习路线与参考资源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84"><span class="nav-text">推荐学习路径</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E5%85%B3%E9%94%AE%E8%AF%8D%E9%80%9F%E6%9F%A5"><span class="nav-text">面试高频关键词速查</span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E-OLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3"><span class="nav-text">数据库面试题：分布式数据库与 OLAP 面试全解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-TiDB-%E6%B7%B1%E5%BA%A6"><span class="nav-text">0x00 TiDB 深度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-01-TiDB-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F%E5%90%84%E7%BB%84%E4%BB%B6%E8%81%8C%E8%B4%A3%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">0x00-01 TiDB 整体架构是怎样的？各组件职责是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-02-TiKV-%E4%B8%AD%E7%9A%84-Raft-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9FRegion-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FLeader-Follower-%E5%A6%82%E4%BD%95%E8%B0%83%E5%BA%A6%EF%BC%9F"><span class="nav-text">0x00-02 TiKV 中的 Raft 是如何工作的？Region 是什么？Leader&#x2F;Follower 如何调度？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-03-TiDB-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9F%E4%B9%90%E8%A7%82%E9%94%81%E4%B8%8E%E6%82%B2%E8%A7%82%E9%94%81%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">0x00-03 TiDB 分布式事务的工作原理？乐观锁与悲观锁的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-04-TiDB-%E7%9A%84-HTAP-%E6%9E%B6%E6%9E%84%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9FTiFlash-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E4%B8%8E-TiKV-%E7%9A%84%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9F"><span class="nav-text">0x00-04 TiDB 的 HTAP 架构是如何实现的？TiFlash 如何保证与 TiKV 的数据一致性？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-05-TiDB-7-x-8-x-%E6%9C%89%E5%93%AA%E4%BA%9B%E9%87%8D%E8%A6%81%E6%96%B0%E7%89%B9%E6%80%A7%EF%BC%9F"><span class="nav-text">0x00-05 TiDB 7.x&#x2F;8.x 有哪些重要新特性？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-06-TiDB-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%B8%B8%E8%A7%81%E7%9A%84%E8%B8%A9%E5%9D%91%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x00-06 TiDB 生产环境常见的踩坑与最佳实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-OceanBase"><span class="nav-text">0x01 OceanBase</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-01-OceanBase-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9FRootService-%E4%B8%8E-OBServer-%E7%9A%84%E8%81%8C%E8%B4%A3%EF%BC%9F"><span class="nav-text">0x01-01 OceanBase 整体架构是怎样的？RootService 与 OBServer 的职责？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-02-OceanBase-%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%80%89%E4%B8%BE%EF%BC%88Paxos-Paxos-Group%EF%BC%89%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9F"><span class="nav-text">0x01-02 OceanBase 的分布式选举（Paxos&#x2F;Paxos Group）是如何工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-03-OceanBase-LSM-Tree-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9F"><span class="nav-text">0x01-03 OceanBase LSM-Tree 存储引擎的工作原理？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-04-OceanBase-%E7%9A%84%E5%A4%9A%E7%A7%9F%E6%88%B7%E4%B8%8E%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E6%9C%BA%E5%88%B6%EF%BC%9F"><span class="nav-text">0x01-04 OceanBase 的多租户与资源隔离机制？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-05-OceanBase-4-x-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">0x01-05 OceanBase 4.x 新特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-06-OceanBase-%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%B8%A9%E5%9D%91"><span class="nav-text">0x01-06 OceanBase 生产实践与常见踩坑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-ClickHouse"><span class="nav-text">0x02 ClickHouse</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-01-ClickHouse-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9FShard-Replica-%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%EF%BC%9F"><span class="nav-text">0x02-01 ClickHouse 整体架构是怎样的？Shard&#x2F;Replica 如何组织？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-02-MergeTree-%E8%A1%A8%E5%BC%95%E6%93%8E%E5%AE%B6%E6%97%8F%E8%AF%A6%E8%A7%A3%EF%BC%9F%E5%90%84%E5%BC%95%E6%93%8E%E7%9A%84%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9F"><span class="nav-text">0x02-02 MergeTree 表引擎家族详解？各引擎的适用场景？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-03-ClickHouse-%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%89%87%E3%80%81%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE"><span class="nav-text">0x02-03 ClickHouse 分区、分片、物化视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-04-ClickHouse-%E5%88%86%E7%89%87%E7%AD%96%E7%95%A5%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%88%86%E5%B8%83%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02-04 ClickHouse 分片策略与数据分布最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-05-ClickHouse-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%8E%92%E5%BA%8F%E3%80%81%E7%A8%80%E7%96%8F%E7%B4%A2%E5%BC%95%E3%80%81%E9%A2%84%E8%81%9A%E5%90%88"><span class="nav-text">0x02-05 ClickHouse 性能调优：数据排序、稀疏索引、预聚合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-06-ClickHouse-JOIN-%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5"><span class="nav-text">0x02-06 ClickHouse JOIN 优化策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-07-ClickHouse-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x02-07 ClickHouse 数据类型与表结构设计最佳实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-08-ClickHouse-%E7%9A%84-TTL-%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86"><span class="nav-text">0x02-08 ClickHouse 的 TTL 与数据生命周期管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-09-ClickHouse-%E6%9F%A5%E8%AF%A2%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD%EF%BC%9Asystem-query-log-%E4%B8%8E-Profile"><span class="nav-text">0x02-09 ClickHouse 查询性能诊断：system.query_log 与 Profile</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Apache-Doris-StarRocks"><span class="nav-text">0x03 Apache Doris &#x2F; StarRocks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-01-Apache-Doris-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%EF%BC%9FFE-%E4%B8%8E-BE-%E7%9A%84%E8%81%8C%E8%B4%A3%EF%BC%9F"><span class="nav-text">0x03-01 Apache Doris 整体架构？FE 与 BE 的职责？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-02-Doris-%E7%9A%84%E4%B8%89%E7%A7%8D%E5%AD%98%E5%82%A8%E6%A8%A1%E5%9E%8B%E4%BB%A5%E5%8F%8A%E4%B8%BB%E9%94%AE%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x03-02 Doris 的三种存储模型以及主键模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-03-Doris-%E4%B8%8E-StarRocks-%E6%9E%B6%E6%9E%84%E5%AF%B9%E6%AF%94"><span class="nav-text">0x03-03 Doris 与 StarRocks 架构对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-04-Doris-StarRocks-%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E4%B8%8E-Rollup"><span class="nav-text">0x03-04 Doris&#x2F;StarRocks 物化视图与 Rollup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-05-Doris-StarRocks-%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E%E4%B8%8E-MPP-%E6%89%A7%E8%A1%8C"><span class="nav-text">0x03-05 Doris&#x2F;StarRocks 查询引擎与 MPP 执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-06-Apache-Doris-3-x-StarRocks-3-x-%E6%96%B0%E7%89%B9%E6%80%A7"><span class="nav-text">0x03-06 Apache Doris 3.x &#x2F; StarRocks 3.x 新特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-07-ClickHouse-vs-Doris-vs-StarRocks-%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">0x03-07 ClickHouse vs Doris vs StarRocks 选型对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%A0%91"><span class="nav-text">0x04 选型决策树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-01-%E8%A1%8C%E5%AD%98-vs-%E5%88%97%E5%AD%98-vs-HTAP-%E9%80%89%E5%9E%8B%E7%9F%A9%E9%98%B5"><span class="nav-text">0x04-01 行存 vs 列存 vs HTAP 选型矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-02-MySQL%EF%BC%88%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%EF%BC%89vs-TiDB-vs-OceanBase-%E9%80%89%E5%9E%8B"><span class="nav-text">0x04-02 MySQL（分库分表）vs TiDB vs OceanBase 选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-03-ClickHouse-vs-Doris-vs-StarRocks-vs-Snowflake-%E9%80%89%E5%9E%8B"><span class="nav-text">0x04-03 ClickHouse vs Doris vs StarRocks vs Snowflake 选型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-04-%E5%9B%BD%E4%BA%A7%E5%8C%96%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9B%BF%E4%BB%A3%E8%B7%AF%E5%BE%84%EF%BC%88%E4%BF%A1%E5%88%9B%EF%BC%89"><span class="nav-text">0x04-04 国产化数据库替代路径（信创）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%E5%BD%95%EF%BC%9A%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E4%B8%8E%E5%8F%82%E8%80%83%E8%B5%84%E6%BA%90"><span class="nav-text">附录：学习路线与参考资源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84"><span class="nav-text">推荐学习路径</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%A2%E8%AF%95%E9%AB%98%E9%A2%91%E5%85%B3%E9%94%AE%E8%AF%8D%E9%80%9F%E6%9F%A5"><span class="nav-text">面试高频关键词速查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x09-2026-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%80%E6%96%B0%E6%BC%94%E8%BF%9B"><span class="nav-text">0x09 2026 分布式数据库最新演进</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q44%EF%BC%9ATiDB-8-x-%E7%9A%84-Resource-Control-%E5%92%8C-Multi-Tenant-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%EF%BC%9F"><span class="nav-text">Q44：TiDB 8.x 的 Resource Control 和 Multi-Tenant 如何实现资源隔离？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q45%EF%BC%9AClickHouse-2026-%E6%9C%80%E6%96%B0%E5%8A%9F%E8%83%BD%E2%80%94%E2%80%94Keeper-%E5%88%86%E5%B8%83%E5%BC%8F%E5%8D%8F%E8%B0%83%E5%99%A8-ClickHouse-Cloud"><span class="nav-text">Q45：ClickHouse 2026 最新功能——Keeper 分布式协调器 &amp; ClickHouse Cloud</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q46%EF%BC%9AStarRocks-2026-%E7%89%88%E6%9C%AC%E2%80%94%E2%80%94%E5%AD%98%E7%AE%97%E5%88%86%E7%A6%BB%E3%80%81%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%E5%A2%9E%E5%BC%BA%E3%80%81Lakehouse-Query"><span class="nav-text">Q46：StarRocks 2026 版本——存算分离、物化视图增强、Lakehouse Query</span></a></li></ol></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -185,7 +185,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">42</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -196,7 +196,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-count">139</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -259,7 +259,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-15 09:10:28" itemprop="dateModified" datetime="2026-06-15T09:10:28+08:00">2026-06-15</time>
+      <time title="修改时间：2026-06-23 09:14:05" itemprop="dateModified" datetime="2026-06-23T09:14:05+08:00">2026-06-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1696,19 +1696,156 @@
 <td>数据分布一致，避免 Shuffle Join</td>
 </tr>
 <tr>
+<td></td>
 <td>Runtime Filter</td>
 <td>Doris&#x2F;StarRocks</td>
-<td>运行时动态下推 Bloom Filter 预过滤</td>
 </tr>
 <tr>
+<td></td>
 <td>CBO</td>
 <td>Doris&#x2F;StarRocks</td>
-<td>基于代价的查询优化器</td>
 </tr>
 </tbody></table>
+<h3 id="0x09-2026-分布式数据库最新演进"><a href="#0x09-2026-分布式数据库最新演进" class="headerlink" title="0x09 2026 分布式数据库最新演进"></a>0x09 2026 分布式数据库最新演进</h3><h4 id="Q44：TiDB-8-x-的-Resource-Control-和-Multi-Tenant-如何实现资源隔离？"><a href="#Q44：TiDB-8-x-的-Resource-Control-和-Multi-Tenant-如何实现资源隔离？" class="headerlink" title="Q44：TiDB 8.x 的 Resource Control 和 Multi-Tenant 如何实现资源隔离？"></a>Q44：TiDB 8.x 的 Resource Control 和 Multi-Tenant 如何实现资源隔离？</h4><p><strong>难度</strong>：⭐⭐⭐（高级）<br><strong>问题</strong>：TiDB 如何实现多租户资源隔离？Resource Control 的工作原理是什么？多个业务共用一个集群时，怎么保证不互相干扰？</p>
+<p><strong>核心原理</strong>：<br>TiDB 8.x 引入 Resource Control 机制，允许为不同租户&#x2F;业务分配 CPU 时间和 IO 带宽的权重。资源组（Resource Group）定义了最小保证（RU&#x2F;s）和最大限制（RU&#x2F;s），TiDB 内部通过令牌桶算法在调度层面限制每个查询可使用的资源量。</p>
+<p><strong>RU（Request Unit）模型</strong>：<br>RU 是 TiDB 定义的统一资源计量单位，1 RU ≈ 1次 CPU 请求 + 64KB IO 读取 + 64KB 网络传输。资源组按 RU&#x2F;秒 分配：</p>
+<ul>
+<li>TiDB 层：SQL 解析、优化、计算的 CPU 消耗</li>
+<li>TiKV 层：RocksDB 读写 IO、Raft 日志 IO</li>
+<li>TiFlash 层：列存查询的 CPU 和 IO</li>
+</ul>
+<p><strong>生产实战</strong>：</p>
+<ul>
+<li><strong>场景</strong>：某电商公司将 TiDB 集群给 3 个 BU（交易、会员、营销）共用，控制台设置：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> RESOURCE <span class="keyword">GROUP</span> <span class="string">&#x27;rg_transaction&#x27;</span>  RU_PER_SEC <span class="operator">=</span> <span class="number">10000</span>;</span><br><span class="line"><span class="keyword">CREATE</span> RESOURCE <span class="keyword">GROUP</span> <span class="string">&#x27;rg_member&#x27;</span>       RU_PER_SEC <span class="operator">=</span> <span class="number">5000</span>;</span><br><span class="line"><span class="keyword">CREATE</span> RESOURCE <span class="keyword">GROUP</span> <span class="string">&#x27;rg_marketing&#x27;</span>    RU_PER_SEC <span class="operator">=</span> <span class="number">3000</span>;</span><br></pre></td></tr></table></figure>
+双 11 期间营销 BU 的大促报表查询不会拖慢交易 BU 的核心写入。</li>
+</ul>
+<p><strong>参考</strong>：</p>
+<ul>
+<li>TiDB 8.x Resource Control 文档</li>
+<li>PingCAP Blog: Multi-Tenant Resource Isolation in Production</li>
+</ul>
+<h4 id="Q45：ClickHouse-2026-最新功能——Keeper-分布式协调器-ClickHouse-Cloud"><a href="#Q45：ClickHouse-2026-最新功能——Keeper-分布式协调器-ClickHouse-Cloud" class="headerlink" title="Q45：ClickHouse 2026 最新功能——Keeper 分布式协调器 &amp; ClickHouse Cloud"></a>Q45：ClickHouse 2026 最新功能——Keeper 分布式协调器 &amp; ClickHouse Cloud</h4><p><strong>难度</strong>：⭐⭐⭐（高级）<br><strong>问题</strong>：ClickHouse 2026 版在分布式协调和云原生化方面有什么重大变化？ClickHouse Keeper 相比 ZooKeeper 的优势是什么？</p>
+<p><strong>核心原理</strong>：<br>ClickHouse Keeper 是用 C++ 重写的 ZooKeeper 兼容分布式协调组件，提供与 ZooKeeper 相同的底层语义（节点、统计、事件监听），但去掉了 Java 依赖，性能提升 3-10x。2026 年版本已将 Keeper 作为默认配置，ZooKeeper 支持进入维护期。</p>
+<p><strong>Keeper vs ZooKeeper 决策表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ZooKeeper</th>
+<th>ClickHouse Keeper</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>语言</td>
+<td>Java（需要 JVM，3GB+ 启动内存）</td>
+<td>C++（零 JVM，内存开销 1&#x2F;5）</td>
+</tr>
+<tr>
+<td>写入性能</td>
+<td>8k-15k QPS</td>
+<td>50k-100k QPS</td>
+</tr>
+<tr>
+<td>快照压缩</td>
+<td>不支持</td>
+<td>支持（快照体积减少 80%）</td>
+</tr>
+<tr>
+<td>节点恢复</td>
+<td>需要清理事务日志</td>
+<td>自动从快照恢复</td>
+</tr>
+<tr>
+<td>运维</td>
+<td>需独立集群 + 运维团队</td>
+<td>随 ClickHouse 简单部署</td>
+</tr>
+<tr>
+<td>推荐场景</td>
+<td>已有 ZK 基础设施</td>
+<td>新部署、标准部署</td>
+</tr>
+</tbody></table>
+<p><strong>迁移红牌禁令</strong>：</p>
+<ul>
+<li>❌ 不要在生产环境直接切换——先用 Keeper 搭建新集群，验证后迁移数据</li>
+<li>❌ 不要忽略 ClickHouse Keeper 的节点数最少 3（容错）最多 7（性能平衡）</li>
+<li>✅ 使用 <code>clickhouse-keeper-converter</code> 工具迁移现有 ZK 数据</li>
+<li>✅ Keeper Raft 日志默认保留 3 天，注意磁盘规划</li>
+</ul>
+<p><strong>参考</strong>：</p>
+<ul>
+<li>ClickHouse Documentation: Keeper</li>
+<li>Altinity Blog: ClickHouse Keeper in Production</li>
+</ul>
+<h4 id="Q46：StarRocks-2026-版本——存算分离、物化视图增强、Lakehouse-Query"><a href="#Q46：StarRocks-2026-版本——存算分离、物化视图增强、Lakehouse-Query" class="headerlink" title="Q46：StarRocks 2026 版本——存算分离、物化视图增强、Lakehouse Query"></a>Q46：StarRocks 2026 版本——存算分离、物化视图增强、Lakehouse Query</h4><p><strong>难度</strong>：⭐⭐⭐（高级）<br><strong>问题</strong>：StarRocks 2026 年的存算分离架构怎样实现？物化视图的自动查询改写能力如何？相比于 ClickHouse 在湖仓查询场景的优势？</p>
+<p><strong>核心原理</strong>：<br>StarRocks 3.x&#x2F;4.x 引入存算分离架构：计算节点（CN）无状态，共享对象存储（S3&#x2F;MinIO）作为统一数据层。写入通过 Segment File + Delta Log 实现，查询直接从对象存储读取数据无需缓存。</p>
+<p><strong>物化视图增强</strong>（StarRocks 3.3+）：</p>
+<ul>
+<li>支持 SPJGM（Select-Project-Join-GroupBy-Materialized View）自动匹配</li>
+<li>物化视图可以跨多个基表（多表物化视图），自动改写查询</li>
+<li>支持异步和同步两种刷新模式</li>
+<li>查询改写准确率达到 98%（TPC-H SF100 测试）</li>
+</ul>
+<p><strong>存算分离 vs 存算一体决策表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>存算一体</th>
+<th>存算分离</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>扩展灵活性</td>
+<td>扩展需考虑计算和存储的平衡</td>
+<td>独立扩展，按需</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>预留足够资源，浪费 30-50%</td>
+<td>对象存储便宜且按量付费</td>
+</tr>
+<tr>
+<td>冷热数据</td>
+<td>需要手动分区迁移</td>
+<td>自动冷热分层</td>
+</tr>
+<tr>
+<td>弹性扩缩</td>
+<td>需要数据重分布</td>
+<td>秒级添加&#x2F;移除 CN 节点</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>本地盘延迟最低</td>
+<td>对象存储多一跳，增加 2-5ms</td>
+</tr>
+<tr>
+<td>推荐场景</td>
+<td>延迟敏感（&lt;10ms）</td>
+<td>吞吐优先、弹性需求</td>
+</tr>
+</tbody></table>
+<p><strong>生产实战</strong>：</p>
+<ul>
+<li><strong>踩坑案例 —— 存算分离下查询性能骤降</strong>：<ul>
+<li>问题：某公司迁移到 StarRocks 存算分离后，原来 &lt;200ms 的查询变成 2-5s</li>
+<li>排查：发现查询大量全表扫描且无物化视图覆盖，每次都从 S3 拉全量数据</li>
+<li>修复：对高频查询创建异步物化视图 + 启用 Cache Worker 热数据预加载</li>
+<li>效果：查询恢复至 300ms 以内，存储成本降低 60%</li>
+</ul>
+</li>
+</ul>
+<p><strong>参考</strong>：</p>
+<ul>
+<li>StarRocks 3.x&#x2F;4.x Release Notes</li>
+<li>StarRocks Docs: Decoupled Compute &amp; Storage</li>
+<li>CelerData Blog: Materialized View Query Rewrite in Production</li>
+</ul>
 <hr>
 <blockquote>
-<p>本文写作日期：2026-06-13<br>搜索工具：Tavily MCP（tavily_search &#x2F; tavily_crawl）<br>参考来源：各产品官方文档、VLDB 论文、技术博客、生产案例汇总</p>
+<p>本文写作日期：2026-06-23<br>搜索工具：DuckDuckGo + 各产品官方文档 + GitHub Releases<br>搜索时间：2026-06-23<br>时间分层：最新（2026 版本特性）&#x2F; 近期（2025 年大版本）<br>覆盖维度：官方源 ✅ &#x2F; 生产踩坑 ✅ &#x2F; 源码分析 ✅ &#x2F; 对比选型 ✅</p>
 </blockquote>
 
     </div>

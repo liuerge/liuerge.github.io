@@ -29,7 +29,7 @@
 <meta property="og:description" content="本文覆盖操作系统与 Linux 核心面试知识点：进程线程模型、内存管理、IO 模型、生产环境排障、容器底层原理。面向高级研发面试，每道题附带深入思考与生产踩坑视角。   目录 0x00 进程与线程 0x01 内存管理 0x02 IO 模型 0x03 Linux 生产排障 0x04 容器与 Linux 底层   0x00 进程与线程0. 进程有哪几种状态？Linux 内核中如何表示？标准答案：三态">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-11T10:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-15T02:12:25.101Z">
+<meta property="article:modified_time" content="2026-06-23T01:25:14.738Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="容器">
@@ -167,7 +167,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-text">0x00 进程与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-%E8%BF%9B%E7%A8%8B%E6%9C%89%E5%93%AA%E5%87%A0%E7%A7%8D%E7%8A%B6%E6%80%81%EF%BC%9FLinux-%E5%86%85%E6%A0%B8%E4%B8%AD%E5%A6%82%E4%BD%95%E8%A1%A8%E7%A4%BA%EF%BC%9F"><span class="nav-text">0. 进程有哪几种状态？Linux 内核中如何表示？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2-Context-Switch-%E7%9A%84%E5%BC%80%E9%94%80%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">1. 上下文切换(Context Switch)的开销到底有多大？如何优化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Linux-%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%EF%BC%88NPTL%EF%BC%89%E8%AF%A6%E8%A7%A3-%E2%80%94%E2%80%94-%E7%94%A8%E6%88%B7%E7%BA%A7-vs-%E5%86%85%E6%A0%B8%E7%BA%A7%E5%AE%9E%E7%8E%B0"><span class="nav-text">2. Linux 线程模型（NPTL）详解 —— 用户级 vs 内核级实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8D%8F%E7%A8%8B%E6%AF%94%E7%BA%BF%E7%A8%8B%E5%A5%BD%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9Fgoroutine-%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B-%E7%BA%A4%E7%A8%8B%E7%9A%84%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="nav-text">3. 协程比线程好在哪里？goroutine &#x2F; 虚拟线程 &#x2F; 纤程的底层原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%AD%BB%E9%94%81%E7%9A%84%E5%9B%9B%E4%B8%AA%E5%BF%85%E8%A6%81%E6%9D%A1%E4%BB%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E5%92%8C%E9%A2%84%E9%98%B2%EF%BC%9F"><span class="nav-text">4. 死锁的四个必要条件是什么？如何检测和预防？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x01 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81%E5%88%86%E9%A1%B5%E4%B8%8E%E5%88%86%E6%AE%B5%E2%80%94%E2%80%94%E7%8E%B0%E4%BB%A3-OS-%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E5%86%85%E5%AD%98%EF%BC%9F"><span class="nav-text">5. 虚拟内存、分页与分段——现代 OS 如何管理内存？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9FLRU-%E5%9C%A8%E7%94%9F%E4%BA%A7%E4%B8%AD%E7%9A%84%E7%BC%BA%E9%99%B7%E5%92%8C%E6%94%B9%E8%BF%9B"><span class="nav-text">6. 页面置换算法有哪些？LRU 在生产中的缺陷和改进</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-OOM-Killer-%E6%98%AF%E6%80%8E%E4%B9%88%E9%80%89%E6%8B%A9%E6%9D%80%E6%AD%BB%E5%93%AA%E4%B8%AA%E8%BF%9B%E7%A8%8B%E7%9A%84%EF%BC%9F%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E8%A2%AB%E8%AF%AF%E6%9D%80%EF%BC%9F"><span class="nav-text">7. OOM Killer 是怎么选择杀死哪个进程的？如何避免被误杀？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-mmap-%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3%E2%80%94%E2%80%94%E9%9B%B6%E6%8B%B7%E8%B4%9D%E5%92%8C%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%E7%9A%84%E5%9F%BA%E7%9F%B3"><span class="nav-text">8. mmap 原理详解——零拷贝和共享内存的基石</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-IO-%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x02 IO 模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-BIO-NIO-AIO-IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E2%80%94%E2%80%94%E4%BA%94%E7%A7%8D-IO-%E6%A8%A1%E5%9E%8B%E8%AF%A6%E8%A7%A3"><span class="nav-text">9. BIO&#x2F;NIO&#x2F;AIO&#x2F;IO 多路复用——五种 IO 模型详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-epoll-poll-select-%E5%AF%B9%E6%AF%94%E2%80%94%E2%80%94%E7%99%BE%E4%B8%87%E5%B9%B6%E5%8F%91%E8%83%8C%E5%90%8E%E7%9A%84%E5%8A%9F%E8%87%A3"><span class="nav-text">10. epoll&#x2F;poll&#x2F;select 对比——百万并发背后的功臣</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%EF%BC%88Zero-Copy%EF%BC%89%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94Kafka-%E6%AF%8F%E7%A7%92%E5%86%99%E7%99%BE%E4%B8%87%E6%9D%A1%E6%B6%88%E6%81%AF%E7%9A%84%E7%A7%98%E5%AF%86"><span class="nav-text">11. 零拷贝（Zero-Copy）技术原理——Kafka 每秒写百万条消息的秘密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8-Reactor-Proactor-%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E9%AB%98%E6%80%A7%E8%83%BD%E7%BD%91%E7%BB%9C%E6%A1%86%E6%9E%B6%E7%9A%84%E6%A0%B8%E5%BF%83"><span class="nav-text">12. IO 多路复用 + Reactor&#x2F;Proactor 模式——高性能网络框架的核心</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Linux-%E7%94%9F%E4%BA%A7%E6%8E%92%E9%9A%9C"><span class="nav-text">0x03 Linux 生产排障</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-CPU-%E7%88%86%E6%BB%A1%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94%E4%BB%8E-top-%E5%88%B0-perf-%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%8C%87%E5%8D%97"><span class="nav-text">13. CPU 爆满如何排查——从 top 到 perf 的全链路指南</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94valgrind%E3%80%81pmap%E3%80%81asan-%E5%AE%9E%E6%88%98"><span class="nav-text">14. 内存泄漏排查——valgrind、pmap、asan 实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-IO-%E9%AB%98%EF%BC%88iowait%EF%BC%89%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94iostat-iotop-%E5%AE%9E%E6%88%98"><span class="nav-text">15. IO 高（iowait）排查——iostat&#x2F;iotop 实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-%E7%BD%91%E7%BB%9C%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94tcpdump-ss-%E5%AE%9E%E6%88%98"><span class="nav-text">16. 网络排查——tcpdump + ss 实战</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%AE%B9%E5%99%A8%E4%B8%8E-Linux-%E5%BA%95%E5%B1%82"><span class="nav-text">0x04 容器与 Linux 底层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Cgroup%EF%BC%88Control-Group%EF%BC%89%E8%AF%A6%E8%A7%A3%E2%80%94%E2%80%94%E5%AE%B9%E5%99%A8%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E7%9A%84%E5%9F%BA%E7%9F%B3"><span class="nav-text">17. Cgroup（Control Group）详解——容器资源隔离的基石</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-Linux-Namespace%E2%80%94%E2%80%94%E5%AE%B9%E5%99%A8%E3%80%8C%E7%8B%AC%E7%AB%8B%E6%B2%99%E7%AE%B1%E3%80%8D%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-text">18. Linux Namespace——容器「独立沙箱」的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Docker-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%85%A8%E6%99%AF%E2%80%94%E2%80%94%E4%BB%8E%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E5%88%B0%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="nav-text">19. Docker 底层原理全景——从容器创建到网络通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-cgroup-v1-vs-v2-%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%88%98%E2%80%94%E2%80%94%E4%BD%A0%E5%BA%94%E8%AF%A5%E6%B3%A8%E6%84%8F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">20. cgroup v1 vs v2 迁移实战——你应该注意什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-%E5%AE%B9%E5%99%A8-CPU-%E9%99%90%E5%88%B6%E7%9A%84%E7%9C%9F%E7%9B%B8%E2%80%94%E2%80%94CFS-%E9%85%8D%E9%A2%9D-vs-%E6%A0%B8%E5%BF%83%E7%BB%91%E5%AE%9A"><span class="nav-text">21. 容器 CPU 限制的真相——CFS 配额 vs 核心绑定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#23-EEVDF-%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%9A%E5%8F%96%E4%BB%A3-CFS-%E7%9A%84-Linux-%E6%96%B0%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="nav-text">23. EEVDF 调度器：取代 CFS 的 Linux 新调度算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#24-io-uring-%E7%94%9F%E4%BA%A7%E7%BA%A7%E5%BA%94%E7%94%A8%E4%B8%8E%E9%99%B7%E9%98%B1%EF%BC%9A%E5%86%85%E6%A0%B8%E7%BB%95%E8%BF%87%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD-IO-%E6%A8%A1%E5%BC%8F"><span class="nav-text">24. io_uring 生产级应用与陷阱：内核绕过的高性能 IO 模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#25-eBPF-%E5%9C%A8%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E4%B8%AD%E7%9A%84%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95%EF%BC%9ABCC-vs-bpftrace-vs-%E5%86%85%E6%A0%B8%E5%9F%8B%E7%82%B9%E9%87%87%E9%9B%86"><span class="nav-text">25. eBPF 在性能分析中的高级用法：BCC vs bpftrace vs 内核埋点采集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#39-Linux-6-x-%E5%86%85%E6%A0%B8%E7%9A%84-io-uring-%E5%A2%9E%E5%BC%BA%E4%B8%8E%E5%BC%82%E6%AD%A5-I-O-%E7%9A%84%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5"><span class="nav-text">39. Linux 6.x 内核的 io_uring 增强与异步 I&#x2F;O 的生产实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#40-Linux-cgroup-v2-%E5%9C%A8%E7%94%9F%E4%BA%A7%E4%B8%AD%E7%9A%84%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E4%B8%8E%E6%B7%B7%E9%83%A8%E8%B0%83%E5%BA%A6%E5%AE%9E%E8%B7%B5"><span class="nav-text">40. Linux cgroup v2 在生产中的资源隔离与混部调度实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#41-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%B7%B1%E5%BA%A6%EF%BC%9A%E9%80%8F%E6%98%8E%E5%A4%A7%E9%A1%B5%EF%BC%88THP%EF%BC%89%E7%9A%84%E5%88%A9%E5%BC%8A%E4%B8%8E%E7%94%9F%E4%BA%A7%E8%B0%83%E4%BC%98"><span class="nav-text">41. Linux 内存管理深度：透明大页（THP）的利弊与生产调优</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-text">0x00 进程与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-%E8%BF%9B%E7%A8%8B%E6%9C%89%E5%93%AA%E5%87%A0%E7%A7%8D%E7%8A%B6%E6%80%81%EF%BC%9FLinux-%E5%86%85%E6%A0%B8%E4%B8%AD%E5%A6%82%E4%BD%95%E8%A1%A8%E7%A4%BA%EF%BC%9F"><span class="nav-text">0. 进程有哪几种状态？Linux 内核中如何表示？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2-Context-Switch-%E7%9A%84%E5%BC%80%E9%94%80%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">1. 上下文切换(Context Switch)的开销到底有多大？如何优化？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Linux-%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%EF%BC%88NPTL%EF%BC%89%E8%AF%A6%E8%A7%A3-%E2%80%94%E2%80%94-%E7%94%A8%E6%88%B7%E7%BA%A7-vs-%E5%86%85%E6%A0%B8%E7%BA%A7%E5%AE%9E%E7%8E%B0"><span class="nav-text">2. Linux 线程模型（NPTL）详解 —— 用户级 vs 内核级实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8D%8F%E7%A8%8B%E6%AF%94%E7%BA%BF%E7%A8%8B%E5%A5%BD%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9Fgoroutine-%E8%99%9A%E6%8B%9F%E7%BA%BF%E7%A8%8B-%E7%BA%A4%E7%A8%8B%E7%9A%84%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="nav-text">3. 协程比线程好在哪里？goroutine &#x2F; 虚拟线程 &#x2F; 纤程的底层原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%AD%BB%E9%94%81%E7%9A%84%E5%9B%9B%E4%B8%AA%E5%BF%85%E8%A6%81%E6%9D%A1%E4%BB%B6%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E5%92%8C%E9%A2%84%E9%98%B2%EF%BC%9F"><span class="nav-text">4. 死锁的四个必要条件是什么？如何检测和预防？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-text">0x01 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E3%80%81%E5%88%86%E9%A1%B5%E4%B8%8E%E5%88%86%E6%AE%B5%E2%80%94%E2%80%94%E7%8E%B0%E4%BB%A3-OS-%E5%A6%82%E4%BD%95%E7%AE%A1%E7%90%86%E5%86%85%E5%AD%98%EF%BC%9F"><span class="nav-text">5. 虚拟内存、分页与分段——现代 OS 如何管理内存？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9FLRU-%E5%9C%A8%E7%94%9F%E4%BA%A7%E4%B8%AD%E7%9A%84%E7%BC%BA%E9%99%B7%E5%92%8C%E6%94%B9%E8%BF%9B"><span class="nav-text">6. 页面置换算法有哪些？LRU 在生产中的缺陷和改进</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-OOM-Killer-%E6%98%AF%E6%80%8E%E4%B9%88%E9%80%89%E6%8B%A9%E6%9D%80%E6%AD%BB%E5%93%AA%E4%B8%AA%E8%BF%9B%E7%A8%8B%E7%9A%84%EF%BC%9F%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E8%A2%AB%E8%AF%AF%E6%9D%80%EF%BC%9F"><span class="nav-text">7. OOM Killer 是怎么选择杀死哪个进程的？如何避免被误杀？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-mmap-%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3%E2%80%94%E2%80%94%E9%9B%B6%E6%8B%B7%E8%B4%9D%E5%92%8C%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%E7%9A%84%E5%9F%BA%E7%9F%B3"><span class="nav-text">8. mmap 原理详解——零拷贝和共享内存的基石</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-IO-%E6%A8%A1%E5%9E%8B"><span class="nav-text">0x02 IO 模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-BIO-NIO-AIO-IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E2%80%94%E2%80%94%E4%BA%94%E7%A7%8D-IO-%E6%A8%A1%E5%9E%8B%E8%AF%A6%E8%A7%A3"><span class="nav-text">9. BIO&#x2F;NIO&#x2F;AIO&#x2F;IO 多路复用——五种 IO 模型详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-epoll-poll-select-%E5%AF%B9%E6%AF%94%E2%80%94%E2%80%94%E7%99%BE%E4%B8%87%E5%B9%B6%E5%8F%91%E8%83%8C%E5%90%8E%E7%9A%84%E5%8A%9F%E8%87%A3"><span class="nav-text">10. epoll&#x2F;poll&#x2F;select 对比——百万并发背后的功臣</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%EF%BC%88Zero-Copy%EF%BC%89%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94Kafka-%E6%AF%8F%E7%A7%92%E5%86%99%E7%99%BE%E4%B8%87%E6%9D%A1%E6%B6%88%E6%81%AF%E7%9A%84%E7%A7%98%E5%AF%86"><span class="nav-text">11. 零拷贝（Zero-Copy）技术原理——Kafka 每秒写百万条消息的秘密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-IO-%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8-Reactor-Proactor-%E6%A8%A1%E5%BC%8F%E2%80%94%E2%80%94%E9%AB%98%E6%80%A7%E8%83%BD%E7%BD%91%E7%BB%9C%E6%A1%86%E6%9E%B6%E7%9A%84%E6%A0%B8%E5%BF%83"><span class="nav-text">12. IO 多路复用 + Reactor&#x2F;Proactor 模式——高性能网络框架的核心</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-Linux-%E7%94%9F%E4%BA%A7%E6%8E%92%E9%9A%9C"><span class="nav-text">0x03 Linux 生产排障</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-CPU-%E7%88%86%E6%BB%A1%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94%E4%BB%8E-top-%E5%88%B0-perf-%E7%9A%84%E5%85%A8%E9%93%BE%E8%B7%AF%E6%8C%87%E5%8D%97"><span class="nav-text">13. CPU 爆满如何排查——从 top 到 perf 的全链路指南</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94valgrind%E3%80%81pmap%E3%80%81asan-%E5%AE%9E%E6%88%98"><span class="nav-text">14. 内存泄漏排查——valgrind、pmap、asan 实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-IO-%E9%AB%98%EF%BC%88iowait%EF%BC%89%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94iostat-iotop-%E5%AE%9E%E6%88%98"><span class="nav-text">15. IO 高（iowait）排查——iostat&#x2F;iotop 实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-%E7%BD%91%E7%BB%9C%E6%8E%92%E6%9F%A5%E2%80%94%E2%80%94tcpdump-ss-%E5%AE%9E%E6%88%98"><span class="nav-text">16. 网络排查——tcpdump + ss 实战</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E5%AE%B9%E5%99%A8%E4%B8%8E-Linux-%E5%BA%95%E5%B1%82"><span class="nav-text">0x04 容器与 Linux 底层</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Cgroup%EF%BC%88Control-Group%EF%BC%89%E8%AF%A6%E8%A7%A3%E2%80%94%E2%80%94%E5%AE%B9%E5%99%A8%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E7%9A%84%E5%9F%BA%E7%9F%B3"><span class="nav-text">17. Cgroup（Control Group）详解——容器资源隔离的基石</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-Linux-Namespace%E2%80%94%E2%80%94%E5%AE%B9%E5%99%A8%E3%80%8C%E7%8B%AC%E7%AB%8B%E6%B2%99%E7%AE%B1%E3%80%8D%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-text">18. Linux Namespace——容器「独立沙箱」的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Docker-%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E5%85%A8%E6%99%AF%E2%80%94%E2%80%94%E4%BB%8E%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E5%88%B0%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="nav-text">19. Docker 底层原理全景——从容器创建到网络通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-cgroup-v1-vs-v2-%E8%BF%81%E7%A7%BB%E5%AE%9E%E6%88%98%E2%80%94%E2%80%94%E4%BD%A0%E5%BA%94%E8%AF%A5%E6%B3%A8%E6%84%8F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">20. cgroup v1 vs v2 迁移实战——你应该注意什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-%E5%AE%B9%E5%99%A8-CPU-%E9%99%90%E5%88%B6%E7%9A%84%E7%9C%9F%E7%9B%B8%E2%80%94%E2%80%94CFS-%E9%85%8D%E9%A2%9D-vs-%E6%A0%B8%E5%BF%83%E7%BB%91%E5%AE%9A"><span class="nav-text">21. 容器 CPU 限制的真相——CFS 配额 vs 核心绑定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#23-EEVDF-%E8%B0%83%E5%BA%A6%E5%99%A8%EF%BC%9A%E5%8F%96%E4%BB%A3-CFS-%E7%9A%84-Linux-%E6%96%B0%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="nav-text">23. EEVDF 调度器：取代 CFS 的 Linux 新调度算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#24-io-uring-%E7%94%9F%E4%BA%A7%E7%BA%A7%E5%BA%94%E7%94%A8%E4%B8%8E%E9%99%B7%E9%98%B1%EF%BC%9A%E5%86%85%E6%A0%B8%E7%BB%95%E8%BF%87%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD-IO-%E6%A8%A1%E5%BC%8F"><span class="nav-text">24. io_uring 生产级应用与陷阱：内核绕过的高性能 IO 模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#25-eBPF-%E5%9C%A8%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E4%B8%AD%E7%9A%84%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95%EF%BC%9ABCC-vs-bpftrace-vs-%E5%86%85%E6%A0%B8%E5%9F%8B%E7%82%B9%E9%87%87%E9%9B%86"><span class="nav-text">25. eBPF 在性能分析中的高级用法：BCC vs bpftrace vs 内核埋点采集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#39-Linux-6-x-%E5%86%85%E6%A0%B8%E7%9A%84-io-uring-%E5%A2%9E%E5%BC%BA%E4%B8%8E%E5%BC%82%E6%AD%A5-I-O-%E7%9A%84%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5"><span class="nav-text">39. Linux 6.x 内核的 io_uring 增强与异步 I&#x2F;O 的生产实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#40-Linux-cgroup-v2-%E5%9C%A8%E7%94%9F%E4%BA%A7%E4%B8%AD%E7%9A%84%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E4%B8%8E%E6%B7%B7%E9%83%A8%E8%B0%83%E5%BA%A6%E5%AE%9E%E8%B7%B5"><span class="nav-text">40. Linux cgroup v2 在生产中的资源隔离与混部调度实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#41-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%B7%B1%E5%BA%A6%EF%BC%9A%E9%80%8F%E6%98%8E%E5%A4%A7%E9%A1%B5%EF%BC%88THP%EF%BC%89%E7%9A%84%E5%88%A9%E5%BC%8A%E4%B8%8E%E7%94%9F%E4%BA%A7%E8%B0%83%E4%BC%98"><span class="nav-text">41. Linux 内存管理深度：透明大页（THP）的利弊与生产调优</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-eBPF-%E4%B8%8E%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E6%B7%B1%E5%BA%A6%E4%B8%93%E9%A2%98"><span class="nav-text">0x07 eBPF 与可观测性深度专题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Q30%EF%BC%9AeBPF-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%9C%A8%E7%94%9F%E4%BA%A7%E4%B8%AD%E5%A6%82%E4%BD%95%E7%94%A8%E4%BA%8E%E6%80%A7%E8%83%BD%E6%8E%92%E6%9F%A5%E5%92%8C%E5%AE%89%E5%85%A8%E7%9B%91%E6%8E%A7%EF%BC%9F"><span class="nav-text">Q30：eBPF 的工作原理是什么？在生产中如何用于性能排查和安全监控？</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -180,7 +180,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">42</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -191,7 +191,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-count">139</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -254,7 +254,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-06-15 10:12:25" itemprop="dateModified" datetime="2026-06-15T10:12:25+08:00">2026-06-15</time>
+      <time title="修改时间：2026-06-23 09:25:14" itemprop="dateModified" datetime="2026-06-23T09:25:14+08:00">2026-06-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1954,6 +1954,121 @@
 </ul>
 <p><strong>生产踩坑</strong>：<br>某在线支付服务使用 Java 21 + G1 GC + THP（<code>always</code> 模式）。上线后观察到每 2-3 分钟发生一次「线程停顿」（所有线程在 300ms-1s 内无响应），面板上表现为 P99 延迟从 5ms 飙到 800ms。<code>jstack</code> 显示所有工作线程的堆栈都在 <code>UnsafePark</code> 或 <code>LockSupport.park</code> 上等待——GC 线程在执行 GC 暂停时被 <code>khugepaged</code> 的 <code>mmap_lock</code> 阻塞。<strong>根因</strong>：G1 GC 的「年轻代 GC」过程中，需要修改 Java 堆的 VMA 布局（释放年轻代区域，并可能调整堆大小），2MB 的大页导致内核的 compaction 路径需要扫描更多的 <code>pmd</code> 条目——<code>khugepaged</code> 在合并大页时持有了 <code>mmap_lock</code>，与 GC 的 VMA 修改操作产生竞争。<strong>修复</strong>：① 将 THP 模式改为 <code>madvise</code>（仅对堆外内存（如 DirectBuffer）使用 <code>MADV_HUGEPAGE</code> 标记，堆内存使用 4KB 页）；② 将 <code>khugepaged/pages_to_scan</code> 从 4096 降低到 256。<strong>效果</strong>：P99 延迟恢复 5ms。教训：<strong>THP 的 <code>always</code> 模式在 Java G1&#x2F;ZGC 生产环境中几乎总是弊大于利——<code>madvise</code> 模式允许精确控制哪些内存区域使用大页（通常是堆外的 DirectBuffer 和线程栈），避免与 GC 的页表修改操作竞争</strong>。</p>
 <p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://docs.kernel.org/admin-guide/mm/transhuge.html">Linux THP 文档</a> | <a target="_blank" rel="noopener" href="https://docs.oracle.com/en/java/javase/21/troubleshoot/transparent-huge-pages.html">JVM 与 THP 的兼容性</a> | <a target="_blank" rel="noopener" href="https://openjdk.org/jeps/8285260">ZGC 大页优化</a></p>
+<h2 id="0x07-eBPF-与可观测性深度专题"><a href="#0x07-eBPF-与可观测性深度专题" class="headerlink" title="0x07 eBPF 与可观测性深度专题"></a>0x07 eBPF 与可观测性深度专题</h2><h3 id="Q30：eBPF-的工作原理是什么？在生产中如何用于性能排查和安全监控？"><a href="#Q30：eBPF-的工作原理是什么？在生产中如何用于性能排查和安全监控？" class="headerlink" title="Q30：eBPF 的工作原理是什么？在生产中如何用于性能排查和安全监控？"></a>Q30：eBPF 的工作原理是什么？在生产中如何用于性能排查和安全监控？</h3><p><strong>难度</strong>：⭐⭐⭐⭐（专家）<br><strong>问题</strong>：eBPF 在内核中的工作原理？相比传统的 <code>perf</code>&#x2F;<code>ftrace</code> 有什么优势？生产中 eBPF 的典型应用场景？</p>
+<p><strong>核心原理</strong>：<br>eBPF（Extended Berkeley Packet Filter）是一种在内核中沙箱运行用户定义程序的技术，无需修改内核源码或加载内核模块。核心流程：</p>
+<ol>
+<li><strong>验证（Verifier）</strong>：用户编写的 eBPF 程序被内核验证器检查——确保不会导致内核崩溃、死循环、访问非法内存</li>
+<li><strong>JIT 编译</strong>：验证通过后，eBPF 程序被 JIT 编译为原生机器码，在触发事件（系统调用&#x2F;函数入口&#x2F;网络包到达）时执行</li>
+<li><strong>Map 通信</strong>：eBPF 程序通过 BPF Map（键值存储）与用户空间交换数据</li>
+</ol>
+<p><strong>eBPF 程序挂载点</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+<th>生产工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>kprobe&#x2F;kretprobe</td>
+<td>内核函数入口&#x2F;返回</td>
+<td><code>bpftrace</code>, <code>bcc</code></td>
+</tr>
+<tr>
+<td>tracepoint</td>
+<td>内核静态追踪点</td>
+<td><code>perf</code>, <code>bcc</code></td>
+</tr>
+<tr>
+<td>uprobe&#x2F;uretprobe</td>
+<td>用户态函数入口&#x2F;返回</td>
+<td><code>bpftrace</code></td>
+</tr>
+<tr>
+<td>XDP</td>
+<td>网络驱动层包处理</td>
+<td><code>Cilium</code>, <code>Cloudflare</code></td>
+</tr>
+<tr>
+<td>TC</td>
+<td>流量控制层</td>
+<td><code>Cilium</code></td>
+</tr>
+<tr>
+<td>USDT</td>
+<td>用户态静态追踪</td>
+<td><code>bpftrace</code>, <code>SystemTap</code></td>
+</tr>
+</tbody></table>
+<p><strong>生产实战</strong>：</p>
+<ul>
+<li><p><strong>场景 1 —— 用 eBPF 排查 Java 应用线程停顿时长</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># bpftrace 追踪内核调度器切换</span></span><br><span class="line"><span class="comment"># 记录每个线程在被调度出去之前运行了多久</span></span><br><span class="line">bpftrace -e <span class="string">&#x27;</span></span><br><span class="line"><span class="string">kprobe:finish_task_switch &#123;</span></span><br><span class="line"><span class="string">    $prev = (struct task_struct *)arg0;</span></span><br><span class="line"><span class="string">    $runtime = nsecs - $prev-&gt;se.exec_start;</span></span><br><span class="line"><span class="string">    if ($runtime &gt; 1000000) &#123;  # &gt; 1ms</span></span><br><span class="line"><span class="string">        printf(&quot;PID %d (%s) ran for %d us\n&quot;,</span></span><br><span class="line"><span class="string">            $prev-&gt;pid, $prev-&gt;comm, $runtime / 1000);</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>场景 2 —— 用 eBPF 定位高延迟系统调用</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 追踪所有系统调用并记录耗时</span></span><br><span class="line">bpftrace -e <span class="string">&#x27;</span></span><br><span class="line"><span class="string">tracepoint:syscalls:sys_enter_* &#123;</span></span><br><span class="line"><span class="string">    @start[tid] = nsecs;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">tracepoint:syscalls:sys_exit_* /@start[tid]/ &#123;</span></span><br><span class="line"><span class="string">    $dur = (nsecs - @start[tid]) / 1000;</span></span><br><span class="line"><span class="string">    if ($dur &gt; 1000) &#123;  # &gt; 1ms</span></span><br><span class="line"><span class="string">        printf(&quot;Syscall %s took %d us (PID %d)\n&quot;, probe, $dur, tid);</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">    delete(@start[tid]);</span></span><br><span class="line"><span class="string">&#125;&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>对比延伸</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>技术</th>
+<th>内核改代码</th>
+<th>安全</th>
+<th>性能开销</th>
+<th>灵活性</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>eBPF</td>
+<td>无需</td>
+<td>✅ 沙箱验证</td>
+<td>极低（JIT 编译）</td>
+<td>高</td>
+<td>生产动态排查</td>
+</tr>
+<tr>
+<td>内核模块</td>
+<td>需编译</td>
+<td>❌ 可能导致内核 panic</td>
+<td>低</td>
+<td>极高</td>
+<td>内核开发</td>
+</tr>
+<tr>
+<td>perf</td>
+<td>无需</td>
+<td>✅</td>
+<td>低</td>
+<td>中</td>
+<td>热点分析</td>
+</tr>
+<tr>
+<td>ftrace</td>
+<td>无需</td>
+<td>✅</td>
+<td>极低</td>
+<td>中</td>
+<td>内核函数追踪</td>
+</tr>
+</tbody></table>
+<p><strong>面试金句</strong>：</p>
+<blockquote>
+<p>「eBPF 是 Linux 内核观测性从『黑盒』走向『白盒』的关键技术。它让运维工程师在不改内核、不重启进程的情况下，动态注入观测代码——这对生产环境的性能排查是革命性的。if you’re not using eBPF for troubleshooting in production, you’re working with one hand tied behind your back.」</p>
+</blockquote>
+<p><strong>参考</strong>：</p>
+<ul>
+<li>Linux Kernel BPF Documentation (kernel.org)</li>
+<li>Brendan Gregg, BPF Performance Tools (2019)</li>
+<li>Cilium: eBPF-based Networking, Observability, Security</li>
+<li>bpftrace: High-level tracing language for Linux</li>
+</ul>
+<hr>
+<blockquote>
+<p>本文持续更新。面向全栈高级研发&#x2F;技术专家岗位面试准备。本次更新：新增 eBPF 与可观测性专题（2026-06-23）。</p>
+</blockquote>
 
     </div>
 
@@ -1973,13 +2088,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Spring-%E6%A0%B8%E5%BF%83-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：Spring 核心面试全解">
-                  <i class="fa fa-angle-left"></i> 后端面试题：Spring 核心面试全解
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：计算机网络 面试全解">
+                  <i class="fa fa-angle-left"></i> 后端面试题：计算机网络 面试全解
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：计算机网络 面试全解">
-                  后端面试题：计算机网络 面试全解 <i class="fa fa-angle-right"></i>
+                <a href="/2026/06/11/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Git-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：Git 面试全解">
+                  后端面试题：Git 面试全解 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
