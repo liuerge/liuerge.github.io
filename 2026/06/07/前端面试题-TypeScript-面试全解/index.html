@@ -29,7 +29,7 @@
 <meta property="og:description" content="TypeScript 高级面试全解，覆盖类型系统、泛型高级用法、装饰器、工程化配置和常见踩坑。  0x00 类型系统1. any、unknown、never 的区别？ any：关闭类型检查，会污染后续推导。适合快速原型或渐进迁移 unknown：安全的”任意类型”。必须先类型收窄才能操作 never：表示永远不会发生的类型（抛出异常、死循环、穷尽性检查）  1234567891011121314">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T13:00:00.000Z">
-<meta property="article:modified_time" content="2026-08-18T01:36:52.616Z">
+<meta property="article:modified_time" content="2026-09-02T01:19:33.326Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="TypeScript">
 <meta property="article:tag" content="前端">
@@ -253,7 +253,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-08-18 09:36:52" itemprop="dateModified" datetime="2026-08-18T09:36:52+08:00">2026-08-18</time>
+      <time title="修改时间：2026-09-02 09:19:33" itemprop="dateModified" datetime="2026-09-02T09:19:33+08:00">2026-09-02</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -504,6 +504,44 @@ type Shape =
 - **边界情况**：平均值可能掩盖长尾；单次压测不能代替恢复演练、容量回归和权限边界测试。
 - **安全回归**：涉及 Agent、插件或外部输入时，增加提示注入、越权调用、敏感数据外泄和审计完整性用例。
 - **可逆性**：发布、暂停、回滚和数据补偿分别定义负责人和验收信号，避免把“服务恢复”误当作“业务恢复”。
+
+## 0x28 可暂停发布、恢复证明与策略门禁
+
+### 1. 如何为 前端面试题：TypeScript 面试全解 设计可暂停、可恢复的变更流程？
+
+**标准答案**：将变更拆成准备、暂停、观测、恢复和完成五个状态；暂停时冻结扩大影响的动作，恢复前重新核对产物摘要、配置、兼容窗口、权限和停止条件。恢复应生成新的变更事件并再次检查目标状态；旧版本不可用时明确选择回退、前向修复或人工接管。
+
+**深入思考**：
+- **边界情况**：暂停只控制编排器或控制面，不会自动撤销数据库写入、消息发送、缓存失效和外部副作用。
+- **源码层面**：区分 desired state、observed state 和 operation state，保证重复 resume、超时重试和控制器重启不会重复动作。
+- **生产经验**：把暂停是否生效、谁能恢复、所需证据和无人操作超时写进 runbook；恢复完成还要检查业务不变量和异步积压。
+
+### 2. 如何把 前端面试题：TypeScript 面试全解 的“恢复完成”变成可验证的证据？
+
+**标准答案**：为每次变更生成唯一 change ID，串联产物或配置摘要、主体、环境、分区、暂停/恢复/回退事件、观测窗口和验收结果。持续动作使用 trace/span，瞬时状态切换使用结构化事件，诊断信息保留为日志；完成条件同时包含技术健康度、业务指标、权限状态和未处理副作用。
+
+**深入思考**：
+- **边界情况**：监控延迟、采样或自身故障会造成“没有证据”而不是“没有问题”，关键停止和审批事件应有低依赖的最小审计通道。
+- **对比延伸**：指标适合趋势和阈值，span 适合操作链路，event 适合状态点；三者不能简单混成超长日志。
+- **生产经验**：证据只保存必要上下文并脱敏；对账、通知、权限和队列等跨系统结果设置最终验收，而不是只依据 HTTP 200 或 Pod Ready。
+
+### 3. 前端面试题：TypeScript 面试全解 的发布/回退门禁如何覆盖供应链与运行时？
+
+**标准答案**：构建阶段固定提交、依赖解析、工作流和产物摘要，生成 SBOM 与 provenance/attestation；部署和回退前验证签名、来源主体、允许的仓库或工作流、摘要及策略版本。运行时以最小权限、短时凭据、工具或网络白名单和可撤销操作限制真实影响，例外必须有审批、范围和过期时间。
+
+**深入思考**：
+- **边界情况**：attestation 证明从哪里、如何构建，不证明代码没有漏洞，也不能替代运行时授权、依赖审计和业务风险判断。
+- **源码层面**：把策略版本、产物 digest 和变更 ID 作为不可变关联键，避免按可变标签或文件名选回退版本。
+- **生产经验**：无法完整验证时优先切只读、限流或人工审批；不要把临时绕过门禁当成长期路径，并在事后补齐证据和轮换凭据。
+
+**本轮参考链接**：
+- [Kubernetes 更新 Deployment、暂停/恢复与回退](https://kubernetes.io/docs/tasks/run-application/update-deployment-rolling/)
+- [OpenTelemetry Events 语义约定](https://opentelemetry.io/docs/specs/semconv/general/events/)
+- [GitHub Artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations)
+- [OWASP Securing Agentic Applications Guide 1.0](https://genai.owasp.org/resource/securing-agentic-applications-guide-1-0/)
+
+&gt; 本轮更新：2026-09-02（Work）——新增 0x28 可暂停发布、恢复证明与供应链/运行时策略门禁三道面试题。
+&gt; **搜索来源**：Tavily 不可用；使用 web__run 官方检索与页面核验 + DuckDuckGo/Google HTML 交叉检索。时间层覆盖最新官方页面与稳定文档；覆盖维度：官方源 ✅ / 生产实践 ✅ / 实现边界 ✅ / 对比选型 ✅。
 
 **本轮参考链接**：
 - [Google SRE Workbook：Canarying Releases](https://sre.google/workbook/canarying-releases/)
