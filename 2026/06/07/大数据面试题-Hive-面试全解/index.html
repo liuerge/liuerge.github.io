@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Hive 与 SQL 高级面试全解，覆盖分区&#x2F;分桶、HiveSQL 高级写法、数据倾斜治理、存储格式和性能调优。  0x00 核心概念1. Hive 分区和分桶的区别？   维度 分区 (Partition) 分桶 (Bucket)    物理存储 独立目录 dt&#x3D;2026-06-07&#x2F; 独立文件 000000_0, 000001_0...   字段类型 通常是日期、地区等低基数字段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大数据面试题：Hive &amp; SQL 面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="Hive 与 SQL 高级面试全解，覆盖分区&#x2F;分桶、HiveSQL 高级写法、数据倾斜治理、存储格式和性能调优。  0x00 核心概念1. Hive 分区和分桶的区别？   维度 分区 (Partition) 分桶 (Bucket)    物理存储 独立目录 dt&#x3D;2026-06-07&#x2F; 独立文件 000000_0, 000001_0...   字段类型 通常是日期、地区等低基数字段">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-07T09:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-08T12:41:05.630Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="Hive">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="数据倾斜">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/07/大数据面试题-Hive-面试全解/","title":"大数据面试题：Hive & SQL 面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>大数据面试题：Hive & SQL 面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-text">0x00 核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Hive-%E5%88%86%E5%8C%BA%E5%92%8C%E5%88%86%E6%A1%B6%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-text">1. Hive 分区和分桶的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Hive-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9F"><span class="nav-text">2. Hive 数据倾斜的产生原因和解决方案？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-HiveSQL-%E9%AB%98%E7%BA%A7%E5%86%99%E6%B3%95"><span class="nav-text">0x01 HiveSQL 高级写法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0%E5%AE%9E%E6%88%98"><span class="nav-text">3. 窗口函数实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-SQL-%E6%8A%80%E5%B7%A7"><span class="nav-text">4. 性能优化 SQL 技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="nav-text">0x02 存储格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-ORC%E3%80%81Parquet%E3%80%81TextFile-%E6%80%8E%E4%B9%88%E9%80%89%EF%BC%9F"><span class="nav-text">5. ORC、Parquet、TextFile 怎么选？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x03 场景设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E4%BB%93%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1%EF%BC%88ODS-%E2%86%92-DWD-%E2%86%92-DWS-%E2%86%92-ADS%EF%BC%89"><span class="nav-text">数仓分层设计（ODS → DWD → DWS → ADS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-Hive-4-0-%E4%B8%8E-Iceberg-%E9%9B%86%E6%88%90%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90"><span class="nav-text">0x04 Hive 4.0 与 Iceberg 集成深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Hive-4-0-Iceberg-%E5%8E%9F%E7%94%9F%E9%9B%86%E6%88%90"><span class="nav-text">9. Hive 4.0 Iceberg 原生集成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Hive-%E8%A1%A8%E8%BF%81%E7%A7%BB%E5%88%B0-Iceberg%EF%BC%9AALTER-TABLE-SET-STORED-AS-ICEBERG"><span class="nav-text">10. Hive 表迁移到 Iceberg：ALTER TABLE SET STORED AS ICEBERG</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-Hive-%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%EF%BC%9A%E5%8A%A8%E6%80%81%E5%88%86%E5%8C%BA%E5%AF%BC%E8%87%B4%E7%9A%84%E5%B0%8F%E6%96%87%E4%BB%B6%E9%97%AE%E9%A2%98"><span class="nav-text">11. Hive 数据倾斜：动态分区导致的小文件问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Hive-MERGE-INTO-%E4%B8%8E-ACID-%E4%BA%8B%E5%8A%A1%E7%9A%84%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5"><span class="nav-text">12. Hive MERGE INTO 与 ACID 事务的生产实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-Hive-4-x-%E6%B7%B1%E5%BA%A6%E8%B0%83%E4%BC%98%E4%B8%8E%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x05 Hive 4.x 深度调优与生产实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Hive-LLAP%EF%BC%88Live-Long-and-Process%EF%BC%89%EF%BC%9A%E6%9E%B6%E6%9E%84%E4%B8%8E%E6%A0%B8%E5%BF%83%E8%B0%83%E4%BC%98%E5%8F%82%E6%95%B0"><span class="nav-text">13. Hive LLAP（Live Long and Process）：架构与核心调优参数</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">132</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Hive-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="大数据面试题：Hive &amp; SQL 面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          大数据面试题：Hive & SQL 面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-07 17:30:00" itemprop="dateCreated datePublished" datetime="2026-06-07T17:30:00+08:00">2026-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>Hive 与 SQL 高级面试全解，覆盖分区&#x2F;分桶、HiveSQL 高级写法、数据倾斜治理、存储格式和性能调优。</p>
+</blockquote>
+<h2 id="0x00-核心概念"><a href="#0x00-核心概念" class="headerlink" title="0x00 核心概念"></a>0x00 核心概念</h2><h3 id="1-Hive-分区和分桶的区别？"><a href="#1-Hive-分区和分桶的区别？" class="headerlink" title="1. Hive 分区和分桶的区别？"></a>1. Hive 分区和分桶的区别？</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>分区 (Partition)</th>
+<th>分桶 (Bucket)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理存储</td>
+<td>独立目录 <code>dt=2026-06-07/</code></td>
+<td>独立文件 <code>000000_0, 000001_0...</code></td>
+</tr>
+<tr>
+<td>字段类型</td>
+<td>通常是日期、地区等低基数字段</td>
+<td>通常是用户 ID 等高基数字段</td>
+</tr>
+<tr>
+<td>数量上限</td>
+<td>数万（太多会 NameNode 压力大）</td>
+<td>与数据量和分桶数成正比</td>
+</tr>
+<tr>
+<td>适用查询</td>
+<td><code>WHERE dt = &#39;2026-06-07&#39;</code></td>
+<td><code>JOIN on user_id</code> &#x2F; 抽样</td>
+</tr>
+</tbody></table>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建分区表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> orders (</span><br><span class="line">    order_id STRING,</span><br><span class="line">    amount <span class="type">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>)</span><br><span class="line">) PARTITIONED <span class="keyword">BY</span> (dt STRING, <span class="keyword">hour</span> STRING);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 静态分区插入</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>, <span class="keyword">hour</span><span class="operator">=</span><span class="string">&#x27;14&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span> order_id, amount <span class="keyword">FROM</span> temp_orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 动态分区插入</span></span><br><span class="line"><span class="keyword">SET</span> hive.exec.dynamic.partition<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.exec.dynamic.partition.mode<span class="operator">=</span>nonstrict;</span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt, <span class="keyword">hour</span>)</span><br><span class="line"><span class="keyword">SELECT</span> order_id, amount, dt, <span class="keyword">hour</span> <span class="keyword">FROM</span> temp_orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 分桶表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> users (</span><br><span class="line">    user_id STRING,</span><br><span class="line">    name STRING</span><br><span class="line">) CLUSTERED <span class="keyword">BY</span> (user_id) <span class="keyword">INTO</span> <span class="number">32</span> BUCKETS;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>生产经验</strong>：分区不是越多越好。单表分区超过 10 万个会导致 Metastore 查询变慢和 NameNode 内存压力。按天分区 + 生命周期管理是常规做法</li>
+</ul>
+<h3 id="2-Hive-数据倾斜的产生原因和解决方案？"><a href="#2-Hive-数据倾斜的产生原因和解决方案？" class="headerlink" title="2. Hive 数据倾斜的产生原因和解决方案？"></a>2. Hive 数据倾斜的产生原因和解决方案？</h3><p><strong>产生原因</strong>：某个 key 的数据量远大于其他 key（如 null 值、热点用户）</p>
+<p><strong>解决方案</strong>：</p>
+<p><strong>方案1：两阶段聚合（适合 Group By 倾斜）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 加随机前缀聚合 → 去掉前缀再次聚合</span></span><br><span class="line"><span class="keyword">SELECT</span> key, <span class="built_in">SUM</span>(cnt) <span class="keyword">AS</span> total</span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> CONCAT(key, <span class="string">&#x27;_&#x27;</span>, <span class="built_in">CAST</span>(RAND()<span class="operator">*</span><span class="number">10</span> <span class="keyword">AS</span> <span class="type">INT</span>)) <span class="keyword">AS</span> salted_key,</span><br><span class="line">           <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="keyword">AS</span> cnt</span><br><span class="line">    <span class="keyword">FROM</span> big_table</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> CONCAT(key, <span class="string">&#x27;_&#x27;</span>, <span class="built_in">CAST</span>(RAND()<span class="operator">*</span><span class="number">10</span> <span class="keyword">AS</span> <span class="type">INT</span>))</span><br><span class="line">) t</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> SUBSTRING_INDEX(salted_key, <span class="string">&#x27;_&#x27;</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案2：Map Join（适合小表 Join 大表）</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SET</span> hive.auto.convert.join<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.mapjoin.smalltable.filesize<span class="operator">=</span><span class="number">25000000</span>;  <span class="comment">-- 25MB</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ MAPJOIN(b) */</span> a.<span class="operator">*</span>, b.name</span><br><span class="line"><span class="keyword">FROM</span> big_table a <span class="keyword">JOIN</span> small_table b <span class="keyword">ON</span> a.id <span class="operator">=</span> b.id;</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案3：倾斜 key 分离</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 正常 key 直接 join</span></span><br><span class="line"><span class="keyword">SELECT</span> a.<span class="operator">*</span>, b.name</span><br><span class="line"><span class="keyword">FROM</span> big_table a <span class="keyword">JOIN</span> dim_table b <span class="keyword">ON</span> a.id <span class="operator">=</span> b.id</span><br><span class="line"><span class="keyword">WHERE</span> a.id <span class="operator">!=</span> <span class="string">&#x27;hot_key&#x27;</span></span><br><span class="line"><span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line"><span class="comment">-- 倾斜 key 用 Map Join</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ MAPJOIN(b) */</span> a.<span class="operator">*</span>, b.name</span><br><span class="line"><span class="keyword">FROM</span> (<span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> big_table <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="string">&#x27;hot_key&#x27;</span>) a</span><br><span class="line"><span class="keyword">JOIN</span> dim_table b <span class="keyword">ON</span> a.id <span class="operator">=</span> b.id;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Hive 3.0+ 自动倾斜优化</span></span><br><span class="line"><span class="keyword">SET</span> hive.optimize.skewjoin<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.skewjoin.key<span class="operator">=</span><span class="number">100000</span>;  <span class="comment">-- key 超过 100k 行视为倾斜</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x01-HiveSQL-高级写法"><a href="#0x01-HiveSQL-高级写法" class="headerlink" title="0x01 HiveSQL 高级写法"></a>0x01 HiveSQL 高级写法</h2><h3 id="3-窗口函数实战"><a href="#3-窗口函数实战" class="headerlink" title="3. 窗口函数实战"></a>3. 窗口函数实战</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 每种商品销售额排名</span></span><br><span class="line"><span class="keyword">SELECT</span> product_id, amount,</span><br><span class="line">    <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> product_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> amount <span class="keyword">DESC</span>) <span class="keyword">AS</span> rn</span><br><span class="line"><span class="keyword">FROM</span> orders;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 连续登录天数（经典面试题）</span></span><br><span class="line"><span class="keyword">WITH</span> login_gap <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> user_id, login_date,</span><br><span class="line">        DATE_SUB(login_date, <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (</span><br><span class="line">            <span class="keyword">PARTITION</span> <span class="keyword">BY</span> user_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> login_date</span><br><span class="line">        )) <span class="keyword">AS</span> gap_date</span><br><span class="line">    <span class="keyword">FROM</span> user_login</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id, login_date</span><br><span class="line">)</span><br><span class="line"><span class="keyword">SELECT</span> user_id, gap_date, <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="keyword">AS</span> consecutive_days</span><br><span class="line"><span class="keyword">FROM</span> login_gap</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id, gap_date</span><br><span class="line"><span class="keyword">HAVING</span> <span class="built_in">COUNT</span>(<span class="number">1</span>) <span class="operator">&gt;=</span> <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 累计销售额</span></span><br><span class="line"><span class="keyword">SELECT</span> dt, product_id, daily_amount,</span><br><span class="line">    <span class="built_in">SUM</span>(daily_amount) <span class="keyword">OVER</span> (</span><br><span class="line">        <span class="keyword">PARTITION</span> <span class="keyword">BY</span> product_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> dt</span><br><span class="line">        <span class="keyword">ROWS</span> <span class="keyword">BETWEEN</span> UNBOUNDED PRECEDING <span class="keyword">AND</span> <span class="keyword">CURRENT</span> <span class="type">ROW</span></span><br><span class="line">    ) <span class="keyword">AS</span> cumulative_amount</span><br><span class="line"><span class="keyword">FROM</span> daily_sales;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 环比增长</span></span><br><span class="line"><span class="keyword">SELECT</span> dt, amount,</span><br><span class="line">    <span class="built_in">LAG</span>(amount, <span class="number">1</span>) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> dt) <span class="keyword">AS</span> prev_amount,</span><br><span class="line">    ROUND((amount <span class="operator">-</span> <span class="built_in">LAG</span>(amount, <span class="number">1</span>) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> dt)) <span class="operator">/</span> </span><br><span class="line">          <span class="built_in">LAG</span>(amount, <span class="number">1</span>) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> dt) <span class="operator">*</span> <span class="number">100</span>, <span class="number">2</span>) <span class="keyword">AS</span> growth_pct</span><br><span class="line"><span class="keyword">FROM</span> daily_sales;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-性能优化-SQL-技巧"><a href="#4-性能优化-SQL-技巧" class="headerlink" title="4. 性能优化 SQL 技巧"></a>4. 性能优化 SQL 技巧</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 列裁剪：只 SELECT 需要的列</span></span><br><span class="line"><span class="keyword">SELECT</span> order_id, amount <span class="keyword">FROM</span> orders;  <span class="comment">-- 不要 SELECT *</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 谓词下推：过滤条件放子查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line">) t <span class="keyword">WHERE</span> amount <span class="operator">&gt;</span> <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 用 GROUP BY 代替 DISTINCT（大数据量时 GROUP BY 更快）</span></span><br><span class="line"><span class="keyword">SELECT</span> user_id <span class="keyword">FROM</span> orders <span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id;  <span class="comment">-- 优于 SELECT DISTINCT user_id</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. UNION ALL 代替 UNION（不自动去重）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t1 <span class="keyword">UNION</span> <span class="keyword">ALL</span> <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t2;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 5. 避免笛卡尔积</span></span><br><span class="line"><span class="comment">-- 坏：SELECT * FROM t1, t2 WHERE t1.id = t2.id  -- 隐式 cross join</span></span><br><span class="line"><span class="comment">-- 好：SELECT * FROM t1 JOIN t2 ON t1.id = t2.id</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 6. 合理使用分桶</span></span><br><span class="line"><span class="comment">-- 分桶表 JOIN 时自动启用 Sort Merge Bucket Join，避免 Shuffle</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x02-存储格式"><a href="#0x02-存储格式" class="headerlink" title="0x02 存储格式"></a>0x02 存储格式</h2><h3 id="5-ORC、Parquet、TextFile-怎么选？"><a href="#5-ORC、Parquet、TextFile-怎么选？" class="headerlink" title="5. ORC、Parquet、TextFile 怎么选？"></a>5. ORC、Parquet、TextFile 怎么选？</h3><table>
+<thead>
+<tr>
+<th>格式</th>
+<th>压缩率</th>
+<th>查询速度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ORC</strong></td>
+<td>最高（列式+索引）</td>
+<td>最快（内置索引）</td>
+<td>Hive 主力，适合分析查询</td>
+</tr>
+<tr>
+<td><strong>Parquet</strong></td>
+<td>高</td>
+<td>快</td>
+<td>跨平台（Spark&#x2F;Flink&#x2F;Presto 通用）</td>
+</tr>
+<tr>
+<td><strong>TextFile</strong></td>
+<td>无</td>
+<td>慢</td>
+<td>原始数据落盘、临时表</td>
+</tr>
+<tr>
+<td><strong>Avro</strong></td>
+<td>中</td>
+<td>中</td>
+<td>Schema 演化频繁的场景</td>
+</tr>
+</tbody></table>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建 ORC 表 + Snappy 压缩</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> orders_orc (</span><br><span class="line">    order_id STRING,</span><br><span class="line">    amount <span class="type">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>)</span><br><span class="line">) STORED <span class="keyword">AS</span> ORC</span><br><span class="line">TBLPROPERTIES (</span><br><span class="line">    <span class="string">&#x27;orc.compress&#x27;</span><span class="operator">=</span><span class="string">&#x27;SNAPPY&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;orc.create.index&#x27;</span><span class="operator">=</span><span class="string">&#x27;true&#x27;</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><strong>ORC 加速手段</strong>：</p>
+<ul>
+<li><strong>Predicate Pushdown</strong>：<code>orc.bloom.filter.columns</code> &#x3D; <code>order_id</code>，在读取时跳过不匹配的 Stripe</li>
+<li><strong>Vectorization</strong>：<code>SET hive.vectorized.execution.enabled=true</code>，批量处理 1024 行</li>
+</ul>
+<hr>
+<h2 id="0x03-场景设计"><a href="#0x03-场景设计" class="headerlink" title="0x03 场景设计"></a>0x03 场景设计</h2><h3 id="数仓分层设计（ODS-→-DWD-→-DWS-→-ADS）"><a href="#数仓分层设计（ODS-→-DWD-→-DWS-→-ADS）" class="headerlink" title="数仓分层设计（ODS → DWD → DWS → ADS）"></a>数仓分层设计（ODS → DWD → DWS → ADS）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ODS (原始层):  binlog 原样入 Hive，不做任何清洗</span><br><span class="line">  ↓</span><br><span class="line">DWD (明细层):  清洗、去重、脱敏、维度退化</span><br><span class="line">  ↓</span><br><span class="line">DWS (汇总层):  按主题轻度汇总（用户日活、商品日销）</span><br><span class="line">  ↓</span><br><span class="line">ADS (应用层):  报表、大屏、推荐特征</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- DWD 层：订单清洗</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> dwd.fact_orders <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    order_id,</span><br><span class="line">    <span class="built_in">COALESCE</span>(user_id, <span class="string">&#x27;unknown&#x27;</span>) <span class="keyword">AS</span> user_id,  <span class="comment">-- null 处理</span></span><br><span class="line">    <span class="keyword">CASE</span> status </span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">1</span> <span class="keyword">THEN</span> <span class="string">&#x27;paid&#x27;</span></span><br><span class="line">        <span class="keyword">WHEN</span> <span class="number">2</span> <span class="keyword">THEN</span> <span class="string">&#x27;shipped&#x27;</span></span><br><span class="line">        <span class="keyword">ELSE</span> <span class="string">&#x27;unknown&#x27;</span></span><br><span class="line">    <span class="keyword">END</span> <span class="keyword">AS</span> status,</span><br><span class="line">    amount</span><br><span class="line"><span class="keyword">FROM</span> ods.orders_binlog</span><br><span class="line"><span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> order_id <span class="keyword">IS</span> <span class="keyword">NOT NULL</span>;  <span class="comment">-- 脏数据过滤</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- DWS 层：用户日汇总</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> dws.user_daily_stats <span class="keyword">PARTITION</span>(dt<span class="operator">=</span><span class="string">&#x27;2026-06-07&#x27;</span>)</span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    user_id,</span><br><span class="line">    <span class="built_in">COUNT</span>(<span class="keyword">DISTINCT</span> order_id) <span class="keyword">AS</span> order_cnt,</span><br><span class="line">    <span class="built_in">SUM</span>(amount) <span class="keyword">AS</span> total_amount,</span><br><span class="line">    <span class="built_in">MAX</span>(order_time) <span class="keyword">AS</span> last_order_time</span><br><span class="line"><span class="keyword">FROM</span> dwd.fact_orders</span><br><span class="line"><span class="keyword">WHERE</span> dt <span class="operator">=</span> <span class="string">&#x27;2026-06-07&#x27;</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> user_id;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="0x04-Hive-4-0-与-Iceberg-集成深度解析"><a href="#0x04-Hive-4-0-与-Iceberg-集成深度解析" class="headerlink" title="0x04 Hive 4.0 与 Iceberg 集成深度解析"></a>0x04 Hive 4.0 与 Iceberg 集成深度解析</h2><h3 id="9-Hive-4-0-Iceberg-原生集成"><a href="#9-Hive-4-0-Iceberg-原生集成" class="headerlink" title="9. Hive 4.0 Iceberg 原生集成"></a>9. Hive 4.0 Iceberg 原生集成</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Hive 4.0 如何原生支持 Apache Iceberg？和传统的 Hive 表有什么根本区别？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Hive 4.0 通过 <strong>HiveIcebergStorageHandler</strong> 提供对 Iceberg 表格式的原生支持，使得 Hive 可以直接创建、读取、写入 Iceberg 表。</p>
+<p><strong>架构差异</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">传统 Hive 表：  SQL → Hive Metastore（目录路径）→ 列出目录文件 → 读取</span><br><span class="line">Iceberg 表：    SQL → Hive Metastore（metadata 指针）→ Iceberg metadata → 定位文件 → 读取</span><br></pre></td></tr></table></figure>
+
+<p><strong>创建 Iceberg 表（Hive 4.0+）</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 使用 STORED BY ICEBERG</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> iceberg_orders (</span><br><span class="line">  order_id <span class="type">BIGINT</span>,</span><br><span class="line">  user_id <span class="type">BIGINT</span>,</span><br><span class="line">  amount <span class="type">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>),</span><br><span class="line">  order_date <span class="type">DATE</span></span><br><span class="line">)</span><br><span class="line">STORED <span class="keyword">BY</span> <span class="string">&#x27;org.apache.iceberg.mr.hive.HiveIcebergStorageHandler&#x27;</span></span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (order_date);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 或使用 STORED AS ICEBERG（简写）</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> iceberg_orders (...)</span><br><span class="line">STORED <span class="keyword">AS</span> ICEBERG;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Hive 4.0 Iceberg 支持矩阵</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>支持程度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CREATE TABLE</td>
+<td>✅</td>
+<td>原生创建 Iceberg 表</td>
+</tr>
+<tr>
+<td>SELECT</td>
+<td>✅</td>
+<td>完整查询支持</td>
+</tr>
+<tr>
+<td>INSERT INTO&#x2F;OVERWRITE</td>
+<td>✅</td>
+<td>批量写入</td>
+</tr>
+<tr>
+<td>DELETE&#x2F;UPDATE&#x2F;MERGE</td>
+<td>✅</td>
+<td>需 Tez 引擎（MapReduce 不支持）</td>
+</tr>
+<tr>
+<td>时间旅行</td>
+<td>⚠️ 有限</td>
+<td>通过表属性设置快照，不支持 SQL 语法</td>
+</tr>
+<tr>
+<td>Schema Evolution</td>
+<td>✅</td>
+<td>ALTER TABLE ADD&#x2F;RENAME COLUMN</td>
+</tr>
+<tr>
+<td>分区演进</td>
+<td>⚠️ 有限</td>
+<td>通过 ALTER TABLE 修改分区策略</td>
+</tr>
+<tr>
+<td>存储策略</td>
+<td>CoW 仅可读</td>
+<td>不产生 MoR（Merge-on-Read）文件</td>
+</tr>
+<tr>
+<td>格式版本</td>
+<td>v1&#x2F;v2</td>
+<td>不支持 v3（捆绑 Iceberg 1.4.3）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Hive 4.0 捆绑的是 Iceberg 1.4.3，功能落后当前最新版本（1.11+）。不支持 Iceberg v3 的 Deletion Vectors、VARIANT 类型等新特性。DELETE&#x2F;UPDATE&#x2F;MERGE 只能在 Tez 引擎上运行，MapReduce 模式会失败。不适合作为实时写入入口（建议用 Flink&#x2F;Spark 写 Iceberg，Hive 纯读）。</p>
+</li>
+<li><p><strong>源码层面</strong>：<code>HiveIcebergStorageHandler</code> 实现了 Hive 的 <code>StorageHandler</code> 接口，将 Hive 的 SQL 操作转化为 Iceberg 的 Table API。关键在于 InputFormat&#x2F;OutputFormat 的实现——<code>HiveIcebergInputFormat</code> 通过 Iceberg 的 TableScan API 定位文件，而非 Hive 传统的目录列表方式。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Hive 4.0 + Iceberg 的方案是”存量 Hive 用户的渐进式迁移路径”。相比直接用 Spark&#x2F;Flink + Iceberg，优势是不改变用户的 SQL 工具链；劣势是性能不如 Spark&#x2F;Trino 原生 Iceberg 集成。一个典型混合架构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">写：Flink/Spark → Iceberg（实时/近实时写入）</span><br><span class="line">读：Hive 4.0 → Iceberg（历史数据查询） + Trino → Iceberg（交互式分析）</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>生产经验</strong>：生产上不建议用 Hive 做 Iceberg 写入——批量写入性能差且不支持 MoR。典型用法是”Spark&#x2F;Flink 写 Iceberg，Hive 4.0 读 Iceberg”，利用 Hive 已有的 SQL 调度体系。迁移旧 Hive 表到 Iceberg 建议用 <code>ALTER TABLE ... SET STORED AS ICEBERG</code>（见下题）。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Apache Iceberg Hive Docs: <a target="_blank" rel="noopener" href="https://iceberg.apache.org/docs/latest/hive">https://iceberg.apache.org/docs/latest/hive</a></li>
+<li>OLake “Apache Hive 4.0+ &amp; Iceberg Integration”: <a target="_blank" rel="noopener" href="https://olake.io/iceberg/query-engine/hive">https://olake.io/iceberg/query-engine/hive</a></li>
+</ul>
+<hr>
+<h3 id="10-Hive-表迁移到-Iceberg：ALTER-TABLE-SET-STORED-AS-ICEBERG"><a href="#10-Hive-表迁移到-Iceberg：ALTER-TABLE-SET-STORED-AS-ICEBERG" class="headerlink" title="10. Hive 表迁移到 Iceberg：ALTER TABLE SET STORED AS ICEBERG"></a>10. Hive 表迁移到 Iceberg：ALTER TABLE SET STORED AS ICEBERG</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：如何将已有的 Hive 表迁移到 Iceberg 格式？迁移过程中有哪些注意事项？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Hive 4.0 提供了 <strong>ALTER TABLE SET STORED AS ICEBERG</strong> 命令，可以将现有 Hive 表就地迁移为 Iceberg 格式。</p>
+<p><strong>迁移步骤</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 迁移表格式（Hive 4.0+）</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> hive_orders <span class="keyword">SET</span> STORED <span class="keyword">AS</span> ICEBERG;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 可选：后续调整分区策略</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> hive_orders <span class="keyword">SET</span> <span class="keyword">PARTITION</span> SPEC (days(order_date));</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 压缩小文件</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> hive_orders <span class="keyword">EXECUTE</span> COMPACT;</span><br></pre></td></tr></table></figure>
+
+<p><strong>迁移原理</strong>：该命令不会重写数据文件，而是在原表目录下生成 Iceberg 的 metadata 文件（metadata.json → manifest list → manifest files），将已有的 Parquet&#x2F;ORC 文件”纳入”Iceberg 管理。</p>
+<p><strong>迁移策略对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>方式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>就地迁移</td>
+<td><code>ALTER TABLE SET STORED AS ICEBERG</code></td>
+<td>零数据拷贝、速度快</td>
+<td>需 Hive 4.0+；存在回滚风险</td>
+</tr>
+<tr>
+<td>CTAS 迁移</td>
+<td><code>CREATE TABLE iceberg_tbl STORED AS ICEBERG AS SELECT * FROM hive_tbl</code></td>
+<td>安全、可灰度</td>
+<td>全量数据拷贝、耗时长</td>
+</tr>
+<tr>
+<td>增量迁移</td>
+<td>并行写双表，切流</td>
+<td>业务无感</td>
+<td>复杂度高、需双写一致性</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：就地迁移是单向操作，回滚困难——迁移后元数据变为 Iceberg 格式，回退需要重新创建 Hive 表。迁移前务必：</p>
+<ol>
+<li>备份 Hive Metastore</li>
+<li>在测试环境验证</li>
+<li>检查数据文件兼容性（ORC&#x2F;Parquet 都支持，但自定义 SerDe 不行）</li>
+</ol>
+</li>
+<li><p><strong>生产经验</strong>：大表（TB 级以上）推荐 CTAS + 灰度验证，小表可以直接就地迁移。迁移后立即验证：<code>SELECT * FROM table FOR SYSTEM_TIME AS OF ...</code> 确认时间旅行可用。注意：迁移后旧 Hive 的 <code>MSCK REPAIR TABLE</code> 不再有效——Iceberg 自动管理分区。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>OLake “Hive 4.0 Iceberg Integration”: <a target="_blank" rel="noopener" href="https://olake.io/iceberg/query-engine/hive">https://olake.io/iceberg/query-engine/hive</a></li>
+<li>Conduktor “Migrating to Iceberg from Hive”: <a target="_blank" rel="noopener" href="https://www.conduktor.io/glossary/migrating-to-apache-iceberg-from-hive-or-parquet">https://www.conduktor.io/glossary/migrating-to-apache-iceberg-from-hive-or-parquet</a></li>
+</ul>
+<hr>
+<h3 id="11-Hive-数据倾斜：动态分区导致的小文件问题"><a href="#11-Hive-数据倾斜：动态分区导致的小文件问题" class="headerlink" title="11. Hive 数据倾斜：动态分区导致的小文件问题"></a>11. Hive 数据倾斜：动态分区导致的小文件问题</h3><p><strong>难度</strong>：⭐⭐⭐<br><strong>问题</strong>：Hive 动态分区写入时产生大量小文件，如何处理？Iceberg 如何解决这个问题？</p>
+<p><strong>标准答案</strong>：</p>
+<p><strong>传统 Hive 动态分区问题</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 危险：每个 partition + reduce task 组合生成一个文件</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt)</span><br><span class="line"><span class="keyword">SELECT</span> ..., dt <span class="keyword">FROM</span> source;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 如果有 1000 个分区，每个 200 个 reducer → 最多 200,000 个文件！</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>缓解方案</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 减少 reducer 数量</span></span><br><span class="line"><span class="keyword">SET</span> hive.exec.reducers.bytes.per.reducer<span class="operator">=</span><span class="number">256000000</span>;  <span class="comment">-- 256MB per reducer</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 使用 DISTRIBUTE BY 控制文件数</span></span><br><span class="line"><span class="keyword">INSERT</span> OVERWRITE <span class="keyword">TABLE</span> orders <span class="keyword">PARTITION</span>(dt)</span><br><span class="line"><span class="keyword">SELECT</span> ..., dt <span class="keyword">FROM</span> source</span><br><span class="line">DISTRIBUTE <span class="keyword">BY</span> dt, <span class="built_in">FLOOR</span>(RAND() <span class="operator">*</span> <span class="number">10</span>);  <span class="comment">-- 每个分区最多 10 个文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 合并小文件（事后）</span></span><br><span class="line"><span class="keyword">SET</span> hive.merge.mapfiles<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.merge.mapredfiles<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.merge.size.per.task<span class="operator">=</span><span class="number">256000000</span>;</span><br><span class="line"><span class="keyword">SET</span> hive.merge.smallfiles.avgsize<span class="operator">=</span><span class="number">128000000</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Iceberg 的解决方案</strong>：<br>Iceberg 从根本上消除了”文件数 &#x3D; 分区数 × reducer数”的耦合：</p>
+<ul>
+<li><strong>自动合并</strong>：写入时自动匹配合适的文件大小（target file size）</li>
+<li><strong>Compaction</strong>：定期执行 <code>OPTIMIZE</code> 或 Hive 的 <code>ALTER TABLE EXECUTE COMPACT</code></li>
+<li><strong>无需 MSCK REPAIR</strong>：Iceberg 通过 metadata 跟踪文件，新增分区无需手动修复</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- Hive 4.0 中 Iceberg 表的 compaction</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> iceberg_orders <span class="keyword">EXECUTE</span> COMPACT;</span><br></pre></td></tr></table></figure>
+
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：动态分区上限 <code>hive.exec.max.dynamic.partitions</code> 默认 1000，超出会报错。对于高基数分区字段（如 user_id），绝对不能做动态分区——应该用分桶（Bucketing）替代。</p>
+</li>
+<li><p><strong>生产经验</strong>：生产上最实用的组合是 <code>DISTRIBUTE BY dt, CAST(RAND() * N AS INT)</code> 控制每分区文件数 + <code>hive.merge</code> 事后合并。但根本解决方案是迁移到 Iceberg——其自动文件管理和 Compaction 机制从根本上解决了小文件问题。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Hive LanguageManual DML: <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML</a></li>
+<li>Iceberg Hive Integration: <a target="_blank" rel="noopener" href="https://iceberg.apache.org/docs/latest/hive">https://iceberg.apache.org/docs/latest/hive</a></li>
+</ul>
+<hr>
+<h3 id="12-Hive-MERGE-INTO-与-ACID-事务的生产实践"><a href="#12-Hive-MERGE-INTO-与-ACID-事务的生产实践" class="headerlink" title="12. Hive MERGE INTO 与 ACID 事务的生产实践"></a>12. Hive MERGE INTO 与 ACID 事务的生产实践</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Hive 的 MERGE INTO 和 ACID 事务在生产中有哪些实际限制？如何正确使用？</p>
+<p><strong>标准答案</strong>：</p>
+<p>Hive 从 3.0 开始支持 ACID 事务和 MERGE INTO，但生产上有很多限制需要了解。</p>
+<p><strong>MERGE INTO 语法</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MERGE</span> <span class="keyword">INTO</span> target_table <span class="keyword">AS</span> t</span><br><span class="line"><span class="keyword">USING</span> source_table <span class="keyword">AS</span> s</span><br><span class="line"><span class="keyword">ON</span> t.id <span class="operator">=</span> s.id</span><br><span class="line"><span class="keyword">WHEN</span> MATCHED <span class="keyword">AND</span> t.amount <span class="operator">&lt;&gt;</span> s.amount <span class="keyword">THEN</span></span><br><span class="line">  <span class="keyword">UPDATE</span> <span class="keyword">SET</span> amount <span class="operator">=</span> s.amount, update_time <span class="operator">=</span> <span class="built_in">CURRENT_TIMESTAMP</span></span><br><span class="line"><span class="keyword">WHEN</span> <span class="keyword">NOT</span> MATCHED <span class="keyword">THEN</span></span><br><span class="line">  <span class="keyword">INSERT</span> <span class="keyword">VALUES</span> (s.id, s.amount, <span class="built_in">CURRENT_TIMESTAMP</span>)</span><br><span class="line"><span class="keyword">WHEN</span> MATCHED <span class="keyword">AND</span> s.deleted <span class="operator">=</span> <span class="literal">true</span> <span class="keyword">THEN</span></span><br><span class="line">  <span class="keyword">DELETE</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>生产限制与注意事项</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>限制</th>
+<th>说明</th>
+<th>对策</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>仅支持 ORC</td>
+<td>ACID 表必须是 ORC 格式，且 <code>transactional=true</code></td>
+<td>建表时指定 STORED AS ORC</td>
+</tr>
+<tr>
+<td>Bucketing 要求</td>
+<td>Hive 3.x 要求分桶，4.0 放宽</td>
+<td>4.0 升级后可省去</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>每次 MERGE 产生 delta 文件，需定期 Compaction</td>
+<td>配置自动 Compaction</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>比传统 INSERT OVERWRITE 慢 3-10x</td>
+<td>小批量用 MERGE，大批量用 INSERT OVERWRITE</td>
+</tr>
+<tr>
+<td>并发限制</td>
+<td>同一分区同时只能有一个写入</td>
+<td>按分区粒度调度</td>
+</tr>
+<tr>
+<td>Tez 依赖</td>
+<td>MERGE&#x2F;UPDATE&#x2F;DELETE 必须用 Tez</td>
+<td>MapReduce 不可用</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><p><strong>边界情况</strong>：Hive 的 ACID 实现基于”delta 文件 + 基础文件”模型，频繁 MERGE 会导致大量 delta 文件积压，查询时需要合并 delta 和基础文件（读放大）。<code>ALTER TABLE ... COMPACT</code> 的必要性常被忽视，导致查询越来越慢。</p>
+</li>
+<li><p><strong>对比延伸</strong>：Hive ACID vs Iceberg MERGE：</p>
+<ul>
+<li>Hive ACID：Hive 原生、SQL 支持好、但性能差、格式绑定 ORC</li>
+<li>Iceberg MERGE：引擎无关、支持 Parquet&#x2F;ORC&#x2F;Avro、性能更好、Hive 4.0 支持</li>
+<li>建议：新项目直接用 Iceberg 表 + MERGE，旧 Hive ACID 表逐步迁移</li>
+</ul>
+</li>
+<li><p><strong>生产经验</strong>：如果 MERGE 数据量超过表大小的 10%，考虑改用 INSERT OVERWRITE 全量替换分区。Compaction 建议在业务低峰期自动执行（<code>hive.compactor.worker.threads=1</code>），避免和查询争抢资源。</p>
+</li>
+</ul>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li>Hive ACID docs: <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions">https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions</a></li>
+<li>Cloudera Hive 3 ACID: <a target="_blank" rel="noopener" href="https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_3_internals.html">https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_3_internals.html</a></li>
+</ul>
+<hr>
+<h2 id="0x05-Hive-4-x-深度调优与生产实践"><a href="#0x05-Hive-4-x-深度调优与生产实践" class="headerlink" title="0x05 Hive 4.x 深度调优与生产实践"></a>0x05 Hive 4.x 深度调优与生产实践</h2><h3 id="13-Hive-LLAP（Live-Long-and-Process）：架构与核心调优参数"><a href="#13-Hive-LLAP（Live-Long-and-Process）：架构与核心调优参数" class="headerlink" title="13. Hive LLAP（Live Long and Process）：架构与核心调优参数"></a>13. Hive LLAP（Live Long and Process）：架构与核心调优参数</h3><p><strong>难度</strong>：⭐⭐⭐⭐<br><strong>问题</strong>：Hive LLAP 是什么？它的架构如何提升查询性能？核心调优参数有哪些？</p>
+<p><strong>标准答案</strong>：</p>
+<p>LLAP（Live Long and Process）是 Hive 2.0+ 引入的<strong>常驻查询服务</strong>，通过在 DataNode 上运行长期存活的守护进程，大幅减少查询启动开销和中间结果 I&#x2F;O。</p>
+<p><strong>架构对比</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">传统 Hive（没有 LLAP）:</span><br><span class="line">  ┌─────────┐    ┌──────────┐    ┌──────────┐</span><br><span class="line">  │ 客户端    │───→│  Tez AM  │───→│  Container │</span><br><span class="line">  │         │    │   (启动)  │    │  (启动+停止)│</span><br><span class="line">  └─────────┘    └──────────┘    └──────────┘</span><br><span class="line">  每次查询：启动 Tez Session → 分配 Container → 执行 → 回收</span><br><span class="line">  启动时间 5-30s + 数据读取时间长</span><br><span class="line"></span><br><span class="line">Hive LLAP:</span><br><span class="line">  ┌─────────┐    ┌──────────────┐    ┌──────────────┐</span><br><span class="line">  │ 客户端    │───→│  LLAP Worker  │───→│  LLAP Daemon  │</span><br><span class="line">  │         │    │  (常驻进程)   │    │  (Row Store)  │</span><br><span class="line">  └─────────┘    └──────────────┘    └──────────────┘</span><br><span class="line">  每次查询：直接利用常驻 Worker 进程执行（零启动）</span><br></pre></td></tr></table></figure>
+
+<p><strong>LLAP 核心机制</strong>：</p>
+<ul>
+<li><strong>常驻 Worker</strong>：每个 DataNode 运行一个 LLAP Daemon 进程（内存 + CPU 预留），永远在线</li>
+<li><strong>行缓存（Row Store）</strong>：将热数据缓存在 LLAP Daemon 的 off-heap 内存中，避免重复读取 HDFS</li>
+<li><strong>预取（Prefetch）</strong>：LLAP Worker 在查询执行前预取列存数据，IO 和计算管道化</li>
+<li><strong>结果缓存</strong>：中间结果在 LLAP 内部传递，避免写 HDFS（Tez 的传统模式需要写 HDFS）</li>
+</ul>
+<p><strong>核心配置</strong>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- LLAP 内存配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.llap.daemon.yarn.container.mb<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>32768<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  <span class="comment">&lt;!-- 32GB 每个 LLAP Daemon --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.llap.io.memory.size<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>8gb<span class="tag">&lt;/<span class="name">value</span>&gt;</span>    <span class="comment">&lt;!-- 行缓存大小，建议为 Daemon 内存的 25-30% --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.llap.io.allocator.direct<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span>   <span class="comment">&lt;!-- 使用 Direct Memory（off-heap） --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- LLAP 缓存策略 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.llap.io.cache.evict.algorithm<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>LRU<span class="tag">&lt;/<span class="name">value</span>&gt;</span>    <span class="comment">&lt;!-- 逐出策略：LRU / LFU / FIFO --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.llap.io.cache.evict.policy<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>MEMORY_AND_FILE<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  <span class="comment">&lt;!-- 超过内存后 spill 到本地 SSD --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- LLAP 预取 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.llap.io.prefetch.enabled<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.llap.io.prefetch.threads<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>4<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>性能提升数据</strong>（Cloudera 基准）：</p>
+<pre><code>查询类型            无 LLAP     有 LLAP      提升
+简单扫描 (1TB)        45s         8s         5.6x
+聚合查询             120s        22s         5.5x
+多表 Jo…13435 tokens truncated…比吞吐、P50/P95/P99、错误率、资源消耗、权限拒绝和恢复时间；再通过小流量、自动回归和依赖扫描验证真实流量。结论必须注明适用条件、测量误差和未覆盖风险。
+
+**深入思考**：
+- **边界情况**：平均值可能掩盖长尾；单次压测不能代替恢复演练、容量回归和权限边界测试。
+- **安全回归**：涉及 Agent、插件或外部输入时，增加提示注入、越权调用、敏感数据外泄和审计完整性用例。
+- **可逆性**：发布、暂停、回滚和数据补偿分别定义负责人和验收信号，避免把“服务恢复”误当作“业务恢复”。
+
+## 0x28 可暂停发布、恢复证明与策略门禁
+
+### 1. 如何为 大数据面试题：Hive &amp; SQL 面试全解 设计可暂停、可恢复的变更流程？
+
+**标准答案**：将变更拆成准备、暂停、观测、恢复和完成五个状态；暂停时冻结扩大影响的动作，恢复前重新核对产物摘要、配置、兼容窗口、权限和停止条件。恢复应生成新的变更事件并再次检查目标状态；旧版本不可用时明确选择回退、前向修复或人工接管。
+
+**深入思考**：
+- **边界情况**：暂停只控制编排器或控制面，不会自动撤销数据库写入、消息发送、缓存失效和外部副作用。
+- **源码层面**：区分 desired state、observed state 和 operation state，保证重复 resume、超时重试和控制器重启不会重复动作。
+- **生产经验**：把暂停是否生效、谁能恢复、所需证据和无人操作超时写进 runbook；恢复完成还要检查业务不变量和异步积压。
+
+### 2. 如何把 大数据面试题：Hive &amp; SQL 面试全解 的“恢复完成”变成可验证的证据？
+
+**标准答案**：为每次变更生成唯一 change ID，串联产物或配置摘要、主体、环境、分区、暂停/恢复/回退事件、观测窗口和验收结果。持续动作使用 trace/span，瞬时状态切换使用结构化事件，诊断信息保留为日志；完成条件同时包含技术健康度、业务指标、权限状态和未处理副作用。
+
+**深入思考**：
+- **边界情况**：监控延迟、采样或自身故障会造成“没有证据”而不是“没有问题”，关键停止和审批事件应有低依赖的最小审计通道。
+- **对比延伸**：指标适合趋势和阈值，span 适合操作链路，event 适合状态点；三者不能简单混成超长日志。
+- **生产经验**：证据只保存必要上下文并脱敏；对账、通知、权限和队列等跨系统结果设置最终验收，而不是只依据 HTTP 200 或 Pod Ready。
+
+### 3. 大数据面试题：Hive &amp; SQL 面试全解 的发布/回退门禁如何覆盖供应链与运行时？
+
+**标准答案**：构建阶段固定提交、依赖解析、工作流和产物摘要，生成 SBOM 与 provenance/attestation；部署和回退前验证签名、来源主体、允许的仓库或工作流、摘要及策略版本。运行时以最小权限、短时凭据、工具或网络白名单和可撤销操作限制真实影响，例外必须有审批、范围和过期时间。
+
+**深入思考**：
+- **边界情况**：attestation 证明从哪里、如何构建，不证明代码没有漏洞，也不能替代运行时授权、依赖审计和业务风险判断。
+- **源码层面**：把策略版本、产物 digest 和变更 ID 作为不可变关联键，避免按可变标签或文件名选回退版本。
+- **生产经验**：无法完整验证时优先切只读、限流或人工审批；不要把临时绕过门禁当成长期路径，并在事后补齐证据和轮换凭据。
+
+## 0x1D 2026-09-03：恢复后的重新授权、业务不变量与审计证据（大数据Hive）
+
+### 1. 系统或任务恢复后，为什么不能直接宣布成功？
+
+**标准答案**：恢复动作只说明控制面重新可用，不等于业务结果已经正确。应先冻结恢复范围，核对版本、配置、权限和依赖，再用业务不变量、数据完整性、积压/重试、延迟尾部和关键用户路径做分阶段验收；任何证据缺失或阈值越界都暂停扩大范围并升级人工。
+
+**深入思考**：
+- **边界情况**：进程健康、探针通过或队列继续消费，都可能掩盖重复写入、丢失事件、脏缓存和外部副作用；恢复判据必须覆盖系统之外的结果。
+- **源码层面**：把恢复状态、验收阶段、变更 ID 和证据引用建模为状态机，避免“重试成功”覆盖先前的部分失败；幂等键和补偿记录要能关联原始操作。
+- **生产经验**：先恢复低风险分区或影子流量，观察一段明确时间窗口，再逐步放量；无法证明安全时，优先只读、限流或人工处理。
+
+### 2. 恢复前重新授权应检查哪些内容？
+
+**标准答案**：重新确认调用主体、工具/接口、参数、资源范围、租户边界、凭据有效期和策略版本。授权不能只看“原任务曾经获批”，因为暂停期间身份、配置、数据范围或风险上下文可能已经变化；高影响动作保留人工审批。
+
+**深入思考**：
+- **边界情况**：短时令牌过期、权限被撤销后又恢复、重试请求携带旧参数，都会造成“恢复即越权”；恢复流程应拒绝陈旧授权并重新生成幂等执行上下文。
+- **对比延伸**：最小权限、网关鉴权、运行时策略和人工接管分别控制不同边界，不能用构建来源证明替代动作授权。
+- **生产经验**：把拒绝、超时、撤销、人工批准和恢复都记录成可检索事件；审计系统不可用时采用安全默认值，不因观测缺失而自动放行。
+
+### 3. 如何让恢复决策可审计、可复盘？
+
+**标准答案**：为每个关键事件记录发生时间、观察时间、Trace/Span 关联、资源、变更 ID、策略版本、操作者、结果和证据位置；原始输入、执行输出、人工修改和最终采用版本分开保存。恢复结束后形成时间线和差异清单，而不是只保留一条“成功”日志。
+
+**深入思考**：
+- **边界情况**：异步采集、时钟偏差和重复投递会打乱日志顺序；应区分事件发生的 Timestamp 与采集系统的 ObservedTimestamp，并用关联 ID 重建因果链。
+- **源码层面**：稳定的 EventName 和低基数属性便于聚合，详细内容放入受控 Body/证据存储；敏感输入脱敏、限采和设置留存期限。
+- **生产经验**：审计证据应能回答“谁在何时以什么授权对哪个对象做了什么，验收依据是什么”；来源证明只能说明制品如何构建，仍需结合运行时行为和业务验收。
+
+**本轮参考链接**：
+- [Google SRE 配置变更设计](https://sre.google/workbook/configuration-design/)
+- [OpenTelemetry Logs Data Model](https://opentelemetry.io/docs/specs/otel/logs/data-model/)
+- [GitHub Artifact Attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations)
+- [OWASP Securing Agentic Applications Guide](https://genai.owasp.org/download/49059/)
+
+**本轮参考链接**：
+- [Kubernetes 更新 Deployment、暂停/恢复与回退](https://kubernetes.io/docs/tasks/run-application/update-deployment-rolling/)
+- [OpenTelemetry Events 语义约定](https://opentelemetry.io/docs/specs/semconv/general/events/)
+- [GitHub Artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations)
+- [OWASP Securing Agentic Applications Guide 1.0](https://genai.owasp.org/resource/securing-agentic-applications-guide-1-0/)
+
+&gt; 本轮更新：2026-09-02（Work）——新增 0x28 可暂停发布、恢复证明与供应链/运行时策略门禁三道面试题。
+&gt; **搜索来源**：Tavily 不可用；使用 web__run 官方检索与页面核验 + DuckDuckGo/Google HTML 交叉检索。时间层覆盖最新官方页面与稳定文档；覆盖维度：官方源 ✅ / 生产实践 ✅ / 实现边界 ✅ / 对比选型 ✅。
+
+**本轮参考链接**：
+- [Google SRE Workbook：Canarying Releases](https://sre.google/workbook/canarying-releases/)
+- [OpenTelemetry Semantic Conventions 1.43.0](https://opentelemetry.io/docs/specs/semconv/)
+- [GitHub Secret Scanning](https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning)
+- [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/)
+
+&gt; 本轮更新：2026-07-24（Work）——新增变更兼容性、可排障证据链与安全回归三道生产边界题。
+&gt; **搜索来源**：Web 官方页面搜索与逐页核验；DuckDuckGo/Bing 直连本轮无返回，未声称双源交叉。
+
+&gt; 本次更新：2026-07-21（Work）——新增生产验证、可观测性语义与发布安全边界题目。
+&gt; **搜索来源**：Web 官方页面（Google SRE Workbook、OpenTelemetry、OWASP）；Review 已打开并核对官方正文。
+## 0x16 2026-07-28：生产变更的可观测证据与可逆恢复
+
+### 1. Hive /  发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？
+
+**标准答案**：把协议、数据、配置、运行时和运维兼容性拆开，为每类建立旧版本基线、代表性流量和失败样本；通过双读/双写、灰度或金丝雀逐步放量，用成功率、错误率、P95/P99、资源消耗和恢复时间设定停止与回滚门槛。启动成功只证明进程存活，不能证明语义、顺序、幂等和故障恢复正确。
+
+**深入思考**：不可逆迁移、缓存预热、消息重放和跨版本滚动升级必须单独演练；应用回滚不等于数据回滚，构建产物、配置快照、依赖清单和样本哈希要能支撑故障归因。
+
+### 2. 如何把日志、指标和 Trace 组织成 Hive /  的可排障证据链？
+
+**标准答案**：统一 service、environment、version、instance、request/message 等字段，在跨进程边界传播 Trace Context；指标负责趋势与告警，日志保留关键上下文，Trace 串起跨组件因果路径，并对敏感内容脱敏、采样和限期留存。
+
+**深入思考**：异步队列、批处理、重试和线程池会打断直觉上的父子关系，应额外记录 producer、consumer、attempt 和业务关联 ID；排障演练应从用户症状跳到 Trace、日志、变更记录和恢复动作。
+
+### 3. 性能优化或安全加固后，如何证明没有引入新的生产风险？
+
+**标准答案**：保存变更前基线，用代表性负载和故障注入对比吞吐、P50/P95/P99、错误率、资源消耗、权限拒绝和恢复时间；再用小流量、自动回归、依赖扫描和发布门禁验证真实流量，明确测量误差与未覆盖风险。
+
+**深入思考**：平均值会掩盖长尾；涉及 Agent、插件或外部输入时，还要验证提示注入、越权调用、敏感数据外泄和审计完整性。发布、暂停、回滚、数据补偿分别定义负责人和验收信号。
+
+
+## 0x17 2026-07-29：变更契约、供应链证据与最小权限
+
+### 1. 面对 Hive 的一次兼容升级，怎样把“能回滚”变成可验证的变更契约？
+
+**标准答案**：先定义不变量、兼容窗口和停止条件，再把它们写成自动化检查：接口/Schema 的向后兼容测试、旧客户端与新服务的双向回放、关键 SLI/SLO 的分版本对比，以及明确的回滚入口。发布按小流量、短时段推进；只有当错误率、延迟、业务成功率和数据一致性均满足阈值，才扩大范围。回滚对象必须是可定位的版本或配置快照，不能依赖“临时再修一个补丁”。
+
+**深入思考**：
+- **边界情况**：数据库迁移、消息格式和缓存格式一旦不可逆，代码回滚也可能无法恢复；应采用 expand-contract、双写校验和延迟删除。
+- **证据链**：记录变更 ID、构建产物、配置差异、受影响流量、指标窗口和审批人，复盘时才能区分代码、配置与外部依赖。
+- **生产经验**：先演练停止发布和回滚，再上线；Google SRE 明确建议渐进发布、快速检测和安全回滚。
+
+### 2. 如何证明部署的产物确实来自经过审查的源码，而不是“构建机里恰好生成的文件”？
+
+**标准答案**：让构建过程产生可验证的 provenance：绑定仓库、提交 SHA、工作流、环境和触发事件，必要时同时生成 SBOM；部署侧按组织策略验证签名/证明、来源和允许的构建环境，再允许进入高风险环境。证明“从哪里来”不等于证明“绝对安全”，仍要结合依赖审计、测试和人工风险判断。
+
+**深入思考**：
+- **对比延伸**：哈希只能证明内容一致，签名/attestation 才能把内容与来源、构建步骤关联起来；两者应一起使用。
+- **回滚关系**：保留可验证的上一版产物和声明，回滚时验证旧产物，而不是重新构建一个“看起来一样”的版本。
+- **官方依据**：GitHub 文档说明 Artifact Attestations 用于建立构建来源，并支持用 CLI 验证二进制、容器和 SBOM 证明。
+
+### 3. 在 Hive 系统接入自动化 Agent 或高权限工具时，如何避免“模型说错一句话就造成生产事故”？
+
+**标准答案**：把授权放在模型之外：工具按最小功能拆分，使用调用者上下文和最小权限，服务端对参数、资源范围、速率和状态再次校验；删除、发布、转账、权限变更等高影响动作必须人工确认。所有调用记录 trace、输入摘要、工具参数、结果、拒绝原因和审批信息，并配置熔断、限流与可逆操作。
+
+**深入思考**：
+- **安全边界**：不能把“请模型自我约束”当作授权机制；间接提示注入、恶意工具结果和被污染的上下文都可能改变模型决策。
+- **可观测性**：异常不应只看最终回答，还要关联模型调用、工具调用、下游写入和人工接管，才能定位越权链路。
+- **官方依据**：OWASP 将过度功能、过度权限和过度自主列为 Excessive Agency 的根因，并建议最小化扩展、下游强制授权和高影响动作人工批准。
+
+**本轮参考链接**：
+## 0x18 2026-07-31：变更后验证、故障注入与策略回退
+
+### 1. Hive 的变更已经上线后，如何证明它真的改善了用户结果？
+
+**标准答案**：先定义用户可感知的 SLI/SLO 与变更前基线，再用小流量或分阶段发布比较成功率、错误预算消耗、P95/P99、资源成本和业务完成率；把观测窗口、停止阈值、样本范围和回滚动作写入发布契约。不能用“进程存活”或单一平均值代替用户结果。
+
+**深入思考**：短期指标变好可能掩盖长尾、重试放大、异步积压或低频高影响错误；验证应覆盖峰值、依赖异常、数据回放和恢复后的完整性。若结论不适用于某类租户、地区或流量，应明确标注，而不是泛化为全量安全。
+
+### 2. 如何设计故障注入，既能暴露真实问题，又不会把生产变成实验场？
+
+**标准答案**：从风险模型和历史事故选择最小故障单元，先在隔离环境与影子流量中验证，再以受控范围、可观测停止条件和明确负责人推进；注入网络超时、依赖拒绝、资源耗尽、消息重复或权限拒绝，并检查告警、降级、幂等、人工接管和恢复后的数据一致性。
+
+**深入思考**：故障注入的成功标准不是“系统没挂”，而是能在预期时间内发现、隔离、恢复并留下证据。对不可逆写入、支付、删除和权限变更等动作，应优先使用模拟器、沙箱或只读替身，避免用真实副作用换取测试覆盖率。
+
+### 3. 当错误预算或安全门禁被触发时，如何决定暂停、降级、回滚还是继续发布？
+
+**标准答案**：把动作绑定到事先约定的阈值和证据：错误预算燃烧、关键 SLI、影响范围、变更可定位性、依赖健康度、权限拒绝率和恢复时间共同决定策略。达到高风险阈值就停止扩散并保留上一版可验证产物；只有根因明确、修复经过回归且观测恢复，才逐步解除限制。
+
+**深入思考**：回滚不是万能的，数据迁移、缓存格式、消息协议和外部副作用可能不可逆；需要同时准备前向修复、补偿任务、凭据轮换和审计留痕。对 Agent 或自动化工具，授权层必须独立于模型，并对高影响动作要求人工批准。
+
+**本轮参考链接**：
+- [Google SRE：Escalation Policy](https://cloud.google.com/blog/products/gcp/an-example-escalation-policy-cre-life-lessons)
+- [OpenTelemetry：GenAI Observability](https://opentelemetry.io/blog/2026/genai-observability/)
+- [GitHub：Artifact Attestations](https://docs.github.com/en/enterprise-cloud@latest/actions/concepts/security/artifact-attestations)
+- [OWASP：AI Agent Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html)
+
+&gt; 本轮更新：2026-07-31（Work）——新增变更后验证、故障注入与策略回退三道面试题。
+&gt; **搜索来源**：Web 官方页面 Research + 逐页 Review；DuckDuckGo/Bing 未作为本轮来源，未声称双源交叉。
+- [Google SRE Canarying Releases](https://sre.google/workbook/canarying-releases/)
+- [Google SRE Configuration Design](https://sre.google/workbook/configuration-design/)
+- [GitHub Artifact Attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations)
+- [OWASP Excessive Agency](https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html)
+
+&gt; 本轮更新：2026-07-29（Work）——新增变更契约、供应链证据与最小权限三道面试题。
+&gt; **搜索来源**：Web 官方页面 Research + 逐页 Review；本机 DuckDuckGo/Bing 未作为本轮来源，未声称双源交叉。**本轮参考链接**：
+- [OpenTelemetry GenAI 可观测性](https://opentelemetry.io/blog/2026/genai-observability/)
+- [Google SRE：Canarying Releases](https://sre.google/workbook/canarying-releases/)
+- [OpenTelemetry Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/)
+- [OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/)
+
+&gt; 本轮更新：2026-07-28（Work）——新增生产兼容性、证据链和可逆恢复三道面试题。
+&gt; **搜索来源**：Web 官方页面 Research + 逐页 Review；核验 OpenTelemetry、Google SRE、OWASP，未将搜索摘要当作事实依据。
+
+## 0x19 2026-08-03：变更契约、语义观测与可验证回退
+
+### 1. 如何把一次生产变更写成可执行的变更契约？
+
+**标准答案**：在发布前明确变更范围、兼容性假设、成功指标、停止阈值、观测窗口、负责人和回退动作；把代码、配置、数据库/消息协议、依赖版本与构建产物摘要绑定起来。发布后按小流量或分阶段验证，不能只以进程存活判断成功。
+
+**深入思考**：契约的价值在于让“继续、暂停、降级、回滚”成为证据驱动的决策。数据迁移和外部副作用可能不可逆，因此要同时准备前向修复、补偿任务、幂等重放与审计记录。
+
+### 2. 观测系统如何记录变更过程中的关键状态，而不是堆日志？
+
+**标准答案**：持续操作用 span，瞬时的发布、配置切换、人工批准、熔断和回滚用带时间戳的结构化 event；为事件定义稳定名称、低基数属性、严重级别和关联 trace，并把版本、租户/分区、结果和拒绝原因纳入查询维度。
+
+**深入思考**：日志内容不等于证据链。需要把请求、依赖调用、重试、异步消息、下游写入和人工接管串联起来，同时对凭据、个人数据和高基数输入脱敏、限采和设定留存期。
+
+### 3. 如何证明回滚的确是“上一版”，而不是重新构建的相似产物？
+
+**标准答案**：为构建产物和 SBOM 记录 provenance/attestation，绑定仓库、提交、工作流、环境和摘要；发布门禁验证签名、主体摘要和允许来源，回滚时直接选择已验证的上一版产物，并保留审批与执行证据。
+
+**深入思考**：attestation 证明来源和构建过程，不等于软件绝对安全；仍需结合测试、依赖审计、授权策略和业务风险判断。对 Agent 或自动化工具，还要把模型、提示模板、工具适配器和权限策略纳入版本闭环。
+
+**本轮参考链接**：
+- [Google SRE：Canarying Releases](https://sre.google/workbook/canarying-releases/)
+- [OpenTelemetry：Semantic Conventions for Events](https://opentelemetry.io/docs/specs/semconv/general/events/)
+- [GitHub：Artifact Attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations)
+- [OWASP：AI Agent Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html)
+
+&gt; 本轮更新：2026-08-03（Work）——新增变更契约、语义观测与可验证回退三道面试题。
+&gt; **搜索来源**：Web 官方页面 Research + Review；逐页核验 Google SRE、OpenTelemetry、GitHub Docs 与 OWASP；DuckDuckGo/Bing 未作为本轮来源。
+## 0x1A 2026-08-04：恢复演练、数据校验与人工接管
+
+### 1. 变更产生副作用后，如何设计可恢复流程？
+
+**标准答案**：把规划、执行、提交拆开；高风险动作先生成待确认计划，执行时记录请求、工具版本、输入摘要、结果和操作者；写入外部系统时使用幂等键、事务边界或补偿动作，并保留可验证的撤销路径。回退不能只看服务是否恢复，还要核对数据、权限和对外通知是否恢复到一致状态。
+
+**深入思考**：恢复动作本身也可能失败，因此要有停止条件、人工接管和只读核查模式。发布流程可用小范围、限时的 canary 降低影响；观测字段应采用稳定语义约定，便于跨组件比较。
+
+### 2. 如何判断系统的“成功”而不是只看 HTTP 200？
+
+**标准答案**：为任务定义业务验收条件，例如目标记录存在且字段满足不变量、外部副作用只发生一次、敏感数据没有越权流出；同时记录 trace、重试、拒绝和人工修改等事件。把自动评估、抽样人工复核和回放测试结合起来，失败时保留可重现证据。
+
+**深入思考**：响应正确不代表状态正确；评估集还要覆盖超时、重复消息、部分成功和依赖返回异常。指标应区分组件质量、依赖可靠性和业务结果，避免把某一层的退化掩盖掉。
+
+### 3. 什么时候必须把决策交给人？
+
+**标准答案**：涉及付款、删除、权限授予、医疗法律结论、对外发布或不可逆数据变更时，默认采用人审或双人确认；自动化系统只能准备证据、说明影响范围和给出候选动作。人工界面要展示原始来源、差异、风险、授权范围与撤销方式，并记录最终决定。
+
+**深入思考**：人工接管不应只由“系统不确定”触发，还应由风险等级、异常次数、预算、权限边界和证据缺失触发。参考：[Google SRE Canarying Releases](https://sre.google/workbook/canarying-releases/)、[OpenTelemetry Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/)、[OWASP Securing Agentic Applications Guide](https://genai.owasp.org/resource/securing-agentic-applications-guide-1-0/)。
+
+## 0x1B 2026-08-05：变更影响边界、故障注入验收与人工接管（Hive）
+
+### 1. 如何把一次 Hive 变更定义成可验证的影响边界，而不是只看代码 diff？
+
+**标准答案**：先写变更契约：输入/输出、兼容窗口、数据与权限边界、受影响依赖、成功指标、停止条件和回退对象；再把契约映射到小流量或隔离环境，按 canary 与 control 对比错误率、延迟、正确性和资源信号。只要无法回答“谁受影响、何时停止、回到哪个已知版本”，就不应直接全量发布。
+
+**深入思考**：边界不能只按服务名划分，还要覆盖配置、依赖版本、缓存、消息积压和异步作业。共享数据库或跨阶段流水线会污染对照组，应按工作单元保持同一版本池，并把业务正确性纳入验收；Google SRE 也强调可归因指标、分阶段 canary 和可回退的小变更。
+
+### 2. 如何用故障注入证明 Hive 变更的回退和恢复真的可用？
+
+**标准答案**：在影子流量或隔离租户中注入超时、依赖错误、重复消息、部分写入和权限拒绝，验证告警、自动暂停、人工升级、回退执行及回退后的数据一致性。验收证据至少包括变更版本、输入摘要、trace、停止原因、恢复动作、业务核对结果和未完成任务清单。
+
+**深入思考**：服务恢复不等于业务恢复；数据库迁移、外部副作用和已发送通知可能不可逆，不能用“重新部署旧包”掩盖补偿需求。故障演练要设明确的退出条件和最大影响面，回退失败时转入只读、限流、降级或人工接管，并保留可审计证据。
+
+### 3. 高风险操作何时必须交给人工，如何避免“人工接管”变成口头流程？
+
+**标准答案**：删除、付款、授权、对外发布、跨租户访问和不可逆数据修改等动作应设置策略门禁：最小权限、短期凭证、双人确认、幂等键、撤销/补偿路径和超时升级。Agent 或自动化系统只能提出计划与证据，不能以模型置信度代替授权；人工确认结果要写回审计链并能关联到最终业务状态。
+
+**深入思考**：人工接管不是暂停按钮，而是一个可演练的状态机：谁接手、接收哪些上下文、允许哪些动作、何时恢复自动化、怎样复盘。对 Hive 的生产流程，至少准备“继续、暂停、回退、降级、终止”五种明确分支。
+
+## 0x1C 2026-08-18：可回退发布、证据化观测与供应链验证（Hive）
+
+### 1. 在 Hive 中，如何设计真正可回退的生产发布？
+
+**标准答案**：先把发布对象、兼容窗口、影响范围、成功指标、停止阈值、责任人和回退目标写成变更契约；构建阶段固定提交、依赖解析结果和产物摘要，发布阶段采用小流量或分阶段策略，并让路由、配置和数据变更具备明确的反向动作。回退时直接选择已验证的旧产物，不临时重建“看起来相同”的版本；对数据库、消息、缓存和外部副作用分别准备兼容策略、幂等处理或补偿流程。
+
+**深入思考**：
+- **边界情况**：代码可以回退，但已执行的 schema 迁移、已发送消息和外部写入可能不可逆，因此要区分版本回退、流量切换、前向修复和业务补偿。
+- **源码层面**：把发布控制面、数据面和异步消费者的版本选择记录在同一变更 ID 下，检查重试、超时和部分成功路径，避免只有 HTTP 服务回退而后台任务仍运行新逻辑。
+- **生产经验**：先在隔离租户、影子流量或低风险分区演练停止和恢复；回退成功的判据应包含业务不变量、积压、权限和外部通知，而不是只看进程重新变为健康。
+
+### 2. 如何把 Hive 的发布结果做成证据化观测，而不是只看成功率？
+
+**标准答案**：用指标观察总体趋势，用 trace 关联请求、依赖、重试和异步任务，用结构化事件记录发布开始、配置生效、人工批准、停止、降级和回退，用日志保存必要的上下文与错误样本。每条证据绑定变更 ID、版本/产物摘要、环境、分区、结果和时间窗口；同时对凭据、个人数据、提示词和高基数输入脱敏、限采并设定留存期限。
+
+**深入思考**：
+- **边界情况**：低错误率也可能掩盖业务结果错误、单一租户受损、重试风暴或延迟尾部退化，所以必须把业务验收和 control/canary 对照纳入停止条件。
+- **源码层面**：统一事件名称和属性，确保入口 span、下游调用、消息消费、数据库写入和人工接管能在同一 trace 或关联 ID 下检索；不要把一整段输入直接塞进 span 属性。
+- **生产经验**：先定义“继续、暂停、降级、回退、人工接管”的证据阈值，再配置告警；观测系统自身故障时，应保留最小审计事件和安全默认值，不能因指标缺失而自动全量放行。
+
+### 3. 如何验证 Hive 的依赖与构建产物，避免回滚到来源不明的版本？
+
+**标准答案**：锁定依赖解析结果并保存校验和，生成 SBOM 和构建 provenance/attestation，将仓库、提交、工作流、构建环境、产物摘要和策略版本关联起来。发布门禁验证签名、主体、摘要、允许的来源和漏洞/许可证策略；部署与回退都只接受通过门禁的不可变产物，并把例外审批、时限和后续补救写入审计链。
+
+**深入思考**：
+- **边界情况**：attestation 能证明来源与构建过程，但不能证明代码绝对无漏洞；仍需结合测试、依赖审计、运行时权限和业务风险判断。
+- **对比延伸**：源码仓库保护、锁文件校验、镜像签名、SBOM 和 provenance 解决的是不同问题，不能用其中一个替代全部供应链控制；最小可行门禁也要覆盖 transitive dependency 和构建脚本。
+- **生产经验**：紧急回退允许临时例外时，必须限定产物摘要、操作者、环境和过期时间；若无法验证来源，应选择已知安全版本或降级到只读/限流模式，而不是绕过验证。
+
+**本轮参考链接**：
+- [OpenTelemetry 声明式配置](https://opentelemetry.io/blog/2026/stable-declarative-config/)
+- [Gateway API v1.6.0 发布记录](https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.6.0)
+- [Spring Boot SpringApplication 参考](https://docs.spring.io/spring-boot/reference/features/spring-application.html)
+
+&gt; 本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。
+&gt; **搜索来源**：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI/安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）/近期（2026-05 至 2026-08）/经典（官方稳定文档）；覆盖维度：官方源 ✅ / 生产实践 ✅（原理化归纳）/ 源码与实现边界 ✅ / 对比选型 ✅。
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/Hive/" rel="tag"># Hive</a>
+              <a href="/tags/SQL/" rel="tag"># SQL</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C/" rel="tag"># 数据倾斜</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-Spark-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="大数据面试题：Spark 面试全解">
+                  <i class="fa fa-angle-left"></i> 大数据面试题：Spark 面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/07/%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%95%B0%E6%8D%AE%E6%B9%96-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="大数据面试题：数据湖面试全解">
+                  大数据面试题：数据湖面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

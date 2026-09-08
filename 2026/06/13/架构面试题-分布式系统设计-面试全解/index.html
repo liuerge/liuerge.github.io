@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"liuerge.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":3,"unescape":true,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="分布式系统设计面试全解 面向全栈高级&#x2F;资深研发、架构师级别。覆盖分布式基础理论、高可用容错、缓存架构、分布式数据、一致性协议、经典系统设计题、微服务架构与大规模生产案例。每题包含标准答案 + 深入思考（边界情况&#x2F;源码层面&#x2F;对比延伸&#x2F;生产经验）+ 参考来源链接。   0x00 分布式基础理论0x00.1 CAP 定理与 PACELC 扩展标准答案：CAP 定理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="架构面试题：分布式系统设计面试全解">
+<meta property="og:url" content="https://liuerge.github.io/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="xiaoxin1024&#39;s Blog">
+<meta property="og:description" content="分布式系统设计面试全解 面向全栈高级&#x2F;资深研发、架构师级别。覆盖分布式基础理论、高可用容错、缓存架构、分布式数据、一致性协议、经典系统设计题、微服务架构与大规模生产案例。每题包含标准答案 + 深入思考（边界情况&#x2F;源码层面&#x2F;对比延伸&#x2F;生产经验）+ 参考来源链接。   0x00 分布式基础理论0x00.1 CAP 定理与 PACELC 扩展标准答案：CAP 定理">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-13T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-09-08T12:42:47.000Z">
+<meta property="article:author" content="xiaoxin1024">
+<meta property="article:tag" content="分布式系统">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="系统设计">
+<meta property="article:tag" content="面试题">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://liuerge.github.io/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://liuerge.github.io/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/","path":"2026/06/13/架构面试题-分布式系统设计-面试全解/","title":"架构面试题：分布式系统设计面试全解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>架构面试题：分布式系统设计面试全解 | xiaoxin1024's Blog</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+
+
+
+
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="baiduspider" content="noindex, nofollow" />
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">xiaoxin1024's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">the life i want，there is not shortcut.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3"><span class="nav-text">分布式系统设计面试全解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E5%88%86%E5%B8%83%E5%BC%8F%E5%9F%BA%E7%A1%80%E7%90%86%E8%AE%BA"><span class="nav-text">0x00 分布式基础理论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-1-CAP-%E5%AE%9A%E7%90%86%E4%B8%8E-PACELC-%E6%89%A9%E5%B1%95"><span class="nav-text">0x00.1 CAP 定理与 PACELC 扩展</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-2-%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B%EF%BC%88%E8%AF%A6%E8%A7%A3%EF%BC%89"><span class="nav-text">0x00.2 一致性模型（详解）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-3a-CRDT%EF%BC%88%E6%97%A0%E5%86%B2%E7%AA%81%E5%A4%8D%E5%88%B6%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%89"><span class="nav-text">0x00.3a CRDT（无冲突复制数据类型）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-3-Quorum-NWR-Hinted-Handoff-Read-Repair"><span class="nav-text">0x00.3 Quorum NWR + Hinted Handoff + Read Repair</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-4-FLP-Impossibility-%E4%B8%8E%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95"><span class="nav-text">0x00.4 FLP Impossibility 与共识算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-5-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E6%97%B6%E9%97%B4%E4%B8%8E%E9%A1%BA%E5%BA%8F"><span class="nav-text">0x00.5 分布式系统中的时间与顺序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E9%AB%98%E5%8F%AF%E7%94%A8%E4%B8%8E%E5%AE%B9%E9%94%99"><span class="nav-text">0x01 高可用与容错</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-1-%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB%EF%BC%9A%E4%B8%BB%E4%BB%8E-%E5%A4%9A%E6%B4%BB-%E5%BC%82%E5%9C%B0%E5%A4%9A%E6%B4%BB"><span class="nav-text">0x01.1 故障转移：主从 &#x2F; 多活 &#x2F; 异地多活</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-2-%E7%86%94%E6%96%AD%E5%99%A8%EF%BC%9AHystrix-Resilience4j-Sentinel"><span class="nav-text">0x01.2 熔断器：Hystrix &#x2F; Resilience4j &#x2F; Sentinel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x28-%E5%8F%AF%E6%9A%82%E5%81%9C%E5%8F%91%E5%B8%83%E3%80%81%E6%81%A2%E5%A4%8D%E8%AF%81%E6%98%8E%E4%B8%8E%E7%AD%96%E7%95%A5%E9%97%A8%E7%A6%81"><span class="nav-text">0x28 可暂停发布、恢复证明与策略门禁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E4%B8%BA-%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3-%E8%AE%BE%E8%AE%A1%E5%8F%AF%E6%9A%82%E5%81%9C%E3%80%81%E5%8F%AF%E6%81%A2%E5%A4%8D%E7%9A%84%E5%8F%98%E6%9B%B4%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-text">1. 如何为 架构面试题：分布式系统设计面试全解 设计可暂停、可恢复的变更流程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E6%8A%8A-%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3-%E7%9A%84%E2%80%9C%E6%81%A2%E5%A4%8D%E5%AE%8C%E6%88%90%E2%80%9D%E5%8F%98%E6%88%90%E5%8F%AF%E9%AA%8C%E8%AF%81%E7%9A%84%E8%AF%81%E6%8D%AE%EF%BC%9F"><span class="nav-text">2. 如何把 架构面试题：分布式系统设计面试全解 的“恢复完成”变成可验证的证据？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3-%E7%9A%84%E5%8F%91%E5%B8%83-%E5%9B%9E%E9%80%80%E9%97%A8%E7%A6%81%E5%A6%82%E4%BD%95%E8%A6%86%E7%9B%96%E4%BE%9B%E5%BA%94%E9%93%BE%E4%B8%8E%E8%BF%90%E8%A1%8C%E6%97%B6%EF%BC%9F"><span class="nav-text">3. 架构面试题：分布式系统设计面试全解 的发布&#x2F;回退门禁如何覆盖供应链与运行时？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1D-2026-09-03%EF%BC%9A%E6%81%A2%E5%A4%8D%E5%90%8E%E7%9A%84%E9%87%8D%E6%96%B0%E6%8E%88%E6%9D%83%E3%80%81%E4%B8%9A%E5%8A%A1%E4%B8%8D%E5%8F%98%E9%87%8F%E4%B8%8E%E5%AE%A1%E8%AE%A1%E8%AF%81%E6%8D%AE%EF%BC%88%E6%9E%B6%E6%9E%84%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%89"><span class="nav-text">0x1D 2026-09-03：恢复后的重新授权、业务不变量与审计证据（架构分布式系统设计）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%B3%BB%E7%BB%9F%E6%88%96%E4%BB%BB%E5%8A%A1%E6%81%A2%E5%A4%8D%E5%90%8E%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%9B%B4%E6%8E%A5%E5%AE%A3%E5%B8%83%E6%88%90%E5%8A%9F%EF%BC%9F"><span class="nav-text">1. 系统或任务恢复后，为什么不能直接宣布成功？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%81%A2%E5%A4%8D%E5%89%8D%E9%87%8D%E6%96%B0%E6%8E%88%E6%9D%83%E5%BA%94%E6%A3%80%E6%9F%A5%E5%93%AA%E4%BA%9B%E5%86%85%E5%AE%B9%EF%BC%9F"><span class="nav-text">2. 恢复前重新授权应检查哪些内容？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A6%82%E4%BD%95%E8%AE%A9%E6%81%A2%E5%A4%8D%E5%86%B3%E7%AD%96%E5%8F%AF%E5%AE%A1%E8%AE%A1%E3%80%81%E5%8F%AF%E5%A4%8D%E7%9B%98%EF%BC%9F"><span class="nav-text">3. 如何让恢复决策可审计、可复盘？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x16-2026-07-28%EF%BC%9A%E7%94%9F%E4%BA%A7%E5%8F%98%E6%9B%B4%E7%9A%84%E5%8F%AF%E8%A7%82%E6%B5%8B%E8%AF%81%E6%8D%AE%E4%B8%8E%E5%8F%AF%E9%80%86%E6%81%A2%E5%A4%8D"><span class="nav-text">0x16 2026-07-28：生产变更的可观测证据与可逆恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%8F%91%E7%94%9F%E7%89%88%E6%9C%AC%E3%80%81%E9%85%8D%E7%BD%AE%E6%88%96%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%98%E6%9B%B4%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E5%85%BC%E5%AE%B9%E8%80%8C%E4%B8%8D%E5%8F%AA%E6%98%AF%E2%80%9C%E8%83%BD%E5%90%AF%E5%8A%A8%E2%80%9D%EF%BC%9F"><span class="nav-text">1. 分布式系统设计 &#x2F;  发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E6%8A%8A%E6%97%A5%E5%BF%97%E3%80%81%E6%8C%87%E6%A0%87%E5%92%8C-Trace-%E7%BB%84%E7%BB%87%E6%88%90-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%9A%84%E5%8F%AF%E6%8E%92%E9%9A%9C%E8%AF%81%E6%8D%AE%E9%93%BE%EF%BC%9F"><span class="nav-text">2. 如何把日志、指标和 Trace 组织成 分布式系统设计 &#x2F;  的可排障证据链？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%88%96%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E5%90%8E%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E6%B2%A1%E6%9C%89%E5%BC%95%E5%85%A5%E6%96%B0%E7%9A%84%E7%94%9F%E4%BA%A7%E9%A3%8E%E9%99%A9%EF%BC%9F"><span class="nav-text">3. 性能优化或安全加固后，如何证明没有引入新的生产风险？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x17-2026-07-29%EF%BC%9A%E5%8F%98%E6%9B%B4%E5%A5%91%E7%BA%A6%E3%80%81%E4%BE%9B%E5%BA%94%E9%93%BE%E8%AF%81%E6%8D%AE%E4%B8%8E%E6%9C%80%E5%B0%8F%E6%9D%83%E9%99%90"><span class="nav-text">0x17 2026-07-29：变更契约、供应链证据与最小权限</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%9D%A2%E5%AF%B9-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%9A%84%E4%B8%80%E6%AC%A1%E5%85%BC%E5%AE%B9%E5%8D%87%E7%BA%A7%EF%BC%8C%E6%80%8E%E6%A0%B7%E6%8A%8A%E2%80%9C%E8%83%BD%E5%9B%9E%E6%BB%9A%E2%80%9D%E5%8F%98%E6%88%90%E5%8F%AF%E9%AA%8C%E8%AF%81%E7%9A%84%E5%8F%98%E6%9B%B4%E5%A5%91%E7%BA%A6%EF%BC%9F"><span class="nav-text">1. 面对 分布式系统设计 的一次兼容升级，怎样把“能回滚”变成可验证的变更契约？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E9%83%A8%E7%BD%B2%E7%9A%84%E4%BA%A7%E7%89%A9%E7%A1%AE%E5%AE%9E%E6%9D%A5%E8%87%AA%E7%BB%8F%E8%BF%87%E5%AE%A1%E6%9F%A5%E7%9A%84%E6%BA%90%E7%A0%81%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E2%80%9C%E6%9E%84%E5%BB%BA%E6%9C%BA%E9%87%8C%E6%81%B0%E5%A5%BD%E7%94%9F%E6%88%90%E7%9A%84%E6%96%87%E4%BB%B6%E2%80%9D%EF%BC%9F"><span class="nav-text">2. 如何证明部署的产物确实来自经过审查的源码，而不是“构建机里恰好生成的文件”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%9C%A8-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%85%A5%E8%87%AA%E5%8A%A8%E5%8C%96-Agent-%E6%88%96%E9%AB%98%E6%9D%83%E9%99%90%E5%B7%A5%E5%85%B7%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E2%80%9C%E6%A8%A1%E5%9E%8B%E8%AF%B4%E9%94%99%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%B0%B1%E9%80%A0%E6%88%90%E7%94%9F%E4%BA%A7%E4%BA%8B%E6%95%85%E2%80%9D%EF%BC%9F"><span class="nav-text">3. 在 分布式系统设计 系统接入自动化 Agent 或高权限工具时，如何避免“模型说错一句话就造成生产事故”？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x18-2026-07-31%EF%BC%9A%E5%8F%98%E6%9B%B4%E5%90%8E%E9%AA%8C%E8%AF%81%E3%80%81%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E4%B8%8E%E7%AD%96%E7%95%A5%E5%9B%9E%E9%80%80"><span class="nav-text">0x18 2026-07-31：变更后验证、故障注入与策略回退</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%9A%84%E5%8F%98%E6%9B%B4%E5%B7%B2%E7%BB%8F%E4%B8%8A%E7%BA%BF%E5%90%8E%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E5%AE%83%E7%9C%9F%E7%9A%84%E6%94%B9%E5%96%84%E4%BA%86%E7%94%A8%E6%88%B7%E7%BB%93%E6%9E%9C%EF%BC%9F"><span class="nav-text">1. 分布式系统设计 的变更已经上线后，如何证明它真的改善了用户结果？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%EF%BC%8C%E6%97%A2%E8%83%BD%E6%9A%B4%E9%9C%B2%E7%9C%9F%E5%AE%9E%E9%97%AE%E9%A2%98%EF%BC%8C%E5%8F%88%E4%B8%8D%E4%BC%9A%E6%8A%8A%E7%94%9F%E4%BA%A7%E5%8F%98%E6%88%90%E5%AE%9E%E9%AA%8C%E5%9C%BA%EF%BC%9F"><span class="nav-text">2. 如何设计故障注入，既能暴露真实问题，又不会把生产变成实验场？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%BD%93%E9%94%99%E8%AF%AF%E9%A2%84%E7%AE%97%E6%88%96%E5%AE%89%E5%85%A8%E9%97%A8%E7%A6%81%E8%A2%AB%E8%A7%A6%E5%8F%91%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%86%B3%E5%AE%9A%E6%9A%82%E5%81%9C%E3%80%81%E9%99%8D%E7%BA%A7%E3%80%81%E5%9B%9E%E6%BB%9A%E8%BF%98%E6%98%AF%E7%BB%A7%E7%BB%AD%E5%8F%91%E5%B8%83%EF%BC%9F"><span class="nav-text">3. 当错误预算或安全门禁被触发时，如何决定暂停、降级、回滚还是继续发布？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x19-2026-08-03%EF%BC%9A%E5%8F%98%E6%9B%B4%E5%A5%91%E7%BA%A6%E3%80%81%E8%AF%AD%E4%B9%89%E8%A7%82%E6%B5%8B%E4%B8%8E%E5%8F%AF%E9%AA%8C%E8%AF%81%E5%9B%9E%E9%80%80"><span class="nav-text">0x19 2026-08-03：变更契约、语义观测与可验证回退</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E6%8A%8A%E4%B8%80%E6%AC%A1%E7%94%9F%E4%BA%A7%E5%8F%98%E6%9B%B4%E5%86%99%E6%88%90%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9A%84%E5%8F%98%E6%9B%B4%E5%A5%91%E7%BA%A6%EF%BC%9F"><span class="nav-text">1. 如何把一次生产变更写成可执行的变更契约？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A7%82%E6%B5%8B%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%AE%B0%E5%BD%95%E5%8F%98%E6%9B%B4%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%85%B3%E9%94%AE%E7%8A%B6%E6%80%81%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E5%A0%86%E6%97%A5%E5%BF%97%EF%BC%9F"><span class="nav-text">2. 观测系统如何记录变更过程中的关键状态，而不是堆日志？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E5%9B%9E%E6%BB%9A%E7%9A%84%E7%A1%AE%E6%98%AF%E2%80%9C%E4%B8%8A%E4%B8%80%E7%89%88%E2%80%9D%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E9%87%8D%E6%96%B0%E6%9E%84%E5%BB%BA%E7%9A%84%E7%9B%B8%E4%BC%BC%E4%BA%A7%E7%89%A9%EF%BC%9F"><span class="nav-text">3. 如何证明回滚的确是“上一版”，而不是重新构建的相似产物？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1A-2026-08-04%EF%BC%9A%E6%81%A2%E5%A4%8D%E6%BC%94%E7%BB%83%E3%80%81%E6%95%B0%E6%8D%AE%E6%A0%A1%E9%AA%8C%E4%B8%8E%E4%BA%BA%E5%B7%A5%E6%8E%A5%E7%AE%A1"><span class="nav-text">0x1A 2026-08-04：恢复演练、数据校验与人工接管</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8F%98%E6%9B%B4%E4%BA%A7%E7%94%9F%E5%89%AF%E4%BD%9C%E7%94%A8%E5%90%8E%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E5%8F%AF%E6%81%A2%E5%A4%8D%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-text">1. 变更产生副作用后，如何设计可恢复流程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E7%B3%BB%E7%BB%9F%E7%9A%84%E2%80%9C%E6%88%90%E5%8A%9F%E2%80%9D%E8%80%8C%E4%B8%8D%E6%98%AF%E5%8F%AA%E7%9C%8B-HTTP-200%EF%BC%9F"><span class="nav-text">2. 如何判断系统的“成功”而不是只看 HTTP 200？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%BF%85%E9%A1%BB%E6%8A%8A%E5%86%B3%E7%AD%96%E4%BA%A4%E7%BB%99%E4%BA%BA%EF%BC%9F"><span class="nav-text">3. 什么时候必须把决策交给人？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1B-2026-08-05%EF%BC%9A%E5%8F%98%E6%9B%B4%E5%BD%B1%E5%93%8D%E8%BE%B9%E7%95%8C%E3%80%81%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E9%AA%8C%E6%94%B6%E4%B8%8E%E4%BA%BA%E5%B7%A5%E6%8E%A5%E7%AE%A1%EF%BC%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%89"><span class="nav-text">0x1B 2026-08-05：变更影响边界、故障注入验收与人工接管（分布式系统设计）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E6%8A%8A%E4%B8%80%E6%AC%A1-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%8F%98%E6%9B%B4%E5%AE%9A%E4%B9%89%E6%88%90%E5%8F%AF%E9%AA%8C%E8%AF%81%E7%9A%84%E5%BD%B1%E5%93%8D%E8%BE%B9%E7%95%8C%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E5%8F%AA%E7%9C%8B%E4%BB%A3%E7%A0%81-diff%EF%BC%9F"><span class="nav-text">1. 如何把一次 分布式系统设计 变更定义成可验证的影响边界，而不是只看代码 diff？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E7%94%A8%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E8%AF%81%E6%98%8E-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%8F%98%E6%9B%B4%E7%9A%84%E5%9B%9E%E9%80%80%E5%92%8C%E6%81%A2%E5%A4%8D%E7%9C%9F%E7%9A%84%E5%8F%AF%E7%94%A8%EF%BC%9F"><span class="nav-text">2. 如何用故障注入证明 分布式系统设计 变更的回退和恢复真的可用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%AB%98%E9%A3%8E%E9%99%A9%E6%93%8D%E4%BD%9C%E4%BD%95%E6%97%B6%E5%BF%85%E9%A1%BB%E4%BA%A4%E7%BB%99%E4%BA%BA%E5%B7%A5%EF%BC%8C%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E2%80%9C%E4%BA%BA%E5%B7%A5%E6%8E%A5%E7%AE%A1%E2%80%9D%E5%8F%98%E6%88%90%E5%8F%A3%E5%A4%B4%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-text">3. 高风险操作何时必须交给人工，如何避免“人工接管”变成口头流程？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1C-2026-08-18%EF%BC%9A%E5%8F%AF%E5%9B%9E%E9%80%80%E5%8F%91%E5%B8%83%E3%80%81%E8%AF%81%E6%8D%AE%E5%8C%96%E8%A7%82%E6%B5%8B%E4%B8%8E%E4%BE%9B%E5%BA%94%E9%93%BE%E9%AA%8C%E8%AF%81%EF%BC%88%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%89"><span class="nav-text">0x1C 2026-08-18：可回退发布、证据化观测与供应链验证（分布式系统设计）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9C%A8-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E4%B8%AD%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%9C%9F%E6%AD%A3%E5%8F%AF%E5%9B%9E%E9%80%80%E7%9A%84%E7%94%9F%E4%BA%A7%E5%8F%91%E5%B8%83%EF%BC%9F"><span class="nav-text">1. 在 分布式系统设计 中，如何设计真正可回退的生产发布？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E6%8A%8A-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%9A%84%E5%8F%91%E5%B8%83%E7%BB%93%E6%9E%9C%E5%81%9A%E6%88%90%E8%AF%81%E6%8D%AE%E5%8C%96%E8%A7%82%E6%B5%8B%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E5%8F%AA%E7%9C%8B%E6%88%90%E5%8A%9F%E7%8E%87%EF%BC%9F"><span class="nav-text">2. 如何把 分布式系统设计 的发布结果做成证据化观测，而不是只看成功率？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A6%82%E4%BD%95%E9%AA%8C%E8%AF%81-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E7%9A%84%E4%BE%9D%E8%B5%96%E4%B8%8E%E6%9E%84%E5%BB%BA%E4%BA%A7%E7%89%A9%EF%BC%8C%E9%81%BF%E5%85%8D%E5%9B%9E%E6%BB%9A%E5%88%B0%E6%9D%A5%E6%BA%90%E4%B8%8D%E6%98%8E%E7%9A%84%E7%89%88%E6%9C%AC%EF%BC%9F"><span class="nav-text">3. 如何验证 分布式系统设计 的依赖与构建产物，避免回滚到来源不明的版本？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E9%87%8D%E8%AF%95%E9%A2%84%E7%AE%97%E3%80%81%E5%B9%82%E7%AD%89%E8%BE%B9%E7%95%8C%E4%B8%8E%E6%95%85%E9%9A%9C%E9%9A%94%E7%A6%BB"><span class="nav-text">0x02 重试预算、幂等边界与故障隔离</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%87%8D%E8%AF%95%E4%BC%9A%E6%8A%8A%E4%B8%80%E6%AC%A1%E6%95%85%E9%9A%9C%E6%94%BE%E5%A4%A7%E6%88%90%E5%85%A8%E9%93%BE%E8%B7%AF%E9%9B%AA%E5%B4%A9%EF%BC%9F"><span class="nav-text">1. 为什么微服务重试会把一次故障放大成全链路雪崩？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Raft-%E9%9B%86%E7%BE%A4%E6%89%A9%E5%AE%B9%E5%92%8C%E8%8A%82%E7%82%B9%E6%9B%BF%E6%8D%A2%E6%97%B6%EF%BC%8C%E6%80%8E%E6%A0%B7%E9%81%BF%E5%85%8D%E5%90%8C%E6%97%B6%E5%A4%B1%E5%8E%BB%E6%B3%95%E5%AE%9A%E4%BA%BA%E6%95%B0%EF%BC%9F"><span class="nav-text">2. Raft 集群扩容和节点替换时，怎样避免同时失去法定人数？</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">xiaoxin1024</p>
+  <div class="site-description" itemprop="description">大海里的一粒沙</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">132</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://liuerge.github.io/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="xiaoxin1024">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaoxin1024's Blog">
+      <meta itemprop="description" content="大海里的一粒沙">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="架构面试题：分布式系统设计面试全解 | xiaoxin1024's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          架构面试题：分布式系统设计面试全解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-13 12:00:00" itemprop="dateCreated datePublished" datetime="2026-06-13T12:00:00+08:00">2026-06-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-08 20:42:47" itemprop="dateModified" datetime="2026-09-08T20:42:47+08:00">2026-09-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9E%B6%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">架构</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="分布式系统设计面试全解"><a href="#分布式系统设计面试全解" class="headerlink" title="分布式系统设计面试全解"></a>分布式系统设计面试全解</h1><blockquote>
+<p>面向全栈高级&#x2F;资深研发、架构师级别。覆盖分布式基础理论、高可用容错、缓存架构、分布式数据、一致性协议、经典系统设计题、微服务架构与大规模生产案例。每题包含标准答案 + 深入思考（边界情况&#x2F;源码层面&#x2F;对比延伸&#x2F;生产经验）+ 参考来源链接。</p>
+</blockquote>
+<hr>
+<h2 id="0x00-分布式基础理论"><a href="#0x00-分布式基础理论" class="headerlink" title="0x00 分布式基础理论"></a>0x00 分布式基础理论</h2><h3 id="0x00-1-CAP-定理与-PACELC-扩展"><a href="#0x00-1-CAP-定理与-PACELC-扩展" class="headerlink" title="0x00.1 CAP 定理与 PACELC 扩展"></a>0x00.1 CAP 定理与 PACELC 扩展</h3><p><strong>标准答案</strong>：<br>CAP 定理由 Eric Brewer 于 2000 年提出，指出分布式系统在**网络分区（Partition）<strong>发生时，必须在</strong>一致性（Consistency）<strong>和</strong>可用性（Availability）**之间做出取舍。三者不可兼得。</p>
+<ul>
+<li><strong>C（Consistency）</strong>：所有节点在同一时刻看到相同的数据。写操作完成后，所有后续读操作都必须返回最新值。</li>
+<li><strong>A（Availability）</strong>：每个请求都能获得一个（非错误的）响应，但不保证返回的是最新数据。</li>
+<li><strong>P（Partition Tolerance）</strong>：系统在网络分区（节点间通信中断）时仍能继续运行。</li>
+</ul>
+<p>PACELC 由 Daniel Abadi 提出，弥补了 CAP 的不足：<strong>在分区时（P），选择可用性（A）或一致性（C）；否则（Else，即无分区时），选择延迟（L）或一致性（C）。</strong></p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>系统示例</th>
+<th>分区时选择</th>
+<th>正常时选择</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PA&#x2F;EL</td>
+<td>Cassandra, DynamoDB</td>
+<td>可用性</td>
+<td>低延迟</td>
+</tr>
+<tr>
+<td>PC&#x2F;EC</td>
+<td>Spanner, HBase</td>
+<td>一致性</td>
+<td>一致性</td>
+</tr>
+<tr>
+<td>PA&#x2F;EC</td>
+<td>MongoDB (部分配置)</td>
+<td>可用性</td>
+<td>一致性</td>
+</tr>
+<tr>
+<td>PC&#x2F;EL</td>
+<td>PNUTS</td>
+<td>一致性</td>
+<td>低延迟</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：CAP 中定义的可用性是非常宽松的——一个 30 天后才返回响应的系统在 CAP 定义下仍然”可用”。PACELC 的贡献正是把延迟问题显式提出。</li>
+<li><strong>真实案例</strong>：某大型电商在跨 AZ 部署时使用最终一致性的 DynamoDB，双十一期间出现购物车商品数量不一致（A AZ 的写入在 B AZ 读取不到）。原因是网络抖动导致分区，选择了 PA，但 Read Repair 异步执行的窗口期产生了不一致。解决方案：关键路径使用 DynamoDB 的<strong>强一致性读取</strong>（牺牲部分延迟），非关键路径使用最终一致性。</li>
+<li><strong>生产经验</strong>：跨 AZ 部署时，<strong>哪怕你认为网络不会分区</strong>，也要假设分区会发生。跨 AZ 延迟本身就在 1-5ms 级别，PACELC 的 E→L 或 E→C 选择直接影响架构设计。</li>
+</ul>
+<blockquote>
+<p><strong>面试金句</strong>：CAP 不是让你三选二，而是告诉你当网络分区时你必须放弃一项。PACELC 则进一步指出，即便没有分区，你也在延迟和一致性之间做选择。关键不是选哪个，而是<strong>在系统的每个数据路径上分别做出明确的 trade-off 决策</strong>。</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cs.umd.edu/~abadi/papers/abadi-pacelc.pdf">PACELC Theorem - Daniel Abadi, University of Maryland</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.to/ashokan/beyond-cap-unveiling-the-pacelc-theorem-for-modern-systems-465j">Beyond CAP: Unveiling the PACELC Theorem</a></li>
+<li><a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/6196310">CAP Theorem - Eric Brewer, IEEE Computer 2012</a></li>
+</ul>
+<hr>
+<h3 id="0x00-2-一致性模型（详解）"><a href="#0x00-2-一致性模型（详解）" class="headerlink" title="0x00.2 一致性模型（详解）"></a>0x00.2 一致性模型（详解）</h3><p><strong>标准答案</strong>：<br>一致性模型定义了分布式系统中数据写入后在什么条件下对读取可见。按强度递减排列：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>描述</th>
+<th>典型实现</th>
+<th>性能特征</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线性一致性 (Linearizability)</td>
+<td>操作<strong>实时</strong>有序，就像单机系统。一旦写完成，所有后续读都能看到。</td>
+<td>Raft&#x2F;Paxos 提交后、Spanner 用 TrueTime、单节点数据库</td>
+<td>最慢，延迟较高</td>
+</tr>
+<tr>
+<td>顺序一致性 (Sequential)</td>
+<td>每个进程的操作按程序顺序执行，但不要求实时顺序。</td>
+<td>分布式锁服务、Chubby</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>因果一致性 (Causal)</td>
+<td>有因果关系的操作按因果顺序可见，无因果关系的可乱序。</td>
+<td>CRDT、DynamoDB 的向量时钟、COPS</td>
+<td>较好</td>
+</tr>
+<tr>
+<td>最终一致性 (Eventual)</td>
+<td>如果没有新写入，最终所有副本会收敛到相同值。</td>
+<td>DNS、CDN、DynamoDB (默认)、Cassandra</td>
+<td>最高性能</td>
+</tr>
+<tr>
+<td>读己之写 (Read-your-writes)</td>
+<td>写入者总能读到自己的写入，但其他用户可能看不到。</td>
+<td>会话级别的一致性</td>
+<td>良好</td>
+</tr>
+<tr>
+<td>单调读 (Monotonic Read)</td>
+<td>用户不会读到旧版本——时间只进不退。</td>
+<td>粘性会话</td>
+<td>良好</td>
+</tr>
+</tbody></table>
+<p><strong>读写对账表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>读一致性 \ 写一致性</th>
+<th>强同步写</th>
+<th>异步写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>强一致性读</td>
+<td>Spanner、ZooKeeper</td>
+<td>不可能（读可能看到旧数据）</td>
+</tr>
+<tr>
+<td>最终一致性读</td>
+<td>通常没问题（但延迟写入窗口内可能读到旧值）</td>
+<td>Cassandra 默认</td>
+</tr>
+<tr>
+<td>单调读</td>
+<td>自动满足</td>
+<td>需额外保证（粘性路由）</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>线性一致性的代价</strong>：Google Spanner 的 TrueTime 使用 GPS + 原子钟的硬件方案来提供精确的时钟误差边界（commit wait ~7ms）。没有 TrueTime 这种硬件支持，纯软件实现线性一致性需要至少 2 轮 RTT（如 Raft 的 commit 流程）。</li>
+<li><strong>因果一致性的计算复杂度</strong>：追踪因果关系需要向量时钟（Vector Clock），每个副本维护一个 N 维向量。当节点数 N 很大时（100+），向量时钟的存储和传输开销不可忽略。Dynamo 的实践是限制向量时钟的大小（如最多 10 个节点），超过时裁剪最旧条目——这理论上可能丢失因果关系信息。</li>
+<li><strong>生产经验</strong>：阿里的 OceanBase 在金融场景使用<strong>强同步</strong>（多数派提交），而淘宝商品浏览使用最终一致性 + 本地缓存 TTL 1s 来兼得性能和体验。</li>
+</ul>
+<blockquote>
+<p><strong>面试金句</strong>：一致性模型不是选择题，而是<strong>光谱</strong>。从强到弱逐步降级，每条路径都需要明确的业务容忍度声明。面试时能说出「我们支付系统用线性一致性，商品推荐用最终一致性，用户在个人中心用 read-your-writes」，就是真懂的人。</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf">Dynamo: Amazon’s Highly Available Key-value Store - SOSP 2007</a></li>
+<li><a target="_blank" rel="noopener" href="https://dataintensive.net/">DDIA - Chapter 9: Consistency and Consensus</a></li>
+</ul>
+<hr>
+<h3 id="0x00-3a-CRDT（无冲突复制数据类型）"><a href="#0x00-3a-CRDT（无冲突复制数据类型）" class="headerlink" title="0x00.3a CRDT（无冲突复制数据类型）"></a>0x00.3a CRDT（无冲突复制数据类型）</h3><p><strong>标准答案</strong>：<br>CRDT（Conflict-free Replicated Data Type）是一种不需要冲突解决就能在多节点间自动合并的数据结构。CRDT 保证：只要所有节点最终收到所有更新，它们的状态就<strong>数学上保证收敛</strong>。</p>
+<p><strong>两种类型</strong>：</p>
+<ol>
+<li><strong>基于状态的 CRDT（CvRDT）</strong>：节点之间同步完整状态。要求合并函数满足<strong>交换律、结合律、幂等律</strong>（如 Max、Set-union、G-Counter）。</li>
+<li><strong>基于操作的 CRDT（CmRDT）</strong>：节点之间同步操作日志。要求操作的因果序和操作本身可交换。</li>
+</ol>
+<p><strong>常见 CRDT 类型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>数据结构</th>
+<th>合并方式</th>
+<th>实用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G-Counter (Grow-only Counter)</td>
+<td>每个节点维护自己的计数</td>
+<td>取每个节点的 max</td>
+<td>PV 统计</td>
+</tr>
+<tr>
+<td>PN-Counter</td>
+<td>G-Counter 合成（+ 和 - 各一个）</td>
+<td>两个 G-Counter 分别合并</td>
+<td>点赞（+1&#x2F;-1）</td>
+</tr>
+<tr>
+<td>G-Set (Grow-only Set)</td>
+<td>元素集合</td>
+<td>取并集</td>
+<td>标签、白名单</td>
+</tr>
+<tr>
+<td>2P-Set</td>
+<td>add 和 remove 两个 G-Set</td>
+<td>add set 并集 + remove set 并集</td>
+<td>黑白名单</td>
+</tr>
+<tr>
+<td>LWW-Register</td>
+<td>(时间戳, 值)</td>
+<td>保留时间戳最大的值</td>
+<td>购物车</td>
+</tr>
+<tr>
+<td>OR-Set (Observed-Remove Set)</td>
+<td>每个元素带唯一 tag</td>
+<td>基于 tag 的添加&#x2F;移除合并</td>
+<td>协作编辑</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>CRDT 在 Riak 中的实践</strong>：Riak 的 <code>riak_dt</code> 模块实现了多种 CRDT，用于自动解决多节点写入冲突。当 Dynamo 风格的向量时钟超过限制时，CRDT 可替代应用层冲突解决。</li>
+<li><strong>CRDT vs OT（Operational Transform）</strong>：两者都用于协作文档编辑。OT 需要中心化的服务器做操作转换（Google Docs 使用），CRDT 天然去中心化（如 Yjs、Automerge）。近年来 CRDT 正在逐步取代 OT——Yjs 是目前最流行的协作编辑 CRDT 库，支持 Rich Text。</li>
+<li><strong>CRDT 的存储膨胀问题</strong>：OR-Set 每个元素需要唯一 tag，且移除操作并不真正删除 tag（只标记删除），导致存储持续增长。需要手动做 GC（Garbage Collection）——在确认所有节点都已看到移除操作后，可以安全清理 tag。</li>
+<li><strong>生产经验</strong>：Notion 的实时协作使用 CRDT（基于 Logoot 算法变体），但数据层最终用 JSON patch 同步到后端数据库。纯 CRDT 存储成本高，前端实时协作 + 后端快照&#x2F;增量存储是更经济的混合方案。</li>
+</ul>
+<blockquote>
+<p><strong>面试金句</strong>：CRDT 的数学基础（交换律+结合律+幂等律）保证了去中心化场景下数据自动收敛。面试中如果能把 CRDT 和 OT 的区别讲清楚，说明你对分布式数据同步有深入的横向视野。<strong>记住：Riak 用 CRDT 做冲突解决、Yjs 用 CRDT 做协作编辑、Redis 的 CRDT 用于 Redis Enterprise 的多活。</strong></p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://hal.inria.fr/inria-00432304/document">CRDTs: Consistency without concurrency control - Letia et al. 2009</a></li>
+<li><a target="_blank" rel="noopener" href="https://hal.science/inria-00555588/">A comprehensive study of CRDT - Shapiro et al. 2011</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/yjs/yjs">Yjs - CRDT for collaborative editing</a></li>
+</ul>
+<hr>
+<h3 id="0x00-3-Quorum-NWR-Hinted-Handoff-Read-Repair"><a href="#0x00-3-Quorum-NWR-Hinted-Handoff-Read-Repair" class="headerlink" title="0x00.3 Quorum NWR + Hinted Handoff + Read Repair"></a>0x00.3 Quorum NWR + Hinted Handoff + Read Repair</h3><p><strong>标准答案</strong>：<br>Dynamo 架构使用 Quorum NWR 模型提供灵活的一致性保障：</p>
+<ul>
+<li><strong>N</strong>：数据的副本数</li>
+<li><strong>W</strong>：写操作需要确认的节点数</li>
+<li><strong>R</strong>：读操作需要返回结果的节点数</li>
+</ul>
+<p><strong>条件</strong>：<code>W + R &gt; N</code> 保证强一致性（读一定能看到最新写入）。</p>
+<p><strong>特性</strong>：</p>
+<ol>
+<li><strong>Sloppy Quorum（宽松仲裁）</strong>：当 preference list 中的节点不可用时，协调器继续沿一致性哈希环寻找后续健康节点。这保证可用性，但可能降低 durability（数据写到了非理想节点）。</li>
+<li><strong>Hinted Handoff（提示移交）</strong>：如果目标节点不可用，数据被写入一个临时替代节点，并在该节点上附加”提示”信息。当原节点恢复后，临时节点将数据转发回去。</li>
+<li><strong>Read Repair（读修复）</strong>：读取时若有节点返回旧版本数据，协调器会异步将新版本写入该节点。</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：<code>W + R &gt; N</code> 在<strong>并发写入</strong>场景下仍不能保证线性一致性。原因是：两个写入并发发生时，一个写入只到了部分节点，另一个写入到了另一部分节点，读仲裁时可能基于过时的版本号做出错误判断。解决：引入<strong>权威版本</strong>（如 Cassandra 的 last write win 依赖时间戳）或使用<strong>读修复+读前仲裁</strong>（先读最新版本再写）。</li>
+<li><strong>源码层面</strong>：Cassandra 的 Read Repair 实现在 <code>StorageProxy.java</code> 的 <code>RowIteratorAndMutations</code> 中——当发现 digest 不一致时，发起 full data read 比较所有副本的完整数据，然后生成 delta mutation 发送给过期副本。</li>
+<li><strong>生产经验</strong>：某大厂使用 Casssandra 时，Read Repair 在高峰期触发大量背景读，导致网络带宽被打满。解决方案：设置 <code>read_repair_chance = 0.1</code>（仅 10% 的读触发修复），配合手动 Anti-Entropy 窗口。</li>
+</ul>
+<blockquote>
+<p><strong>面试金句</strong>：NWR 是 Dynamo 优雅的核心。高手会在面试中补充：W&#x3D;1 表示最高写入可用性但最低 durability；R&#x3D;N, W&#x3D;1 表示读强一致但写性能极差。真实生产中 W 和 R 通常取 N&#x2F;2+1（多数派）。</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf">Dynamo: Amazon’s Highly Available Key-value Store</a></li>
+<li><a target="_blank" rel="noopener" href="https://cassandra.apache.org/doc/latest/cassandra/operating/read_repair.html">Cassandra Architecture - Read Repair</a></li>
+</ul>
+<hr>
+<h3 id="0x00-4-FLP-Impossibility-与共识算法"><a href="#0x00-4-FLP-Impossibility-与共识算法" class="headerlink" title="0x00.4 FLP Impossibility 与共识算法"></a>0x00.4 FLP Impossibility 与共识算法</h3><p><strong>标准答案</strong>：<br>FLP Impossibility（Fischer, Lynch, Patterson, 1985）证明：<strong>在一个异步系统中，只要存在哪怕一个进程可能崩溃，就不存在一个确定性算法能保证所有非故障进程达成共识。</strong> 核心原因是在异步模型下无法区分”进程挂了”和”进程太慢”。</p>
+<p><strong>实际工程如何绕过</strong>：</p>
+<ol>
+<li><strong>使用故障检测器</strong>（Failure Detector）——虽然不是完美的（在异步系统中不可能完美），但足够好。如 Φ-Accrual Detector。</li>
+<li><strong>使用随机化</strong>——如共识协议中的随机超时（Raft 的选举超时 150-300ms 随机化）。</li>
+<li><strong>部分同步模型</strong>（Dwork, Lynch, Stockmeyer）——系统大多数时候同步，偶尔异步。这是工程中<strong>最常用的假设</strong>：NTP 同步的时钟 + TCP 超时机制。</li>
+</ol>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>为什么 FLP 重要</strong>：它告诉我们共识在理论上需要某种”非确定性”或”部分同步”的假设。任何声称能在纯异步模型下保证安全达成共识的系统，要么是错的，要么做了隐蔽的假设。</li>
+<li><strong>工程含义</strong>：Raft 的 leader election 使用随机超时，实际上引入了”概率性”保证——大多数情况下很快达成共识，但理论上可能永远选不出 leader（概率趋近于 0）。Paxos 的活锁也是同理。</li>
+<li><strong>对比 Paxos vs Raft</strong>：两者都依赖部分同步模型。区别在于 Raft 显式地表述了所有假设并分解为可理解的子问题。</li>
+</ul>
+<blockquote>
+<p><strong>面试金句</strong>：FLP 是分布式系统的”测不准原理”——它不阻止你做共识，但告诉你要付出什么代价。你必须在同步性、故障模型或确定性三者中放弃一个。</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://groups.csail.mit.edu/tds/papers/Lynch/jacm85.pdf">Impossibility of Distributed Consensus with One Faulty Process - JACM 1985</a></li>
+<li><a target="_blank" rel="noopener" href="https://dataintensive.net/">DDIA - Chapter 9</a></li>
+<li><a target="_blank" rel="noopener" href="https://groups.csail.mit.edu/tds/papers/Lynch/DLS-JACM88.pdf">Consensus in the Presence of Partial Synchrony - DLS 1988</a></li>
+</ul>
+<hr>
+<h3 id="0x00-5-分布式系统中的时间与顺序"><a href="#0x00-5-分布式系统中的时间与顺序" class="headerlink" title="0x00.5 分布式系统中的时间与顺序"></a>0x00.5 分布式系统中的时间与顺序</h3><p><strong>标准答案</strong>：<br>分布式系统中时间是一个棘手问题——不同机器的物理时钟无法完全同步，需要引入<strong>逻辑时钟</strong>来建立事件顺序。</p>
+<p><strong>三种时钟类型</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>定义</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理时钟 (Physical Clock)</td>
+<td>NTP 同步的墙上时钟</td>
+<td>NTP 误差 1-100ms，NTP 本身可能回拨时钟</td>
+</tr>
+<tr>
+<td>逻辑时钟 (Lamport Clock)</td>
+<td>每个事件递增计数器，附带进程ID</td>
+<td>只能捕获 happens-before 关系，不能检测并发</td>
+</tr>
+<tr>
+<td>向量时钟 (Vector Clock)</td>
+<td>每个进程维护 N 维计数器</td>
+<td>存储 O(N)，裁剪大向量可能丢失信息</td>
+</tr>
+</tbody></table>
+<p><strong>Lamport Clock</strong>：每个进程维护一个计数器。发送消息时 <code>counter += 1</code>，附带在消息中。收到消息时 <code>counter = max(local, received) + 1</code>。可确定两个事件的偏序，但不能判断并发。</p>
+<p><strong>TrueTime（Google Spanner）</strong>：使用 GPS + 原子钟，返回一个时间区间 <code>[earliest, latest]</code>。TrueTime 保证真实时间一定在这个区间内。Spanner 使用 <code>commit_wait = latest - now + 1ms</code> 确保提交时间晚于写操作的真实发生时间，从而实现<strong>外部一致性</strong>（external consistency——等同于线性一致性）。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>NTP 回拨问题</strong>：NTP 检测到系统时钟偏差 &gt; 1000s 时会大幅回拨时钟，直接导致 Snowflake ID 重复。生产环境需使用 <code>ntpd -x</code>（渐进调整）代替默认的 <code>ntpd</code>（跳跃调整）。</li>
+<li><strong>Hybrid Logical Clock（HLC）</strong>：谷歌的 Hybrid Logical Clock 结合物理时钟和逻辑时钟——名义上使用物理时间，当物理时钟回拨时用逻辑组件补偿。HLC 的值 <code>l</code> 满足 <code>l ≈ physical_time</code>，且 <code>l</code> 严格单调递增。CockroachDB 使用 HLC。</li>
+<li><strong>面试常问</strong>：”如何在没有同步时钟的情况下判断事件顺序？”——答案是<strong>向量时钟 + 因果检测</strong>。如果向量 VA ≤ VB（每个维度的值都 ≤），则 A 是 B 的因果前驱；否则两者并发。</li>
+</ul>
+<blockquote>
+<p><strong>面试金句</strong>：时间问题是分布式系统中最微妙的陷阱。<strong>能区分 Lamport Clock（偏序）和 Vector Clock（偏序+并发检测）的人，已经超越了 90% 的面试者。</strong> 而能说出 TrueTime 的 commit_wait 机制和 HLC 的设计的，就是真懂分布式系统的。</p>
+</blockquote>
+<p><strong>参考来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://lamport.azurewebsites.net/pubs/time-clocks.pdf">Time, Clocks, and the Ordering of Events in a Distributed System - Lamport 1978</a></li>
+<li><a target="_blank" rel="noopener" href="https://research.google/pubs/pub39966/">Spanner: Google’s Globally Distributed Database - TrueTime Section</a></li>
+<li><a target="_blank" rel="noopener" href="https://cse.buffalo.edu/tech-reports/2014-04.pdf">Hybrid Logical Clock - Kulkarni et al. 2014</a></li>
+</ul>
+<hr>
+<h2 id="0x01-高可用与容错"><a href="#0x01-高可用与容错" class="headerlink" title="0x01 高可用与容错"></a>0x01 高可用与容错</h2><h3 id="0x01-1-故障转移：主从-多活-异地多活"><a href="#0x01-1-故障转移：主从-多活-异地多活" class="headerlink" title="0x01.1 故障转移：主从 &#x2F; 多活 &#x2F; 异地多活"></a>0x01.1 故障转移：主从 &#x2F; 多活 &#x2F; 异地多活</h3><p><strong>标准答案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>架构特点</th>
+<th>RPO</th>
+<th>RTO</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主从（Active-Standby）</td>
+<td>主库写入，从库异步&#x2F;半同步复制</td>
+<td>秒级~分钟级</td>
+<td>分钟级</td>
+<td>中小规模</td>
+</tr>
+<tr>
+<td>多活（Active-Active）</td>
+<td>多节点同时读写，冲突处理</td>
+<td>RPO≈0</td>
+<td>秒级</td>
+<td>全球部署</td>
+</tr>
+<tr>
+<td>异地多活</td>
+<td>跨地域多活，带流量调度</td>
+<td>RPO≈0</td>
+<td>&lt;30s</td>
+<td>必须保证业务连续性的大厂</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>主从故障转移踩坑</strong>：使用异步复制时，主库挂了但未同步的写入会丢失。MySQL 的 semi-sync replication 缓解但非100%保证。实际案例：某金融公司 MySQL 主库宕机，异步复制落后 3s，切换后丢失了 3000 笔订单的支付确认。</li>
+<li><strong>多活冲突处理</strong>：多活写冲突不可避免。DynamoDB 使用 last-writer-wins（LWW），依赖精确的时间戳。但跨地域时 NTP 误差可达 10-100ms。CouchDB 使用多版本合并（类似 Git 的合并），把冲突留给应用层。</li>
+<li><strong>异地多活的全局视角</strong>：阿里在双 11 的异地多活方案是”单元化”（Cell-based）：每个单元是一个自包含的部署单元，单元间通过 MQ 异步同步。流量按用户 ID 哈希路由到固定单元，从根源上减少跨单元写入。</li>
+</ul>
+<blockquote>
+<p><strong>面试金句</strong>：异地多活的本质不是”多写”，是”分区写入 + 有限同步”。真正的难度在于如何划分数据分片使大多数请求不跨域。</p>
+</blockquote>
+<hr>
+<h3 id="0x01-2-熔断器：Hystrix-Resilience4j-Sentinel"><a href="#0x01-2-熔断器：Hystrix-Resilience4j-Sentinel" class="headerlink" title="0x01.2 熔断器：Hystrix &#x2F; Resilience4j &#x2F; Sentinel"></a>0x01.2 熔断器：Hystrix &#x2F; Resilience4j &#x2F; Sentinel</h3><p><strong>标准答案</strong>：<br>熔断器（Circuit Breaker）是一种快速失败机制，防止依赖故障级联扩散。核心是<strong>状态机</strong>：CLOSED → OPEN → HALF-OPEN → CLOSED。</p>
+<p><strong>Resilience4j 源码级分析（v2.x）</strong>：</p>
+<ul>
+<li><strong>滑动窗口</strong>：两种策略<ul>
+<li><code>COUNT_BASED</code>：环形缓冲区（Circular Array），固定大小 N，每次新结果覆盖最旧条目。空间复杂度 O(N)。</li>
+<li><code>TIME_BASED</code>：环形数组 + 分桶聚合，每个桶聚合 1 秒内所有调用结果。自增更新部分聚合，整体 Snapshot 预聚合（O(1) 获取）。</li>
+</ul>
+</li>
+<li><strong>状态机</strong>：<code>CircuitBreakerStateMachine</code> 内部维护 <code>AtomicReference&lt;CircuitBreakerState&gt;</code>。状态切换通过 <code>stateComparator</code> 验证合法后 CAS 切换，避免并发问题。</li>
+<li><strong>关键配置</strong>：<code>failureRateThreshold</code>、<code>slowCallRateThreshold</code>、<code>slidingWindowSize</code>、<code>minimumNumberOfCalls</code>（窗口未满前不触发熔断）、<code>waitDurationInOpenState</code>、<code>permittedNumberOfCallsInHalfOpenState</code></li>
+</ul>
+<p><strong>Sentinel 对比 Hystrix</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Hystrix</th>
+<th>Sentinel</th>
+<th>Resilience4j</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>隔离方式</td>
+<td>线程池 &#x2F; 信号量</td>
+<td>信号量 + 计数器</td>
+<td>信号量 &#x2F; 线程池</td>
+</tr>
+<tr>
+<td>熔断策略</td>
+<td>错误率</td>
+<td>错误率&#x2F;慢调用比例&#x2F;异常数</td>
+<td>错误率&#x2F;慢调用率</td>
+</tr>
+<tr>
+<td>滑动窗口</td>
+<td>滚动时间窗</td>
+<td>滑动时间窗（LeapArray）</td>
+<td>计数&#x2F;时间滑动窗</td>
+</tr>
+<tr>
+<td>实时监控</td>
+<td>Hystrix Dashboard</td>
+<td>控制台 + 实时数据</td>
+<td>Micrometer&#x2F;Prometheus</td>
+</tr>
+<tr>
+<td>维护状态</td>
+<td><strong>维护模式 (2018)</strong></td>
+<td>活跃</td>
+<td>活跃</td>
+</tr>
+</tbody></table>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>HALF-OPEN 的陷阱</strong>：如果 <code>permittedNumberOfCallsInHalfOpenState</code> 设置过大（如 10），且 10 个请求全部成功，服务可能已被打垮（这些请求仍然通过了熔断器）…34278 tokens truncated…论必须注明适用条件、测量误差和未覆盖风险。</li>
+</ul>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：平均值可能掩盖长尾；单次压测不能代替恢复演练、容量回归和权限边界测试。</li>
+<li><strong>安全回归</strong>：涉及 Agent、插件或外部输入时，增加提示注入、越权调用、敏感数据外泄和审计完整性用例。</li>
+<li><strong>可逆性</strong>：发布、暂停、回滚和数据补偿分别定义负责人和验收信号，避免把“服务恢复”误当作“业务恢复”。</li>
+</ul>
+<h2 id="0x28-可暂停发布、恢复证明与策略门禁"><a href="#0x28-可暂停发布、恢复证明与策略门禁" class="headerlink" title="0x28 可暂停发布、恢复证明与策略门禁"></a>0x28 可暂停发布、恢复证明与策略门禁</h2><h3 id="1-如何为-架构面试题：分布式系统设计面试全解-设计可暂停、可恢复的变更流程？"><a href="#1-如何为-架构面试题：分布式系统设计面试全解-设计可暂停、可恢复的变更流程？" class="headerlink" title="1. 如何为 架构面试题：分布式系统设计面试全解 设计可暂停、可恢复的变更流程？"></a>1. 如何为 架构面试题：分布式系统设计面试全解 设计可暂停、可恢复的变更流程？</h3><p><strong>标准答案</strong>：将变更拆成准备、暂停、观测、恢复和完成五个状态；暂停时冻结扩大影响的动作，恢复前重新核对产物摘要、配置、兼容窗口、权限和停止条件。恢复应生成新的变更事件并再次检查目标状态；旧版本不可用时明确选择回退、前向修复或人工接管。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：暂停只控制编排器或控制面，不会自动撤销数据库写入、消息发送、缓存失效和外部副作用。</li>
+<li><strong>源码层面</strong>：区分 desired state、observed state 和 operation state，保证重复 resume、超时重试和控制器重启不会重复动作。</li>
+<li><strong>生产经验</strong>：把暂停是否生效、谁能恢复、所需证据和无人操作超时写进 runbook；恢复完成还要检查业务不变量和异步积压。</li>
+</ul>
+<h3 id="2-如何把-架构面试题：分布式系统设计面试全解-的“恢复完成”变成可验证的证据？"><a href="#2-如何把-架构面试题：分布式系统设计面试全解-的“恢复完成”变成可验证的证据？" class="headerlink" title="2. 如何把 架构面试题：分布式系统设计面试全解 的“恢复完成”变成可验证的证据？"></a>2. 如何把 架构面试题：分布式系统设计面试全解 的“恢复完成”变成可验证的证据？</h3><p><strong>标准答案</strong>：为每次变更生成唯一 change ID，串联产物或配置摘要、主体、环境、分区、暂停&#x2F;恢复&#x2F;回退事件、观测窗口和验收结果。持续动作使用 trace&#x2F;span，瞬时状态切换使用结构化事件，诊断信息保留为日志；完成条件同时包含技术健康度、业务指标、权限状态和未处理副作用。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：监控延迟、采样或自身故障会造成“没有证据”而不是“没有问题”，关键停止和审批事件应有低依赖的最小审计通道。</li>
+<li><strong>对比延伸</strong>：指标适合趋势和阈值，span 适合操作链路，event 适合状态点；三者不能简单混成超长日志。</li>
+<li><strong>生产经验</strong>：证据只保存必要上下文并脱敏；对账、通知、权限和队列等跨系统结果设置最终验收，而不是只依据 HTTP 200 或 Pod Ready。</li>
+</ul>
+<h3 id="3-架构面试题：分布式系统设计面试全解-的发布-回退门禁如何覆盖供应链与运行时？"><a href="#3-架构面试题：分布式系统设计面试全解-的发布-回退门禁如何覆盖供应链与运行时？" class="headerlink" title="3. 架构面试题：分布式系统设计面试全解 的发布&#x2F;回退门禁如何覆盖供应链与运行时？"></a>3. 架构面试题：分布式系统设计面试全解 的发布&#x2F;回退门禁如何覆盖供应链与运行时？</h3><p><strong>标准答案</strong>：构建阶段固定提交、依赖解析、工作流和产物摘要，生成 SBOM 与 provenance&#x2F;attestation；部署和回退前验证签名、来源主体、允许的仓库或工作流、摘要及策略版本。运行时以最小权限、短时凭据、工具或网络白名单和可撤销操作限制真实影响，例外必须有审批、范围和过期时间。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：attestation 证明从哪里、如何构建，不证明代码没有漏洞，也不能替代运行时授权、依赖审计和业务风险判断。</li>
+<li><strong>源码层面</strong>：把策略版本、产物 digest 和变更 ID 作为不可变关联键，避免按可变标签或文件名选回退版本。</li>
+<li><strong>生产经验</strong>：无法完整验证时优先切只读、限流或人工审批；不要把临时绕过门禁当成长期路径，并在事后补齐证据和轮换凭据。</li>
+</ul>
+<h2 id="0x1D-2026-09-03：恢复后的重新授权、业务不变量与审计证据（架构分布式系统设计）"><a href="#0x1D-2026-09-03：恢复后的重新授权、业务不变量与审计证据（架构分布式系统设计）" class="headerlink" title="0x1D 2026-09-03：恢复后的重新授权、业务不变量与审计证据（架构分布式系统设计）"></a>0x1D 2026-09-03：恢复后的重新授权、业务不变量与审计证据（架构分布式系统设计）</h2><h3 id="1-系统或任务恢复后，为什么不能直接宣布成功？"><a href="#1-系统或任务恢复后，为什么不能直接宣布成功？" class="headerlink" title="1. 系统或任务恢复后，为什么不能直接宣布成功？"></a>1. 系统或任务恢复后，为什么不能直接宣布成功？</h3><p><strong>标准答案</strong>：恢复动作只说明控制面重新可用，不等于业务结果已经正确。应先冻结恢复范围，核对版本、配置、权限和依赖，再用业务不变量、数据完整性、积压&#x2F;重试、延迟尾部和关键用户路径做分阶段验收；任何证据缺失或阈值越界都暂停扩大范围并升级人工。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：进程健康、探针通过或队列继续消费，都可能掩盖重复写入、丢失事件、脏缓存和外部副作用；恢复判据必须覆盖系统之外的结果。</li>
+<li><strong>源码层面</strong>：把恢复状态、验收阶段、变更 ID 和证据引用建模为状态机，避免“重试成功”覆盖先前的部分失败；幂等键和补偿记录要能关联原始操作。</li>
+<li><strong>生产经验</strong>：先恢复低风险分区或影子流量，观察一段明确时间窗口，再逐步放量；无法证明安全时，优先只读、限流或人工处理。</li>
+</ul>
+<h3 id="2-恢复前重新授权应检查哪些内容？"><a href="#2-恢复前重新授权应检查哪些内容？" class="headerlink" title="2. 恢复前重新授权应检查哪些内容？"></a>2. 恢复前重新授权应检查哪些内容？</h3><p><strong>标准答案</strong>：重新确认调用主体、工具&#x2F;接口、参数、资源范围、租户边界、凭据有效期和策略版本。授权不能只看“原任务曾经获批”，因为暂停期间身份、配置、数据范围或风险上下文可能已经变化；高影响动作保留人工审批。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：短时令牌过期、权限被撤销后又恢复、重试请求携带旧参数，都会造成“恢复即越权”；恢复流程应拒绝陈旧授权并重新生成幂等执行上下文。</li>
+<li><strong>对比延伸</strong>：最小权限、网关鉴权、运行时策略和人工接管分别控制不同边界，不能用构建来源证明替代动作授权。</li>
+<li><strong>生产经验</strong>：把拒绝、超时、撤销、人工批准和恢复都记录成可检索事件；审计系统不可用时采用安全默认值，不因观测缺失而自动放行。</li>
+</ul>
+<h3 id="3-如何让恢复决策可审计、可复盘？"><a href="#3-如何让恢复决策可审计、可复盘？" class="headerlink" title="3. 如何让恢复决策可审计、可复盘？"></a>3. 如何让恢复决策可审计、可复盘？</h3><p><strong>标准答案</strong>：为每个关键事件记录发生时间、观察时间、Trace&#x2F;Span 关联、资源、变更 ID、策略版本、操作者、结果和证据位置；原始输入、执行输出、人工修改和最终采用版本分开保存。恢复结束后形成时间线和差异清单，而不是只保留一条“成功”日志。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：异步采集、时钟偏差和重复投递会打乱日志顺序；应区分事件发生的 Timestamp 与采集系统的 ObservedTimestamp，并用关联 ID 重建因果链。</li>
+<li><strong>源码层面</strong>：稳定的 EventName 和低基数属性便于聚合，详细内容放入受控 Body&#x2F;证据存储；敏感输入脱敏、限采和设置留存期限。</li>
+<li><strong>生产经验</strong>：审计证据应能回答“谁在何时以什么授权对哪个对象做了什么，验收依据是什么”；来源证明只能说明制品如何构建，仍需结合运行时行为和业务验收。<br><strong>本轮参考链接</strong>：</li>
+<li><a target="_blank" rel="noopener" href="https://sre.google/workbook/configuration-design/">Google SRE 配置变更设计</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/otel/logs/data-model/">OpenTelemetry Logs Data Model</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations">GitHub Artifact Attestations</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/download/49059/">OWASP Securing Agentic Applications Guide</a><br><strong>本轮参考链接</strong>：</li>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/tasks/run-application/update-deployment-rolling/">Kubernetes 更新 Deployment、暂停&#x2F;恢复与回退</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/general/events/">OpenTelemetry Events 语义约定</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/concepts/security/artifact-attestations">GitHub Artifact attestations</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/securing-agentic-applications-guide-1-0/">OWASP Securing Agentic Applications Guide 1.0</a><blockquote>
+<p>本轮更新：2026-09-02（Work）——新增 0x28 可暂停发布、恢复证明与供应链&#x2F;运行时策略门禁三道面试题。<br><strong>搜索来源</strong>：Tavily 不可用；使用 web__run 官方检索与页面核验 + DuckDuckGo&#x2F;Google HTML 交叉检索。时间层覆盖最新官方页面与稳定文档；覆盖维度：官方源 ✅ &#x2F; 生产实践 ✅ &#x2F; 实现边界 ✅ &#x2F; 对比选型 ✅。<br><strong>本轮参考链接</strong>：</p>
+</blockquote>
+</li>
+<li><a target="_blank" rel="noopener" href="https://sre.google/workbook/canarying-releases/">Google SRE Workbook：Canarying Releases</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/">OpenTelemetry Semantic Conventions 1.43.0</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning">GitHub Secret Scanning</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/">OWASP Top 10 for LLM Applications 2025</a><blockquote>
+<p>本轮更新：2026-07-24（Work）——新增变更兼容性、可排障证据链与安全回归三道生产边界题。<br><strong>搜索来源</strong>：Web 官方页面搜索与逐页核验；DuckDuckGo&#x2F;Bing 直连本轮无返回，未声称双源交叉。<br>本次更新：2026-07-21（Work）——新增生产验证、可观测性语义与发布安全边界题目。<br><strong>搜索来源</strong>：Web 官方页面（Google SRE Workbook、OpenTelemetry、OWASP）；Review 已打开并核对官方正文。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="0x16-2026-07-28：生产变更的可观测证据与可逆恢复"><a href="#0x16-2026-07-28：生产变更的可观测证据与可逆恢复" class="headerlink" title="0x16 2026-07-28：生产变更的可观测证据与可逆恢复"></a>0x16 2026-07-28：生产变更的可观测证据与可逆恢复</h2><h3 id="1-分布式系统设计-发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？"><a href="#1-分布式系统设计-发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？" class="headerlink" title="1. 分布式系统设计 &#x2F;  发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？"></a>1. 分布式系统设计 &#x2F;  发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？</h3><p><strong>标准答案</strong>：把协议、数据、配置、运行时和运维兼容性拆开，为每类建立旧版本基线、代表性流量和失败样本；通过双读&#x2F;双写、灰度或金丝雀逐步放量，用成功率、错误率、P95&#x2F;P99、资源消耗和恢复时间设定停止与回滚门槛。启动成功只证明进程存活，不能证明语义、顺序、幂等和故障恢复正确。<br><strong>深入思考</strong>：不可逆迁移、缓存预热、消息重放和跨版本滚动升级必须单独演练；应用回滚不等于数据回滚，构建产物、配置快照、依赖清单和样本哈希要能支撑故障归因。</p>
+<h3 id="2-如何把日志、指标和-Trace-组织成-分布式系统设计-的可排障证据链？"><a href="#2-如何把日志、指标和-Trace-组织成-分布式系统设计-的可排障证据链？" class="headerlink" title="2. 如何把日志、指标和 Trace 组织成 分布式系统设计 &#x2F;  的可排障证据链？"></a>2. 如何把日志、指标和 Trace 组织成 分布式系统设计 &#x2F;  的可排障证据链？</h3><p><strong>标准答案</strong>：统一 service、environment、version、instance、request&#x2F;message 等字段，在跨进程边界传播 Trace Context；指标负责趋势与告警，日志保留关键上下文，Trace 串起跨组件因果路径，并对敏感内容脱敏、采样和限期留存。<br><strong>深入思考</strong>：异步队列、批处理、重试和线程池会打断直觉上的父子关系，应额外记录 producer、consumer、attempt 和业务关联 ID；排障演练应从用户症状跳到 Trace、日志、变更记录和恢复动作。</p>
+<h3 id="3-性能优化或安全加固后，如何证明没有引入新的生产风险？"><a href="#3-性能优化或安全加固后，如何证明没有引入新的生产风险？" class="headerlink" title="3. 性能优化或安全加固后，如何证明没有引入新的生产风险？"></a>3. 性能优化或安全加固后，如何证明没有引入新的生产风险？</h3><p><strong>标准答案</strong>：保存变更前基线，用代表性负载和故障注入对比吞吐、P50&#x2F;P95&#x2F;P99、错误率、资源消耗、权限拒绝和恢复时间；再用小流量、自动回归、依赖扫描和发布门禁验证真实流量，明确测量误差与未覆盖风险。<br><strong>深入思考</strong>：平均值会掩盖长尾；涉及 Agent、插件或外部输入时，还要验证提示注入、越权调用、敏感数据外泄和审计完整性。发布、暂停、回滚、数据补偿分别定义负责人和验收信号。</p>
+<h2 id="0x17-2026-07-29：变更契约、供应链证据与最小权限"><a href="#0x17-2026-07-29：变更契约、供应链证据与最小权限" class="headerlink" title="0x17 2026-07-29：变更契约、供应链证据与最小权限"></a>0x17 2026-07-29：变更契约、供应链证据与最小权限</h2><h3 id="1-面对-分布式系统设计-的一次兼容升级，怎样把“能回滚”变成可验证的变更契约？"><a href="#1-面对-分布式系统设计-的一次兼容升级，怎样把“能回滚”变成可验证的变更契约？" class="headerlink" title="1. 面对 分布式系统设计 的一次兼容升级，怎样把“能回滚”变成可验证的变更契约？"></a>1. 面对 分布式系统设计 的一次兼容升级，怎样把“能回滚”变成可验证的变更契约？</h3><p><strong>标准答案</strong>：先定义不变量、兼容窗口和停止条件，再把它们写成自动化检查：接口&#x2F;Schema 的向后兼容测试、旧客户端与新服务的双向回放、关键 SLI&#x2F;SLO 的分版本对比，以及明确的回滚入口。发布按小流量、短时段推进；只有当错误率、延迟、业务成功率和数据一致性均满足阈值，才扩大范围。回滚对象必须是可定位的版本或配置快照，不能依赖“临时再修一个补丁”。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：数据库迁移、消息格式和缓存格式一旦不可逆，代码回滚也可能无法恢复；应采用 expand-contract、双写校验和延迟删除。</li>
+<li><strong>证据链</strong>：记录变更 ID、构建产物、配置差异、受影响流量、指标窗口和审批人，复盘时才能区分代码、配置与外部依赖。</li>
+<li><strong>生产经验</strong>：先演练停止发布和回滚，再上线；Google SRE 明确建议渐进发布、快速检测和安全回滚。</li>
+</ul>
+<h3 id="2-如何证明部署的产物确实来自经过审查的源码，而不是“构建机里恰好生成的文件”？"><a href="#2-如何证明部署的产物确实来自经过审查的源码，而不是“构建机里恰好生成的文件”？" class="headerlink" title="2. 如何证明部署的产物确实来自经过审查的源码，而不是“构建机里恰好生成的文件”？"></a>2. 如何证明部署的产物确实来自经过审查的源码，而不是“构建机里恰好生成的文件”？</h3><p><strong>标准答案</strong>：让构建过程产生可验证的 provenance：绑定仓库、提交 SHA、工作流、环境和触发事件，必要时同时生成 SBOM；部署侧按组织策略验证签名&#x2F;证明、来源和允许的构建环境，再允许进入高风险环境。证明“从哪里来”不等于证明“绝对安全”，仍要结合依赖审计、测试和人工风险判断。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>对比延伸</strong>：哈希只能证明内容一致，签名&#x2F;attestation 才能把内容与来源、构建步骤关联起来；两者应一起使用。</li>
+<li><strong>回滚关系</strong>：保留可验证的上一版产物和声明，回滚时验证旧产物，而不是重新构建一个“看起来一样”的版本。</li>
+<li><strong>官方依据</strong>：GitHub 文档说明 Artifact Attestations 用于建立构建来源，并支持用 CLI 验证二进制、容器和 SBOM 证明。</li>
+</ul>
+<h3 id="3-在-分布式系统设计-系统接入自动化-Agent-或高权限工具时，如何避免“模型说错一句话就造成生产事故”？"><a href="#3-在-分布式系统设计-系统接入自动化-Agent-或高权限工具时，如何避免“模型说错一句话就造成生产事故”？" class="headerlink" title="3. 在 分布式系统设计 系统接入自动化 Agent 或高权限工具时，如何避免“模型说错一句话就造成生产事故”？"></a>3. 在 分布式系统设计 系统接入自动化 Agent 或高权限工具时，如何避免“模型说错一句话就造成生产事故”？</h3><p><strong>标准答案</strong>：把授权放在模型之外：工具按最小功能拆分，使用调用者上下文和最小权限，服务端对参数、资源范围、速率和状态再次校验；删除、发布、转账、权限变更等高影响动作必须人工确认。所有调用记录 trace、输入摘要、工具参数、结果、拒绝原因和审批信息，并配置熔断、限流与可逆操作。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>安全边界</strong>：不能把“请模型自我约束”当作授权机制；间接提示注入、恶意工具结果和被污染的上下文都可能改变模型决策。</li>
+<li><strong>可观测性</strong>：异常不应只看最终回答，还要关联模型调用、工具调用、下游写入和人工接管，才能定位越权链路。</li>
+<li><strong>官方依据</strong>：OWASP 将过度功能、过度权限和过度自主列为 Excessive Agency 的根因，并建议最小化扩展、下游强制授权和高影响动作人工批准。<br><strong>本轮参考链接</strong>：</li>
+</ul>
+<h2 id="0x18-2026-07-31：变更后验证、故障注入与策略回退"><a href="#0x18-2026-07-31：变更后验证、故障注入与策略回退" class="headerlink" title="0x18 2026-07-31：变更后验证、故障注入与策略回退"></a>0x18 2026-07-31：变更后验证、故障注入与策略回退</h2><h3 id="1-分布式系统设计-的变更已经上线后，如何证明它真的改善了用户结果？"><a href="#1-分布式系统设计-的变更已经上线后，如何证明它真的改善了用户结果？" class="headerlink" title="1. 分布式系统设计 的变更已经上线后，如何证明它真的改善了用户结果？"></a>1. 分布式系统设计 的变更已经上线后，如何证明它真的改善了用户结果？</h3><p><strong>标准答案</strong>：先定义用户可感知的 SLI&#x2F;SLO 与变更前基线，再用小流量或分阶段发布比较成功率、错误预算消耗、P95&#x2F;P99、资源成本和业务完成率；把观测窗口、停止阈值、样本范围和回滚动作写入发布契约。不能用“进程存活”或单一平均值代替用户结果。<br><strong>深入思考</strong>：短期指标变好可能掩盖长尾、重试放大、异步积压或低频高影响错误；验证应覆盖峰值、依赖异常、数据回放和恢复后的完整性。若结论不适用于某类租户、地区或流量，应明确标注，而不是泛化为全量安全。</p>
+<h3 id="2-如何设计故障注入，既能暴露真实问题，又不会把生产变成实验场？"><a href="#2-如何设计故障注入，既能暴露真实问题，又不会把生产变成实验场？" class="headerlink" title="2. 如何设计故障注入，既能暴露真实问题，又不会把生产变成实验场？"></a>2. 如何设计故障注入，既能暴露真实问题，又不会把生产变成实验场？</h3><p><strong>标准答案</strong>：从风险模型和历史事故选择最小故障单元，先在隔离环境与影子流量中验证，再以受控范围、可观测停止条件和明确负责人推进；注入网络超时、依赖拒绝、资源耗尽、消息重复或权限拒绝，并检查告警、降级、幂等、人工接管和恢复后的数据一致性。<br><strong>深入思考</strong>：故障注入的成功标准不是“系统没挂”，而是能在预期时间内发现、隔离、恢复并留下证据。对不可逆写入、支付、删除和权限变更等动作，应优先使用模拟器、沙箱或只读替身，避免用真实副作用换取测试覆盖率。</p>
+<h3 id="3-当错误预算或安全门禁被触发时，如何决定暂停、降级、回滚还是继续发布？"><a href="#3-当错误预算或安全门禁被触发时，如何决定暂停、降级、回滚还是继续发布？" class="headerlink" title="3. 当错误预算或安全门禁被触发时，如何决定暂停、降级、回滚还是继续发布？"></a>3. 当错误预算或安全门禁被触发时，如何决定暂停、降级、回滚还是继续发布？</h3><p><strong>标准答案</strong>：把动作绑定到事先约定的阈值和证据：错误预算燃烧、关键 SLI、影响范围、变更可定位性、依赖健康度、权限拒绝率和恢复时间共同决定策略。达到高风险阈值就停止扩散并保留上一版可验证产物；只有根因明确、修复经过回归且观测恢复，才逐步解除限制。<br><strong>深入思考</strong>：回滚不是万能的，数据迁移、缓存格式、消息协议和外部副作用可能不可逆；需要同时准备前向修复、补偿任务、凭据轮换和审计留痕。对 Agent 或自动化工具，授权层必须独立于模型，并对高影响动作要求人工批准。<br><strong>本轮参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.google.com/blog/products/gcp/an-example-escalation-policy-cre-life-lessons">Google SRE：Escalation Policy</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/blog/2026/genai-observability/">OpenTelemetry：GenAI Observability</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/enterprise-cloud@latest/actions/concepts/security/artifact-attestations">GitHub：Artifact Attestations</a></li>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html">OWASP：AI Agent Security Cheat Sheet</a><blockquote>
+<p>本轮更新：2026-07-31（Work）——新增变更后验证、故障注入与策略回退三道面试题。<br><strong>搜索来源</strong>：Web 官方页面 Research + 逐页 Review；DuckDuckGo&#x2F;Bing 未作为本轮来源，未声称双源交叉。</p>
+</blockquote>
+</li>
+<li><a target="_blank" rel="noopener" href="https://sre.google/workbook/canarying-releases/">Google SRE Canarying Releases</a></li>
+<li><a target="_blank" rel="noopener" href="https://sre.google/workbook/configuration-design/">Google SRE Configuration Design</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations">GitHub Artifact Attestations</a></li>
+<li><a target="_blank" rel="noopener" href="https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html">OWASP Excessive Agency</a><blockquote>
+<p>本轮更新：2026-07-29（Work）——新增变更契约、供应链证据与最小权限三道面试题。<br><strong>搜索来源</strong>：Web 官方页面 Research + 逐页 Review；本机 DuckDuckGo&#x2F;Bing 未作为本轮来源，未声称双源交叉。<strong>本轮参考链接</strong>：</p>
+</blockquote>
+</li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/blog/2026/genai-observability/">OpenTelemetry GenAI 可观测性</a></li>
+<li><a target="_blank" rel="noopener" href="https://sre.google/workbook/canarying-releases/">Google SRE：Canarying Releases</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/">OpenTelemetry Semantic Conventions</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/">OWASP Top 10 for LLM Applications 2025</a><blockquote>
+<p>本轮更新：2026-07-28（Work）——新增生产兼容性、证据链和可逆恢复三道面试题。<br><strong>搜索来源</strong>：Web 官方页面 Research + 逐页 Review；核验 OpenTelemetry、Google SRE、OWASP，未将搜索摘要当作事实依据。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="0x19-2026-08-03：变更契约、语义观测与可验证回退"><a href="#0x19-2026-08-03：变更契约、语义观测与可验证回退" class="headerlink" title="0x19 2026-08-03：变更契约、语义观测与可验证回退"></a>0x19 2026-08-03：变更契约、语义观测与可验证回退</h2><h3 id="1-如何把一次生产变更写成可执行的变更契约？"><a href="#1-如何把一次生产变更写成可执行的变更契约？" class="headerlink" title="1. 如何把一次生产变更写成可执行的变更契约？"></a>1. 如何把一次生产变更写成可执行的变更契约？</h3><p><strong>标准答案</strong>：在发布前明确变更范围、兼容性假设、成功指标、停止阈值、观测窗口、负责人和回退动作；把代码、配置、数据库&#x2F;消息协议、依赖版本与构建产物摘要绑定起来。发布后按小流量或分阶段验证，不能只以进程存活判断成功。<br><strong>深入思考</strong>：契约的价值在于让“继续、暂停、降级、回滚”成为证据驱动的决策。数据迁移和外部副作用可能不可逆，因此要同时准备前向修复、补偿任务、幂等重放与审计记录。</p>
+<h3 id="2-观测系统如何记录变更过程中的关键状态，而不是堆日志？"><a href="#2-观测系统如何记录变更过程中的关键状态，而不是堆日志？" class="headerlink" title="2. 观测系统如何记录变更过程中的关键状态，而不是堆日志？"></a>2. 观测系统如何记录变更过程中的关键状态，而不是堆日志？</h3><p><strong>标准答案</strong>：持续操作用 span，瞬时的发布、配置切换、人工批准、熔断和回滚用带时间戳的结构化 event；为事件定义稳定名称、低基数属性、严重级别和关联 trace，并把版本、租户&#x2F;分区、结果和拒绝原因纳入查询维度。<br><strong>深入思考</strong>：日志内容不等于证据链。需要把请求、依赖调用、重试、异步消息、下游写入和人工接管串联起来，同时对凭据、个人数据和高基数输入脱敏、限采和设定留存期。</p>
+<h3 id="3-如何证明回滚的确是“上一版”，而不是重新构建的相似产物？"><a href="#3-如何证明回滚的确是“上一版”，而不是重新构建的相似产物？" class="headerlink" title="3. 如何证明回滚的确是“上一版”，而不是重新构建的相似产物？"></a>3. 如何证明回滚的确是“上一版”，而不是重新构建的相似产物？</h3><p><strong>标准答案</strong>：为构建产物和 SBOM 记录 provenance&#x2F;attestation，绑定仓库、提交、工作流、环境和摘要；发布门禁验证签名、主体摘要和允许来源，回滚时直接选择已验证的上一版产物，并保留审批与执行证据。<br><strong>深入思考</strong>：attestation 证明来源和构建过程，不等于软件绝对安全；仍需结合测试、依赖审计、授权策略和业务风险判断。对 Agent 或自动化工具，还要把模型、提示模板、工具适配器和权限策略纳入版本闭环。<br><strong>本轮参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://sre.google/workbook/canarying-releases/">Google SRE：Canarying Releases</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/general/events/">OpenTelemetry：Semantic Conventions for Events</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations">GitHub：Artifact Attestations</a></li>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html">OWASP：AI Agent Security Cheat Sheet</a><blockquote>
+<p>本轮更新：2026-08-03（Work）——新增变更契约、语义观测与可验证回退三道面试题。<br><strong>搜索来源</strong>：Web 官方页面 Research + Review；逐页核验 Google SRE、OpenTelemetry、GitHub Docs 与 OWASP；DuckDuckGo&#x2F;Bing 未作为本轮来源。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="0x1A-2026-08-04：恢复演练、数据校验与人工接管"><a href="#0x1A-2026-08-04：恢复演练、数据校验与人工接管" class="headerlink" title="0x1A 2026-08-04：恢复演练、数据校验与人工接管"></a>0x1A 2026-08-04：恢复演练、数据校验与人工接管</h2><h3 id="1-变更产生副作用后，如何设计可恢复流程？"><a href="#1-变更产生副作用后，如何设计可恢复流程？" class="headerlink" title="1. 变更产生副作用后，如何设计可恢复流程？"></a>1. 变更产生副作用后，如何设计可恢复流程？</h3><p><strong>标准答案</strong>：把规划、执行、提交拆开；高风险动作先生成待确认计划，执行时记录请求、工具版本、输入摘要、结果和操作者；写入外部系统时使用幂等键、事务边界或补偿动作，并保留可验证的撤销路径。回退不能只看服务是否恢复，还要核对数据、权限和对外通知是否恢复到一致状态。<br><strong>深入思考</strong>：恢复动作本身也可能失败，因此要有停止条件、人工接管和只读核查模式。发布流程可用小范围、限时的 canary 降低影响；观测字段应采用稳定语义约定，便于跨组件比较。</p>
+<h3 id="2-如何判断系统的“成功”而不是只看-HTTP-200？"><a href="#2-如何判断系统的“成功”而不是只看-HTTP-200？" class="headerlink" title="2. 如何判断系统的“成功”而不是只看 HTTP 200？"></a>2. 如何判断系统的“成功”而不是只看 HTTP 200？</h3><p><strong>标准答案</strong>：为任务定义业务验收条件，例如目标记录存在且字段满足不变量、外部副作用只发生一次、敏感数据没有越权流出；同时记录 trace、重试、拒绝和人工修改等事件。把自动评估、抽样人工复核和回放测试结合起来，失败时保留可重现证据。<br><strong>深入思考</strong>：响应正确不代表状态正确；评估集还要覆盖超时、重复消息、部分成功和依赖返回异常。指标应区分组件质量、依赖可靠性和业务结果，避免把某一层的退化掩盖掉。</p>
+<h3 id="3-什么时候必须把决策交给人？"><a href="#3-什么时候必须把决策交给人？" class="headerlink" title="3. 什么时候必须把决策交给人？"></a>3. 什么时候必须把决策交给人？</h3><p><strong>标准答案</strong>：涉及付款、删除、权限授予、医疗法律结论、对外发布或不可逆数据变更时，默认采用人审或双人确认；自动化系统只能准备证据、说明影响范围和给出候选动作。人工界面要展示原始来源、差异、风险、授权范围与撤销方式，并记录最终决定。<br><strong>深入思考</strong>：人工接管不应只由“系统不确定”触发，还应由风险等级、异常次数、预算、权限边界和证据缺失触发。参考：<a target="_blank" rel="noopener" href="https://sre.google/workbook/canarying-releases/">Google SRE Canarying Releases</a>、<a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/">OpenTelemetry Semantic Conventions</a>、<a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/securing-agentic-applications-guide-1-0/">OWASP Securing Agentic Applications Guide</a>。</p>
+<h2 id="0x1B-2026-08-05：变更影响边界、故障注入验收与人工接管（分布式系统设计）"><a href="#0x1B-2026-08-05：变更影响边界、故障注入验收与人工接管（分布式系统设计）" class="headerlink" title="0x1B 2026-08-05：变更影响边界、故障注入验收与人工接管（分布式系统设计）"></a>0x1B 2026-08-05：变更影响边界、故障注入验收与人工接管（分布式系统设计）</h2><h3 id="1-如何把一次-分布式系统设计-变更定义成可验证的影响边界，而不是只看代码-diff？"><a href="#1-如何把一次-分布式系统设计-变更定义成可验证的影响边界，而不是只看代码-diff？" class="headerlink" title="1. 如何把一次 分布式系统设计 变更定义成可验证的影响边界，而不是只看代码 diff？"></a>1. 如何把一次 分布式系统设计 变更定义成可验证的影响边界，而不是只看代码 diff？</h3><p><strong>标准答案</strong>：先写变更契约：输入&#x2F;输出、兼容窗口、数据与权限边界、受影响依赖、成功指标、停止条件和回退对象；再把契约映射到小流量或隔离环境，按 canary 与 control 对比错误率、延迟、正确性和资源信号。只要无法回答“谁受影响、何时停止、回到哪个已知版本”，就不应直接全量发布。<br><strong>深入思考</strong>：边界不能只按服务名划分，还要覆盖配置、依赖版本、缓存、消息积压和异步作业。共享数据库或跨阶段流水线会污染对照组，应按工作单元保持同一版本池，并把业务正确性纳入验收；Google SRE 也强调可归因指标、分阶段 canary 和可回退的小变更。</p>
+<h3 id="2-如何用故障注入证明-分布式系统设计-变更的回退和恢复真的可用？"><a href="#2-如何用故障注入证明-分布式系统设计-变更的回退和恢复真的可用？" class="headerlink" title="2. 如何用故障注入证明 分布式系统设计 变更的回退和恢复真的可用？"></a>2. 如何用故障注入证明 分布式系统设计 变更的回退和恢复真的可用？</h3><p><strong>标准答案</strong>：在影子流量或隔离租户中注入超时、依赖错误、重复消息、部分写入和权限拒绝，验证告警、自动暂停、人工升级、回退执行及回退后的数据一致性。验收证据至少包括变更版本、输入摘要、trace、停止原因、恢复动作、业务核对结果和未完成任务清单。<br><strong>深入思考</strong>：服务恢复不等于业务恢复；数据库迁移、外部副作用和已发送通知可能不可逆，不能用“重新部署旧包”掩盖补偿需求。故障演练要设明确的退出条件和最大影响面，回退失败时转入只读、限流、降级或人工接管，并保留可审计证据。</p>
+<h3 id="3-高风险操作何时必须交给人工，如何避免“人工接管”变成口头流程？"><a href="#3-高风险操作何时必须交给人工，如何避免“人工接管”变成口头流程？" class="headerlink" title="3. 高风险操作何时必须交给人工，如何避免“人工接管”变成口头流程？"></a>3. 高风险操作何时必须交给人工，如何避免“人工接管”变成口头流程？</h3><p><strong>标准答案</strong>：删除、付款、授权、对外发布、跨租户访问和不可逆数据修改等动作应设置策略门禁：最小权限、短期凭证、双人确认、幂等键、撤销&#x2F;补偿路径和超时升级。Agent 或自动化系统只能提出计划与证据，不能以模型置信度代替授权；人工确认结果要写回审计链并能关联到最终业务状态。<br><strong>深入思考</strong>：人工接管不是暂停按钮，而是一个可演练的状态机：谁接手、接收哪些上下文、允许哪些动作、何时恢复自动化、怎样复盘。对 分布式系统设计 的生产流程，至少准备“继续、暂停、回退、降级、终止”五种明确分支。</p>
+<h2 id="0x1C-2026-08-18：可回退发布、证据化观测与供应链验证（分布式系统设计）"><a href="#0x1C-2026-08-18：可回退发布、证据化观测与供应链验证（分布式系统设计）" class="headerlink" title="0x1C 2026-08-18：可回退发布、证据化观测与供应链验证（分布式系统设计）"></a>0x1C 2026-08-18：可回退发布、证据化观测与供应链验证（分布式系统设计）</h2><h3 id="1-在-分布式系统设计-中，如何设计真正可回退的生产发布？"><a href="#1-在-分布式系统设计-中，如何设计真正可回退的生产发布？" class="headerlink" title="1. 在 分布式系统设计 中，如何设计真正可回退的生产发布？"></a>1. 在 分布式系统设计 中，如何设计真正可回退的生产发布？</h3><p><strong>标准答案</strong>：先把发布对象、兼容窗口、影响范围、成功指标、停止阈值、责任人和回退目标写成变更契约；构建阶段固定提交、依赖解析结果和产物摘要，发布阶段采用小流量或分阶段策略，并让路由、配置和数据变更具备明确的反向动作。回退时直接选择已验证的旧产物，不临时重建“看起来相同”的版本；对数据库、消息、缓存和外部副作用分别准备兼容策略、幂等处理或补偿流程。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：代码可以回退，但已执行的 schema 迁移、已发送消息和外部写入可能不可逆，因此要区分版本回退、流量切换、前向修复和业务补偿。</li>
+<li><strong>源码层面</strong>：把发布控制面、数据面和异步消费者的版本选择记录在同一变更 ID 下，检查重试、超时和部分成功路径，避免只有 HTTP 服务回退而后台任务仍运行新逻辑。</li>
+<li><strong>生产经验</strong>：先在隔离租户、影子流量或低风险分区演练停止和恢复；回退成功的判据应包含业务不变量、积压、权限和外部通知，而不是只看进程重新变为健康。</li>
+</ul>
+<h3 id="2-如何把-分布式系统设计-的发布结果做成证据化观测，而不是只看成功率？"><a href="#2-如何把-分布式系统设计-的发布结果做成证据化观测，而不是只看成功率？" class="headerlink" title="2. 如何把 分布式系统设计 的发布结果做成证据化观测，而不是只看成功率？"></a>2. 如何把 分布式系统设计 的发布结果做成证据化观测，而不是只看成功率？</h3><p><strong>标准答案</strong>：用指标观察总体趋势，用 trace 关联请求、依赖、重试和异步任务，用结构化事件记录发布开始、配置生效、人工批准、停止、降级和回退，用日志保存必要的上下文与错误样本。每条证据绑定变更 ID、版本&#x2F;产物摘要、环境、分区、结果和时间窗口；同时对凭据、个人数据、提示词和高基数输入脱敏、限采并设定留存期限。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：低错误率也可能掩盖业务结果错误、单一租户受损、重试风暴或延迟尾部退化，所以必须把业务验收和 control&#x2F;canary 对照纳入停止条件。</li>
+<li><strong>源码层面</strong>：统一事件名称和属性，确保入口 span、下游调用、消息消费、数据库写入和人工接管能在同一 trace 或关联 ID 下检索；不要把一整段输入直接塞进 span 属性。</li>
+<li><strong>生产经验</strong>：先定义“继续、暂停、降级、回退、人工接管”的证据阈值，再配置告警；观测系统自身故障时，应保留最小审计事件和安全默认值，不能因指标缺失而自动全量放行。</li>
+</ul>
+<h3 id="3-如何验证-分布式系统设计-的依赖与构建产物，避免回滚到来源不明的版本？"><a href="#3-如何验证-分布式系统设计-的依赖与构建产物，避免回滚到来源不明的版本？" class="headerlink" title="3. 如何验证 分布式系统设计 的依赖与构建产物，避免回滚到来源不明的版本？"></a>3. 如何验证 分布式系统设计 的依赖与构建产物，避免回滚到来源不明的版本？</h3><p><strong>标准答案</strong>：锁定依赖解析结果并保存校验和，生成 SBOM 和构建 provenance&#x2F;attestation，将仓库、提交、工作流、构建环境、产物摘要和策略版本关联起来。发布门禁验证签名、主体、摘要、允许的来源和漏洞&#x2F;许可证策略；部署与回退都只接受通过门禁的不可变产物，并把例外审批、时限和后续补救写入审计链。<br><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>边界情况</strong>：attestation 能证明来源与构建过程，但不能证明代码绝对无漏洞；仍需结合测试、依赖审计、运行时权限和业务风险判断。</li>
+<li><strong>对比延伸</strong>：源码仓库保护、锁文件校验、镜像签名、SBOM 和 provenance 解决的是不同问题，不能用其中一个替代全部供应链控制；最小可行门禁也要覆盖 transitive dependency 和构建脚本。</li>
+<li><strong>生产经验</strong>：紧急回退允许临时例外时，必须限定产物摘要、操作者、环境和过期时间；若无法验证来源，应选择已知安全版本或降级到只读&#x2F;限流模式，而不是绕过验证。<br><strong>本轮参考链接</strong>：</li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/blog/2026/stable-declarative-config/">OpenTelemetry 声明式配置</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.6.0">Gateway API v1.6.0 发布记录</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/reference/features/spring-application.html">Spring Boot SpringApplication 参考</a><blockquote>
+<p>本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。<br><strong>搜索来源</strong>：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI&#x2F;安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）&#x2F;近期（2026-05 至 2026-08）&#x2F;经典（官方稳定文档）；覆盖维度：官方源 ✅ &#x2F; 生产实践 ✅（原理化归纳）&#x2F; 源码与实现边界 ✅ &#x2F; 对比选型 ✅。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="0x02-重试预算、幂等边界与故障隔离"><a href="#0x02-重试预算、幂等边界与故障隔离" class="headerlink" title="0x02 重试预算、幂等边界与故障隔离"></a>0x02 重试预算、幂等边界与故障隔离</h2><h3 id="1-为什么微服务重试会把一次故障放大成全链路雪崩？"><a href="#1-为什么微服务重试会把一次故障放大成全链路雪崩？" class="headerlink" title="1. 为什么微服务重试会把一次故障放大成全链路雪崩？"></a>1. 为什么微服务重试会把一次故障放大成全链路雪崩？</h3><p><strong>标准答案</strong>：每一层都独立重试时，调用扇出会把请求量成倍放大；超时、连接池、线程池和队列又会互相占满。应按请求链路设置总 deadline 和 retry budget，只对明确可重试的错误重试，并使用指数退避、抖动、舱壁隔离和熔断。预算耗尽后快速失败或降级，而不是继续把压力传给下游。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>源码层面</strong>：重试策略必须传播剩余 deadline 和 attempt，不能由每个 SDK 从零开始计时；幂等键要跨网关、服务和消息边界传递。</li>
+<li><strong>生产经验</strong>：监控重试次数、原始请求数、放大倍数、超时占比和下游拒绝率；只看成功率会掩盖系统正在用重试透支容量。</li>
+</ul>
+<h3 id="2-Raft-集群扩容和节点替换时，怎样避免同时失去法定人数？"><a href="#2-Raft-集群扩容和节点替换时，怎样避免同时失去法定人数？" class="headerlink" title="2. Raft 集群扩容和节点替换时，怎样避免同时失去法定人数？"></a>2. Raft 集群扩容和节点替换时，怎样避免同时失去法定人数？</h3><p><strong>标准答案</strong>：成员变更必须受共识协议控制，先加入新节点并追平日志，再通过受控配置变更切换成员；不能直接修改配置文件或同时下线多个旧节点。验证 leader、commit index、日志追赶、快照和客户端重连行为后，才继续下一步。</p>
+<p><strong>深入思考</strong>：</p>
+<ul>
+<li><strong>对比延伸</strong>：共识安全性保证已提交日志不会分叉，但不保证磁盘、网络、时钟和客户端语义正确；应用仍需处理重复提交和 leader 切换期间的超时。</li>
+<li><strong>社区实践</strong>：etcd、Raft 论文和 TiKV 的实现适合对照成员变更与日志复制细节，社区经验必须结合具体实现版本核验。</li>
+</ul>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://raft.github.io/raft.pdf">Raft Paper</a></li>
+<li><a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.5/learning/design-learner/">etcd Runtime Reconfiguration</a></li>
+<li><a target="_blank" rel="noopener" href="https://sre.google/sre-book/handling-overload/">Google SRE Handling Overload</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag"># 分布式系统</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag"># 系统设计</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"># 架构</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E6%9E%B6%E6%9E%84%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="架构面试题：架构与工程实践面试全解">
+                  <i class="fa fa-angle-left"></i> 架构面试题：架构与工程实践面试全解
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-Redis-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="数据库面试题：Redis 面试全解">
+                  数据库面试题：Redis 面试全解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">xiaoxin1024</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/liuerge" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
