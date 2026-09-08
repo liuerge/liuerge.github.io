@@ -29,7 +29,7 @@
 <meta property="og:description" content="Spark 高级面试全解，覆盖 Shuffle 原理、内存管理、Spark SQL 优化和流处理。面向高级研发。  0x00 核心架构1. Spark 的 Job、Stage、Task 是怎么划分的？123456Action → Job → 宽依赖切分 Stage → Stage 内 Task（并行度）       map    reduceByKey   map   collectRDD ──">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T09:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-08T12:41:05.630Z">
+<meta property="article:modified_time" content="2026-09-08T13:29:00.468Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="DataFrame">
 <meta property="article:tag" content="Shuffle">
@@ -254,7 +254,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:00" itemprop="dateModified" datetime="2026-09-08T21:29:00+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -902,6 +902,21 @@
 
 &gt; 本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。
 &gt; **搜索来源**：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI/安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）/近期（2026-05 至 2026-08）/经典（官方稳定文档）；覆盖维度：官方源 ✅ / 生产实践 ✅（原理化归纳）/ 源码与实现边界 ✅ / 对比选型 ✅。
+## 0x08 基础执行链补全
+
+### 1. RDD 的分区数从哪里来？`repartition` 和 `coalesce` 有什么区别？
+
+**标准答案**：输入文件通常按底层 block 形成初始分区，算子也可能通过 Partitioner 产生新的分区。`repartition` 会触发 Shuffle，能增加或减少分区并重新均衡数据；`coalesce` 默认尽量合并已有分区，通常减少分区且少一次全量 Shuffle，但可能造成分区不均。
+
+**深入思考**：分区数不是越多越好。过少会让单任务数据过大，过多会增加调度、序列化和小文件开销；应结合数据量、任务并行度、下游写出文件数和 key 分布选择，并用 Spark UI 验证长尾。
+
+### 2. Cache、Persist 和 Checkpoint 分别解决什么问题？
+
+**标准答案**：Cache 是默认持久化方式的快捷用法，Persist 可显式选择内存、磁盘、序列化和副本策略；它们保留的是可由 lineage 重新计算的中间结果。Checkpoint 把结果写到可靠存储并截断 lineage，主要用于长链路、迭代计算或需要跨故障保留的场景。
+
+**深入思考**：缓存不是数据备份，也不一定命中内存；内存不足时会淘汰并重算。Checkpoint 会增加 I/O 和延迟，不能用来掩盖分区设计或 Shuffle 倾斜问题。选型时要区分“减少重复计算”和“切断故障传播”两个目标。
+
+**书签与官方参考**：[RDD Programming Guide](https://spark.apache.org/docs/latest/rdd-programming-guide) | [SparkInternals Cache and Checkpoint](https://github.com/JerryLead/SparkInternals/blob/master/markdown/6-CacheAndCheckpoint.md)
 </code></pre>
 
     </div>

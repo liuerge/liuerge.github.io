@@ -3089,7 +3089,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:42:46" itemprop="dateModified" datetime="2026-09-08T20:42:46+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:23:28" itemprop="dateModified" datetime="2026-09-08T21:23:28+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -3865,6 +3865,24 @@
 <li><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/fault-tolerance/checkpointing/">Apache Flink Checkpoints</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/OpenLineage/OpenLineage">OpenLineage</a></li>
 </ul>
+<h2 id="0x03-大数据平台基础链路：存储、执行与同步"><a href="#0x03-大数据平台基础链路：存储、执行与同步" class="headerlink" title="0x03 大数据平台基础链路：存储、执行与同步"></a>0x03 大数据平台基础链路：存储、执行与同步</h2><h3 id="1-HDFS-中-NameNode-和-DataNode-分别负责什么？为什么-NameNode-不是数据传输通道？"><a href="#1-HDFS-中-NameNode-和-DataNode-分别负责什么？为什么-NameNode-不是数据传输通道？" class="headerlink" title="1. HDFS 中 NameNode 和 DataNode 分别负责什么？为什么 NameNode 不是数据传输通道？"></a>1. HDFS 中 NameNode 和 DataNode 分别负责什么？为什么 NameNode 不是数据传输通道？</h3><p><strong>标准答案</strong>：NameNode 维护命名空间、文件到 block 的映射以及副本放置决策；DataNode 负责实际 block 的存储、读写、心跳和 block report。客户端先向 NameNode 获取元数据和 block 位置，再直接与 DataNode 传输数据，因此 NameNode 不承载大文件的数据流量。</p>
+<p><strong>深入思考</strong>：NameNode 把命名空间和 block map 保存在内存中，元数据变更通过 EditLog 持久化并由 checkpoint 合并到 FsImage。小文件过多会放大元数据压力；节点故障时，NameNode 依靠心跳和 block report 发现失效副本并触发重复制。面试中要区分“元数据高可用”和“数据副本可靠性”两个问题。</p>
+<h3 id="2-Spark-为什么会发生-Shuffle？Partition、网络传输和-Combiner-分别影响什么？"><a href="#2-Spark-为什么会发生-Shuffle？Partition、网络传输和-Combiner-分别影响什么？" class="headerlink" title="2. Spark 为什么会发生 Shuffle？Partition、网络传输和 Combiner 分别影响什么？"></a>2. Spark 为什么会发生 Shuffle？Partition、网络传输和 Combiner 分别影响什么？</h3><p><strong>标准答案</strong>：当算子需要把相同 key 的数据重新汇聚到同一组下游分区时，就必须跨分区重分布数据，这个过程就是 Shuffle。Partitioner 决定 key 到目标分区的映射，网络传输搬运分区数据，Combiner 可以在发送前做局部聚合，减少网络和下游处理量。</p>
+<p><strong>深入思考</strong>：Shuffle 的代价不只是网络，还包括排序&#x2F;序列化、磁盘溢写和下游拉取。热点 key 会导致单个分区过大，即使总数据量不大也会出现长尾；解决方案应结合业务拆分 key、预聚合、合理分区数和倾斜 key 单独处理，而不是只盲目调大 executor。Spark 官方 RDD 指南明确把跨分区聚合和故障后的重算&#x2F;持久化作为核心语义。</p>
+<h3 id="3-DataX-与-Sqoop-如何选择？为什么数据同步工具需要元数据和调度系统配合？"><a href="#3-DataX-与-Sqoop-如何选择？为什么数据同步工具需要元数据和调度系统配合？" class="headerlink" title="3. DataX 与 Sqoop 如何选择？为什么数据同步工具需要元数据和调度系统配合？"></a>3. DataX 与 Sqoop 如何选择？为什么数据同步工具需要元数据和调度系统配合？</h3><p><strong>标准答案</strong>：选择同步工具不能只看单次吞吐，还要看数据源覆盖、并发模型、流控、校验、失败重试、表结构变化和运维集成。DataX 更像可由调度系统拉起的同步执行器；在有赞实践中，元数据系统负责表结构、路径和地址转换，调度系统负责触发、并发和状态展示，DataX 负责数据搬运。</p>
+<p><strong>深入思考</strong>：Reader&#x2F;Writer 解耦不代表源表和目标表可以完全独立演进。新增字段、类型变化、分区表结构变化和主从切换都需要前置校验；全量同步还要控制分页、批量大小和限速，避免把线上数据库拖垮。DataX 文章中的运行规模和公司内部规则属于特定时期的社区实践，不能直接当成通用 benchmark。</p>
+<h3 id="4-Hive-窗口函数中-PARTITION-BY、ORDER-BY、ROWS-和-RANGE-有什么区别？"><a href="#4-Hive-窗口函数中-PARTITION-BY、ORDER-BY、ROWS-和-RANGE-有什么区别？" class="headerlink" title="4. Hive 窗口函数中 PARTITION BY、ORDER BY、ROWS 和 RANGE 有什么区别？"></a>4. Hive 窗口函数中 <code>PARTITION BY</code>、<code>ORDER BY</code>、<code>ROWS</code> 和 <code>RANGE</code> 有什么区别？</h3><p><strong>标准答案</strong>：<code>PARTITION BY</code> 把数据划分为互不影响的窗口组；<code>ORDER BY</code> 定义组内计算顺序；窗口框架决定当前行实际看到的范围。<code>ROWS</code> 按物理行数计算，<code>RANGE</code> 按排序值的范围计算，因此排序值重复时两者可能得到不同结果。<code>ROW_NUMBER</code>、<code>RANK</code>、<code>DENSE_RANK</code>、<code>LAG</code>、<code>LEAD</code> 和滚动聚合都属于常见窗口题型。</p>
+<p><strong>深入思考</strong>：做“连续登录、最近一次行为、组内 Top N、滚动 7 日指标”时，要先明确去重粒度、时间边界和重复排序值的处理方式。默认窗口范围不能凭感觉记忆，最好显式写出 <code>ROWS BETWEEN ...</code>；否则同一排序值的累计结果可能和业务预期不一致。Apache Hive 文档记录了窗口函数、排序和窗口框架的语义及示例。</p>
+<p><strong>本轮书签整理来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://tech.youzan.com/datax-in-action/">DataX 在有赞大数据平台的实践</a>（社区实践，已按原文重新归纳）</li>
+<li><a target="_blank" rel="noopener" href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html">Apache Hadoop HDFS Architecture</a></li>
+<li><a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/rdd-programming-guide">Apache Spark RDD Programming Guide</a></li>
+<li><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics">Apache Hive Windowing and Analytics Functions</a></li>
+</ul>
+<blockquote>
+<p>本轮更新：2026-09-08（Home）——根据用户提供的书签资料，优先补充大数据全栈的基础存储、执行、同步和 SQL 链路；书签文章只作线索，正文为重新组织后的总结。</p>
+</blockquote>
 
       
     </div>
@@ -3927,7 +3945,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:42:47" itemprop="dateModified" datetime="2026-09-08T20:42:47+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:24" itemprop="dateModified" datetime="2026-09-08T21:29:24+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -4461,6 +4479,13 @@
 <li><a target="_blank" rel="noopener" href="https://docs.pingcap.com/tidb/stable/htap/">TiDB HTAP</a></li>
 <li><a target="_blank" rel="noopener" href="https://en.oceanbase.com/docs">OceanBase Documentation</a></li>
 </ul>
+<h2 id="0x03-HBase-Phoenix-基础补全"><a href="#0x03-HBase-Phoenix-基础补全" class="headerlink" title="0x03 HBase&#x2F;Phoenix 基础补全"></a>0x03 HBase&#x2F;Phoenix 基础补全</h2><h3 id="1-HBase-为什么使用-LSM-Tree？写入、读取和-Compaction-如何平衡？"><a href="#1-HBase-为什么使用-LSM-Tree？写入、读取和-Compaction-如何平衡？" class="headerlink" title="1. HBase 为什么使用 LSM-Tree？写入、读取和 Compaction 如何平衡？"></a>1. HBase 为什么使用 LSM-Tree？写入、读取和 Compaction 如何平衡？</h3><p><strong>标准答案</strong>：HBase 通过 MemStore 接收写入并落盘为不可变的 HFile，读取时合并内存和多个文件；后台 Compaction 负责合并文件、清理删除标记并改善读取。LSM-Tree 用顺序写换取写入吞吐，但会带来读放大、写放大和空间放大。</p>
+<p><strong>深入思考</strong>：Compaction 不是越积极越好，它会占用磁盘和 CPU，并与 Flush、Split、网络复制争抢资源。排障要区分写入慢、读放大、Region 热点和 Compaction backlog；只调大缓存不一定能解决根因。</p>
+<h3 id="2-HBase-RowKey-和预分区为什么决定热点？如何设计？"><a href="#2-HBase-RowKey-和预分区为什么决定热点？如何设计？" class="headerlink" title="2. HBase RowKey 和预分区为什么决定热点？如何设计？"></a>2. HBase RowKey 和预分区为什么决定热点？如何设计？</h3><p><strong>标准答案</strong>：RowKey 决定数据在 Region 中的字典序分布。单调递增 key 容易把写入集中到最后一个 Region；预分区可以提前拆分范围，但必须结合真实 key 分布和未来增长量设计。常见做法包括加盐、反转时间字段或使用业务哈希，但这些做法会牺牲部分范围扫描能力。</p>
+<p><strong>深入思考</strong>：RowKey 设计要同时回答点查、范围查、写入均衡、Region split 和二级索引需求；不能只追求随机写。Phoenix 提供 SQL 层能力，但并不会自动修复底层 RowKey、Region 热点和数据模型问题。</p>
+<h3 id="3-BulkLoad-适合什么场景？为什么它通常比逐条-Put-更适合大批量导入？"><a href="#3-BulkLoad-适合什么场景？为什么它通常比逐条-Put-更适合大批量导入？" class="headerlink" title="3. BulkLoad 适合什么场景？为什么它通常比逐条 Put 更适合大批量导入？"></a>3. BulkLoad 适合什么场景？为什么它通常比逐条 Put 更适合大批量导入？</h3><p><strong>标准答案</strong>：BulkLoad 先生成符合 HBase 文件格式的数据，再把文件直接加载到 Region 对应目录，减少逐条 RPC 和写入路径开销，适合离线批量导入。它要求文件分区、边界、格式和目标表状态匹配，导入前要验证 schema、Region 范围和权限。</p>
+<p><strong>深入思考</strong>：BulkLoad 不是实时写入替代品；文件生成失败、Region split、目标目录权限或 HFile 版本不匹配都会导致加载失败。生产上要保留临时目录、校验文件数量与行数、隔离失败批次并设计可重复执行的任务。</p>
+<p><strong>书签与参考</strong>：<a target="_blank" rel="noopener" href="https://www.alicharles.com/article/hbase/hbase-lsm-tree/">HBase LSM Tree</a> | <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/59d198e501c8">HBase RowKey 与预分区</a> | <a target="_blank" rel="noopener" href="https://yq.aliyun.com/articles/703818?spm=a2c4e.11153940.blogcont691980.11.345976113vxjoi">Phoenix 核心功能与应用场景</a></p>
 
       
     </div>
@@ -10654,7 +10679,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:04" itemprop="dateModified" datetime="2026-09-08T21:29:04+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -11162,6 +11187,11 @@
 <blockquote>
 <p>本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。<br><strong>搜索来源</strong>：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI&#x2F;安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）&#x2F;近期（2026-05 至 2026-08）&#x2F;经典（官方稳定文档）；覆盖维度：官方源 ✅ &#x2F; 生产实践 ✅（原理化归纳）&#x2F; 源码与实现边界 ✅ &#x2F; 对比选型 ✅。</p>
 </blockquote>
+<h2 id="0x08-基础变更与数据同步补全"><a href="#0x08-基础变更与数据同步补全" class="headerlink" title="0x08 基础变更与数据同步补全"></a>0x08 基础变更与数据同步补全</h2><h3 id="1-MySQL-在线-DDL-为什么可能影响线上业务？"><a href="#1-MySQL-在线-DDL-为什么可能影响线上业务？" class="headerlink" title="1. MySQL 在线 DDL 为什么可能影响线上业务？"></a>1. MySQL 在线 DDL 为什么可能影响线上业务？</h3><p><strong>标准答案</strong>：在线 DDL 可能涉及表重建、临时表空间、元数据锁和最后切换阶段；即使大部分数据复制过程允许并发读写，开始和提交时仍可能等待长事务、阻塞元数据操作并制造 I&#x2F;O 压力。是否真正在线取决于语句、存储引擎和 MySQL 版本。</p>
+<p><strong>深入思考</strong>：执行前要检查长事务、锁等待、磁盘余量、复制延迟和回退方案；不能把 <code>ALGORITHM=INPLACE</code> 或 <code>LOCK=NONE</code> 当成绝对无影响。大表变更还要评估影子表工具、分批变更和从库验证。</p>
+<h3 id="2-Binlog-Canal-做-CDC-时，为什么必须处理表结构和位点？"><a href="#2-Binlog-Canal-做-CDC-时，为什么必须处理表结构和位点？" class="headerlink" title="2. Binlog&#x2F;Canal 做 CDC 时，为什么必须处理表结构和位点？"></a>2. Binlog&#x2F;Canal 做 CDC 时，为什么必须处理表结构和位点？</h3><p><strong>标准答案</strong>：CDC 消费的不只是行数据，还包括事件类型、主键、事务边界、位点和 schema 变化。消费者要能识别新增字段、类型变化、删除语义和重放位置；位点提交必须和下游幂等写入或事务边界配合。</p>
+<p><strong>深入思考</strong>：DDL 与 DML 并发、无主键更新、主从切换和重复投递都可能造成静默错误。恢复时要记录 binlog 文件&#x2F;位置或 GTID、校验样本和下游对账结果，不能只看消费程序处于 RUNNING。</p>
+<p><strong>书签与官方&#x2F;项目参考</strong>：<a target="_blank" rel="noopener" href="https://github.com/alibaba/canal">Canal</a> | <a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/connector/">MySQL Connector 下载页</a></p>
 
       
     </div>
@@ -11962,7 +11992,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:42:47" itemprop="dateModified" datetime="2026-09-08T20:42:47+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:23:55" itemprop="dateModified" datetime="2026-09-08T21:23:55+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -12562,6 +12592,19 @@
 <li><a target="_blank" rel="noopener" href="https://raft.github.io/raft.pdf">Raft Paper</a></li>
 <li><a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.5/learning/design-learner/">etcd Runtime Reconfiguration</a></li>
 <li><a target="_blank" rel="noopener" href="https://sre.google/sre-book/handling-overload/">Google SRE Handling Overload</a></li>
+</ul>
+<h2 id="0x03-常见分布式设计基础"><a href="#0x03-常见分布式设计基础" class="headerlink" title="0x03 常见分布式设计基础"></a>0x03 常见分布式设计基础</h2><h3 id="1-一致性哈希解决了什么问题？虚拟节点为什么能改善扩缩容？"><a href="#1-一致性哈希解决了什么问题？虚拟节点为什么能改善扩缩容？" class="headerlink" title="1. 一致性哈希解决了什么问题？虚拟节点为什么能改善扩缩容？"></a>1. 一致性哈希解决了什么问题？虚拟节点为什么能改善扩缩容？</h3><p><strong>标准答案</strong>：一致性哈希把节点和 key 映射到同一个环上，key 顺时针找到的第一个节点负责存储。节点加入或离开时，理论上只影响环上相邻区间的 key，不需要像简单取模那样让大量 key 全部迁移。虚拟节点把一个物理节点映射成多个环上的位置，使数据和请求分布更均匀。</p>
+<p><strong>深入思考</strong>：一致性哈希只解决路由变化的规模问题，不自动解决副本一致性、热点 key、节点权重和故障转移。生产设计还要明确副本顺序、读写策略、迁移限速和缓存击穿时的保护方式；如果 key 分布本身高度倾斜，增加虚拟节点也不能消除业务热点。</p>
+<h3 id="2-“Exactly-once”为什么不能简单理解成消息只处理一次？"><a href="#2-“Exactly-once”为什么不能简单理解成消息只处理一次？" class="headerlink" title="2. “Exactly-once”为什么不能简单理解成消息只处理一次？"></a>2. “Exactly-once”为什么不能简单理解成消息只处理一次？</h3><p><strong>标准答案</strong>：Exactly-once 通常只在明确的边界内成立，例如某个消息系统的事务提交和消费位点可以原子关联；一旦跨出系统边界，数据库、搜索索引、邮件或外部 API 的副作用可能重复执行。工程上要把“至少一次投递”与幂等写入、去重表、事务消息、Outbox 或补偿流程组合起来。</p>
+<p><strong>深入思考</strong>：面试时要先问清楚语义对象是“消息投递一次”“计算结果一次”还是“业务副作用一次”。重试、超时和客户端未收到响应都会制造不确定性；正确方案不是口头承诺 exactly-once，而是列出每个边界的提交点、幂等键、去重窗口和失败恢复动作。</p>
+<h3 id="3-ZooKeeper-etcd-选主时，为什么不能只看“谁先写入-leader-节点”？"><a href="#3-ZooKeeper-etcd-选主时，为什么不能只看“谁先写入-leader-节点”？" class="headerlink" title="3. ZooKeeper&#x2F;etcd 选主时，为什么不能只看“谁先写入 leader 节点”？"></a>3. ZooKeeper&#x2F;etcd 选主时，为什么不能只看“谁先写入 leader 节点”？</h3><p><strong>标准答案</strong>：选主不仅要产生一个候选 leader，还要保证候选资格、租约&#x2F;会话有效性、旧 leader 失效和观察者收到变更之间的一致关系。临时节点或租约到期后，旧进程即使短时间恢复，也不能继续对外提供写服务；业务请求还要校验当前任期、版本或 fencing token，防止僵尸 leader 覆盖新 leader 的结果。</p>
+<p><strong>深入思考</strong>：网络分区下，“我还活着”和“我仍有资格写入”是两件事。选主组件保证的范围不等于业务数据写入已经提交；跨数据库或对象存储时仍需 fencing、幂等和补偿。书签中的 ZooKeeper 选举文章可用于建立直觉，但实现细节必须以具体版本的官方文档和源码为准。</p>
+<p><strong>本轮书签整理来源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Consistent_hashing">Consistent hashing</a>（概念线索，正文已重新组织）</li>
+<li><a target="_blank" rel="noopener" href="https://www.jdon.com/48558">为什么正好一次传递是不可能的？</a>（社区解释，正文只采用边界思想）</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/gaoshan12345678910/article/details/67638657">分布式 ZooKeeper Leader 选举</a>（社区线索，未直接复制）</li>
+<li><a target="_blank" rel="noopener" href="https://raft.github.io/raft.pdf">Raft Paper</a></li>
 </ul>
 
       
@@ -19753,7 +19796,7 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:01" itemprop="dateModified" datetime="2026-09-08T21:29:01+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -20264,6 +20307,11 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
 <blockquote>
 <p>本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。<br><strong>搜索来源</strong>：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI&#x2F;安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）&#x2F;近期（2026-05 至 2026-08）&#x2F;经典（官方稳定文档）；覆盖维度：官方源 ✅ &#x2F; 生产实践 ✅（原理化归纳）&#x2F; 源码与实现边界 ✅ &#x2F; 对比选型 ✅。</p>
 </blockquote>
+<h2 id="0x05-基础消息链路补全"><a href="#0x05-基础消息链路补全" class="headerlink" title="0x05 基础消息链路补全"></a>0x05 基础消息链路补全</h2><h3 id="1-Kafka-Consumer-Group、Partition-和-Offset-如何共同决定消费进度？"><a href="#1-Kafka-Consumer-Group、Partition-和-Offset-如何共同决定消费进度？" class="headerlink" title="1. Kafka Consumer Group、Partition 和 Offset 如何共同决定消费进度？"></a>1. Kafka Consumer Group、Partition 和 Offset 如何共同决定消费进度？</h3><p><strong>标准答案</strong>：同一 Consumer Group 内，一个 Partition 在同一时刻通常只分配给一个消费者；消费者通过 Offset 表示每个分区的读取位置。提交 Offset 只是记录进度，不等于业务处理已经成功，因此提交时机要和业务写入、幂等键或事务边界配合。</p>
+<p><strong>深入思考</strong>：自动提交可能在业务处理前推进位点，造成故障后的丢处理；处理完再提交则可能重复。重平衡会改变分区归属，消费者必须正确处理 revoke&#x2F;assign、暂停拉取和位点恢复，不能只把问题归因于“Kafka 重复消息”。</p>
+<h3 id="2-Leader、ISR-和-High-Watermark-分别解决什么问题？"><a href="#2-Leader、ISR-和-High-Watermark-分别解决什么问题？" class="headerlink" title="2. Leader、ISR 和 High Watermark 分别解决什么问题？"></a>2. Leader、ISR 和 High Watermark 分别解决什么问题？</h3><p><strong>标准答案</strong>：Leader 负责分区读写，Follower 从 Leader 复制；ISR 表示仍满足复制进度要求的副本集合；High Watermark 表示消费者可以安全读取的提交边界。Leader 切换时，系统会从满足条件的副本中恢复服务，具体可见性还受确认级别和未提交数据影响。</p>
+<p><strong>深入思考</strong>：副本数、<code>acks</code>、最小 ISR 和消费者可见性是不同维度；“写成功”不一定代表已经被足够副本确认，“副本存在”也不代表它已追平。排障时要同时看 under-replicated partitions、生产确认延迟、消费 lag 和磁盘&#x2F;网络压力。</p>
+<p><strong>书签与官方参考</strong>：<a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#intro_consumers">Kafka Consumer Groups</a> | <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-283%3A+Efficient+Memory+Usage+for+Down-Conversion">Kafka KIP-283</a></p>
 
       
     </div>
@@ -21041,7 +21089,7 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:02" itemprop="dateModified" datetime="2026-09-08T21:29:02+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -21707,6 +21755,21 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
 
 &gt; 本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。
 &gt; **搜索来源**：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI/安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）/近期（2026-05 至 2026-08）/经典（官方稳定文档）；覆盖维度：官方源 ✅ / 生产实践 ✅（原理化归纳）/ 源码与实现边界 ✅ / 对比选型 ✅。
+## 0x06 基础 SQL 与表设计补全
+
+### 1. Hive 分区和分桶解决的问题有什么不同？
+
+**标准答案**：分区通常把数据按日期、地区等低基数字段组织到不同目录，查询带分区谓词时可做分区裁剪；分桶按 hash 等规则把同一分区内的数据分散到固定桶，便于抽样、部分 Join 优化和数据分布控制。分区改变物理目录，分桶要求写入过程遵守桶数和分桶规则。
+
+**深入思考**：分区字段不能随意选择高基数列，否则会产生大量小目录和元数据压力；分桶也不会自动保证所有查询都更快，数据量、桶数、统计信息和执行引擎都要匹配。面试回答要包含小文件、分区裁剪和数据倾斜边界。
+
+### 2. Hive 窗口函数为什么要显式写窗口范围？
+
+**标准答案**：`PARTITION BY` 定义分组，`ORDER BY` 定义组内顺序，`ROWS` 按物理行数确定范围，`RANGE` 按排序值范围确定范围。排名、前后行访问和滚动聚合都依赖这些语义；排序值重复时，`ROWS` 和 `RANGE` 的结果可能不同。
+
+**深入思考**：连续登录、组内 Top N 和滚动指标要先明确去重粒度、时间边界和并列规则；不要依赖默认 frame，尤其不能把“最近 7 行”误写成“最近 7 天”。
+
+**书签与官方参考**：[Hive Windowing and Analytics](https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics)
 </code></pre>
 
       
@@ -21770,7 +21833,7 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:00" itemprop="dateModified" datetime="2026-09-08T21:29:00+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -22419,6 +22482,21 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
 
 &gt; 本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。
 &gt; **搜索来源**：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI/安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）/近期（2026-05 至 2026-08）/经典（官方稳定文档）；覆盖维度：官方源 ✅ / 生产实践 ✅（原理化归纳）/ 源码与实现边界 ✅ / 对比选型 ✅。
+## 0x08 基础执行链补全
+
+### 1. RDD 的分区数从哪里来？`repartition` 和 `coalesce` 有什么区别？
+
+**标准答案**：输入文件通常按底层 block 形成初始分区，算子也可能通过 Partitioner 产生新的分区。`repartition` 会触发 Shuffle，能增加或减少分区并重新均衡数据；`coalesce` 默认尽量合并已有分区，通常减少分区且少一次全量 Shuffle，但可能造成分区不均。
+
+**深入思考**：分区数不是越多越好。过少会让单任务数据过大，过多会增加调度、序列化和小文件开销；应结合数据量、任务并行度、下游写出文件数和 key 分布选择，并用 Spark UI 验证长尾。
+
+### 2. Cache、Persist 和 Checkpoint 分别解决什么问题？
+
+**标准答案**：Cache 是默认持久化方式的快捷用法，Persist 可显式选择内存、磁盘、序列化和副本策略；它们保留的是可由 lineage 重新计算的中间结果。Checkpoint 把结果写到可靠存储并截断 lineage，主要用于长链路、迭代计算或需要跨故障保留的场景。
+
+**深入思考**：缓存不是数据备份，也不一定命中内存；内存不足时会淘汰并重算。Checkpoint 会增加 I/O 和延迟，不能用来掩盖分区设计或 Shuffle 倾斜问题。选型时要区分“减少重复计算”和“切断故障传播”两个目标。
+
+**书签与官方参考**：[RDD Programming Guide](https://spark.apache.org/docs/latest/rdd-programming-guide) | [SparkInternals Cache and Checkpoint](https://github.com/JerryLead/SparkInternals/blob/master/markdown/6-CacheAndCheckpoint.md)
 </code></pre>
 
       
@@ -22482,7 +22560,7 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:03" itemprop="dateModified" datetime="2026-09-08T21:29:03+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -23112,6 +23190,11 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
 <blockquote>
 <p>本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。<br><strong>搜索来源</strong>：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI&#x2F;安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）&#x2F;近期（2026-05 至 2026-08）&#x2F;经典（官方稳定文档）；覆盖维度：官方源 ✅ &#x2F; 生产实践 ✅（原理化归纳）&#x2F; 源码与实现边界 ✅ &#x2F; 对比选型 ✅。</p>
 </blockquote>
+<h2 id="0x03-基础事件时间与状态补全"><a href="#0x03-基础事件时间与状态补全" class="headerlink" title="0x03 基础事件时间与状态补全"></a>0x03 基础事件时间与状态补全</h2><h3 id="1-Flink-的-Watermark-解决什么问题？为什么它不是“数据已经处理完”的标志？"><a href="#1-Flink-的-Watermark-解决什么问题？为什么它不是“数据已经处理完”的标志？" class="headerlink" title="1. Flink 的 Watermark 解决什么问题？为什么它不是“数据已经处理完”的标志？"></a>1. Flink 的 Watermark 解决什么问题？为什么它不是“数据已经处理完”的标志？</h3><p><strong>标准答案</strong>：Watermark 是对事件时间进度的估计，用来判断窗口是否可以关闭并处理迟到数据。它通常由输入分区中较慢分区的进度共同决定，因此只能表示“系统认为更早的事件大概率已到达”，不是数据源绝对不会再来数据。</p>
+<p><strong>深入思考</strong>：并行源、空闲分区、乱序程度和允许迟到策略都会影响结果；Watermark 过快会丢迟到事件，过慢会增加状态和延迟。生产上要同时设计 late-data 输出、状态 TTL、对账和补算路径。</p>
+<h3 id="2-Broadcast-State-适合什么场景？为什么不能把它当成普通共享变量？"><a href="#2-Broadcast-State-适合什么场景？为什么不能把它当成普通共享变量？" class="headerlink" title="2. Broadcast State 适合什么场景？为什么不能把它当成普通共享变量？"></a>2. Broadcast State 适合什么场景？为什么不能把它当成普通共享变量？</h3><p><strong>标准答案</strong>：Broadcast State 适合把低频更新的规则、配置或维表广播给各个并行实例，让每个实例本地匹配高频事件。广播数据会被每个并行任务保存，更新顺序和状态体积必须受控。</p>
+<p><strong>深入思考</strong>：广播规则不适合无限增长或强一致事务状态；规则更新与业务事件并发时要定义版本、生效时间和回放行为。若规则很大或需要随机查询，应评估异步外部 lookup、Broadcast State 与物化维表的取舍。</p>
+<p><strong>书签与官方参考</strong>：<a target="_blank" rel="noopener" href="https://github.com/flink-china">Flink China</a> | <a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/fault-tolerance/broadcast_state/">Flink Broadcast State 文档</a></p>
 
       
     </div>
@@ -23908,7 +23991,7 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-08 20:41:05" itemprop="dateModified" datetime="2026-09-08T20:41:05+08:00">2026-09-08</time>
+      <time title="修改时间：2026-09-08 21:29:05" itemprop="dateModified" datetime="2026-09-08T21:29:05+08:00">2026-09-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -24429,6 +24512,11 @@ FROM alp…19902 tokens truncated…5/P99、错误率、资源消耗、权限拒
 <blockquote>
 <p>本轮更新：2026-08-18（Work）——新增可回退发布、证据化观测与供应链验证三道面试题。<br><strong>搜索来源</strong>：本轮使用用户指定的 Review URL 组合（OpenTelemetry、Kubernetes Gateway API、Spring Boot，以及 AI&#x2F;安全主题对应的 Microsoft、Google Threat Intelligence、VirusTotal）；时间分层：最新（2026-08）&#x2F;近期（2026-05 至 2026-08）&#x2F;经典（官方稳定文档）；覆盖维度：官方源 ✅ &#x2F; 生产实践 ✅（原理化归纳）&#x2F; 源码与实现边界 ✅ &#x2F; 对比选型 ✅。</p>
 </blockquote>
+<h2 id="0x04-Java-基础语义补全"><a href="#0x04-Java-基础语义补全" class="headerlink" title="0x04 Java 基础语义补全"></a>0x04 Java 基础语义补全</h2><h3 id="1-Java-向上转型和向下转型的本质是什么？"><a href="#1-Java-向上转型和向下转型的本质是什么？" class="headerlink" title="1. Java 向上转型和向下转型的本质是什么？"></a>1. Java 向上转型和向下转型的本质是什么？</h3><p><strong>标准答案</strong>：向上转型把子类对象作为父类或接口使用，编译期只暴露父类型能看到的成员，但重写方法仍按运行时对象动态分派；向下转型要求对象运行时确实是目标子类型，否则会抛出 <code>ClassCastException</code>。类型转换不会改变对象本身。</p>
+<p><strong>深入思考</strong>：重载看编译期声明类型，重写看运行时对象类型，这是面试中最容易混淆的地方。优先使用多态、接口和模式匹配减少强制转换；跨边界反序列化时还要把类型信任和安全问题分开考虑。</p>
+<h3 id="2-反射为什么灵活但有成本？如何控制它的风险？"><a href="#2-反射为什么灵活但有成本？如何控制它的风险？" class="headerlink" title="2. 反射为什么灵活但有成本？如何控制它的风险？"></a>2. 反射为什么灵活但有成本？如何控制它的风险？</h3><p><strong>标准答案</strong>：反射通过运行时检查类型、字段、方法和构造器来实现框架扩展，适合依赖注入、序列化和插件发现；代价包括启动扫描、访问检查、可读性下降和错误延迟到运行时。高频路径应缓存解析结果，必要时使用代码生成或显式注册。</p>
+<p><strong>深入思考</strong>：反射访问权限、模块边界、类加载器和原生镜像兼容性都可能改变行为；不能只用“反射慢”概括。框架设计还要限定可扫描包、允许的类型和异常处理，避免把任意用户输入变成可调用的类或方法。</p>
+<p><strong>书签与参考</strong>：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31655965/article/details/54746235">Java 重新认识：多态</a> | <a target="_blank" rel="noopener" href="https://blog.csdn.net/sinat_38259539/article/details/71799078">Java 反射基础</a></p>
 
       
     </div>
