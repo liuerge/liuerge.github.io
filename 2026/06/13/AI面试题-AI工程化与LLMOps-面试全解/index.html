@@ -29,7 +29,7 @@
 <meta property="og:description" content="面向全栈资深研发 &#x2F; AI 工程化面试，非 AI 研究员视角，聚焦工程落地、生产实践与架构决策。   0x00 LLM 推理部署0x00-1 请解释 vLLM 的核心架构与 PagedAttention 原理标准答案 vLLM 是加州大学伯克利分校 LMSYS 团队开源的高吞吐 LLM 推理引擎。其核心创新是 PagedAttention——受操作系统虚拟内存分页机制启发，将 KV C">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-13T04:00:00.000Z">
-<meta property="article:modified_time" content="2026-07-02T13:11:53.597Z">
+<meta property="article:modified_time" content="2026-09-10T14:25:26.960Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="AI工程化">
 <meta property="article:tag" content="LLMOps">
@@ -169,7 +169,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-LLM-%E6%8E%A8%E7%90%86%E9%83%A8%E7%BD%B2"><span class="nav-text">0x00 LLM 推理部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-1-%E8%AF%B7%E8%A7%A3%E9%87%8A-vLLM-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E4%B8%8E-PagedAttention-%E5%8E%9F%E7%90%86"><span class="nav-text">0x00-1 请解释 vLLM 的核心架构与 PagedAttention 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-2-TGI-vs-vLLM-vs-SGLang-vs-Ollama-%E5%AF%B9%E6%AF%94%E5%88%86%E6%9E%90"><span class="nav-text">0x00-2 TGI vs vLLM vs SGLang vs Ollama 对比分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-3-%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96%E6%8A%80%E6%9C%AF%E5%85%A8%E8%A7%88%EF%BC%9A%E9%87%8F%E5%8C%96%E3%80%81Flash-Attention%E3%80%81%E6%8A%95%E6%9C%BA%E8%A7%A3%E7%A0%81"><span class="nav-text">0x00-3 推理优化技术全览：量化、Flash Attention、投机解码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-4-%E5%88%86%E5%B8%83%E5%BC%8F%E6%8E%A8%E7%90%86%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x00-4 分布式推理架构设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-5-OpenAI-%E5%85%BC%E5%AE%B9-API-%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x00-5 OpenAI 兼容 API 服务设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-%E6%A8%A1%E5%9E%8B%E5%BE%AE%E8%B0%83"><span class="nav-text">0x01 模型微调</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-1-%E5%85%A8%E9%87%8F%E5%BE%AE%E8%B0%83-vs-LoRA-vs-QLoRA-vs-DoRA-%E5%AF%B9%E6%AF%94"><span class="nav-text">0x01-1 全量微调 vs LoRA vs QLoRA vs DoRA 对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-2-LoRA-%E5%8E%9F%E7%90%86%E4%B8%8E%E7%A7%A9%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-text">0x01-2 LoRA 原理与秩的选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-3-PEFT-%E6%A1%86%E6%9E%B6%E8%AF%A6%E8%A7%A3"><span class="nav-text">0x01-3 PEFT 框架详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-4-SFT-vs-DPO-vs-GRPO-vs-PPO-%E5%AF%B9%E6%AF%94"><span class="nav-text">0x01-4 SFT vs DPO vs GRPO vs PPO 对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-5-%E5%BE%AE%E8%B0%83%E6%95%B0%E6%8D%AE%E6%9E%84%E5%BB%BA"><span class="nav-text">0x01-5 微调数据构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-6-Axolotl-Unsloth-%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="nav-text">0x01-6 Axolotl &#x2F; Unsloth 工具链</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-RAG-%E7%94%9F%E4%BA%A7%E6%9E%B6%E6%9E%84"><span class="nav-text">0x02 RAG 生产架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-1-%E5%9F%BA%E7%A1%80-RAG-%E2%86%92-%E9%AB%98%E7%BA%A7-RAG-%E2%86%92-%E6%A8%A1%E5%9D%97%E5%8C%96-RAG-%E6%BC%94%E8%BF%9B"><span class="nav-text">0x02-1 基础 RAG → 高级 RAG → 模块化 RAG 演进</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-2-%E5%88%86%E5%9D%97%E7%AD%96%E7%95%A5%E8%AF%A6%E8%A7%A3"><span class="nav-text">0x02-2 分块策略详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-3-Embedding-%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">0x02-3 Embedding 选型对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-4-%E5%90%91%E9%87%8F%E5%BA%93%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">0x02-4 向量库选型对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-5-%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2%EF%BC%9ABM25-Dense-ReRank"><span class="nav-text">0x02-5 混合检索：BM25 + Dense + ReRank</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-6-HyDE-Self-RAG-Corrective-RAG"><span class="nav-text">0x02-6 HyDE &#x2F; Self-RAG &#x2F; Corrective RAG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-7-RAG-%E8%AF%84%E4%BC%B0%EF%BC%9ARAGAS-%E6%A1%86%E6%9E%B6"><span class="nav-text">0x02-7 RAG 评估：RAGAS 框架</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x03-Embedding-%E4%B8%8E%E5%90%91%E9%87%8F%E5%BA%93"><span class="nav-text">0x03 Embedding 与向量库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-1-Embedding-%E6%A8%A1%E5%9E%8B%E6%A0%B8%E5%BF%83%E9%80%89%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-text">0x03-1 Embedding 模型核心选型参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-2-%E5%90%91%E9%87%8F%E7%B4%A2%E5%BC%95%E9%80%89%E5%9E%8B%EF%BC%9AHNSW-IVF-FLAT-IVF-PQ-SCANN"><span class="nav-text">0x03-2 向量索引选型：HNSW &#x2F; IVF_FLAT &#x2F; IVF_PQ &#x2F; SCANN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-3-%E5%90%91%E9%87%8F%E5%BA%93-CRUD-%E5%BB%B6%E8%BF%9F%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-text">0x03-3 向量库 CRUD 延迟与一致性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x04-LLM-%E8%AF%84%E4%BC%B0%E4%B8%8E%E7%9B%91%E6%8E%A7"><span class="nav-text">0x04 LLM 评估与监控</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-1-LLM-%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA%EF%BC%9ALLM-as-Judge-%E4%BA%BA%E5%B7%A5-%E8%87%AA%E5%8A%A8"><span class="nav-text">0x04-1 LLM 评估方法论：LLM-as-Judge &#x2F; 人工 &#x2F; 自动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-2-%E8%AF%84%E4%BC%B0%E7%BB%B4%E5%BA%A6%E8%AF%A6%E8%A7%A3"><span class="nav-text">0x04-2 评估维度详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-3-LLM-%E7%9B%91%E6%8E%A7%E5%B9%B3%E5%8F%B0%E5%AF%B9%E6%AF%94"><span class="nav-text">0x04-3 LLM 监控平台对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-4-%E6%88%90%E6%9C%AC%E8%BF%BD%E8%B8%AA%E4%B8%8E%E6%8A%A4%E6%A0%8F"><span class="nav-text">0x04-4 成本追踪与护栏</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x05-Prompt-%E7%94%9F%E4%BA%A7%E5%8C%96%E7%AE%A1%E7%90%86"><span class="nav-text">0x05 Prompt 生产化管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-1-Prompt-%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E4%B8%8E-A-B-%E6%B5%8B%E8%AF%95"><span class="nav-text">0x05-1 Prompt 版本管理与 A&#x2F;B 测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-2-Prompt-Template-Few-Shot-%E5%8A%A8%E6%80%81%E6%B3%A8%E5%85%A5"><span class="nav-text">0x05-2 Prompt Template + Few-Shot 动态注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-3-%E7%BB%93%E6%9E%84%E5%8C%96%E8%BE%93%E5%87%BA%EF%BC%9AJSON-Mode-Structured-Output-Tool-Use"><span class="nav-text">0x05-3 结构化输出：JSON Mode &#x2F; Structured Output &#x2F; Tool Use</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x06-%E6%88%90%E6%9C%AC%E4%BC%98%E5%8C%96"><span class="nav-text">0x06 成本优化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-1-KV-Cache-%E9%87%8F%E5%8C%96%E4%B8%8E%E5%A4%8D%E7%94%A8"><span class="nav-text">0x06-1 KV Cache 量化与复用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-2-Prompt-%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5"><span class="nav-text">0x06-2 Prompt 缓存策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-3-%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%94%B1"><span class="nav-text">0x06-3 模型路由</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-4-Batch-API-vs-Streaming"><span class="nav-text">0x06-4 Batch API vs Streaming</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-5-%E6%8E%A8%E7%90%86%E6%88%90%E6%9C%AC%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F%E4%B8%8E%E9%A2%84%E7%AE%97%E6%8E%A7%E5%88%B6"><span class="nav-text">0x06-5 推理成本计算公式与预算控制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x07-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x07 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-1-RAG-%E7%B3%BB%E7%BB%9F%E5%9C%A8%E5%8D%83%E4%BA%BF%E7%9F%A5%E8%AF%86%E5%BA%93%E4%B8%8A%E7%9A%84%E5%86%B7%E5%90%AF%E5%8A%A8%E5%92%8C%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0"><span class="nav-text">0x07-1 RAG 系统在千亿知识库上的冷启动和持续更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-2-vLLM-%E9%83%A8%E7%BD%B2%E8%B8%A9%E5%9D%91%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">0x07-2 vLLM 部署踩坑与解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-3-%E5%BE%AE%E8%B0%83%E6%A8%A1%E5%9E%8B%E8%BF%87%E6%8B%9F%E5%90%88-%E7%81%BE%E9%9A%BE%E6%80%A7%E9%81%97%E5%BF%98%E5%A4%84%E7%90%86"><span class="nav-text">0x07-3 微调模型过拟合 &#x2F; 灾难性遗忘处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-4-Embedding-%E7%BB%B4%E5%BA%A6%E9%80%89%E6%8B%A9%E9%94%99%E8%AF%AF%E5%AF%BC%E8%87%B4%E6%A3%80%E7%B4%A2%E7%B2%BE%E5%BA%A6%E4%B8%8B%E9%99%8D"><span class="nav-text">0x07-4 Embedding 维度选择错误导致检索精度下降</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-5-Prompt-%E6%B3%A8%E5%85%A5%E4%B8%8E%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%AE%9E%E6%88%98"><span class="nav-text">0x07-5 Prompt 注入与安全防护实战</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x08-MCP-%E4%B8%8E-AI-Agent-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD"><span class="nav-text">0x08 MCP 与 AI Agent 基础设施</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-1-MCP-%E5%8D%8F%E8%AE%AE%E6%9E%B6%E6%9E%84%E4%B8%8E%E7%94%9F%E6%80%81%E5%85%A8%E6%99%AF"><span class="nav-text">0x08-1 MCP 协议架构与生态全景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-2-Agent-%E5%AE%89%E5%85%A8%E9%A3%8E%E9%99%A9%E4%B8%8E%E9%98%B2%E6%8A%A4"><span class="nav-text">0x08-2 Agent 安全风险与防护</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x09-vLLM-%E6%9C%80%E6%96%B0%E8%BF%9B%E5%B1%95"><span class="nav-text">0x09 vLLM 最新进展</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-1-vLLM-V1-Engine-%E4%B8%8E-V2-Model-Runner"><span class="nav-text">0x09-1 vLLM V1 Engine 与 V2 Model Runner</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-2-Mooncake-%E5%88%86%E5%B8%83%E5%BC%8F-KV-Cache"><span class="nav-text">0x09-2 Mooncake 分布式 KV Cache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-3-Speculators-%E6%8A%95%E6%9C%BA%E8%A7%A3%E7%A0%81%E5%BA%93"><span class="nav-text">0x09-3 Speculators 投机解码库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-4-FlashAttention-4-%E4%B8%8E%E6%8E%A8%E7%90%86%E5%BC%95%E6%93%8E%E5%AF%B9%E6%AF%94"><span class="nav-text">0x09-4 FlashAttention-4 与推理引擎对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0A-%E5%BE%AE%E8%B0%83%E6%96%B0%E8%8C%83%E5%BC%8F"><span class="nav-text">0x0A 微调新范式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-1-DoRA%EF%BC%9A%E6%9D%83%E9%87%8D%E5%88%86%E8%A7%A3%E4%BD%8E%E7%A7%A9%E9%80%82%E9%85%8D"><span class="nav-text">0x0A-1 DoRA：权重分解低秩适配</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0B-RAG-%E7%94%9F%E4%BA%A7%E8%BF%9B%E9%98%B6"><span class="nav-text">0x0B RAG 生产进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0B-1-2026-%E5%B9%B4-RAG-%E7%94%9F%E4%BA%A7%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x0B-1 2026 年 RAG 生产最佳实践</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0C-Embedding-%E6%A8%A1%E5%9E%8B-2026-%E6%A0%BC%E5%B1%80"><span class="nav-text">0x0C Embedding 模型 2026 格局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0C-1-MTEB-%E6%9C%80%E6%96%B0%E6%8E%92%E8%A1%8C%E6%A6%9C%E4%B8%8E%E9%80%89%E5%9E%8B"><span class="nav-text">0x0C-1 MTEB 最新排行榜与选型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0D-AI-%E6%88%90%E6%9C%AC%E4%BC%98%E5%8C%96%E4%B8%89%E5%B1%82%E6%A1%86%E6%9E%B6"><span class="nav-text">0x0D AI 成本优化三层框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-1-%E6%A8%A1%E5%9E%8B%E7%BA%A7%E4%BC%98%E5%8C%96%EF%BC%9A%E9%87%8F%E5%8C%96%E3%80%81%E5%89%AA%E6%9E%9D%E3%80%81%E8%92%B8%E9%A6%8F"><span class="nav-text">0x0D-1 模型级优化：量化、剪枝、蒸馏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-2-%E7%B3%BB%E7%BB%9F%E7%BA%A7%E4%BC%98%E5%8C%96%EF%BC%9A%E8%BF%9E%E7%BB%AD%E6%89%B9%E5%A4%84%E7%90%86%E4%B8%8E%E6%8A%95%E6%9C%BA%E8%A7%A3%E7%A0%81"><span class="nav-text">0x0D-2 系统级优化：连续批处理与投机解码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-3-%E5%BA%94%E7%94%A8%E7%BA%A7%E4%BC%98%E5%8C%96%EF%BC%9A%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8E%8B%E7%BC%A9%E4%B8%8E%E7%BC%93%E5%AD%98"><span class="nav-text">0x0D-3 应用级优化：上下文压缩与缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-4-%E6%88%90%E6%9C%AC%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5%E8%B7%AF%E5%BE%84"><span class="nav-text">0x0D-4 成本优化实践路径</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0E-LLM-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E4%B8%8E%E5%AE%89%E5%85%A8"><span class="nav-text">0x0E LLM 可观测性与安全</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0E-1-LLM-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E5%B7%A5%E5%85%B7%E5%85%A8%E6%99%AF"><span class="nav-text">0x0E-1 LLM 可观测性工具全景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%BA%90%E6%B1%87%E6%80%BB"><span class="nav-text">参考资源汇总</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x0C-vLLM-%E7%94%9F%E4%BA%A7%E9%83%A8%E7%BD%B2%E6%B7%B1%E5%BA%A6%E6%8C%87%E5%8D%97%E2%80%94%E2%80%94NVIDIA-Dynamo%E3%80%81KV-Cache-%E4%B8%8E-Autoscaling"><span class="nav-text">0x0C vLLM 生产部署深度指南——NVIDIA Dynamo、KV Cache 与 Autoscaling</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-LLM-%E6%8E%A8%E7%90%86%E9%83%A8%E7%BD%B2"><span class="nav-text">0x00 LLM 推理部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-1-%E8%AF%B7%E8%A7%A3%E9%87%8A-vLLM-%E7%9A%84%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E4%B8%8E-PagedAttention-%E5%8E%9F%E7%90%86"><span class="nav-text">0x00-1 请解释 vLLM 的核心架构与 PagedAttention 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-2-TGI-vs-vLLM-vs-SGLang-vs-Ollama-%E5%AF%B9%E6%AF%94%E5%88%86%E6%9E%90"><span class="nav-text">0x00-2 TGI vs vLLM vs SGLang vs Ollama 对比分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-3-%E6%8E%A8%E7%90%86%E4%BC%98%E5%8C%96%E6%8A%80%E6%9C%AF%E5%85%A8%E8%A7%88%EF%BC%9A%E9%87%8F%E5%8C%96%E3%80%81Flash-Attention%E3%80%81%E6%8A%95%E6%9C%BA%E8%A7%A3%E7%A0%81"><span class="nav-text">0x00-3 推理优化技术全览：量化、Flash Attention、投机解码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-4-%E5%88%86%E5%B8%83%E5%BC%8F%E6%8E%A8%E7%90%86%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x00-4 分布式推理架构设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-5-OpenAI-%E5%85%BC%E5%AE%B9-API-%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1"><span class="nav-text">0x00-5 OpenAI 兼容 API 服务设计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-%E6%A8%A1%E5%9E%8B%E5%BE%AE%E8%B0%83"><span class="nav-text">0x01 模型微调</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-1-%E5%85%A8%E9%87%8F%E5%BE%AE%E8%B0%83-vs-LoRA-vs-QLoRA-vs-DoRA-%E5%AF%B9%E6%AF%94"><span class="nav-text">0x01-1 全量微调 vs LoRA vs QLoRA vs DoRA 对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-2-LoRA-%E5%8E%9F%E7%90%86%E4%B8%8E%E7%A7%A9%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-text">0x01-2 LoRA 原理与秩的选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-3-PEFT-%E6%A1%86%E6%9E%B6%E8%AF%A6%E8%A7%A3"><span class="nav-text">0x01-3 PEFT 框架详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-4-SFT-vs-DPO-vs-GRPO-vs-PPO-%E5%AF%B9%E6%AF%94"><span class="nav-text">0x01-4 SFT vs DPO vs GRPO vs PPO 对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-5-%E5%BE%AE%E8%B0%83%E6%95%B0%E6%8D%AE%E6%9E%84%E5%BB%BA"><span class="nav-text">0x01-5 微调数据构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-6-Axolotl-Unsloth-%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="nav-text">0x01-6 Axolotl &#x2F; Unsloth 工具链</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-RAG-%E7%94%9F%E4%BA%A7%E6%9E%B6%E6%9E%84"><span class="nav-text">0x02 RAG 生产架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-1-%E5%9F%BA%E7%A1%80-RAG-%E2%86%92-%E9%AB%98%E7%BA%A7-RAG-%E2%86%92-%E6%A8%A1%E5%9D%97%E5%8C%96-RAG-%E6%BC%94%E8%BF%9B"><span class="nav-text">0x02-1 基础 RAG → 高级 RAG → 模块化 RAG 演进</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-2-%E5%88%86%E5%9D%97%E7%AD%96%E7%95%A5%E8%AF%A6%E8%A7%A3"><span class="nav-text">0x02-2 分块策略详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-3-Embedding-%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">0x02-3 Embedding 选型对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-4-%E5%90%91%E9%87%8F%E5%BA%93%E9%80%89%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-text">0x02-4 向量库选型对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-5-%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2%EF%BC%9ABM25-Dense-ReRank"><span class="nav-text">0x02-5 混合检索：BM25 + Dense + ReRank</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-6-HyDE-Self-RAG-Corrective-RAG"><span class="nav-text">0x02-6 HyDE &#x2F; Self-RAG &#x2F; Corrective RAG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-7-RAG-%E8%AF%84%E4%BC%B0%EF%BC%9ARAGAS-%E6%A1%86%E6%9E%B6"><span class="nav-text">0x02-7 RAG 评估：RAGAS 框架</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x03-Embedding-%E4%B8%8E%E5%90%91%E9%87%8F%E5%BA%93"><span class="nav-text">0x03 Embedding 与向量库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-1-Embedding-%E6%A8%A1%E5%9E%8B%E6%A0%B8%E5%BF%83%E9%80%89%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-text">0x03-1 Embedding 模型核心选型参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-2-%E5%90%91%E9%87%8F%E7%B4%A2%E5%BC%95%E9%80%89%E5%9E%8B%EF%BC%9AHNSW-IVF-FLAT-IVF-PQ-SCANN"><span class="nav-text">0x03-2 向量索引选型：HNSW &#x2F; IVF_FLAT &#x2F; IVF_PQ &#x2F; SCANN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-3-%E5%90%91%E9%87%8F%E5%BA%93-CRUD-%E5%BB%B6%E8%BF%9F%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-text">0x03-3 向量库 CRUD 延迟与一致性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x04-LLM-%E8%AF%84%E4%BC%B0%E4%B8%8E%E7%9B%91%E6%8E%A7"><span class="nav-text">0x04 LLM 评估与监控</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-1-LLM-%E8%AF%84%E4%BC%B0%E6%96%B9%E6%B3%95%E8%AE%BA%EF%BC%9ALLM-as-Judge-%E4%BA%BA%E5%B7%A5-%E8%87%AA%E5%8A%A8"><span class="nav-text">0x04-1 LLM 评估方法论：LLM-as-Judge &#x2F; 人工 &#x2F; 自动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-2-%E8%AF%84%E4%BC%B0%E7%BB%B4%E5%BA%A6%E8%AF%A6%E8%A7%A3"><span class="nav-text">0x04-2 评估维度详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-3-LLM-%E7%9B%91%E6%8E%A7%E5%B9%B3%E5%8F%B0%E5%AF%B9%E6%AF%94"><span class="nav-text">0x04-3 LLM 监控平台对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-4-%E6%88%90%E6%9C%AC%E8%BF%BD%E8%B8%AA%E4%B8%8E%E6%8A%A4%E6%A0%8F"><span class="nav-text">0x04-4 成本追踪与护栏</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x05-Prompt-%E7%94%9F%E4%BA%A7%E5%8C%96%E7%AE%A1%E7%90%86"><span class="nav-text">0x05 Prompt 生产化管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-1-Prompt-%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E4%B8%8E-A-B-%E6%B5%8B%E8%AF%95"><span class="nav-text">0x05-1 Prompt 版本管理与 A&#x2F;B 测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-2-Prompt-Template-Few-Shot-%E5%8A%A8%E6%80%81%E6%B3%A8%E5%85%A5"><span class="nav-text">0x05-2 Prompt Template + Few-Shot 动态注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-3-%E7%BB%93%E6%9E%84%E5%8C%96%E8%BE%93%E5%87%BA%EF%BC%9AJSON-Mode-Structured-Output-Tool-Use"><span class="nav-text">0x05-3 结构化输出：JSON Mode &#x2F; Structured Output &#x2F; Tool Use</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x06-%E6%88%90%E6%9C%AC%E4%BC%98%E5%8C%96"><span class="nav-text">0x06 成本优化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-1-KV-Cache-%E9%87%8F%E5%8C%96%E4%B8%8E%E5%A4%8D%E7%94%A8"><span class="nav-text">0x06-1 KV Cache 量化与复用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-2-Prompt-%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5"><span class="nav-text">0x06-2 Prompt 缓存策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-3-%E6%A8%A1%E5%9E%8B%E8%B7%AF%E7%94%B1"><span class="nav-text">0x06-3 模型路由</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-4-Batch-API-vs-Streaming"><span class="nav-text">0x06-4 Batch API vs Streaming</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-5-%E6%8E%A8%E7%90%86%E6%88%90%E6%9C%AC%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F%E4%B8%8E%E9%A2%84%E7%AE%97%E6%8E%A7%E5%88%B6"><span class="nav-text">0x06-5 推理成本计算公式与预算控制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x07-%E7%94%9F%E4%BA%A7%E5%AE%9E%E6%88%98"><span class="nav-text">0x07 生产实战</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-1-RAG-%E7%B3%BB%E7%BB%9F%E5%9C%A8%E5%8D%83%E4%BA%BF%E7%9F%A5%E8%AF%86%E5%BA%93%E4%B8%8A%E7%9A%84%E5%86%B7%E5%90%AF%E5%8A%A8%E5%92%8C%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0"><span class="nav-text">0x07-1 RAG 系统在千亿知识库上的冷启动和持续更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-2-vLLM-%E9%83%A8%E7%BD%B2%E8%B8%A9%E5%9D%91%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">0x07-2 vLLM 部署踩坑与解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-3-%E5%BE%AE%E8%B0%83%E6%A8%A1%E5%9E%8B%E8%BF%87%E6%8B%9F%E5%90%88-%E7%81%BE%E9%9A%BE%E6%80%A7%E9%81%97%E5%BF%98%E5%A4%84%E7%90%86"><span class="nav-text">0x07-3 微调模型过拟合 &#x2F; 灾难性遗忘处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-4-Embedding-%E7%BB%B4%E5%BA%A6%E9%80%89%E6%8B%A9%E9%94%99%E8%AF%AF%E5%AF%BC%E8%87%B4%E6%A3%80%E7%B4%A2%E7%B2%BE%E5%BA%A6%E4%B8%8B%E9%99%8D"><span class="nav-text">0x07-4 Embedding 维度选择错误导致检索精度下降</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-5-Prompt-%E6%B3%A8%E5%85%A5%E4%B8%8E%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%AE%9E%E6%88%98"><span class="nav-text">0x07-5 Prompt 注入与安全防护实战</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x08-MCP-%E4%B8%8E-AI-Agent-%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD"><span class="nav-text">0x08 MCP 与 AI Agent 基础设施</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-1-MCP-%E5%8D%8F%E8%AE%AE%E6%9E%B6%E6%9E%84%E4%B8%8E%E7%94%9F%E6%80%81%E5%85%A8%E6%99%AF"><span class="nav-text">0x08-1 MCP 协议架构与生态全景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-2-Agent-%E5%AE%89%E5%85%A8%E9%A3%8E%E9%99%A9%E4%B8%8E%E9%98%B2%E6%8A%A4"><span class="nav-text">0x08-2 Agent 安全风险与防护</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x09-vLLM-%E6%9C%80%E6%96%B0%E8%BF%9B%E5%B1%95"><span class="nav-text">0x09 vLLM 最新进展</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-1-vLLM-V1-Engine-%E4%B8%8E-V2-Model-Runner"><span class="nav-text">0x09-1 vLLM V1 Engine 与 V2 Model Runner</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-2-Mooncake-%E5%88%86%E5%B8%83%E5%BC%8F-KV-Cache"><span class="nav-text">0x09-2 Mooncake 分布式 KV Cache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-3-Speculators-%E6%8A%95%E6%9C%BA%E8%A7%A3%E7%A0%81%E5%BA%93"><span class="nav-text">0x09-3 Speculators 投机解码库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-4-FlashAttention-4-%E4%B8%8E%E6%8E%A8%E7%90%86%E5%BC%95%E6%93%8E%E5%AF%B9%E6%AF%94"><span class="nav-text">0x09-4 FlashAttention-4 与推理引擎对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0A-%E5%BE%AE%E8%B0%83%E6%96%B0%E8%8C%83%E5%BC%8F"><span class="nav-text">0x0A 微调新范式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-1-DoRA%EF%BC%9A%E6%9D%83%E9%87%8D%E5%88%86%E8%A7%A3%E4%BD%8E%E7%A7%A9%E9%80%82%E9%85%8D"><span class="nav-text">0x0A-1 DoRA：权重分解低秩适配</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0B-RAG-%E7%94%9F%E4%BA%A7%E8%BF%9B%E9%98%B6"><span class="nav-text">0x0B RAG 生产进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0B-1-2026-%E5%B9%B4-RAG-%E7%94%9F%E4%BA%A7%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-text">0x0B-1 2026 年 RAG 生产最佳实践</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0C-Embedding-%E6%A8%A1%E5%9E%8B-2026-%E6%A0%BC%E5%B1%80"><span class="nav-text">0x0C Embedding 模型 2026 格局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0C-1-MTEB-%E6%9C%80%E6%96%B0%E6%8E%92%E8%A1%8C%E6%A6%9C%E4%B8%8E%E9%80%89%E5%9E%8B"><span class="nav-text">0x0C-1 MTEB 最新排行榜与选型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0D-AI-%E6%88%90%E6%9C%AC%E4%BC%98%E5%8C%96%E4%B8%89%E5%B1%82%E6%A1%86%E6%9E%B6"><span class="nav-text">0x0D AI 成本优化三层框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-1-%E6%A8%A1%E5%9E%8B%E7%BA%A7%E4%BC%98%E5%8C%96%EF%BC%9A%E9%87%8F%E5%8C%96%E3%80%81%E5%89%AA%E6%9E%9D%E3%80%81%E8%92%B8%E9%A6%8F"><span class="nav-text">0x0D-1 模型级优化：量化、剪枝、蒸馏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-2-%E7%B3%BB%E7%BB%9F%E7%BA%A7%E4%BC%98%E5%8C%96%EF%BC%9A%E8%BF%9E%E7%BB%AD%E6%89%B9%E5%A4%84%E7%90%86%E4%B8%8E%E6%8A%95%E6%9C%BA%E8%A7%A3%E7%A0%81"><span class="nav-text">0x0D-2 系统级优化：连续批处理与投机解码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-3-%E5%BA%94%E7%94%A8%E7%BA%A7%E4%BC%98%E5%8C%96%EF%BC%9A%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8E%8B%E7%BC%A9%E4%B8%8E%E7%BC%93%E5%AD%98"><span class="nav-text">0x0D-3 应用级优化：上下文压缩与缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-4-%E6%88%90%E6%9C%AC%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5%E8%B7%AF%E5%BE%84"><span class="nav-text">0x0D-4 成本优化实践路径</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0E-LLM-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E4%B8%8E%E5%AE%89%E5%85%A8"><span class="nav-text">0x0E LLM 可观测性与安全</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0E-1-LLM-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E5%B7%A5%E5%85%B7%E5%85%A8%E6%99%AF"><span class="nav-text">0x0E-1 LLM 可观测性工具全景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x0C-vLLM-%E7%94%9F%E4%BA%A7%E9%83%A8%E7%BD%B2%E6%B7%B1%E5%BA%A6%E6%8C%87%E5%8D%97%E2%80%94%E2%80%94NVIDIA-Dynamo%E3%80%81KV-Cache-%E4%B8%8E-Autoscaling"><span class="nav-text">0x0C vLLM 生产部署深度指南——NVIDIA Dynamo、KV Cache 与 Autoscaling</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-2026-07-16-%E5%85%A8%E9%87%8F%E5%A4%8D%E6%A0%B8%EF%BC%9AAI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps"><span class="nav-text">0x00 2026-07-16 全量复核：AI工程化与LLMOps</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%A6%82%E4%BD%95%E5%BB%BA%E7%AB%8B%E8%AF%A5%E6%96%B9%E5%90%91%E7%9A%84%E5%8F%98%E6%9B%B4%E5%AE%89%E5%85%A8%E8%BE%B9%E7%95%8C%EF%BC%9F"><span class="nav-text">1. 生产环境如何建立该方向的变更安全边界？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%AF%A5%E6%8A%80%E6%9C%AF%E5%9C%A8%E9%AB%98%E5%B9%B6%E5%8F%91%E6%88%96%E6%95%85%E9%9A%9C%E5%9C%BA%E6%99%AF%E4%B8%8B%E6%9C%80%E5%AE%B9%E6%98%93%E5%87%BA%E7%8E%B0%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-text">2. 该技术在高并发或故障场景下最容易出现什么问题？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-vLLM-%E8%B5%84%E6%BA%90%E4%B8%8E%E8%B0%83%E5%BA%A6%E6%B2%BB%E7%90%86"><span class="nav-text">0x01 vLLM 资源与调度治理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-vLLM-Sleep-Mode-%E9%80%82%E5%90%88%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%EF%BC%9F"><span class="nav-text">1. vLLM Sleep Mode 适合什么场景？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-EPLB-%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%E5%A4%B1%E8%A1%A1%EF%BC%9F"><span class="nav-text">2. EPLB 解决什么失衡？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-priority-scheduling-%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E7%A0%B4%E5%9D%8F%E5%85%AC%E5%B9%B3%E6%80%A7%EF%BC%9F"><span class="nav-text">3. priority scheduling 如何避免破坏公平性？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0F-2026-07-20%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%BE%B9%E7%95%8C%E4%B8%8E%E9%AA%8C%E8%AF%81%E9%97%AD%E7%8E%AF"><span class="nav-text">0x0F 2026-07-20：生产边界与验证闭环</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-LLMOps-%E7%9A%84%E6%95%B0%E6%8D%AE%E3%80%81%E8%AF%84%E6%B5%8B%E3%80%81%E6%8E%A8%E7%90%86%E6%88%90%E6%9C%AC%E4%B8%8E%E5%9B%9E%E6%BB%9A%E5%A6%82%E4%BD%95%E5%BD%A2%E6%88%90%E5%8F%91%E5%B8%83%E9%97%A8%E7%A6%81%EF%BC%9A%E5%87%BA%E7%8E%B0%E7%BA%BF%E4%B8%8A%E5%BC%82%E5%B8%B8%E6%97%B6%EF%BC%8C%E7%AC%AC%E4%B8%80%E6%AD%A5%E5%BA%94%E8%AF%A5%E5%81%9A%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：出现线上异常时，第一步应该做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-LLMOps-%E7%9A%84%E6%95%B0%E6%8D%AE%E3%80%81%E8%AF%84%E6%B5%8B%E3%80%81%E6%8E%A8%E7%90%86%E6%88%90%E6%9C%AC%E4%B8%8E%E5%9B%9E%E6%BB%9A%E5%A6%82%E4%BD%95%E5%BD%A2%E6%88%90%E5%8F%91%E5%B8%83%E9%97%A8%E7%A6%81%EF%BC%9A%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E5%8D%87%E7%BA%A7%E6%88%96%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88%EF%BC%8C%E9%81%BF%E5%85%8D%E2%80%9C%E8%83%BD%E5%90%AF%E5%8A%A8%E4%BD%86%E4%B8%8D%E5%8F%AF%E7%94%A8%E2%80%9D%EF%BC%9F"><span class="nav-text">2. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：如何设计升级或迁移方案，避免“能启动但不可用”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-LLMOps-%E7%9A%84%E6%95%B0%E6%8D%AE%E3%80%81%E8%AF%84%E6%B5%8B%E3%80%81%E6%8E%A8%E7%90%86%E6%88%90%E6%9C%AC%E4%B8%8E%E5%9B%9E%E6%BB%9A%E5%A6%82%E4%BD%95%E5%BD%A2%E6%88%90%E5%8F%91%E5%B8%83%E9%97%A8%E7%A6%81%EF%BC%9A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%88%96%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E6%80%8E%E6%A0%B7%E8%AF%81%E6%98%8E%E6%B2%A1%E6%9C%89%E5%BC%95%E5%85%A5%E6%96%B0%E9%A3%8E%E9%99%A9%EF%BC%9F"><span class="nav-text">3. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：性能优化或安全加固怎样证明没有引入新风险？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x13-2026-07-21%EF%BC%9A%E7%94%9F%E4%BA%A7%E9%AA%8C%E8%AF%81%E4%B8%8E%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E8%BE%B9%E7%95%8C"><span class="nav-text">0x13 2026-07-21：生产验证与可观测性边界</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-AI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E6%AC%A1%E5%8F%AF%E5%9B%9E%E6%BB%9A%E7%9A%84%E7%94%9F%E4%BA%A7%E5%8F%98%E6%9B%B4%EF%BC%9F"><span class="nav-text">1. AI工程化与LLMOps 系统如何设计一次可回滚的生产变更？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E8%AE%A9-AI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%E7%9A%84%E6%97%A5%E5%BF%97%E3%80%81%E6%8C%87%E6%A0%87%E5%92%8C%E9%93%BE%E8%B7%AF%E7%9C%9F%E6%AD%A3%E5%8F%AF%E4%BB%A5%E5%85%B3%E8%81%94%EF%BC%9F"><span class="nav-text">2. 如何让 AI工程化与LLMOps 的日志、指标和链路真正可以关联？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E6%8A%8A%E8%AF%A5%E6%8A%80%E6%9C%AF%E6%96%B9%E5%90%91%E7%9A%84%E7%89%88%E6%9C%AC%E3%80%81%E9%85%8D%E7%BD%AE%E6%88%96%E6%95%B0%E6%8D%AE%E5%8F%98%E6%9B%B4%E5%81%9A%E6%88%90%E5%8F%AF%E5%9B%9E%E6%BB%9A%E5%8F%91%E5%B8%83%EF%BC%9F"><span class="nav-text">1. 如何把该技术方向的版本、配置或数据变更做成可回滚发布？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%AF%A5%E6%8A%80%E6%9C%AF%E6%96%B9%E5%90%91%E7%9A%84%E6%97%A5%E5%BF%97%E3%80%81%E6%8C%87%E6%A0%87%E5%92%8C%E9%93%BE%E8%B7%AF%E5%A6%82%E4%BD%95%E5%BD%A2%E6%88%90%E5%8F%AF%E6%8E%92%E9%9A%9C%E8%AF%81%E6%8D%AE%E9%93%BE%EF%BC%9F"><span class="nav-text">2. 该技术方向的日志、指标和链路如何形成可排障证据链？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-AI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%E5%8F%91%E7%94%9F%E7%89%88%E6%9C%AC%E3%80%81%E9%85%8D%E7%BD%AE%E6%88%96%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%98%E6%9B%B4%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E5%85%BC%E5%AE%B9%E8%80%8C%E4%B8%8D%E5%8F%AA%E6%98%AF%E2%80%9C%E8%83%BD%E5%90%AF%E5%8A%A8%E2%80%9D%EF%BC%9F"><span class="nav-text">1. AI工程化与LLMOps &#x2F;  发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E6%8A%8A%E6%97%A5%E5%BF%97%E3%80%81%E6%8C%87%E6%A0%87%E5%92%8C-Trace-%E7%BB%84%E7%BB%87%E6%88%90-AI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%E7%9A%84%E5%8F%AF%E6%8E%92%E9%9A%9C%E8%AF%81%E6%8D%AE%E9%93%BE%EF%BC%9F"><span class="nav-text">2. 如何把日志、指标和 Trace 组织成 AI工程化与LLMOps &#x2F;  的可排障证据链？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%88%96%E5%AE%89%E5%85%A8%E5%8A%A0%E5%9B%BA%E5%90%8E%EF%BC%8C%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E6%B2%A1%E6%9C%89%E5%BC%95%E5%85%A5%E6%96%B0%E7%9A%84%E7%94%9F%E4%BA%A7%E9%A3%8E%E9%99%A9%EF%BC%9F"><span class="nav-text">3. 性能优化或安全加固后，如何证明没有引入新的生产风险？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1E-2026-08-10%EF%BC%9A%E6%8A%8A%E5%8F%98%E6%9B%B4%E5%81%9A%E6%88%90%E5%8F%AF%E9%AA%8C%E8%AF%81%E7%9A%84%E5%8F%91%E5%B8%83%E5%A5%91%E7%BA%A6"><span class="nav-text">0x1E 2026-08-10：把变更做成可验证的发布契约</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E4%B8%BA%E4%B8%80%E6%AC%A1%E8%B7%A8%E7%BB%84%E4%BB%B6%E5%8F%98%E6%9B%B4%E8%AE%BE%E8%AE%A1%E6%9C%80%E5%B0%8F%E5%8F%AF%E5%9B%9E%E9%80%80%E5%8F%91%E5%B8%83%EF%BC%9F"><span class="nav-text">1. 如何为一次跨组件变更设计最小可回退发布？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E6%8A%8A%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E4%BB%8E%E2%80%9C%E8%AE%B0%E5%BD%95%E6%97%A5%E5%BF%97%E2%80%9D%E5%8D%87%E7%BA%A7%E6%88%90%E2%80%9C%E8%AF%81%E6%98%8E%E9%AA%8C%E6%94%B6%E2%80%9D%EF%BC%9F"><span class="nav-text">2. 如何把可观测性从“记录日志”升级成“证明验收”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BE%9B%E5%BA%94%E9%93%BE%E6%88%96%E4%BE%9D%E8%B5%96%E8%AF%81%E6%98%8E%E8%83%BD%E5%90%A6%E7%9B%B4%E6%8E%A5%E7%AD%89%E5%90%8C%E4%BA%8E%E5%AE%89%E5%85%A8%EF%BC%9F"><span class="nav-text">3. 供应链或依赖证明能否直接等同于安全？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1D-2026-08-07%EF%BC%9A%E5%8F%AF%E5%9B%9E%E6%BB%9A%E5%8F%98%E6%9B%B4%E3%80%81%E4%BA%8B%E4%BB%B6%E8%AF%81%E6%8D%AE%E4%B8%8E%E4%BE%9B%E5%BA%94%E9%93%BE%E8%AF%81%E6%98%8E%EF%BC%88AI%E9%9D%A2%E8%AF%95%E9%A2%98-AI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%EF%BC%89"><span class="nav-text">0x1D 2026-08-07：可回滚变更、事件证据与供应链证明（AI面试题-AI工程化与LLMOps-）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A6%82%E4%BD%95%E4%B8%BA-AI%E9%9D%A2%E8%AF%95%E9%A2%98-AI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%E7%9A%84%E7%94%9F%E4%BA%A7%E5%8F%98%E6%9B%B4%E5%AE%9A%E4%B9%89%E5%8F%AF%E5%9B%9E%E6%BB%9A%E7%9A%84%E9%AA%8C%E6%94%B6%E5%A5%91%E7%BA%A6%EF%BC%9F"><span class="nav-text">1. 如何为 AI面试题-AI工程化与LLMOps- 的生产变更定义可回滚的验收契约？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E6%8A%8A%E4%B8%80%E6%AC%A1%E6%95%85%E9%9A%9C%E6%BC%94%E7%BB%83%E5%8F%98%E6%88%90%E5%8F%AF%E5%AE%A1%E8%AE%A1%E7%9A%84%E4%BA%8B%E4%BB%B6%E8%AF%81%E6%8D%AE%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E5%A0%86%E6%97%A5%E5%BF%97%EF%BC%9F"><span class="nav-text">2. 如何把一次故障演练变成可审计的事件证据，而不是堆日志？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E7%94%A8-control-canary-%E5%AF%B9%E7%85%A7%E8%AF%81%E6%98%8E%E4%B8%80%E6%AC%A1-LLM-%E5%8F%98%E6%9B%B4%E7%9C%9F%E7%9A%84%E6%94%B9%E5%96%84%E4%BA%86%E7%BB%93%E6%9E%9C%EF%BC%9F"><span class="nav-text">2. 如何用 control&#x2F;canary 对照证明一次 LLM 变更真的改善了结果？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%9B%9E%E6%BB%9A%E3%80%81%E6%92%A4%E9%94%80%E5%92%8C%E4%BE%9B%E5%BA%94%E9%93%BE%E8%AF%81%E6%98%8E%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E4%BA%92%E7%9B%B8%E2%80%9C%E6%89%93%E6%9E%B6%E2%80%9D%EF%BC%9F"><span class="nav-text">3. 回滚、撤销和供应链证明如何避免互相“打架”？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x24-2026-08-26%EF%BC%9AAI%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%B8%8ELLMOps-%E7%9A%84%E6%81%A2%E5%A4%8D%E6%BC%94%E7%BB%83%E3%80%81%E5%81%9C%E6%AD%A2%E6%9D%A1%E4%BB%B6%E4%B8%8E%E4%BA%BA%E5%B7%A5%E6%8E%A5%E7%AE%A1"><span class="nav-text">0x24 2026-08-26：AI工程化与LLMOps 的恢复演练、停止条件与人工接管</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8F%91%E5%B8%83%E6%88%96%E5%8D%87%E7%BA%A7%E6%97%B6%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%8A%8A%E2%80%9C%E5%81%9C%E6%AD%A2%E6%89%A9%E6%95%A3%E2%80%9D%E8%AE%BE%E8%AE%A1%E6%88%90%E4%B8%80%E7%AD%89%E8%83%BD%E5%8A%9B%EF%BC%9F"><span class="nav-text">1. 发布或升级时，为什么要把“停止扩散”设计成一等能力？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A6%82%E4%BD%95%E8%AF%81%E6%98%8E%E4%B8%80%E6%AC%A1%E6%81%A2%E5%A4%8D%E7%A1%AE%E5%AE%9E%E6%81%A2%E5%A4%8D%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%91%E6%8E%A7%E6%81%A2%E5%A4%8D%EF%BC%9F"><span class="nav-text">2. 如何证明一次恢复确实恢复，而不是监控恢复？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BE%9D%E8%B5%96%E6%88%96%E5%88%B6%E5%93%81%E4%B8%8D%E5%8F%AF%E4%BF%A1%E6%97%B6%EF%BC%8C%E5%8F%91%E5%B8%83%E9%97%A8%E7%A6%81%E5%BA%94%E6%A3%80%E6%9F%A5%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">3. 依赖或制品不可信时，发布门禁应检查什么？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x25-2026-09-07%EF%BC%9ALLMOps-%E8%AF%84%E4%BC%B0%E9%97%A8%E7%A6%81%E3%80%81%E6%8E%A8%E7%90%86%E5%BD%92%E5%9B%A0%E4%B8%8E%E8%AF%AD%E4%B9%89%E5%85%BC%E5%AE%B9"><span class="nav-text">0x25 2026-09-07：LLMOps 评估门禁、推理归因与语义兼容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x25-1-%E5%A6%82%E4%BD%95%E6%8A%8A%E8%AF%84%E4%BC%B0%E6%95%B0%E6%8D%AE%E9%9B%86%E6%8E%A5%E5%85%A5-CI-%E5%9B%9E%E5%BD%92%E9%97%A8%E7%A6%81%EF%BC%8C%E5%B9%B6%E8%AF%86%E5%88%AB-Judge-%E6%BC%82%E7%A7%BB%EF%BC%9F"><span class="nav-text">0x25-1 如何把评估数据集接入 CI 回归门禁，并识别 Judge 漂移？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x25-2-vLLM-%E7%9A%84-TTFT%E3%80%81%E9%98%9F%E5%88%97%E3%80%81Prefill%E3%80%81Decode-%E5%92%8C-KV-Cache-%E5%87%BA%E9%97%AE%E9%A2%98%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E5%81%9A-SLO-%E5%BD%92%E5%9B%A0%EF%BC%9F"><span class="nav-text">0x25-2 vLLM 的 TTFT、队列、Prefill、Decode 和 KV Cache 出问题时，如何做 SLO 归因？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x25-3-RAG-%E8%B4%A8%E9%87%8F%E4%B8%8B%E9%99%8D%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%8C%89%E5%B1%82%E5%AE%9A%E4%BD%8D%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E5%8F%AA%E7%9C%8B%E4%B8%80%E4%B8%AA-Ragas-%E6%80%BB%E5%88%86%EF%BC%9F"><span class="nav-text">0x25-3 RAG 质量下降时，如何按层定位，而不是只看一个 Ragas 总分？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x25-4-Agent-%E5%A6%82%E4%BD%95%E4%BC%A0%E6%92%AD%E8%BA%AB%E4%BB%BD%E3%80%81%E6%8E%88%E6%9D%83%E5%B7%A5%E5%85%B7%E3%80%81%E7%AE%A1%E7%90%86%E8%AE%B0%E5%BF%86%E5%B9%B6%E9%98%BB%E6%96%AD%E8%B7%A8%E7%A7%9F%E6%88%B7%E6%B3%84%E6%BC%8F%EF%BC%9F"><span class="nav-text">0x25-4 Agent 如何传播身份、授权工具、管理记忆并阻断跨租户泄漏？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x25-5-%E6%A8%A1%E5%9E%8B%E3%80%81Embedding%E3%80%81Tokenizer-%E5%92%8C-vLLM-%E5%8D%87%E7%BA%A7%E5%A6%82%E4%BD%95%E5%BB%BA%E7%AB%8B%E8%AF%AD%E4%B9%89%E5%85%BC%E5%AE%B9%E7%9F%A9%E9%98%B5%EF%BC%9F"><span class="nav-text">0x25-5 模型、Embedding、Tokenizer 和 vLLM 升级如何建立语义兼容矩阵？</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -182,7 +182,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -193,7 +193,7 @@
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">148</span>
+        <span class="site-state-item-count">132</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -256,7 +256,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-02 21:11:53" itemprop="dateModified" datetime="2026-07-02T21:11:53+08:00">2026-07-02</time>
+      <time title="修改时间：2026-09-10 22:25:26" itemprop="dateModified" datetime="2026-09-10T22:25:26+08:00">2026-09-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -514,7 +514,7 @@
 </tr>
 </tbody></table>
 <p><strong>张量并行实例</strong>：将 QKV 投影矩阵按列切分到 2 张 GPU，每个 GPU 计算部分注意力头，最后 all-reduce 拼接。通信需要在每层做 all-reduce，是主要的延迟瓶颈。</p>
-<p><strong>Prefix Caching（前缀缓存）</strong>：vLLM 自动缓存已计算的 prompt 前缀 KV Cache（以 block 粒度）。当新请求的 prompt 前缀与缓存匹配（如 system prompt），直接从缓存加载，跳过重算。缓存命中可节省 30-70% 的 Prefill 计算。SGLang 的 RadixAttention 使用前缀树（Trie）管理，共享率更高。</p>
+<p><strong>Prefix Caching（前缀缓存）</strong>：vLLM 以 block 为单位缓存已经计算的 prompt KV Cache；block key 由父 block、当前 block 的 token 以及 LoRA&#x2F;多模态输入等额外信息共同决定，因此只有完整且逐 token 匹配的前缀 block 才能复用，最后一个不完整 block 不会被缓存。命中只减少可复用部分的 Prefill 计算，不会自动降低 Decode 时间，也不是语义相似缓存。多租户部署还要使用 <code>cache_salt</code> 或独立缓存域，避免通过 TTFT 差异推断其他租户的前缀；缓存命中率不能代替正确性与权限校验。SGLang 的 RadixAttention 是另一种前缀组织方式，不能把两者混写成同一个实现。</p>
 <p><strong>部署架构建议</strong>：</p>
 <ul>
 <li>单机多卡 2-4×H100 部署 70B：TP&#x3D;2 或 TP+PP</li>
@@ -541,6 +541,7 @@
 <li><strong>Rate Limiting</strong>：基于 token 速率（RPM + TPM）而非请求数，实现滑动窗口计数器。</li>
 <li><strong>请求排队</strong>：vLLM 内置 Scheduler 处理请求排队及优先级（AsyncLLMEngine）。</li>
 <li><strong>多模型路由</strong>：API Gateway 层根据模型名称分发到不同推理后端，支持模型级 autoscaling。</li>
+<li><strong>逐请求延迟</strong>：vLLM 的 <code>/metrics</code> 是服务级聚合指标；响应中的 <code>metrics</code> 字段不是默认开启的，需要显式设置 <code>--enable-per-request-metrics</code>。该模式会有额外 CPU 开销，且 <code>n &gt; 1</code> 或多 prompt 请求无法把时序准确归属到单个请求时会省略这些字段。</li>
 </ol>
 <hr>
 <h1 id="0x01-模型微调"><a href="#0x01-模型微调" class="headerlink" title="0x01 模型微调"></a>0x01 模型微调</h1><h2 id="0x01-1-全量微调-vs-LoRA-vs-QLoRA-vs-DoRA-对比"><a href="#0x01-1-全量微调-vs-LoRA-vs-QLoRA-vs-DoRA-对比" class="headerlink" title="0x01-1 全量微调 vs LoRA vs QLoRA vs DoRA 对比"></a>0x01-1 全量微调 vs LoRA vs QLoRA vs DoRA 对比</h2><p><strong>标准答案</strong></p>
@@ -1162,15 +1163,10 @@
 </tr>
 </tbody></table>
 <p><strong>评估流程</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">测试集（含 ground truth answer）→ Pipeline 推理 → 收集 (query, context, answer) → RAGAS 打分</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">样本（可含 reference answer / reference contexts）</span><br><span class="line">  → Pipeline 推理</span><br><span class="line">  → 记录 query、retrieved_contexts、answer、引用与 trace</span><br><span class="line">  → 按指标要求调用 RAGAS，并保留逐样本解释</span><br></pre></td></tr></table></figure>
 
-<p><strong>深入思考</strong>：RAGAS 依赖 LLM-as-Judge（通常 GPT-4 或同等模型），评分有一定方差。生产建议：</p>
-<ul>
-<li>使用多个 LLM Judge 投票，取众数或均值</li>
-<li>同步构建人工评估集（100-200 条），校准自动评估</li>
-<li>关注<strong>边际差异</strong>而非绝对分数——A&#x2F;B 对比更有价值</li>
-<li>RAGAS 的 Faithfulness 指标被认为是最稳定、最有价值的</li>
-</ul>
+<p><strong>指标边界</strong>：Context Precision 看相关 chunk 在返回列表中的排序；Context Recall 需要 reference answer 或 reference contexts，不能直接当作没有标注的“知识库召回率”；Faithfulness 判断回答中的 claims 是否能由给定上下文支持，不等于事实已经被世界知识证实；Answer Relevancy 只回答“是否在回应问题”，不代表答案正确。指标缺少所需输入时不要填默认值或伪造高分，应改用 Recall@K、MRR、规则校验或人工复核。</p>
+<p><strong>深入思考</strong>：RAGAS 中不少指标依赖 LLM-as-Judge，存在提示词、模型版本和采样导致的方差；即使同一套指标，也可能因 chunk 切分、语言、上下文顺序变化而改变。生产上应固定评估器与 prompt 版本，以人工锚点校准，并把“检索错、上下文拼装错、生成未引用、事实本身错”分层统计；关注 A&#x2F;B 的分层差异而不是把一个 RAGAS 总分当作系统真值。</p>
 <p><strong>参考链接</strong></p>
 <ul>
 <li>RAGAS: <a target="_blank" rel="noopener" href="https://docs.ragas.io/">https://docs.ragas.io/</a></li>
@@ -1436,10 +1432,10 @@
 <tbody><tr>
 <td><strong>LangSmith</strong></td>
 <td>❌</td>
-<td>云托管</td>
+<td>云托管&#x2F;企业自托管</td>
 <td>Trace + Eval + Hub</td>
-<td>LangChain 原生集成、最强 Evals</td>
-<td>闭源、按量付费</td>
+<td>多模型、多框架观测与评估；与 LangChain&#x2F;LangGraph 集成方便</td>
+<td>平台服务，闭源、按量付费</td>
 </tr>
 <tr>
 <td><strong>Langfuse</strong></td>
@@ -1484,7 +1480,7 @@
 </tbody></table>
 <p><strong>选型建议</strong>：</p>
 <ul>
-<li>LangChain 生态团队 → LangSmith</li>
+<li>需要 LangChain&#x2F;LangGraph 集成或跨框架观测评估 → LangSmith</li>
 <li>自建&#x2F;云中立 → Langfuse（最均衡的开源选择）</li>
 <li>极致延迟敏感 → Helicone（API proxy 模式）</li>
 <li>已用 Datadog → Datadog LLM Obs</li>
@@ -1492,7 +1488,8 @@
 </ul>
 <p><strong>参考链接</strong></p>
 <ul>
-<li>LangSmith: <a target="_blank" rel="noopener" href="https://smith.langchain.com/">https://smith.langchain.com/</a></li>
+<li>LangSmith 文档（集成与评估平台，不等于 LangChain core）: <a target="_blank" rel="noopener" href="https://docs.langchain.com/langsmith/integrations">https://docs.langchain.com/langsmith/integrations</a></li>
+<li>LangSmith 自托管文档: <a target="_blank" rel="noopener" href="https://docs.langchain.com/langsmith/self-hosted">https://docs.langchain.com/langsmith/self-hosted</a></li>
 <li>Langfuse: <a target="_blank" rel="noopener" href="https://langfuse.com/">https://langfuse.com/</a></li>
 </ul>
 <h2 id="0x04-4-成本追踪与护栏"><a href="#0x04-4-成本追踪与护栏" class="headerlink" title="0x04-4 成本追踪与护栏"></a>0x04-4 成本追踪与护栏</h2><p><strong>标准答案</strong></p>
@@ -1629,9 +1626,9 @@
 </ul>
 <p><strong>KV Cache 复用</strong>：</p>
 <ul>
-<li><strong>Prefix Caching</strong>：vLLM 自动缓存相同前缀的 KV 块（system prompt、few-shot examples），避免重复计算。命中率 30-70%</li>
-<li><strong>Session 级缓存</strong>：多轮对话中缓存已生成的 KV，每轮只计算新增 token。vLLM 的 <code>--enable-prefix-caching</code> 开启</li>
-<li><strong>Cross-Request 缓存</strong>：vLLM 支持跨请求的 KV Cache 共享（相同 prompt 前缀）</li>
+<li><strong>Prefix Caching</strong>：vLLM 按 token block 的哈希缓存相同前缀；只缓存完整 block，后缀、任何 token&#x2F;模板&#x2F;多模态输入变化都可能使后续 block 无法命中。它复用的是 Prefill 结果，不是任意语义相似请求的答案。</li>
+<li><strong>Session 级缓存</strong>：会话历史仍需由应用拼装并控制生命周期；prefix cache 不等于“保存了整个会话状态”，更不会替代权限校验或数据删除。</li>
+<li><strong>Cross-Request 缓存</strong>：可以跨请求共享相同前缀，但多租户应通过 <code>cache_salt</code> 或独立实例&#x2F;缓存域隔离，防止以 TTFT 差异推断其他租户内容。</li>
 </ul>
 <p><strong>参考链接</strong></p>
 <ul>
@@ -1657,8 +1654,8 @@
 </tr>
 <tr>
 <td>前缀缓存</td>
-<td>Prompt 前缀</td>
-<td>vLLM RadiAttention&#x2F;Trie</td>
+<td>完整 token 前缀 block</td>
+<td>vLLM 哈希 block；SGLang RadixAttention</td>
 <td>中</td>
 <td>共享 System Prompt</td>
 </tr>
@@ -1931,7 +1928,7 @@
 <p><strong>防护策略</strong>：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">输入层（防御）：</span><br><span class="line">  - 输入过滤：正则/分类器检测注入模式</span><br><span class="line">  - 指令分离：用特殊分隔符将系统指令与用户输入隔离</span><br><span class="line">  - 权限隔离：LLM 的 tool use 权限最小化</span><br><span class="line"></span><br><span class="line">检索层（防御间接注入）：</span><br><span class="line">  - 检索结果清洗：移除不可见字符、脚本标签</span><br><span class="line">  - 检索结果重新排序：降低低质量内容的权重</span><br><span class="line"></span><br><span class="line">输出层（防御）：</span><br><span class="line">  - 输出过滤：PII 检测、敏感信息正则</span><br><span class="line">  - 内容安全：NeMo Guardrails / Lakera 实时检测</span><br><span class="line">  - 限流：输出最大长度限制</span><br><span class="line"></span><br><span class="line">架构层：</span><br><span class="line">  - 代理隔离：LLM 不直接访问外部系统，通过中间层</span><br><span class="line">  - 最小权限：数据库只读、API 调用需确认</span><br></pre></td></tr></table></figure>
 
-<p><strong>生产实践</strong>：没有银弹。多层防御组合才有效。推荐 OWASP LLM Top 10 作为安全基线（<a target="_blank" rel="noopener" href="https://genai.owasp.org/%EF%BC%89%E3%80%82">https://genai.owasp.org/）。</a></p>
+<p><strong>生产实践</strong>：没有银弹。多层防御组合才有效。当前应引用 OWASP GenAI LLM Top 10 <strong>2026</strong> 版；它是风险清单与治理入口，不是替代认证、授权、隔离和回归测试的单一控制（<a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/%EF%BC%89%E3%80%82">https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/）。</a></p>
 <hr>
 <h1 id="0x08-MCP-与-AI-Agent-基础设施"><a href="#0x08-MCP-与-AI-Agent-基础设施" class="headerlink" title="0x08 MCP 与 AI Agent 基础设施"></a>0x08 MCP 与 AI Agent 基础设施</h1><h2 id="0x08-1-MCP-协议架构与生态全景"><a href="#0x08-1-MCP-协议架构与生态全景" class="headerlink" title="0x08-1 MCP 协议架构与生态全景"></a>0x08-1 MCP 协议架构与生态全景</h2><p><strong>标准答案</strong></p>
 <p><strong>MCP（Model Context Protocol）</strong> 由 Anthropic 于 2024 年 11 月开源，定义 AI Agent 与外部工具&#x2F;数据源之间的标准化通信协议。2025 年 12 月，MCP 正式捐赠给 <strong>AAIF（Linux Foundation）</strong> 管理，成为中立治理的开源项目。</p>
@@ -2683,30 +2680,55 @@
 <li><a target="_blank" rel="noopener" href="https://www.braintrust.dev/articles/best-ai-observability-tools-2026">Braintrust - Best AI Observability Tools 2026</a></li>
 </ul>
 <hr>
-<h1 id="参考资源汇总"><a href="#参考资源汇总" class="headerlink" title="参考资源汇总"></a>参考资源汇总</h1><ul>
-<li>vLLM: <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm">https://github.com/vllm-project/vllm</a></li>
-<li>SGLang: <a target="_blank" rel="noopener" href="https://github.com/sgl-project/sglang">https://github.com/sgl-project/sglang</a></li>
-<li>TGI: <a target="_blank" rel="noopener" href="https://huggingface.co/docs/text-generation-inference">https://huggingface.co/docs/text-generation-inference</a></li>
-<li>Ollama: <a target="_blank" rel="noopener" href="https://ollama.ai/">https://ollama.ai</a></li>
-<li>PEFT: <a target="_blank" rel="noopener" href="https://github.com/huggingface/peft">https://github.com/huggingface/peft</a></li>
-<li>Axolotl: <a target="_blank" rel="noopener" href="https://github.com/OpenAccess-AI-Collective/axolotl">https://github.com/OpenAccess-AI-Collective/axolotl</a></li>
-<li>Unsloth: <a target="_blank" rel="noopener" href="https://unsloth.ai/">https://unsloth.ai</a></li>
-<li>Langfuse: <a target="_blank" rel="noopener" href="https://langfuse.com/">https://langfuse.com</a></li>
-<li>LangSmith: <a target="_blank" rel="noopener" href="https://smith.langchain.com/">https://smith.langchain.com</a></li>
-<li>RAGAS: <a target="_blank" rel="noopener" href="https://docs.ragas.io/">https://docs.ragas.io</a></li>
-<li>Milvus: <a target="_blank" rel="noopener" href="https://milvus.io/">https://milvus.io</a></li>
-<li>Qdrant: <a target="_blank" rel="noopener" href="https://qdrant.tech/">https://qdrant.tech</a></li>
-<li>FAISS: <a target="_blank" rel="noopener" href="https://faiss.ai/">https://faiss.ai</a></li>
-<li>MTEB Leaderboard: <a target="_blank" rel="noopener" href="https://huggingface.co/spaces/mteb/leaderboard">https://huggingface.co/spaces/mteb/leaderboard</a></li>
-<li>NeMo Guardrails: <a target="_blank" rel="noopener" href="https://github.com/NVIDIA-NeMo/Guardrails">https://github.com/NVIDIA-NeMo/Guardrails</a></li>
-<li>FlashAttention: <a target="_blank" rel="noopener" href="https://github.com/Dao-AILab/flash-attention">https://github.com/Dao-AILab/flash-attention</a></li>
-<li>OWASP LLM Top 10: <a target="_blank" rel="noopener" href="https://genai.owasp.org/">https://genai.owasp.org/</a></li>
-<li>MCP Specification: <a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a></li>
-<li>Speculators: <a target="_blank" rel="noopener" href="https://github.com/vllm-project/speculators">https://github.com/vllm-project/speculators</a></li>
-<li>Mooncake: <a target="_blank" rel="noopener" href="https://vllm-project.github.io/2026/05/06/mooncake-store.html">https://vllm-project.github.io/2026/05/06/mooncake-store.html</a></li>
-<li>DoRA GitHub: <a target="_blank" rel="noopener" href="https://github.com/NVlabs/DoRA">https://github.com/NVlabs/DoRA</a></li>
-<li>FlashAttention-4 arXiv: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2603.05451">https://arxiv.org/abs/2603.05451</a></li>
-<li>Braintrust Observability: <a target="_blank" rel="noopener" href="https://www.braintrust.dev/articles/best-ai-observability-tools-2026">https://www.braintrust.dev/articles/best-ai-observability-tools-2026</a></li>
+<ul>
+<li><p>参考资源汇总</p>
+</li>
+<li><p>vLLM: <a target="_blank" rel="noopener" href="https://github.com/vllm-project/vllm">https://github.com/vllm-project/vllm</a></p>
+</li>
+<li><p>SGLang: <a target="_blank" rel="noopener" href="https://github.com/sgl-project/sglang">https://github.com/sgl-project/sglang</a></p>
+</li>
+<li><p>TGI: <a target="_blank" rel="noopener" href="https://huggingface.co/docs/text-generation-inference">https://huggingface.co/docs/text-generation-inference</a></p>
+</li>
+<li><p>Ollama: <a target="_blank" rel="noopener" href="https://ollama.ai/">https://ollama.ai</a></p>
+</li>
+<li><p>PEFT: <a target="_blank" rel="noopener" href="https://github.com/huggingface/peft">https://github.com/huggingface/peft</a></p>
+</li>
+<li><p>Axolotl: <a target="_blank" rel="noopener" href="https://github.com/OpenAccess-AI-Collective/axolotl">https://github.com/OpenAccess-AI-Collective/axolotl</a></p>
+</li>
+<li><p>Unsloth: <a target="_blank" rel="noopener" href="https://unsloth.ai/">https://unsloth.ai</a></p>
+</li>
+<li><p>Langfuse: <a target="_blank" rel="noopener" href="https://langfuse.com/">https://langfuse.com</a></p>
+</li>
+<li><p>LangSmith（观测与评估平台，独立于 LangChain core）: <a target="_blank" rel="noopener" href="https://docs.langchain.com/langsmith/integrations">https://docs.langchain.com/langsmith/integrations</a></p>
+</li>
+<li><p>RAGAS: <a target="_blank" rel="noopener" href="https://docs.ragas.io/">https://docs.ragas.io</a></p>
+</li>
+<li><p>Milvus: <a target="_blank" rel="noopener" href="https://milvus.io/">https://milvus.io</a></p>
+</li>
+<li><p>Qdrant: <a target="_blank" rel="noopener" href="https://qdrant.tech/">https://qdrant.tech</a></p>
+</li>
+<li><p>FAISS: <a target="_blank" rel="noopener" href="https://faiss.ai/">https://faiss.ai</a></p>
+</li>
+<li><p>MTEB Leaderboard: <a target="_blank" rel="noopener" href="https://huggingface.co/spaces/mteb/leaderboard">https://huggingface.co/spaces/mteb/leaderboard</a></p>
+</li>
+<li><p>NeMo Guardrails: <a target="_blank" rel="noopener" href="https://github.com/NVIDIA-NeMo/Guardrails">https://github.com/NVIDIA-NeMo/Guardrails</a></p>
+</li>
+<li><p>FlashAttention: <a target="_blank" rel="noopener" href="https://github.com/Dao-AILab/flash-attention">https://github.com/Dao-AILab/flash-attention</a></p>
+</li>
+<li><p>OWASP GenAI LLM Top 10 2026: <a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/">https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/</a></p>
+</li>
+<li><p>MCP Specification: <a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a></p>
+</li>
+<li><p>Speculators: <a target="_blank" rel="noopener" href="https://github.com/vllm-project/speculators">https://github.com/vllm-project/speculators</a></p>
+</li>
+<li><p>Mooncake: <a target="_blank" rel="noopener" href="https://vllm-project.github.io/2026/05/06/mooncake-store.html">https://vllm-project.github.io/2026/05/06/mooncake-store.html</a></p>
+</li>
+<li><p>DoRA GitHub: <a target="_blank" rel="noopener" href="https://github.com/NVlabs/DoRA">https://github.com/NVlabs/DoRA</a></p>
+</li>
+<li><p>FlashAttention-4 arXiv: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2603.05451">https://arxiv.org/abs/2603.05451</a></p>
+</li>
+<li><p>Braintrust Observability: <a target="_blank" rel="noopener" href="https://www.braintrust.dev/articles/best-ai-observability-tools-2026">https://www.braintrust.dev/articles/best-ai-observability-tools-2026</a></p>
+</li>
 </ul>
 <hr>
 <h3 id="0x0C-vLLM-生产部署深度指南——NVIDIA-Dynamo、KV-Cache-与-Autoscaling"><a href="#0x0C-vLLM-生产部署深度指南——NVIDIA-Dynamo、KV-Cache-与-Autoscaling" class="headerlink" title="0x0C vLLM 生产部署深度指南——NVIDIA Dynamo、KV Cache 与 Autoscaling"></a>0x0C vLLM 生产部署深度指南——NVIDIA Dynamo、KV Cache 与 Autoscaling</h3><p><strong>难度</strong>：⭐⭐⭐⭐（专家）<br><strong>问题</strong>：2026 年，vLLM 已经成为生产环境中 LLM 推理的首选方案。在生产部署中，除了常规的 vLLM 配置，还有哪些关键的工程化实践——特别是 NVIDIA Dynamo 在推理集群中的角色、KV Cache 调优策略和 Autoscaling 设计？</p>
@@ -2779,10 +2801,214 @@
 <li><a target="_blank" rel="noopener" href="https://vllm.ai/blog/2026-06-03-deeplearning-ai-vllm-course">vLLM 官方博客 - DeepLearning.AI 课程</a></li>
 <li><a target="_blank" rel="noopener" href="https://vllm-project.github.io/2026/05/06/mooncake-store.html">Mooncake Store 公告</a></li>
 </ul>
+<h2 id="0x00-2026-07-16-全量复核：AI工程化与LLMOps"><a href="#0x00-2026-07-16-全量复核：AI工程化与LLMOps" class="headerlink" title="0x00 2026-07-16 全量复核：AI工程化与LLMOps"></a>0x00 2026-07-16 全量复核：AI工程化与LLMOps</h2><h3 id="1-生产环境如何建立该方向的变更安全边界？"><a href="#1-生产环境如何建立该方向的变更安全边界？" class="headerlink" title="1. 生产环境如何建立该方向的变更安全边界？"></a>1. 生产环境如何建立该方向的变更安全边界？</h3><p><strong>标准答案</strong>：先定义容量、延迟、错误率和数据一致性目标，再将配置、版本和依赖变更纳入灰度、回滚、审计与自动化验证；任何单点故障都要有降级路径。</p>
+<p><strong>深入思考</strong>：面试回答不能停留在组件 API，应说明故障注入、指标告警、数据修复和责任边界。上线前用最小可复现实验验证假设，上线后用 SLO 和成本指标持续校准。</p>
+<h3 id="2-该技术在高并发或故障场景下最容易出现什么问题？"><a href="#2-该技术在高并发或故障场景下最容易出现什么问题？" class="headerlink" title="2. 该技术在高并发或故障场景下最容易出现什么问题？"></a>2. 该技术在高并发或故障场景下最容易出现什么问题？</h3><p><strong>标准答案</strong>：优先排查资源耗尽、超时重试放大、背压失效、缓存&#x2F;状态不一致和版本兼容；通过限流、超时、隔离、幂等、批量化和可观测性控制故障半径。</p>
+<p><strong>深入思考</strong>：设计方案时应明确“谁负责重试、谁负责恢复、谁负责最终一致”，避免多层组件同时重试造成雪崩。生产排障必须保留请求链路、版本和关键状态。</p>
+<blockquote>
+<p>本次更新：2026-07-16（Work）——完成该方向的生产安全、故障边界与性能治理复核。</p>
+</blockquote>
 <hr>
 <blockquote>
 <p>本文将持续更新。本次更新：2026-06-30 — 新增 vLLM 生产部署深度指南 + NVIDIA Dynamo &#x2F; KV Cache 调优（Work Hermes）。</p>
 <p><strong>搜索来源</strong>：Tavily（深度）+ DuckDuckGo（交叉验证）<br><strong>搜索时间</strong>：2026-06-30<br><strong>时间分层</strong>：最新（Mooncake &#x2F; Dynamo）&#x2F; 近期（vLLM 生产实践）&#x2F; 经典（PagedAttention 论文）<br><strong>覆盖维度</strong>：官方源 ✅ &#x2F; 生产踩坑 ✅ &#x2F; 源码分析 ✅ &#x2F; 对比选型 ✅</p>
+</blockquote>
+<h2 id="0x01-vLLM-资源与调度治理"><a href="#0x01-vLLM-资源与调度治理" class="headerlink" title="0x01 vLLM 资源与调度治理"></a>0x01 vLLM 资源与调度治理</h2><h3 id="1-vLLM-Sleep-Mode-适合什么场景？"><a href="#1-vLLM-Sleep-Mode-适合什么场景？" class="headerlink" title="1. vLLM Sleep Mode 适合什么场景？"></a>1. vLLM Sleep Mode 适合什么场景？</h3><p><strong>标准答案</strong>：它可释放 GPU 内存，并按级别选择是否把模型权重移到 CPU 或丢弃，适合训练与推理交替等资源复用场景。<br><strong>深入思考</strong>：唤醒延迟会进入关键路径；需按流量窗口预热，并监控主机内存与重新装载成本。<a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/features/sleep_mode/">官方参考</a></p>
+<h3 id="2-EPLB-解决什么失衡？"><a href="#2-EPLB-解决什么失衡？" class="headerlink" title="2. EPLB 解决什么失衡？"></a>2. EPLB 解决什么失衡？</h3><p><strong>标准答案</strong>：Expert Parallel Load Balancing 根据专家负载统计调整冗余专家布局，缓解 MoE 专家热度不均。<br><strong>深入思考</strong>：重平衡本身有迁移成本；窗口、步长与冗余数应由真实请求分布压测确定。<a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/api/vllm/distributed/eplb/">官方参考</a></p>
+<h3 id="3-priority-scheduling-如何避免破坏公平性？"><a href="#3-priority-scheduling-如何避免破坏公平性？" class="headerlink" title="3. priority scheduling 如何避免破坏公平性？"></a>3. priority scheduling 如何避免破坏公平性？</h3><p><strong>标准答案</strong>：调度器按请求优先级决定服务顺序，并用到达时间处理同优先级请求。<br><strong>深入思考</strong>：优先级必须由可信入口赋值，并配置老化、配额或独立队列，避免低优先级长期饥饿。<a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/api/vllm/config/scheduler.html">官方参考</a></p>
+<h2 id="0x0F-2026-07-20：生产边界与验证闭环"><a href="#0x0F-2026-07-20：生产边界与验证闭环" class="headerlink" title="0x0F 2026-07-20：生产边界与验证闭环"></a>0x0F 2026-07-20：生产边界与验证闭环</h2><h3 id="1-LLMOps-的数据、评测、推理成本与回滚如何形成发布门禁：出现线上异常时，第一步应该做什么？"><a href="#1-LLMOps-的数据、评测、推理成本与回滚如何形成发布门禁：出现线上异常时，第一步应该做什么？" class="headerlink" title="1. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：出现线上异常时，第一步应该做什么？"></a>1. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：出现线上异常时，第一步应该做什么？</h3><p><strong>标准答案</strong>：先固定影响范围、时间窗口、变更记录和可观测证据，再建立最小可复现路径；不要先凭经验修改配置。把用户症状映射到请求、依赖、资源和数据四层，并为每个假设安排可回滚的验证。</p>
+<p><strong>深入思考</strong>：高级面试回答应同时说明止血、根因和复盘三个阶段：止血动作必须低风险且可撤销，根因结论要能被指标、日志、trace 或源码路径证伪，复盘则要把一次性经验转化为测试、告警或发布门禁。</p>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://openai.com/index/gpt-5-6/">https://openai.com/index/gpt-5-6/</a></p>
+<h3 id="2-LLMOps-的数据、评测、推理成本与回滚如何形成发布门禁：如何设计升级或迁移方案，避免“能启动但不可用”？"><a href="#2-LLMOps-的数据、评测、推理成本与回滚如何形成发布门禁：如何设计升级或迁移方案，避免“能启动但不可用”？" class="headerlink" title="2. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：如何设计升级或迁移方案，避免“能启动但不可用”？"></a>2. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：如何设计升级或迁移方案，避免“能启动但不可用”？</h3><p><strong>标准答案</strong>：先列出协议、数据、配置、依赖和运行时兼容矩阵，使用影子流量、灰度、回放或双写验证行为，再设置明确的回滚条件。升级脚本应幂等，数据变更应可前向&#x2F;后向兼容，观测指标必须覆盖业务正确性而不只是进程存活。</p>
+<p><strong>深入思考</strong>：兼容性不是版本号相等，而是双方在错误处理、超时、顺序、容量和语义上的交集。要把“回滚应用”和“回滚数据”分开设计；若数据迁移不可逆，就必须先完成兼容代码和恢复演练。</p>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://openai.com/index/gpt-5-6/">https://openai.com/index/gpt-5-6/</a></p>
+<h3 id="3-LLMOps-的数据、评测、推理成本与回滚如何形成发布门禁：性能优化或安全加固怎样证明没有引入新风险？"><a href="#3-LLMOps-的数据、评测、推理成本与回滚如何形成发布门禁：性能优化或安全加固怎样证明没有引入新风险？" class="headerlink" title="3. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：性能优化或安全加固怎样证明没有引入新风险？"></a>3. LLMOps 的数据、评测、推理成本与回滚如何形成发布门禁：性能优化或安全加固怎样证明没有引入新风险？</h3><p><strong>标准答案</strong>：建立基线，选取能代表真实工作负载的压测与故障注入场景，比较吞吐、延迟分位数、资源消耗、错误率和安全控制命中情况；变更后通过小流量发布和自动回归门禁，保留原始数据与结论。</p>
+<p><strong>深入思考</strong>：单一平均值会掩盖尾延迟和长尾资源争用；单一扫描也不能替代权限、输入边界和恢复路径测试。生产决策应记录收益、代价、适用前提和未覆盖风险，便于后续审计与撤销。</p>
+<p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://openai.com/index/gpt-5-6/">https://openai.com/index/gpt-5-6/</a></p>
+<blockquote>
+<p>本次更新：2026-07-17（Work）——新增 vLLM Sleep Mode、EPLB、优先级调度三题。<br><strong>搜索来源</strong>：Tavily REST + Web search；Review 已逐一打开官方 URL；DuckDuckGo HTML 不可用。</p>
+</blockquote>
+<h2 id="0x13-2026-07-21：生产验证与可观测性边界"><a href="#0x13-2026-07-21：生产验证与可观测性边界" class="headerlink" title="0x13 2026-07-21：生产验证与可观测性边界"></a>0x13 2026-07-21：生产验证与可观测性边界</h2><h3 id="1-AI工程化与LLMOps-系统如何设计一次可回滚的生产变更？"><a href="#1-AI工程化与LLMOps-系统如何设计一次可回滚的生产变更？" class="headerlink" title="1. AI工程化与LLMOps 系统如何设计一次可回滚的生产变更？"></a>1. AI工程化与LLMOps 系统如何设计一次可回滚的生产变更？</h3><p><strong>标准答案</strong>：先建立基线和明确的成功&#x2F;失败指标，再采用小范围、限时的金丝雀或灰度发布；控制组与实验组要使用同一套业务指标、错误率、延迟分位数和资源指标比较，达到门槛后逐步扩大，否则立即停止并回滚。回滚应用与回滚数据必须分开设计。</p>
+<p><strong>深入思考</strong>：金丝雀不是“少量机器上线”这么简单，还要保证流量选择、样本代表性、观测窗口和自动止损条件成立。发布系统应记录版本、配置、依赖和数据变更，确保事故后能复盘到底是哪一项变化造成影响。</p>
+<h3 id="2-如何让-AI工程化与LLMOps-的日志、指标和链路真正可以关联？"><a href="#2-如何让-AI工程化与LLMOps-的日志、指标和链路真正可以关联？" class="headerlink" title="2. 如何让 AI工程化与LLMOps 的日志、指标和链路真正可以关联？"></a>2. 如何让 AI工程化与LLMOps 的日志、指标和链路真正可以关联？</h3><p><strong>标准答案</strong>：统一资源标识、服务名、环境、版本、请求或消息标识等字段，并在跨进程边界传播 trace context；指标负责趋势和告警，日志负责细节，trace 负责跨组件因果路径。字段命名应遵循稳定的语义约定，避免每个团队自造同义字段。</p>
+<p><strong>深入思考</strong>：可观测性数据不能只“采得多”，还要控制高基数字段、敏感信息和采样成本。排障演练应从用户症状出发，验证能否从告警跳到相关 trace、日志和变更记录，而不是只检查三类数据是否存在。</p>
+<h3 id="1-如何把该技术方向的版本、配置或数据变更做成可回滚发布？"><a href="#1-如何把该技术方向的版本、配置或数据变更做成可回滚发布？" class="headerlink" title="1. 如何把该技术方向的版本、配置或数据变更做成可回滚发布？"></a>1. 如何把该技术方向的版本、配置或数据变更做成可回滚发布？</h3><p><strong>标准答案</strong>：先固定变更对象、依赖版本、配置快照和基线指标，再用小流量、分批或金丝雀方式发布。控制组与实验组必须使用同一套业务成功率、错误率、延迟分位数和资源指标；达到预设门槛才扩大范围，否则停止并回滚。应用回滚、数据回滚和消息&#x2F;缓存补偿要分别设计，不能把“进程恢复”误认为“业务恢复”。</p>
+<p><strong>深入思考</strong>：灰度样本要覆盖真实流量形态，发布系统要能关联构建产物、配置版本、操作者和变更窗口；不可逆数据迁移应先做向后兼容，再切换读写路径，并预演恢复流程。</p>
+<h3 id="2-该技术方向的日志、指标和链路如何形成可排障证据链？"><a href="#2-该技术方向的日志、指标和链路如何形成可排障证据链？" class="headerlink" title="2. 该技术方向的日志、指标和链路如何形成可排障证据链？"></a>2. 该技术方向的日志、指标和链路如何形成可排障证据链？</h3><p><strong>标准答案</strong>：统一 service、environment、version、instance、request&#x2F;message 等资源字段，在跨进程边界传播 trace context；指标用于发现趋势和告警，日志保留关键上下文，Trace 串起跨组件因果路径。字段命名遵循稳定的语义约定，敏感数据脱敏，采样和保留周期按排障价值与成本设定。</p>
+<p><strong>深入思考</strong>：演练应从用户症状或业务 SLO 出发，验证能否从告警跳到相关 Trace、日志、变更记录和回滚动作；只证明“三类数据存在”并不等于可观测，必须证明它们可以关联、定位和复盘。</p>
+<h3 id="1-AI工程化与LLMOps-发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？"><a href="#1-AI工程化与LLMOps-发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？" class="headerlink" title="1. AI工程化与LLMOps &#x2F;  发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？"></a>1. AI工程化与LLMOps &#x2F;  发生版本、配置或数据结构变更时，如何证明兼容而不只是“能启动”？</h3><p><strong>标准答案</strong>：把协议、数据、配置、运行时和运维兼容性拆开，为每类建立旧版本基线、代表性流量和失败样本；通过双读&#x2F;双写、灰度或金丝雀逐步放量，用成功率、错误率、P95&#x2F;P99、资源消耗和恢复时间设定停止与回滚门槛。启动成功只证明进程存活，不能证明语义、顺序、幂等和故障恢复正确。</p>
+<p><strong>深入思考</strong>：不可逆迁移、缓存预热、消息重放和跨版本滚动升级必须单独演练；应用回滚不等于数据回滚，构建产物、配置快照、依赖清单和样本哈希要能支撑故障归因。</p>
+<h3 id="2-如何把日志、指标和-Trace-组织成-AI工程化与LLMOps-的可排障证据链？"><a href="#2-如何把日志、指标和-Trace-组织成-AI工程化与LLMOps-的可排障证据链？" class="headerlink" title="2. 如何把日志、指标和 Trace 组织成 AI工程化与LLMOps &#x2F;  的可排障证据链？"></a>2. 如何把日志、指标和 Trace 组织成 AI工程化与LLMOps &#x2F;  的可排障证据链？</h3><p><strong>标准答案</strong>：统一 service、environment、version、instance、request&#x2F;message 等字段，在跨进程边界传播 Trace Context；指标负责趋势与告警，日志保留关键上下文，Trace 串起跨组件因果路径，并对敏感内容脱敏、采样和限期留存。</p>
+<p><strong>深入思考</strong>：异步队列、批处理、重试和线程池会打断直觉上的父子关系，应额外记录 producer、consumer、attempt 和业务关联 ID；排障演练应从用户症状跳到 Trace、日志、变更记录和恢复动作。</p>
+<h3 id="3-性能优化或安全加固后，如何证明没有引入新的生产风险？"><a href="#3-性能优化或安全加固后，如何证明没有引入新的生产风险？" class="headerlink" title="3. 性能优化或安全加固后，如何证明没有引入新的生产风险？"></a>3. 性能优化或安全加固后，如何证明没有引入新的生产风险？</h3><p><strong>标准答案</strong>：保存变更前基线，用代表性负载和故障注入对比吞吐、P50&#x2F;P95&#x2F;P99、错误率、资源消耗、权限拒绝和恢复时间；再用小流量、自动回归、依赖扫描和发布门禁验证真实流量，明确测量误差与未覆盖风险。</p>
+<p><strong>深入思考</strong>：平均值会掩盖长尾；涉及 Agent、插件或外部输入时，还要验证提示注入、越权调用、敏感数据外泄和审计完整性。发布、暂停、回滚、数据补偿分别定义负责人和验收信号。</p>
+<h2 id="0x1E-2026-08-10：把变更做成可验证的发布契约"><a href="#0x1E-2026-08-10：把变更做成可验证的发布契约" class="headerlink" title="0x1E 2026-08-10：把变更做成可验证的发布契约"></a>0x1E 2026-08-10：把变更做成可验证的发布契约</h2><h3 id="1-如何为一次跨组件变更设计最小可回退发布？"><a href="#1-如何为一次跨组件变更设计最小可回退发布？" class="headerlink" title="1. 如何为一次跨组件变更设计最小可回退发布？"></a>1. 如何为一次跨组件变更设计最小可回退发布？</h3><p><strong>标准答案</strong>：先把代码、配置、数据迁移、依赖和权限变化拆开，分别定义版本、影响面、前置检查、成功指标与停止条件；优先采用小批量、限时 canary，让新旧版本在同一组业务指标下对照，确认无回归后再扩大范围。回退对象必须是已知可定位的版本或配置快照，不能把“重新部署一次”当作回退。</p>
+<p><strong>深入思考</strong>：回退并不等于撤销副作用。数据库写入、消息发送、外部调用和权限授予都要准备补偿、幂等或人工接管路径；如果多个变更同时进行，信号会互相污染，应限制并行发布并保留变更关联 ID。</p>
+<h3 id="2-如何把可观测性从“记录日志”升级成“证明验收”？"><a href="#2-如何把可观测性从“记录日志”升级成“证明验收”？" class="headerlink" title="2. 如何把可观测性从“记录日志”升级成“证明验收”？"></a>2. 如何把可观测性从“记录日志”升级成“证明验收”？</h3><p><strong>标准答案</strong>：为变更开始、阶段通过、暂停、回退、恢复和业务验收定义稳定事件名，统一记录版本、组件、环境、租户或工作单元、决策结果以及 trace&#x2F;span 关联；动态值放属性，不把密钥、原始隐私数据或提示词正文写进事件。验收至少同时覆盖技术 SLI、业务正确性、资源成本和未完成任务清单。</p>
+<p><strong>深入思考</strong>：长时间操作用 span，离散状态变化用 event，普通诊断仍可用日志。事件 schema 应版本化并设低基数约束，否则查询、采样和告警会逐步失真；还要能从事件重建“谁在何时基于什么证据做了什么决定”。</p>
+<h3 id="3-供应链或依赖证明能否直接等同于安全？"><a href="#3-供应链或依赖证明能否直接等同于安全？" class="headerlink" title="3. 供应链或依赖证明能否直接等同于安全？"></a>3. 供应链或依赖证明能否直接等同于安全？</h3><p><strong>标准答案</strong>：不能。来源证明只能回答产物由什么仓库、提交、工作流和环境构建，不能证明代码没有漏洞。发布门禁应验证签名、身份、提交与目标环境是否符合策略，再结合测试、SBOM、漏洞扫描、审批和 canary；证明生成后必须在消费端真正验证。</p>
+<p><strong>深入思考</strong>：权限按最小范围授予，验证失败时暂停发布并保留人工升级路径。容器或包应使用不可变 digest；对高风险变更，还要把目标环境、审批人、回退版本和证据链接纳入审计记录。</p>
+<p><strong>本轮参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://sre.google/workbook/canarying-releases/">Google SRE：Canarying Releases</a></li>
+<li><a target="_blank" rel="noopener" href="https://opentelemetry.io/docs/specs/semconv/general/events/">OpenTelemetry：Semantic Conventions for Events</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations">GitHub：Artifact Attestations</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/initiatives/agentic-security-initiative/">OWASP：Agentic Security Initiative</a></li>
+</ul>
+<blockquote>
+<p>本轮更新：2026-08-10（Work）——新增可回退发布、证据化观测与供应链验证三道资深面试题。<br><strong>搜索来源</strong>：Web 官方页面 Research + Review；逐页核验 Google SRE、OpenTelemetry、GitHub Docs 与 OWASP。未新增未经核验的版本号、价格或 CVE。</p>
+</blockquote>
+<h2 id="0x1D-2026-08-07：可回滚变更、事件证据与供应链证明（AI面试题-AI工程化与LLMOps-）"><a href="#0x1D-2026-08-07：可回滚变更、事件证据与供应链证明（AI面试题-AI工程化与LLMOps-）" class="headerlink" title="0x1D 2026-08-07：可回滚变更、事件证据与供应链证明（AI面试题-AI工程化与LLMOps-）"></a>0x1D 2026-08-07：可回滚变更、事件证据与供应链证明（AI面试题-AI工程化与LLMOps-）</h2><h3 id="1-如何为-AI面试题-AI工程化与LLMOps-的生产变更定义可回滚的验收契约？"><a href="#1-如何为-AI面试题-AI工程化与LLMOps-的生产变更定义可回滚的验收契约？" class="headerlink" title="1. 如何为 AI面试题-AI工程化与LLMOps- 的生产变更定义可回滚的验收契约？"></a>1. 如何为 AI面试题-AI工程化与LLMOps- 的生产变更定义可回滚的验收契约？</h3><p><strong>标准答案</strong>：把变更拆成可独立识别的构建物、配置、数据迁移和外部副作用，明确 control&#x2F;canary、受影响流量、正确性与 SLO 指标、停止阈值、回退版本以及回退后数据校验。回退对象必须是可定位的已知版本；依赖外部可变资源的“回滚”不可靠，必要时先冻结或版本化依赖。</p>
+<p><strong>深入思考</strong>：回滚二进制不一定能撤销已经写入的数据、发送的消息或授予的权限。面试时应继续追问补偿事务、幂等键、只读&#x2F;降级路径和人工接管。Google SRE 的 canary 建议按小流量、分阶段验证，并根据新旧版本的可归因指标暂停或回滚。</p>
+<h3 id="2-如何把一次故障演练变成可审计的事件证据，而不是堆日志？"><a href="#2-如何把一次故障演练变成可审计的事件证据，而不是堆日志？" class="headerlink" title="2. 如何把一次故障演练变成可审计的事件证据，而不是堆日志？"></a>2. 如何把一次故障演练变成可审计的事件证据，而不是堆日志？</h3><p><strong>标准答案</strong>：为“变更开始、阶段通过、停止、回退、恢复、业务验收”定义稳定事件名，记录发生时间、版本、租户&#x2F;工作单元、策略决定、结果和关联 trace&#x2F;span；把高基数或动态值放入属性，不把动态值拼进事件名。事件记录应能重放决策链，同时避免记录密钥、原始隐私数据和不必要的提示词内容。</p>
+<p><strong>深入思考</strong>：有持续时长的操作使用 span，单点状态变化使用 event，普通诊断文本仍用日志。事件 schema 需要版本化并做低基数约束，否则查询成本、采样和告警都会失真。验收证据还应包含控制组对照、业务正确性和未完成任务清单。</p>
+<h3 id="2-如何用-control-canary-对照证明一次-LLM-变更真的改善了结果？"><a href="#2-如何用-control-canary-对照证明一次-LLM-变更真的改善了结果？" class="headerlink" title="2. 如何用 control&#x2F;canary 对照证明一次 LLM 变更真的改善了结果？"></a>2. 如何用 control&#x2F;canary 对照证明一次 LLM 变更真的改善了结果？</h3><p><strong>标准答案</strong>：固定 control 与 canary 的模型、Embedding、Tokenizer、prompt、工具策略、采样参数、数据集和流量分层，只改变待验证的变更因素；同时比较任务成功率、事实性&#x2F;检索质量、安全拒答率、P95&#x2F;P99、Token 成本和人工复核结果。预先定义停止阈值和最小样本量，满足门槛后再逐步放量，否则暂停并回退或执行前向修复。</p>
+<p><strong>深入思考</strong>：LLM 输出有随机性，平均分可能掩盖长尾、特定租户回归或 Judge 漂移；评估集必须版本化，并把模型版本、prompt、工具调用、检索文档和 Judge 配置纳入证据链。安全越权、敏感数据泄露和不可逆工具副作用不能用单一质量分数覆盖。</p>
+<h3 id="3-回滚、撤销和供应链证明如何避免互相“打架”？"><a href="#3-回滚、撤销和供应链证明如何避免互相“打架”？" class="headerlink" title="3. 回滚、撤销和供应链证明如何避免互相“打架”？"></a>3. 回滚、撤销和供应链证明如何避免互相“打架”？</h3><p><strong>标准答案</strong>：把三者分成不同决策：回滚选择要运行的版本，撤销决定当前身份&#x2F;能力是否还能行动，供应链证明说明产物从哪里构建。Kubernetes Deployment 可通过 rollout history&#x2F;undo 回到历史版本，但回滚完成仍需检查业务状态；GitHub 明确说明 artifact attestation 需要被验证，且本身不保证产物安全。因此门禁应同时核验版本摘要、证明、运行时策略、租户范围和当前撤销状态。</p>
+<h2 id="0x24-2026-08-26：AI工程化与LLMOps-的恢复演练、停止条件与人工接管"><a href="#0x24-2026-08-26：AI工程化与LLMOps-的恢复演练、停止条件与人工接管" class="headerlink" title="0x24 2026-08-26：AI工程化与LLMOps 的恢复演练、停止条件与人工接管"></a>0x24 2026-08-26：AI工程化与LLMOps 的恢复演练、停止条件与人工接管</h2><h3 id="1-发布或升级时，为什么要把“停止扩散”设计成一等能力？"><a href="#1-发布或升级时，为什么要把“停止扩散”设计成一等能力？" class="headerlink" title="1. 发布或升级时，为什么要把“停止扩散”设计成一等能力？"></a>1. 发布或升级时，为什么要把“停止扩散”设计成一等能力？</h3><p><strong>标准答案</strong>：先以小流量、单分区、只读或 dry-run 方式暴露变更，定义可观测的通过条件；任一关键 SLI、数据一致性或权限边界越线，就暂停推进并回到已知良好版本。回滚前还要检查新版本是否已经写入不可逆数据、产生副作用或改变协议，必要时先执行兼容性清理。</p>
+<p><strong>深入思考</strong>：Google SRE 将 canary 定义为限时、部分部署并与 control 比较；OpenTelemetry 的事件&#x2F;日志模型则要求把动作、结果和关联上下文记录成可解释的记录。面试时应说明“暂停”不等于“修复”，恢复判定必须同时看绝对 SLO、版本差异和业务抽样。</p>
+<h3 id="2-如何证明一次恢复确实恢复，而不是监控恢复？"><a href="#2-如何证明一次恢复确实恢复，而不是监控恢复？" class="headerlink" title="2. 如何证明一次恢复确实恢复，而不是监控恢复？"></a>2. 如何证明一次恢复确实恢复，而不是监控恢复？</h3><p><strong>标准答案</strong>：建立变更、输入、输出、告警、回滚和人工确认的证据链；用固定回放样本、线上小范围探针和业务不变量交叉验证，并记录验证窗口、样本范围及未覆盖风险。只有证据满足门槛才扩大流量。</p>
+<p><strong>深入思考</strong>：避免只看平均延迟或单个成功率；要按版本、租户、分区和副作用类型切片。异步系统还需等待完整处理周期，并比较新旧输出，而不是仅比较任务是否“运行完成”。</p>
+<h3 id="3-依赖或制品不可信时，发布门禁应检查什么？"><a href="#3-依赖或制品不可信时，发布门禁应检查什么？" class="headerlink" title="3. 依赖或制品不可信时，发布门禁应检查什么？"></a>3. 依赖或制品不可信时，发布门禁应检查什么？</h3><p><strong>标准答案</strong>：在消费端按摘要绑定制品，验证签名、时间戳、签署身份与构建来源，再依据策略决定拒绝、隔离或人工批准；运行时仍要限制权限并保留审计记录。GitHub 官方文档明确指出，attestation 的签名、时间戳和签署者身份都需要密码学验证。</p>
+<p><strong>深入思考</strong>：供应链证明只能回答“从哪里构建”，不能替代运行时授权、漏洞评估或业务验收；证明缺失时应进入明确的降级路径，不应静默绕过门禁。</p>
+<hr>
+<h1 id="0x25-2026-09-07：LLMOps-评估门禁、推理归因与语义兼容"><a href="#0x25-2026-09-07：LLMOps-评估门禁、推理归因与语义兼容" class="headerlink" title="0x25 2026-09-07：LLMOps 评估门禁、推理归因与语义兼容"></a>0x25 2026-09-07：LLMOps 评估门禁、推理归因与语义兼容</h1><h2 id="0x25-1-如何把评估数据集接入-CI-回归门禁，并识别-Judge-漂移？"><a href="#0x25-1-如何把评估数据集接入-CI-回归门禁，并识别-Judge-漂移？" class="headerlink" title="0x25-1 如何把评估数据集接入 CI 回归门禁，并识别 Judge 漂移？"></a>0x25-1 如何把评估数据集接入 CI 回归门禁，并识别 Judge 漂移？</h2><p><strong>标准答案</strong>：先把评估集当作有版本的测试资产，而不是临时 CSV：每条样本至少记录输入、期望答案或判定规则、场景标签、风险等级、来源摘要和脱敏状态；另外固定模型&#x2F;Embedding&#x2F;Tokenizer&#x2F;vLLM 版本、prompt 版本、采样参数、Judge 模型与 Judge 指令。数据集应分成 golden、生产失败样本、边界&#x2F;对抗样本和安全拒答样本，按场景分层抽样，避免平均分掩盖某一类回归。</p>
+<p>CI 中用离线评估跑同一批固定样本：格式、Schema、工具参数、引用存在性、拒绝策略等先用确定性代码检查；正确性、忠实度和风格再用已校准的 Judge，并同时输出绝对下限、相对基线差值、分层指标和失败样本。门禁不能只写“平均分不下降”，应例如规定高风险集不得出现新增严重失败、关键分层不得低于下限、总分退化超过容忍区间就阻断；对于有随机性的 Judge，使用重复采样或置信区间，并把“不可判定&#x2F;超时&#x2F;评估器失败”单列为失败，而不是当成通过。</p>
+<p>MLflow 的 evaluation dataset 适合保存来自 trace 的真实失败样本和 golden set；<code>mlflow.genai.evaluate()</code> 适合 CI 的离线回归。MLflow 的 automatic evaluation 是异步线上监控，数据源是新到的 trace&#x2F;session，当前只支持 LLM judges，不支持 <code>@scorer</code>&#x2F;<code>Scorer</code> 代码评估；它有采样率、过滤条件和 trace&#x2F;session 完成窗口，更新 Judge 配置不会自动重评已经评过的旧 trace，失败评估也不会自动重试。因此不能把 automatic evaluation 当作 CI 回归门禁的替代品。</p>
+<p><strong>Judge 漂移</strong>：把 Judge 的模型标识、prompt、rubric、温度&#x2F;采样参数和输出 schema 版本化；每次升级先在一组不随业务变化的 anchor set 上与人工标签比较，观察相关性、通过率、分数分布、翻转率和分层偏差。若业务结果未变而 Judge 分布突然移动，先冻结门禁阈值、回放同一批样本并与旧 Judge 对照；如果是被评估应用和 Judge 同时升级，则做双 Judge 或人工抽样校准，不能把新 Judge 的分数直接与旧基线拼接。</p>
+<p><strong>深入思考</strong>：评估集泄漏、只保留“容易样本”、只看总体均值，都会制造虚假的稳定性。生产 trace 只能补充候选样本，进入 golden set 前要去重、脱敏、标注期望行为，并保留样本来源和适用范围。NIST AI RMF GenAI Profile 将测量、评估和持续风险管理放在生命周期内；工程上应把 CI 门禁、线上抽样和人工复核看成同一条证据链，而不是三个互不相干的分数面板。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://mlflow.org/docs/latest/genai/datasets/">MLflow：Building evaluation datasets</a></li>
+<li><a target="_blank" rel="noopener" href="https://mlflow.org/docs/latest/genai/eval-monitor/automatic-evaluations/">MLflow：Automatic Evaluation 的限制与配置</a></li>
+<li><a target="_blank" rel="noopener" href="https://mlflow.org/docs/latest/genai/eval-monitor/scorers/index.html">MLflow：LLM Judges and Scorers</a></li>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/evals">OpenAI：Working with evals</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence">NIST：AI RMF Generative AI Profile</a></li>
+</ul>
+<h2 id="0x25-2-vLLM-的-TTFT、队列、Prefill、Decode-和-KV-Cache-出问题时，如何做-SLO-归因？"><a href="#0x25-2-vLLM-的-TTFT、队列、Prefill、Decode-和-KV-Cache-出问题时，如何做-SLO-归因？" class="headerlink" title="0x25-2 vLLM 的 TTFT、队列、Prefill、Decode 和 KV Cache 出问题时，如何做 SLO 归因？"></a>0x25-2 vLLM 的 TTFT、队列、Prefill、Decode 和 KV Cache 出问题时，如何做 SLO 归因？</h2><p><strong>标准答案</strong>：先把端到端首 token 延迟拆成可观测阶段，而不是看到 TTFT 飙升就调大并发：网关排队&#x2F;限流等待 → vLLM scheduler queue → Prefill（包括未命中的 prompt token 计算）→ 首 token 生成与网络传输；首 token 之后再看 Decode 的 inter-token latency、输出 token 吞吐和尾延迟。对 vLLM 来说，<code>queue_time_ms</code> 是调度队列等待，<code>time_to_first_token_ms</code> 是从请求被调度到生成首 token 的时间，<code>generation_time_ms</code> 是首 token 到末 token 的 Decode 时间，不包含队列等待和 TTFT&#x2F;Prefill；不能把三者混成一个“模型延迟”。</p>
+<p>逐请求归因必须显式启用 <code>--enable-per-request-metrics</code>，因为响应中的 <code>metrics</code> 字段不是默认行为；高并发下它还有 CPU 开销，<code>n &gt; 1</code> 或一个请求映射到多条生成序列时指标会被省略。Prometheus <code>/metrics</code> 则是服务级直方图，适合看 P95&#x2F;P99 和容量趋势，不能替代单请求证据。SLO 看板至少按模型、输入 token 桶、输出 token 桶、租户、缓存命中与否、优先级、实例和 GPU 拓扑切分。</p>
+<p><strong>归因路径</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>优先验证</th>
+<th>常见根因</th>
+<th>修复方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TTFT 与 queue 同时升高</td>
+<td><code>queue_time_ms</code>、排队长度、到达率</td>
+<td>并发超出服务能力、限流&#x2F;批处理不当、长请求挤占</td>
+<td>admission control、按 token&#x2F;优先级排队、扩容</td>
+</tr>
+<tr>
+<td>TTFT 升高但 queue 稳定</td>
+<td>prompt token 数、Prefix Cache 命中、Prefill batch</td>
+<td>长上下文、前缀不命中、chunked prefill 配置不合适</td>
+<td>稳定前缀、限制上下文、调整 Prefill&#x2F;Decode 配额</td>
+</tr>
+<tr>
+<td>TTFT 正常但 ITL&#x2F;P99 变差</td>
+<td>Decode 时间、KV Cache 水位、抢占&#x2F;显存压力</td>
+<td>输出变长、KV Cache 争用、批次过大或 GPU 降频</td>
+<td>限制 max tokens、隔离长请求、调整 batch&#x2F;显存预算</td>
+</tr>
+<tr>
+<td>cache hit 上升但用户体验不变</td>
+<td>Prefill 节省量与 Decode&#x2F;网络占比</td>
+<td>命中只跳过部分 Prefill，瓶颈在 Decode 或下游</td>
+<td>不把 cache hit 当作端到端 SLO；继续拆阶段</td>
+</tr>
+</tbody></table>
+<p><strong>Prefix Cache 边界</strong>：vLLM 采用 hash-based block；key 包含父 block、当前 token block 和必要的额外信息，且只缓存完整 block。仅仅“语义相似”、前缀中插入 request ID、改变 chat template、Tokenizer、LoRA 或多模态输入，都不能假设可以复用；命中也不意味着可以绕过租户权限。共享缓存的多租户服务应使用 <code>cache_salt</code> 或独立缓存域，避免通过 TTFT 差异推断别人的前缀。</p>
+<p><strong>深入思考</strong>：SLO 应拆成“排队预算、Prefill&#x2F;TTFT 预算、Decode&#x2F;ITL 预算和传输预算”，再对每个预算设停止条件。若只告警 TTFT，可能把网关排队、GPU 计算和网络拥塞混为一个责任边界；若只看平均 tokens&#x2F;s，又会漏掉短请求被长上下文拖慢的 P99。排障时要把单请求 metrics 与服务级直方图、GPU 利用率、KV Cache 水位和请求输入摘要按 trace&#x2F;request ID 对齐。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/features/per_request_metrics/">vLLM：Per-Request Metrics（默认关闭与归属限制）</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/design/prefix_caching/">vLLM：Automatic Prefix Caching</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/usage/security/">vLLM：Prefix Cache Timing Side-Channel Mitigation</a></li>
+</ul>
+<h2 id="0x25-3-RAG-质量下降时，如何按层定位，而不是只看一个-Ragas-总分？"><a href="#0x25-3-RAG-质量下降时，如何按层定位，而不是只看一个-Ragas-总分？" class="headerlink" title="0x25-3 RAG 质量下降时，如何按层定位，而不是只看一个 Ragas 总分？"></a>0x25-3 RAG 质量下降时，如何按层定位，而不是只看一个 Ragas 总分？</h2><p><strong>标准答案</strong>：建立从数据到回答的分层观测：</p>
+<ol>
+<li><strong>数据&#x2F;索引层</strong>：检查文档是否已入库、版本&#x2F;权限元数据是否完整、chunk 是否在合理边界、删除和更新是否传播到 embedding、索引与缓存。</li>
+<li><strong>检索层</strong>：有标注时看 Hit@K、Recall@K、MRR&#x2F;NDCG；Ragas Context Precision 看相关 chunk 是否排在前面，Context Recall 反映 reference answer&#x2F;reference contexts 所需信息是否被召回，不能把它当作无标注知识库的普适 recall。</li>
+<li><strong>上下文组装层</strong>：检查去重、截断、排序、引用 ID、权限过滤和 token budget；“召回了”不等于“模型看到了正确的上下文”。</li>
+<li><strong>生成层</strong>：Ragas Faithfulness 检查回答 claims 是否能由提供的上下文支持，不能证明上下文自身是真实的；Answer Relevancy 看是否回应问题，不能替代 correctness；有 reference answer 时再补 factual correctness&#x2F;semantic similarity。</li>
+<li><strong>业务&#x2F;安全层</strong>：检查拒答、引用可打开性、敏感文档零泄漏、任务完成率、人工满意度和端到端延迟。</li>
+</ol>
+<p><strong>诊断矩阵</strong>：Context Recall&#x2F;Recall@K 低，优先查解析、chunk、query rewrite、Embedding 和索引；召回高但 Precision 低，查过滤、融合和 rerank；检索指标好但 Faithfulness 低，查上下文拼装、截断、提示词和模型；Faithfulness 高但业务答案错，查 reference&#x2F;知识库新鲜度、答案完整性和问题是否超出资料范围。每次只改变一个层的变量，并用同一批分层样本回放。</p>
+<p><strong>Ragas 的边界</strong>：它是一组可组合的评估指标，不是端到端真值判定器；很多指标需要 LLM Judge，分数受 Judge、prompt、语言、chunk 顺序和上下文长度影响。缺少 reference 时不要硬算 Context Recall；只有 retrieved context 时，Faithfulness 也只能说明“回答与给定上下文一致”，不能说明回答符合现实。生产门禁应把确定性检查、检索指标、Ragas&#x2F;其他 Judge 和人工抽样并列保存，并保留逐 claim&#x2F;逐 chunk 证据。</p>
+<p><strong>深入思考</strong>：高 Faithfulness + 低 Answer Correctness 往往意味着“忠实地回答了错误或过时的上下文”；高 Context Precision + 低 Context Recall 则意味着“排得很准但漏了关键证据”。因此 RAG 评估不能把所有指标加权成一个分数后隐藏故障层，必须保留每层的失败样本、权限标签和数据版本。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/">Ragas：Available Metrics</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vibrantlabsai/ragas/blob/main/docs/concepts/metrics/available_metrics/context_precision.md">Ragas：Context Precision</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.ragas.io/en/stable/concepts/metrics/overview/">Ragas：Metrics Overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/RAG_Security_Cheat_Sheet.html">OWASP：RAG Security Cheat Sheet</a></li>
+</ul>
+<h2 id="0x25-4-Agent-如何传播身份、授权工具、管理记忆并阻断跨租户泄漏？"><a href="#0x25-4-Agent-如何传播身份、授权工具、管理记忆并阻断跨租户泄漏？" class="headerlink" title="0x25-4 Agent 如何传播身份、授权工具、管理记忆并阻断跨租户泄漏？"></a>0x25-4 Agent 如何传播身份、授权工具、管理记忆并阻断跨租户泄漏？</h2><p><strong>标准答案</strong>：把四种身份分开：最终用户&#x2F;调用主体、Agent workflow 身份、执行工具的服务身份、被委托的短期 scope。请求进入 Agent 时由认证层建立不可由模型改写的主体与租户上下文；跨 Agent、队列和工具调用传播签名后的 claims，并在每个信任边界重新验证，不把 <code>tenant_id</code>、工具参数或模型输出当作授权证明。</p>
+<p>工具授权应是服务端策略决策：<code>subject + tenant + action + resource + purpose + approval + expiry</code> 共同决定 allow&#x2F;deny；模型只提出 tool call，不能授予自己权限。读操作也要做资源级授权；写入、删除、付款、发信等高影响动作需要参数绑定的短期授权、幂等键、人工确认或双人审批，并记录拒绝原因、策略版本和实际副作用。</p>
+<p>记忆分为会话记忆、用户&#x2F;租户长期记忆和共享知识库，分别定义 namespace、ACL、TTL、删除&#x2F;撤销传播和完整性校验。写入前对不可信内容做注入与敏感数据检查，读取时在服务端按已验证的主体和租户过滤；向量库、缓存、队列、日志和 Prefix Cache 都要有明确的 global&#x2F;tenant&#x2F;user scope。租户隔离不能只靠 prompt 指令，也不能只靠一个客户端传来的 <code>tenant_id</code>；要在数据库查询、向量检索、缓存 key、工具网关和异步消费者处形成可测试的边界。</p>
+<p><strong>攻击路径与测试</strong>：用低权限用户请求高权限工具、篡改租户参数、把恶意指令写入长期记忆、通过检索文档诱导越权、让一个 Agent 把权限升级后的结果转交给另一个 Agent；CI 中逐项断言应拒绝，并验证同租户合法访问仍成功。OWASP AI Agent Security Cheat Sheet 明确要求敏感工具显式授权、最小权限、用户&#x2F;会话记忆隔离和高影响动作人工监督；OWASP 2026 LLM Top 10 则应作为当前 LLM 风险清单入口，但不能代替运行时授权和租户隔离测试。</p>
+<p><strong>深入思考</strong>：最危险的错误不是“模型说错了”，而是把模型的自然语言计划直接当作身份或授权。安全设计应满足：身份只能由可信边界创建&#x2F;委托，权限只能由策略引擎授予，记忆只能在明确 namespace 内读写，跨租户访问必须有显式的受控服务身份；审计记录要能从用户请求追到每次 tool call、memory read&#x2F;write、policy decision 和最终副作用。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html">OWASP：AI Agent Security Cheat Sheet</a></li>
+<li><a target="_blank" rel="noopener" href="https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html">OWASP：Multi-Tenant Application Security Cheat Sheet</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/securing-agentic-applications-guide-1-0/">OWASP：Securing Agentic Applications Guide 1.0</a></li>
+<li><a target="_blank" rel="noopener" href="https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/">OWASP：GenAI LLM Top 10 2026</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence">NIST：AI RMF Generative AI Profile</a></li>
+</ul>
+<h2 id="0x25-5-模型、Embedding、Tokenizer-和-vLLM-升级如何建立语义兼容矩阵？"><a href="#0x25-5-模型、Embedding、Tokenizer-和-vLLM-升级如何建立语义兼容矩阵？" class="headerlink" title="0x25-5 模型、Embedding、Tokenizer 和 vLLM 升级如何建立语义兼容矩阵？"></a>0x25-5 模型、Embedding、Tokenizer 和 vLLM 升级如何建立语义兼容矩阵？</h2><p><strong>标准答案</strong>：把“能启动”与“语义兼容”分开，为每个发布候选保存不可变 revision、配置摘要、Tokenizer&#x2F;Embedding 哈希、vLLM 版本、量化方式、chat template、工具解析器和评估基线。至少维护下面的矩阵，并为每行定义可自动回放的门禁：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>不能只看什么</th>
+<th>必须验证的兼容契约</th>
+<th>典型阻断条件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模型权重&#x2F;架构</td>
+<td>文件能加载、HTTP 200</td>
+<td>输入输出 schema、停止行为、工具调用、长上下文、质量分层、显存和 P99</td>
+<td>关键任务&#x2F;安全样本回归；OOM 或尾延迟超预算</td>
+</tr>
+<tr>
+<td>Embedding 模型</td>
+<td>向量维度相同</td>
+<td>维度、归一化&#x2F;距离度量、语言分布、相似度分布、索引参数、文档与 query 是否同一版本</td>
+<td>新旧向量混入同一索引导致几何空间不一致；Recall@K 下降</td>
+</tr>
+<tr>
+<td>Tokenizer&#x2F;chat template</td>
+<td>文本看起来相同</td>
+<td>vocab&#x2F;special token、BOS&#x2F;EOS、chat template、tool schema 序列化、token count、截断边界</td>
+<td>token 序列变化、重复 special token、stop token 失效、上下文预算溢出</td>
+</tr>
+<tr>
+<td>vLLM&#x2F;runtime</td>
+<td>服务能启动</td>
+<td>API&#x2F;streaming schema、tool-call parser、scheduler 默认值、量化后数值行为、Prefix Cache hash&#x2F;salt、metrics 语义</td>
+<td>相同请求输出或延迟分布突变；缓存跨租户复用；观测字段缺失</td>
+</tr>
+</tbody></table>
+<p>Embedding 升级通常不是“热切换模型名”这么简单：若维度、归一化、距离或训练分布变化，应建立新 collection&#x2F;index，双写或离线重建，按同一批 query 对比 Recall@K、NDCG、延迟和成本，再切换读路径；不能将旧向量与新向量静默混合。Tokenizer 升级同样可能改变 token 数、截断点、Prefix Cache 命中和 prompt 语义，即使模型权重不变也应重新跑回放。</p>
+<p>vLLM 启动时应显式锁定 <code>--revision</code> 与 <code>--tokenizer-revision</code>，必要时固定 <code>--chat-template</code>、tokenizer mode、tool-call parser 和 prefix-cache hash 配置。模型仓库的默认分支、Tokenizer 的 chat template 或 vLLM 的默认调度参数发生变化，都属于兼容性输入；不要只记录一个“模型名称”。灰度阶段同时采集质量、拒答&#x2F;越权、安全测试、TTFT&#x2F;ITL&#x2F;P99、KV Cache 命中、GPU 资源和错误码，过门后再扩大流量。</p>
+<p><strong>深入思考</strong>：兼容矩阵的核心不是把版本号排成表，而是把每个版本组合映射到可观察行为。建议以“旧客户端 × 新服务、新客户端 × 旧服务、旧 embedding × 新 query、新 embedding × 旧 query、旧缓存 × 新 runtime”构造交叉回放；对不可逆迁移优先双读&#x2F;双写，缓存和索引按版本命名，回滚时把应用、Embedding、Tokenizer、vLLM runtime 和数据&#x2F;缓存状态一起考虑。OpenAI 的 evals 文档也把升级模型或尝试新模型前的评估视为可靠应用的必要环节。</p>
+<p><strong>参考链接</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/design/huggingface_integration/">vLLM：Hugging Face Integration 与 revision&#x2F;tokenizer revision</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.vllm.ai/en/latest/api/vllm/config/model/">vLLM：Model 配置参数</a></li>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/docs/transformers/chat_templating">Hugging Face：Chat Templates</a></li>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/docs/transformers/main/chat_template_advanced">Hugging Face：Advanced Chat Templates</a></li>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/evals">OpenAI：Working with evals</a></li>
+</ul>
+<blockquote>
+<p>本轮更新：2026-09-07——补强评估数据集到 CI 门禁与 Judge 漂移、vLLM 分阶段 SLO 归因、RAG 分层质量定位、Agent 身份&#x2F;授权&#x2F;记忆&#x2F;跨租户隔离，以及模型&#x2F;Embedding&#x2F;Tokenizer&#x2F;vLLM 语义兼容矩阵；同步修正 MLflow automatic evaluation、vLLM per-request metrics、Prefix Cache、LangSmith、Ragas 与 OWASP LLM Top 10 2026 的边界表述。</p>
 </blockquote>
 
     </div>
@@ -2793,25 +3019,25 @@
 
     <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/RAG/" rel="tag"># RAG</a>
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
               <a href="/tags/AI%E5%B7%A5%E7%A8%8B%E5%8C%96/" rel="tag"># AI工程化</a>
               <a href="/tags/LLMOps/" rel="tag"># LLMOps</a>
               <a href="/tags/vLLM/" rel="tag"># vLLM</a>
-              <a href="/tags/RAG/" rel="tag"># RAG</a>
               <a href="/tags/%E5%BE%AE%E8%B0%83/" rel="tag"># 微调</a>
-              <a href="/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="tag"># 面试题</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2026/06/13/DevOps%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E4%B8%8ESRE-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="DevOps 面试题：可观测性与 SRE 面试全解">
-                  <i class="fa fa-angle-left"></i> DevOps 面试题：可观测性与 SRE 面试全解
+                <a href="/2026/06/13/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-Go-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：Go 面试全解">
+                  <i class="fa fa-angle-left"></i> 后端面试题：Go 面试全解
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8EOLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="数据库面试题：分布式数据库与 OLAP 面试全解">
-                  数据库面试题：分布式数据库与 OLAP 面试全解 <i class="fa fa-angle-right"></i>
+                <a href="/2026/06/13/DevOps%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E4%B8%8ESRE-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="DevOps 面试题：可观测性与 SRE 面试全解">
+                  DevOps 面试题：可观测性与 SRE 面试全解 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
