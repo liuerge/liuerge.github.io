@@ -29,7 +29,7 @@
 <meta property="og:description" content="大数据开发全栈面试全解 覆盖从数据采集 → 传输 → 存储 → 计算 → OLAP → 治理 → 调度 → 平台架构 → 生产实战的完整链路面向高级&#x2F;资深&#x2F;专家级大数据开发岗位   0x00 数据采集与传输0x00-01. CDC（Change Data Capture）工具对比：Canal &#x2F; Debezium &#x2F; Maxwell &#x2F; Flink">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-13T07:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-12T13:57:28.084Z">
+<meta property="article:modified_time" content="2026-09-12T16:05:04.160Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="大数据">
 <meta property="article:tag" content="实时计算">
@@ -256,7 +256,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-12 21:57:28" itemprop="dateModified" datetime="2026-09-12T21:57:28+08:00">2026-09-12</time>
+      <time title="修改时间：2026-09-13 00:05:04" itemprop="dateModified" datetime="2026-09-13T00:05:04+08:00">2026-09-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -2574,9 +2574,6 @@
 <li><a target="_blank" rel="noopener" href="https://spark.apache.org/docs/latest/rdd-programming-guide">Apache Spark RDD Programming Guide</a></li>
 <li><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+WindowingAndAnalytics">Apache Hive Windowing and Analytics Functions</a></li>
 </ul>
-<blockquote>
-<p>本轮更新：2026-09-08（Home）——根据用户提供的书签资料，优先补充大数据全栈的基础存储、执行、同步和 SQL 链路；书签文章只作线索，正文为重新组织后的总结。</p>
-</blockquote>
 <h2 id="0x0B-数仓基础：质量、血缘与增量模型"><a href="#0x0B-数仓基础：质量、血缘与增量模型" class="headerlink" title="0x0B 数仓基础：质量、血缘与增量模型"></a>0x0B 数仓基础：质量、血缘与增量模型</h2><h3 id="0x0B-01-全量表、增量表、流水表、快照表和拉链表分别解决什么问题？"><a href="#0x0B-01-全量表、增量表、流水表、快照表和拉链表分别解决什么问题？" class="headerlink" title="0x0B-01. 全量表、增量表、流水表、快照表和拉链表分别解决什么问题？"></a>0x0B-01. 全量表、增量表、流水表、快照表和拉链表分别解决什么问题？</h3><p><strong>标准答案</strong>：全量表保存某个时点的完整状态，增量表只保存期间发生的变化，流水表记录每次业务事件，快照表周期性保存状态，拉链表通过生效时间和失效时间保留维度历史。选择取决于下游是要当前状态、变化事件还是历史追溯。</p>
 <p><strong>深入思考</strong>：模型设计要先明确幂等键、分区粒度、迟到数据和重跑方式。拉链表不是万能的历史表，频繁更新会带来关闭旧记录、插入新记录和并发重跑问题；流水表也不能直接当当前状态使用，通常需要按业务主键取最新有效记录。</p>
 <h3 id="0x0B-02-数据质量校验应该放在哪些层？"><a href="#0x0B-02-数据质量校验应该放在哪些层？" class="headerlink" title="0x0B-02. 数据质量校验应该放在哪些层？"></a>0x0B-02. 数据质量校验应该放在哪些层？</h3><p><strong>标准答案</strong>：采集层校验格式、必填和基本类型；明细层校验主键、去重、范围和关联完整性；汇总层校验指标口径、分区数据量和上下游对账；发布层校验延迟、缺失分区和业务验收。失败数据要隔离、可追踪、可重放，不能只在日志里打印错误。</p>
@@ -2584,6 +2581,9 @@
 <h3 id="0x0B-03-数据血缘为什么不能只靠-SQL-文本解析？"><a href="#0x0B-03-数据血缘为什么不能只靠-SQL-文本解析？" class="headerlink" title="0x0B-03. 数据血缘为什么不能只靠 SQL 文本解析？"></a>0x0B-03. 数据血缘为什么不能只靠 SQL 文本解析？</h3><p><strong>标准答案</strong>：SQL 文本只能提供部分表和字段关系，无法完整表达动态分区、UDF、脚本参数、外部 API、消息主题、任务依赖和运行时数据范围。血缘系统应结合任务编排、解析结果、运行事件和元数据，区分设计血缘、执行血缘和业务指标血缘。</p>
 <p><strong>深入思考</strong>：血缘的价值在于影响分析和故障定位，而不是画图。字段改名、临时表、失败重试和回填任务都可能产生“看起来存在、实际上未生效”的关系；发布前应能回答某字段变更会影响哪些任务、指标、报表和下游消费者。</p>
 <p><strong>书签与参考</strong>：<a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/117433.html?spm=a2c4g.11186623.2.15.50926a11dnfmZh">数仓分层指南</a> | <a target="_blank" rel="noopener" href="https://github.com/OpenLineage/OpenLineage">OpenLineage</a> | <a target="_blank" rel="noopener" href="https://www.cnblogs.com/hsydj/p/6253156.html">有赞数据平台实践</a></p>
+<blockquote>
+<p>本轮更新：2026-09-08（Home）——根据用户提供的书签资料，优先补充大数据全栈的基础存储、执行、同步和 SQL 链路；书签文章只作线索，正文为重新组织后的总结。</p>
+</blockquote>
 
     </div>
 
@@ -2606,13 +2606,13 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2026/06/13/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="后端面试题：消息队列面试全解">
-                  <i class="fa fa-angle-left"></i> 后端面试题：消息队列面试全解
+                <a href="/2026/06/13/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8EOLAP-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="prev" title="数据库面试题：分布式数据库与 OLAP 面试全解">
+                  <i class="fa fa-angle-left"></i> 数据库面试题：分布式数据库与 OLAP 面试全解
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2026/06/13/AI%E9%9D%A2%E8%AF%95%E9%A2%98-Agent%E5%BC%80%E5%8F%91%E4%B8%8E%E5%89%8D%E6%B2%BF%E6%A8%A1%E5%9E%8B-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="AI 面试题：Agent 开发与前沿模型面试全解">
-                  AI 面试题：Agent 开发与前沿模型面试全解 <i class="fa fa-angle-right"></i>
+                <a href="/2026/06/13/%E5%90%8E%E7%AB%AF%E9%9D%A2%E8%AF%95%E9%A2%98-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97-%E9%9D%A2%E8%AF%95%E5%85%A8%E8%A7%A3/" rel="next" title="后端面试题：消息队列面试全解">
+                  后端面试题：消息队列面试全解 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
