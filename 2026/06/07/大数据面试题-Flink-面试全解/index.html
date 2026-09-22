@@ -29,7 +29,7 @@
 <meta property="og:description" content="Flink 高级面试全解，覆盖 Checkpoint 与状态后端、Window 窗口机制、反压原理、Exactly-Once 语义和水位线。面向高级研发。  0x00 Checkpoint 与状态0x00-01. Flink Checkpoint 的 Chandy-Lamport 算法原理？Flink 的 Checkpoint 基于 Chandy-Lamport 分布式快照 的变种（异步屏障快照">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-07T08:30:00.000Z">
-<meta property="article:modified_time" content="2026-09-10T15:44:31.011Z">
+<meta property="article:modified_time" content="2026-09-22T11:48:38.842Z">
 <meta property="article:author" content="xiaoxin1024">
 <meta property="article:tag" content="Checkpoint">
 <meta property="article:tag" content="Flink">
@@ -254,7 +254,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-09-10 23:44:31" itemprop="dateModified" datetime="2026-09-10T23:44:31+08:00">2026-09-10</time>
+      <time title="修改时间：2026-09-22 19:48:38" itemprop="dateModified" datetime="2026-09-22T19:48:38+08:00">2026-09-22</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -2430,7 +2430,6 @@
 <li><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/">Flink Kubernetes Operator</a></li>
 </ul>
 <hr>
-<hr>
 <ul>
 <li><p><strong>生产经验</strong>：最大的坑是 <strong>DataSet API 用户</strong>。如果你的批作业用 DataSet API 写的，升级相当于重写。建议先评估是否可以用 Flink SQL 替代——大多数 ETL 场景 SQL 就够。实在需要 DataStream，Flink 社区提供了 DataStream Batch 模式（<code>BATCH</code> execution mode），但部分算子语义可能与 DataSet 不同（如 GroupBy + Sum 的触发机制）。</p>
 </li>
@@ -3310,7 +3309,6 @@
 </blockquote>
 <p><strong>参考</strong>：<a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-release-2.0/docs/dev/table/sql/queries/model-inference/">Flink 2.0 Model Inference 文档</a> | <a target="_blank" rel="noopener" href="https://flink.apache.org/2025/08/01/flink-ai/">Flink + AI 最佳实践</a></p>
 <hr>
-<hr>
 <h3 id="0x0C-12-Flink-2-3-0-SQL-Changelog-Conversion：FROM-CHANGELOG-实现精确一次-CDC-管道"><a href="#0x0C-12-Flink-2-3-0-SQL-Changelog-Conversion：FROM-CHANGELOG-实现精确一次-CDC-管道" class="headerlink" title="0x0C-12. Flink 2.3.0 SQL Changelog Conversion：FROM_CHANGELOG 实现精确一次 CDC 管道"></a>0x0C-12. Flink 2.3.0 SQL Changelog Conversion：FROM_CHANGELOG 实现精确一次 CDC 管道</h3><p><strong>难度</strong>：⭐⭐⭐⭐（专家）<br><strong>问题</strong>：Apache Flink 2.3.0 引入了 FROM_CHANGELOG 和 TO_CHANGELOG 两个新内置 Process Table Function（PTF）。它们解决了什么关键痛点？与传统 Debezium&#x2F;Canal CDC 方案相比有何优势？</p>
 <p><strong>核心原理</strong>：</p>
 <ul>
@@ -3554,9 +3552,6 @@
 <li><strong>边界情况</strong>：不同 FS 插件的临时文件格式与提交协议不兼容，切换后无法从旧实现的 checkpoint 恢复，也不能随意回滚</li>
 <li><strong>生产经验</strong>：高吞吐写入要按 TM vCore 调大上传并发与分段大小，默认参数面向通用负载；切换必须先做 savepoint 并换新路径</li>
 </ul>
-<blockquote>
-<p>本文将持续更新。本次更新：2026-07-03 — 新增 Flink 2.3.0 Native S3 FileSystem 深度解析：架构设计 + 性能基准 + 生产迁移指南（Work Hermes）。</p>
-</blockquote>
 <h2 id="0x0D-Flink-时间与状态生命周期"><a href="#0x0D-Flink-时间与状态生命周期" class="headerlink" title="0x0D Flink 时间与状态生命周期"></a>0x0D Flink 时间与状态生命周期</h2><h3 id="0x0D-01-watermark-alignment-解决什么问题？"><a href="#0x0D-01-watermark-alignment-解决什么问题？" class="headerlink" title="0x0D-01. watermark alignment 解决什么问题？"></a>0x0D-01. watermark alignment 解决什么问题？</h3><p><strong>标准答案</strong>：当同一 source 的不同输入分片水位推进速度差异过大时，对快分片进行节流，使其水位不超过组内最小水位允许的最大漂移，避免下游为慢分片积压过多状态。<br><strong>深入思考</strong>：它用吞吐换状态上界；应按分片延迟分布设置漂移与更新间隔，并区分空闲分片，否则错误节流或水位停滞会放大延迟。<a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/event-time/generating_watermarks/">官方参考</a></p>
 <h3 id="0x0D-02-savepoint-为什么需要显式生命周期管理？"><a href="#0x0D-02-savepoint-为什么需要显式生命周期管理？" class="headerlink" title="0x0D-02. savepoint 为什么需要显式生命周期管理？"></a>0x0D-02. savepoint 为什么需要显式生命周期管理？</h3><p><strong>标准答案</strong>：savepoint 是用户触发、用户拥有的状态快照，用于升级、迁移或恢复；Flink 不会像 checkpoint 那样自动清理，废弃后应通过 dispose 删除其元数据与状态文件。<br><strong>深入思考</strong>：删除前须确认没有回滚、审计或灾备依赖；移动文件可能破坏元数据中的路径，发布流程应记录作业版本与 savepoint 对应关系。<a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/savepoints/">官方参考</a></p>
 <h3 id="0x0D-03-checkpoint-并发与-subsumption-如何相互影响？"><a href="#0x0D-03-checkpoint-并发与-subsumption-如何相互影响？" class="headerlink" title="0x0D-03. checkpoint 并发与 subsumption 如何相互影响？"></a>0x0D-03. checkpoint 并发与 subsumption 如何相互影响？</h3><p><strong>标准答案</strong>：最大并发 checkpoint 数限制同时进行的快照；较新的 checkpoint 完成后，可使更早且仍未完成的 checkpoint 被 subsume，从而释放无效工作。<br><strong>深入思考</strong>：提高并发可减少慢快照阻塞，但增加存储与网络压力；应结合最小间隔、超时、unaligned checkpoint 和外部化保留策略压测。<a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/checkpointing/">官方参考</a></p>
@@ -3690,6 +3685,10 @@
 <p><em>（案例来源为社区分享与工程常见模式，细节可能有所改编，仅供排障思路参考。）</em></p>
 <p><strong>参考来源</strong>：<a target="_blank" rel="noopener" href="https://flink.apache.org/2026/06/25/apache-flink-2.3.0-release-announcement">Apache Flink 2.3.0 Release Announcement</a></p>
 <p><strong>搜索来源</strong>：Tavily（深度抓取官方页面）+ Bing（交叉验证）<br><strong>搜索时间</strong>：2026-09-10<br><strong>来源说明</strong>：本节事实取自官方发布公告，链接已验证可访问</p>
+<hr>
+<blockquote>
+<p>本文将持续更新。本次更新：2026-07-03 — 新增 Flink 2.3.0 Native S3 FileSystem 深度解析：架构设计 + 性能基准 + 生产迁移指南（Work Hermes）。</p>
+</blockquote>
 
     </div>
 
